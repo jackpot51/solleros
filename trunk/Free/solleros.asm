@@ -15,15 +15,29 @@ pass:	call getkey
 	je bck4
 	mov [si], al
 	mov al, '*'
-        mov bx,7		; write to display
-	mov ah,0Eh		; screen function
+        mov bx,7	
+	mov ah,0Eh		
 	int 10h
 	inc si
 	inc cx
 	cmp cx, 500
 	jae fullpass
 	jmp pass
-bck4:	call bckspc
+bck4:	cmp si, buftxt
+	jbe pass
+	dec si
+	mov al, 8
+	mov bx, 7
+	mov ah, 0Eh
+	int 10h
+	mov al, ' '
+	mov bx, 7
+	mov ah, 0Eh
+	int 10h
+	mov al, 8
+	mov bx, 7
+	mov ah, 0Eh
+	int 10h
 	jmp pass
 pwdrgt:	call clear
 	mov cx, 500
