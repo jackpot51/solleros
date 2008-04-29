@@ -17,5 +17,3 @@ Future Features may include:
   * Sound
   * Games
   * And more
-
-[http://code.google.com/p/solleros/wiki/solleros/ http://code.googlecode.com/p/solleros/wiki/sollerosboot.jpg]
