@@ -1,0 +1,3 @@
+#summary One-sentence summary of this page.
+
+Jeremy Soller is a 16 year old computer programmer from Broomfield, Colorado, who is actively developing SollerOS, what is to be a new Unix-like OS. This Operating System needs all the help it can get, so if you are skilled in programming in assembly, especially if you can program in protected mode, send an email to jackpot51@gmail.com and request project membership.
