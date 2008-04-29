@@ -105,7 +105,6 @@ pminput:
 	jnz short NOKEY
 	in al, 60h
 	dec al
-	sub al, 24
 	jz NOKEY
 	mov [pmchar], al
 	mov si, pmchar
@@ -113,6 +112,6 @@ pminput:
 NOKEY:
 	jmp pminput
 
-pmchar db 0,0
+pmchar db 0,0,0
 
 	pmodemsg	db "Welcome to protected mode, where nothing happens!",13,10,"Hello ","World",0
