@@ -1,19 +1,19 @@
 SollerOS is a mediocre operating system designed to have a very low overhead and to run on almost any x86 system. Its features inclued:
--Batches/editor
--Documents/editor
--Math
--Variables
--3rd party apps(see etch-a-sketch and mouse)
--VGA mode
--Loops and if-else commands
--Y más
+  *Batches/editor
+  *Documents/editor
+  *Math
+  *Variables
+  *3rd party apps(see etch-a-sketch and mouse)
+  *VGA mode
+  *Loops and if-else commands
+  *Y más
 
 Future Features may include:
--Multiple batches and documents
--Better variables(current variable system causes horrible fragmentation of memory)
--Protected mode
--Multitasking in protected mode
--Graphics
--Sound
--Games
--And more
+  *Multiple batches and documents
+  *Better variables(current variable system causes horrible fragmentation of memory)
+  *Protected mode
+  *Multitasking in protected mode
+  *Graphics
+  *Sound
+  *Games
+  *And more
