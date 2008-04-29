@@ -18,4 +18,4 @@ Future Features may include:
   * Games
   * And more
 
-http://solleros.googlecode.com/svn/wiki/sollerosboot.jpg
+http://code.googlecode.com/p/solleros/wiki/sollerosboot.jpg
