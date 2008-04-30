@@ -13,14 +13,14 @@
 	fullmsg	db	13,10,"Buffer Full",7,0
 	pwdask	db	"Enter Password:",0
 	pwd	db	"password",0
-	cmd	db	"[user@SollerOS-v0.7.8$]",0
+	cmd	db	"[user@SollerOS-v0.8.2$]",0
 	dosmode db "Horrible DOS Compatability enabled.",13,10,0
 	line	db	13,10,0
 	blankmsg db 0
 	zeromsg db "0"
-	unamemsg db	"SollerOS-v0.7.8 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
+	unamemsg db	"SollerOS-v0.8.2 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
 	helpmsg db	"This operating system is way too simple to warrant the creation of a help file.",10,13,0
-    msg:       db "SollerOS Alpha version 0.7.8 - compiled by Jeremy Soller.",13,10,"This is the seventh version, with MATH, VARIABLES,",10,13,"and BATCHES with NESTED IF COMMANDS, ELSE COMMANDS, AND LOOPS!!!!",13,10,0
+    msg:       db "SollerOS Alpha version 0.8.2 - compiled by Jeremy Soller.",13,10,"This is the eighth version, with MATH, VARIABLES,",10,13,"and BATCHES with NESTED IF COMMANDS, ELSE COMMANDS, AND LOOPS!!!!",13,10,0
     menumsg:   db 13,10,"What do you want to do?",13,10,"Hang(h)",13,10,"Boot(b)",13,10,"Cold Reboot(c)",13,10,"Warm Reboot(w)",13,10,"Shutdown(s)",13,10,0
     bootmsg:   db "Booting...",13,10,"If there was something to boot...",0
     rebootmsg: db "Rebooting...",0
