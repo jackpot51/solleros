@@ -1,4 +1,4 @@
-    ; PROG.ASM
+    ; MENU.ASM
 [BITS 16]
 prog:
 [ORG 0]
@@ -6,6 +6,9 @@ prog:
 	    mov ds, ax
 	    mov es, ax
 	    mov [DriveNumber], cl
+		mov ax, 0B800h
+		mov gs, ax
+	    call ints
 	    call clear
             call welcome
 	    jmp menu

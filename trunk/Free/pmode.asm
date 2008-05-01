@@ -20,7 +20,7 @@ pmode:
 	mov gs, ax
 	mov byte [gs:0], '1'
         ; set A20 line
-        cli                     ; no more interuptions! :)
+	cli		;no more ints
         xor cx, cx
 clear_buf:
         in al, 64h              ; get input from keyboard status port
@@ -59,59 +59,19 @@ wait_kbc:                       ; this is approx. a 25uS delay to wait
 	add bx, 2
 	mov ax, 0
 	mov si, pmodemsg
-	mov byte [linenum], 12
-	mov byte [charnum], 12
-	mov byte [attrib] , 7
-	call pmodeprint
-	jmp pminput
+	mov dh, 1
+	mov dl, 0
+	mov bl, 7
+	call int30hah1
 	jmp pm
-pmodeprint: mov  byte ah, [si]
-	cmp ah, 0
-	je pmprnt
-	cmp ah, 10
-	je newlineprnt
-	cmp ah, 13
-	je carriagereturn
-	mov bh, 0
-	mov bl, [charnum]
-	mov cl, [linenum]
-lnprntnm: add bx, 160
-	loop lnprntnm
-	mov  byte [gs:bx], ah
-	inc bx
-	mov ah, [attrib]
-	mov byte [gs:bx], ah
-	add byte [charnum],2
-	add si, 1
-	jmp pmodeprint
-carriagereturn:
-	mov byte [charnum], 0
-	inc si
-	jmp pmodeprint
-newlineprnt:
-	add byte [linenum], 1
-	inc si
-	jmp pmodeprint
-pmprnt:	
-	ret
+
 pm:
+	mov si, pmodechar
+	mov al, 0
+	mov bl, 7
+	call int30hah4
 	jmp pm
 
-pminput:
-	in al, 64h ; Status
-	test al, 1 ; output buffer full?
-	jz short NOKEY
-	test al, 20h ; PS2-Mouse?
-	jnz short NOKEY
-	in al, 60h
-	dec al
-	jz NOKEY
-	mov [pmchar], al
-	mov si, pmchar
-	call pmodeprint
-NOKEY:
-	jmp pminput
 
-pmchar db 0,0,0
-
-	pmodemsg	db "Welcome to protected mode, where nothing happens!",13,10,"Hello ","World",0
+	pmodechar db 0,0
+	pmodemsg	db "[root@SollerOS-0.8.2]",0
