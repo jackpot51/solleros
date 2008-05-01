@@ -1,0 +1,1 @@
+Simply edit the bash/batch script to point to your SVN checkout directory and run it to build an image.
