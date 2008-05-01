@@ -118,7 +118,8 @@ int30hah1:	;write string in si to screen, endchar in al
 	dlcheck:
 		cmp dh, 0
 		jbe near intprint
-		dec dh
+		sub dh, 1
+		mov dl, 160
 		jmp bckprnt
 
 	dhcheck: cmp dh, [startdh]
