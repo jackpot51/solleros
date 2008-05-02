@@ -25,7 +25,7 @@ dispmouse: mov   di, 0A000h
          mov   byte [es:di], 15
 
          mov   ah, 00h
-         int   16h
+    	call int30hah5
 
 ;	cmp BYTE [MOUSEON], 1
 ;	je retmouse

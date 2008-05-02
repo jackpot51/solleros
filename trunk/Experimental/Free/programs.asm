@@ -1,9 +1,5 @@
-progstart:		;programs start here
-
-	db 5,4,"mouse",0
-	jmp mouse
-	jmp nwcmd
-
+vga db 0
+realmodeprogs:
 	db 5,4,"vga",0
 	mov BYTE [vga], 1
 	mov ax, 12h
@@ -14,6 +10,36 @@ progstart:		;programs start here
 cga:	mov BYTE [vga], 0
 	mov ax, 3h
 	int 10h
+	jmp nwcmd
+
+	;db 5,4,"time",0
+time:	call clearbuffer
+	mov ah, 2
+	int 1Ah
+	mov cl, ch
+	mov ch, 0
+	mov si, numbuf
+	call convert	
+	mov si, buf2
+	call chkadd
+	mov si, line
+	call print
+	call clearbuffer
+	mov ah, 2
+	int 1Ah
+	mov ch, 0
+	mov si, numbuf
+	call convert	
+	mov si, buf2
+	call chkadd
+	mov si, line
+	call print
+	jmp nwcmd
+
+progstart:		;programs start here
+
+	db 5,4,"mouse",0
+	jmp mouse
 	jmp nwcmd
 
 	db 5,4,"dir",0
@@ -483,30 +509,6 @@ wordlp2: mov al, [di]
 	jae doneword
 	jmp wordlp
 doneword: jmp nwcmd
-
-	;db 5,4,"time",0
-time:	call clearbuffer
-	mov ah, 2
-	int 1Ah
-	mov cl, ch
-	mov ch, 0
-	mov si, numbuf
-	call convert	
-	mov si, buf2
-	call chkadd
-	mov si, line
-	call print
-	call clearbuffer
-	mov ah, 2
-	int 1Ah
-	mov ch, 0
-	mov si, numbuf
-	call convert	
-	mov si, buf2
-	call chkadd
-	mov si, line
-	call print
-	jmp nwcmd
 
 	db 5,4,"#",0
 num:	call clearbuffer

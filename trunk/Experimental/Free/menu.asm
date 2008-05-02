@@ -4,6 +4,8 @@ prog:
 [ORG 0]
 	    mov ax, cs
 	    mov ds, ax
+	    push ds
+	    mov ds, ax
 	    mov es, ax
 	    mov [DriveNumber], cl
 		mov ax, 0B800h
@@ -39,10 +41,8 @@ DriveNumber db 0
 	charcache db 0,0
 
     getkey:
-            mov ah, 0               ; wait for key
-	    mov si, charcache
-            call int30hah2
-	    mov al, [charcache]
+            mov al, 0               ; wait for key
+	    call int30hah5
             ret
 
     menu:
@@ -140,58 +140,8 @@ coldboot:
 	    ret
 	
 	clear:
-	cmp BYTE [vga], 1
-	je NEAR clearvga
 	call int30hah3
-	ret	
-
-    clearvga:
-	push    ax      ; store registers... 
-        push    ds       
-        push    bx       
-        push    cx 
-	push	di         
-
-        mov     ax, 40h
-        mov     ds, ax 
-        mov     ah, 06h
-        mov     al, 0
-	mov	bx, 7
-        mov     ch, 0
-        mov     cl, 0
-        mov     di, 84h
-        mov     dh, [di]
-        mov     di, 4Ah
-        mov     dl, [di]
-        dec     dl     
-        int     10h  
- 
-        pop     di      
-        pop     cx       
-        pop     bx       
-        pop     ds       
-        pop     ax  
-
-    
-        ; set cursor position to top 
-        ; of the screen: 
-    cursor:  
-	push    ax      ; store registers... 
-        push    ds       
-        push    bx       
-        push    cx 
-	push	di
-        mov     bh, 0   
-        mov     dl, 0    
-        mov     dh, 0   
-        mov     ah, 02
-        int     10h
-        pop     di      
-        pop     cx       
-        pop     bx       
-        pop     ds       
-        pop     ax  
-        ret
+	ret
 
     countdown:
     	    mov al, '5'
@@ -218,9 +168,14 @@ coldboot:
 	    call char
             ret
 
-    delay:  mov cx, 0FFFFh
+    delay:  mov cx, 0100h
+	delay1:
+		push cx
+		mov cx, 0FFFFh
 	delay2:
             loop delay2
+		pop cx
+		loop delay1
  	    ret
 
     print:			; 'si' comes in with string address

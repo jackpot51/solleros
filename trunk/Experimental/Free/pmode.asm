@@ -13,7 +13,6 @@
 	attrib:		db 7
 
 pmode:
-	call clear
 	mov ax, 3h
 	int 10h
 	mov ax, 0B800h
@@ -69,5 +68,4 @@ pm:
 	ret
 
 
-	pmodechar db 0,0
 	pmodemsg	db "[root@SollerOS-0.8.2]",0

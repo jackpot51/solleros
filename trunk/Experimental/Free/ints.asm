@@ -22,6 +22,12 @@ int30h:
 	je near int30hah2
 	cmp ah, 3
 	je near int30hah3
+	cmp ah, 4
+	je near int30hah4
+	cmp ah, 5
+	je near int30hah5
+	cmp ah, 6
+	je near int30hah6
 	ret
 
 int30hah0:	;shutdown application
@@ -53,21 +59,28 @@ int30hah1:	;write string in si to screen, endchar in al
 		mov bl, dl
 		mov cl, dh
 		mov ch, 0
+		call intlnprntnm
+		jmp intprint
 
 	intlnprntnm: 
 		add bx, 160
 		loop intlnprntnm
 		cmp ah, 8
 		je near backspaceprint
+		call writecursor
 		mov  byte [gs:bx], ah
 		inc bx
 		mov byte [gs:bx], al
+		inc bx
+		mov byte [gs:bx], ' '
+		inc bx
+		mov byte [gs:bx], 7
+		inc bx
 		add dl,2
-		call writecursor
 		add si, 1
 		cmp dl, 160
 		jae nextlineint
-		jmp intprint
+		ret
 	
 		endchar db 0
 		startdl db 0
@@ -77,67 +90,47 @@ int30hah1:	;write string in si to screen, endchar in al
 
 	writecursor:
 		mov cx, ax
-		mov [dxcache], dx
+		mov [loccache], bx
 		mov ax, 0
-	clmfnd:	cmp dl, 0
-		je rowfnd
-		sub dl, 2
+	writecursorloop:
+		cmp bx, 0
+		jbe writecursordn
+		sub bx, 2
 		inc ax
-		jmp clmfnd
-	rowfnd: cmp dh, 0
-		je crsbck
-		sub dh, 1
-		add ax, 80
-		jmp rowfnd
-	crsbck: mov [loccache], ax
+		jmp writecursorloop
+	writecursordn:
+		mov [dxcache], dx
+		add al, 1
+		mov bx, ax
 		mov dx, 03d4h
-		mov al, 0fh
+		mov al, 0Fh
+		mov ah, 0Eh
 		out dx, al
 		mov dx, 03d5h
-		mov ax, [loccache]
+		mov al, bl
 		out dx, al
 		mov dx, 03d4h
-		mov al, 0eh
-		out dx, al
-		mov dx, 03d5h
 		mov al, ah
 		out dx, al
+		mov dx, 03d5h
+		mov al, bh
+		out dx, al
 		mov ax, cx
+		mov bx, [loccache]
 		mov dx, [dxcache]
 		ret
 
 	cursorzero:
+		mov cx, ax
+		mov bx, 0
 		mov ax, 0
-		jmp crsbck
+		mov [loccache], bx
+		jmp writecursordn
+		
 
 	nextlineint:
 		inc dh
 		mov dl, 0
-		jmp intprint
-	
-	dlcheck:
-		cmp dh, 0
-		jbe near intprint
-		sub dh, 1
-		mov dl, 160
-		jmp bckprnt
-
-	dhcheck: cmp dh, [startdh]
-		jbe intprint
-		cmp dl, 0
-		jbe dlcheck
-		jmp bckprnt
-
-	backspaceprint:
-		inc si
-		cmp dl, [startdl]
-		jbe dhcheck
-	bckprnt: sub dl, 2
-		call writecursor
-		sub bx, 2
-		mov byte [gs:bx], ' '
-		inc bx
-		mov byte [gs:bx], al
 		jmp intprint
 
 	intcarriagereturn:
@@ -157,7 +150,7 @@ int30hah1:	;write string in si to screen, endchar in al
 		mov ah, 1
 		ret
 
-int30hah2:	;read string to si, endkey in al
+int30hah2:	;read string to si, endkey in al, max in cx
 		;if endkey is 0, only one char is read
 		mov bl, al
 		call startin
@@ -167,6 +160,7 @@ int30hah2:	;read string to si, endkey in al
 		cmp bl, 0
 		je near doneintin
 		call startin
+		loop intinput
 	startin:
 		in al, 64h ; Status
 		test al, 1 ; output buffer full?
@@ -196,6 +190,8 @@ int30hah2:	;read string to si, endkey in al
 		sub di, 2
 		mov al,[di]
 		mov [si], al
+		cmp byte [trans], 1
+		je near intNOKEY
 		inc si
 		ret
 	uppercasescan:
@@ -206,29 +202,78 @@ int30hah2:	;read string to si, endkey in al
 		ret
 		
 	intcheckkey:	;i actually mean down when i say up
+		cmp byte [trans], 1
+		je near intNOKEY
 		cmp al, 1Ch
-		je entup
+		je near entup
+		cmp al, 0Eh
+		je near backspace
 		cmp al, 2Ah
-		je lshiftup
+		je near lshiftup
 		cmp al, 36h
-		je rshiftup
+		je near rshiftup
 		cmp al, 0AAh
-		je lshiftdown
+		je near lshiftdown
 		cmp al, 0B6h
-		je rshiftdown
+		je near rshiftdown
 		cmp al, 3Ah
-		je capslock
+		je near capslock
 		jmp startin
 
+	dlcheck:
+		cmp dh, 0
+		jbe near intprint
+		sub dh, 1
+		mov dl, 160
+		jmp bckprnt
+
+	dhcheck: cmp dh, [startdh]
+		jbe intprint
+		cmp dl, 0
+		jbe dlcheck
+		jmp bckprnt
+
+	bxcache db 0,0
+	cxcache db 0,0
+
+	backspace:
+		mov [bxcache], bx
+		mov [cxcache], cx
+		mov cl, dh
+		mov bh, 0
+		mov ch, 0
+		mov bl, dl
+	bcklp:  add bx, 160
+		loop bcklp
+		mov byte [si], 0
+		dec si
+		mov byte [si], 0
+		sub bx, 4
+		call backspaceprint
+		mov bx, [bxcache]
+		mov cx, [cxcache]
+		jmp startin
+
+	backspaceprint:
+		cmp dl, [startdl]
+		jbe dhcheck
+	bckprnt: call writecursor
+		add bx, 2
+		mov byte [gs:bx], ' '
+		inc bx
+		mov byte [gs:bx], 7
+		sub dl, 2
+		ret
+
 	entup:	
-		mov al, 13h
+		mov al, 13
 		cmp bl, al
 		je near doneintin
 		cmp bl, 0
 		je near doneintin
-		mov byte [si], 13h
+		mov byte [si], 13
 		inc si
-		mov byte [si], 10h
+		mov byte [si], 10
 		inc si
 		ret
 
@@ -252,8 +297,17 @@ int30hah2:	;read string to si, endkey in al
 	capslockon:
 		mov byte [caps], 1
 		jmp startin
+	trans db 0
 	intNOKEY:
-		jmp startin
+		cmp byte [si], 0
+		jne NOKEYCHECK
+		mov al, [si]
+		jmp NOKEYDONE
+	NOKEYCHECK:
+		mov al, 0
+	NOKEYDONE:
+		cmp byte [trans], 1
+		jne startin
 	doneintin:
 		mov ah, 2
 		ret
@@ -276,29 +330,69 @@ int30hah3:	;clear screen-pretty simple
 		inc bx
 		jmp clearint
 	doneclearint:
-		call writecursor
+		mov cx, ax
+		mov dx, 0
+		mov word [dxcache], 0
+		call cursorzero
 		mov bx, 0
 		mov ah, 3
 		ret
 
 int30hah4:	;print string and read input into si
 		;(dl,dh) and al apply
+
 		mov [alcache], al
-		call startin
-		mov al, [si]
-		mov [char2], al
-		mov al, [alcache]
-		cmp [char2], al
-		je doneint30hah4
-		push si
-		mov si, char2
+		mov [blcache], bl
+		mov [sicache], si
+		mov [startdl], dl
+		mov [startdh], dh
+	int30hah4lp:	mov si, [sicache]
 		mov al, 0
-		call int30hah1
-		pop si
-doneint30hah4
+		mov bl, 0
+		call int30hah2
+		mov [sicache], si
+		cmp al, [alcache]
+		je doneint30hah4
+		dec si
+		mov al, [si]
+		mov [pmodechar], al
+		mov si, pmodechar
+		mov al, [blcache]
+		mov bx, 0
+		call intprint
+		mov al, [alcache]
+		mov bl, [blcache]
+		jmp int30hah4lp
+	doneint30hah4:
 		ret
+	sicache	db 0,0
 	alcache db 0
-	char2	db 0,0
+	blcache db 0
+	pmodechar db 0,0
+
+int30hah5:	;get char transparent
+		;puts char in al
+		;waits if al is zero
+	mov bl, 0
+	mov si, charcache
+	mov byte [trans], 1
+	cmp al, 0
+	jne int30hah5st
+	mov byte [trans], 0
+int30hah5st: call startin
+	mov byte [trans], 0
+	mov al, [charcache]
+	ret
+
+int30hah6:	;print char
+		;same rules as int30hah1, except that char is in al
+	mov si, charcache
+	mov [charcache], al
+	mov al, 0
+	call int30hah1
+	mov ah, 6
+	mov al, [charcache]
+	ret
 
 scancode:
 	db '1','!',2h
@@ -313,7 +407,6 @@ scancode:
 	db '0',')',0Bh
 	db '-','_',0Ch
 	db '=','+',0Dh
-	db 8,8,0Eh
 	db 'q','Q',10h
 	db 'w','W',11h
 	db 'e','E',12h
@@ -349,4 +442,5 @@ scancode:
 	db ',','<',33h
 	db '.','>',34h
 	db '/','?',35h
+	db ' ',' ',39h
 noscan:

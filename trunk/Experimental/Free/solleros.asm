@@ -7,7 +7,8 @@ os:
 
 passcheck:
 	mov si, buftxt
-	mov al, 13h
+	mov al, 13
+	mov bl, 7
 	call int30hah4
 	jmp passenter
 pwdrgt:	call clear
@@ -59,9 +60,11 @@ full:	mov si, fullmsg
 	mov si, line
 	call print
 	jmp nwcmd
+
+
 nwcmd:	mov al, 1
 	cmp [BATCHISON], al
-	je batchreturn
+	je near batchran
 cancel:	mov al, 0
 	mov [IFON], al
 	mov [BATCHISON], al
@@ -69,151 +72,18 @@ cancel:	mov al, 0
 	call print
 	call buftxtclear
 	mov si, buftxt
-	mov di, si
-	mov cx, 1
-cmdln:	call getkey
-	cmp al,13
-	je run2
-        cmp   ah, 4Bh
-	je lft
-        cmp   ah, 4Dh
-	je recall
-gotcmd:	cmp al,8
-	je bck2
-	mov bx, buf2
-	cmp al, 0
-	je cmdln
-	call insert
-	call updateline
-	inc si
-	inc cx
-	cmp cx, 500
-	jae full
-	jmp cmdln
-batchreturn: jmp batchran
-bck2:	call bckspc
-	call updateline
-	jmp cmdln
-run2:	jmp run
-lft:	cmp si, buftxt
-	jbe cmdln
-	mov al, 8
-	call char
-	dec si
-	jmp cmdln
-lft2:	cmp si, buftxt
-	jbe stdin
-		mov al, 8
-	call char
-	dec si
-	jmp std2
-recall:	mov al, [si]
-	cmp al, 0
-	je cmdln
-	inc si
-	call char
-	jmp cmdln
-recall2: mov al, [si]
-	cmp al, 0
-	je std2
-	inc si
-	call char
-	jmp stdin
+	mov al, 13
+	mov bl, 7
+	call int30hah4
+gotcmd:	mov bx, buf2
+	mov si, buftxt
+	jmp run
+
 input:	call buftxtclear
 	mov si, buftxt		;puts input into buftxt AND onto screen
-	mov cx, 1
-stdin:	mov di, si
-std2:	call getkey
-	cmp al, 13
-	je itsin
-	cmp al, 8
-	je bck3
-	cmp al, 3
-	je NEAR cancel
-        cmp   ah, 4Bh
-	je lft2
-        cmp   ah, 4Dh
-	je recall2
-	cmp al, 0
-	je std2
-	mov bx, buf2
-	call insert
-	call updateline
-	inc si
-	inc cx
-	cmp cx, 500
-	jae full
-	jmp std2
-bck3:	call bckspc
-	call updateline
-	jmp std2
-itsin:	ret
-
-doneupd: mov byte [BACKSPACE], 0
-	ret
-updateline: 		;start in di, current in si
-	cmp byte [BACKSPACE], 3
-	je doneupd
-	mov dx, si
-updtlp: cmp si, di
-	je updtst
-	dec si
-		mov al, 8
-	call char
-jmp updtlp
-updbck: mov al, ' '
-	call char
-		mov al, 8
-	call char
-	cmp byte [BACKSPACE],2
-	je up2
-		mov al, 8
-	call char
-up2:	mov byte [BACKSPACE], 0
-	jmp updtlp2
-updtst: call print
-	cmp byte [BACKSPACE], 1
-	jae updbck
-	cmp si, dx
-	je doneupdate
-	dec si
-updtlp2: cmp si, dx
-	je doneupdate 
-	dec si
-		mov al, 8
-	call char
-jmp updtlp2
-doneupdate: ret
-BACKSPACE db 0
-bckspc: mov dx, si
-	dec si
-	cmp si, di
-	jb  bckto2
-	mov byte [BACKSPACE], 2
-		mov al, 8
-	call char
-	cmp si, di
-	jbe bcklp
-bcklp:  inc si
-	mov al, [si]
-	dec si
-	mov [si], al
-	cmp al, 0
-	je bcklp2
-	cmp si, buf2
-	ja bck
-	inc si
-	jmp bcklp
-bcklp2: mov al, 0
-	mov [si], al
-	jmp bck
-bck:	mov si, dx
-	dec si
-	dec si
-bckto:	inc si
-	ret
-bckto2: mov byte [BACKSPACE],3
-	inc si
+stdin:	mov al, 13
+	mov bl, 7
+	call int30hah4
 	ret
 
 run:	mov si, line
@@ -470,7 +340,14 @@ exp:	sub al, 48
 donecnvrt: mov ecx, edx
 	ret
 
+realmode:
+   and al,0xFE     ; back to realmode
+   mov  cr0, eax   ; by toggling bit again
+   sti
+   ret
+
 sector:
+	call realmode
     reset:                      ; Reset the floppy drive
             mov ax, 0           ;
             mov dl, [DriveNumber]           ; Drive=0 (=A)
@@ -490,11 +367,11 @@ sector:
             mov dl, [DriveNumber]           ; Drive=0
             int 13h             ; Read!
             jc read             ; ERROR => Try again
-	    call clear
-            jmp nwcmd      ; Jump to the program
+	    call pmode
+		jmp nwcmd
 
 writesect:
-
+	 call realmode
     reset3:                      ; Reset the floppy drive
             mov ax, 0           ;
             mov dl, [DriveNumber]           ; Drive=0 (=A)
@@ -516,36 +393,8 @@ writesect:
             int 13h             ; Read!
 
             jc read3             ; ERROR => Try again
-
+	call pmode
             jmp nwcmd      ; Jump to the program
-	
-
-charnochange: 
-	push bx
-	push cx
-            mov ah, 9
-            mov bx, 7
-            mov cx, 1
-            int 10h
-	pop bx
-	pop cx
-        ret	
-
-
-insert: cmp al, 0
-	je doneinsertnochng
-	mov dx, di	;insert text without replacing anything
-	mov di, bx
-instlp:	dec bx		;si contains startpoint, bx contains endpoint, al contains letter/byte
-	cmp di, si
-	jbe doneinsert
-	mov ah, [bx]
-	mov [di], ah	;uses 8 bit letters
-	dec di
-	jmp instlp
-doneinsert: mov [di], al
-	mov di, dx
-doneinsertnochng:	ret
 
 	
 
@@ -555,5 +404,3 @@ IFTRUE times 100 db 0
 BATCHPOS db 0,0
 LOOPON db 0
 LOOPPOS	db 0,0
-controlc db 1Dh,'c'
-vga db 0

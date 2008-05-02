@@ -301,9 +301,7 @@ MAINP:
 ;=============================
 ;**stop program on keypress**	|Note: sometimes it takes a while for the program stops, or keyboard stalls|
 ;=============================  |due to more time is spend looking at the PS/2 mouse port (keyb disabled)  |
-    xor  ax, ax
-    mov  ah, 0x11
-    int  0x16
+    call int30hah5
     jnz quitprog
 ;*************************************************************
 
@@ -367,7 +365,7 @@ DISPDEC:
     mov  ah, 0x0E                            ; BIOS teletype
     add  al, 48                              ; lets make it a 0123456789 :D
     mov  bx, 1 
-    int  0x10                                ; invoke BIOS
+    call int30hah6
     mov  BYTE [zerow], 0x01
    jmp .yydis
 
@@ -401,7 +399,7 @@ disp:
     jz   .DONE                               ; if NUL char found then goto done
     mov  ah, 0Eh                             ; BIOS teletype
     mov  bx, 1 				     ; make it a nice fluffy blue (mostly it will be grey but ok..)
-    int  10h                                ; invoke BIOS
+    call int30hah2
     jmp  .HEAD
  
  .DONE: 
@@ -415,7 +413,9 @@ GOTOXY:
     mov bh, 0                  ;0:graphic mode 0-3: in modes 2&3 0-7: in modes 0&1
     mov dl, BYTE [col]
     mov dh, BYTE [row]
-    int 10h
+    mov si, blankmsg
+    mov al, 0
+    call int30hah2
 ret
 ;*******END********
 ;
