@@ -131,16 +131,33 @@ int30hah1:	;write string in si to screen, endchar in al
 	nextlineint:
 		inc dh
 		mov dl, 0
+		cmp dh, 25
+		jae scrollscreen
 		jmp intprint
+	
+	scrollscreen:
+		dec dh
+		mov bx, 0
+	scrollloop:
+		cmp bx, 0FA0h
+		je near intprint
+		add bx, 162
+		mov ax, [gs:bx]
+		mov word [gs:bx], 0
+		sub bx, 160
+		mov [gs:bx], ax
+		jmp scrollloop
 
 	intcarriagereturn:
-		mov byte dl, 0
+		mov dl, 0
 		inc si
 		jmp intprint
 
 	intnewlineprnt:
-		add byte dh, 1
+		add dh, 1
 		inc si
+		cmp dh, 25
+		jae scrollscreen
 		jmp intprint
 
 	intpmprnt:	

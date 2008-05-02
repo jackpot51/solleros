@@ -1,5 +1,6 @@
 @echo off
 cd "F:\Documents and Settings\Administrator\My Documents\My OS\SVN\Experimental"
+del SollerOS-exp.bin
 ..\nasm Free\sector.asm -f bin -o sector.bin
 ..\nasm kernel.asm -f bin -o kernel.bin
 ..\dd if=sector.bin of=SollerOS-exp.bin bs=512
