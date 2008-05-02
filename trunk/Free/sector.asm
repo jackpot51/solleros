@@ -13,7 +13,17 @@ ORG 7c00h
 	sectormsg2 db "Loading OS...",0
 	
     start:                ; Update the segment registers
-	
+	mov [DriveNumber], cl
+
+
+ResetFloppy:
+	mov ax,		0x00		; Select Floppy Reset BIOS Function
+        mov dl,		[DriveNumber]	; Select the floppy FritzOS booted from
+
+        int 13h				; Reset the floppy drive
+
+        jc ResetFloppy		; If there was a error, try again.
+
 	mov si, sectormsg2
     print2:			; 'si' comes in with string address
 	    mov bx,7		; write to display
@@ -26,19 +36,11 @@ ORG 7c00h
 	    jmp prs2		; loop
     finpr2:
 
-ResetFloppy:
-	mov ax,		0x00		; Select Floppy Reset BIOS Function
-        mov dl,		[DriveNumber]	; Select the floppy FritzOS booted from
-
-        int 13h				; Reset the floppy drive
-
-        jc ResetFloppy		; If there was a error, try again.
-
 ; Read the floppy drive for loading the FritzOS C+ Kernel
 ReadFloppy:
-	mov ax, 1000h
+	mov ax, 900h
 	mov es, ax
-         mov bx,	0h		; Load FritzOS at 100000h.
+         mov bx,	0h		; Load FritzOS at 90000h.
          mov ah,	0x02		; Load disk data to ES:BX
          mov al,	40		; Load two floppy head full's worth of data.
 
@@ -54,7 +56,7 @@ ReadFloppy:
 
 	mov cl, [DriveNumber]
 
-        jmp 1000h:0000
+        jmp 900h:0000
 
 
     times 510-($-$$) db 0
