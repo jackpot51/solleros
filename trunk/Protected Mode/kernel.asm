@@ -1,6 +1,7 @@
     %include 'Free\menu.asm'
     %include 'Free\solleros.asm'
     %include 'Free\programs.asm'
+    %include 'Free\batchprogs.asm'
     %include 'Other\etch.asm'
     %include 'Other\ps2mouse.asm' 
     %include 'Free\dosemul.asm'

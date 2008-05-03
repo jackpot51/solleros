@@ -14,6 +14,7 @@ etch:
 	 mov si, etchmsg
 	 call print
 	 call getkey
+	call realmode
          mov   ax, 0013h
          int   10h
 
@@ -25,7 +26,7 @@ dispmouse: mov   di, 0A000h
          mov   byte [es:di], 15
 
          mov   ah, 00h
-    	call int30hah5
+    	int 16h
 
 ;	cmp BYTE [MOUSEON], 1
 ;	je retmouse
@@ -77,7 +78,8 @@ retmouse: ret
 	call clear
          jmp nwcmd
 	
-vgaquitetch: mov ax, 12h
+vgaquitetch: mov ax, 3h
 	int 10h
 	call clear
+  	call pmode
          jmp nwcmd

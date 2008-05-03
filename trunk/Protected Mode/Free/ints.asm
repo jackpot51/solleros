@@ -28,6 +28,8 @@ int30h:
 	je near int30hah5
 	cmp ah, 6
 	je near int30hah6
+	cmp ah, 7
+	je near int30hah7
 	ret
 
 int30hah0:	;shutdown application
@@ -425,6 +427,21 @@ int30hah6:	;print char
 	mov ah, 6
 	mov al, [charcache]
 	ret
+
+int30hah7:	;play sound
+		;bx is the length, cx is the inverse of the frequency
+	in al, 61h
+	and al, 0fch
+	xor al, 2
+	out 61h, al
+	mov ax, cx
+	loop $
+	mov cx, ax
+	dec bx
+	cmp bx, 0
+	jne int30hah7
+	ret
+	
 
 scancode:
 	db '1','!',2h

@@ -18,6 +18,7 @@ pmode:
 	mov ax, 0B800h
 	mov gs, ax
 	mov byte [gs:0], '1'
+
         ; set A20 line
 	cli		;no more ints
         xor cx, cx
@@ -38,7 +39,7 @@ wait_kbc:                       ; this is approx. a 25uS delay to wait
         out 0edh, ax            ; for the kb controler to execute our 
         loop wait_kbc           ; command.
 
-        ; the A20 line is on now.  Let's load in our ITD and GDT tables...
+        ; the A20 line is on now.  Let's load in our IDT and GDT tables...
         ; Ideally, there will actually be data in their locations (by loading 
         ; the kernel)
         lidt [pIDT]

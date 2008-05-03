@@ -359,11 +359,11 @@ sector:
 
 
     read:
-            mov ax, 900h      ; ES:BX = 900:0000
+            mov ax, 2000h      ; ES:BX = 2000:0000
             mov es, ax         ;
             mov bx, 0	       ;
             mov ah, 2           ; Load disk data to ES:BX
-            mov al, 50          ; Load 17 sectors
+            mov al, 50          ; 
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0
@@ -383,12 +383,12 @@ writesect:
 
 
     read3:
-            mov ax, 900h      ; ES:BX = 900:0000
+            mov ax, 2000h      ; ES:BX = 2000:0000
             mov es, ax         ;
             mov bx, 0	       ;
 
             mov ah, 3           ; Write disk data from ES:BX
-            mov al, 50		; Write 24 sectors
+            mov al, 50		; 
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0

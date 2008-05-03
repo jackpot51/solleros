@@ -2,12 +2,8 @@
 prog:
 	    mov ax, cs
 	    mov ds, ax
-	    push ds
-	    mov ds, ax
 	    mov es, ax
 	    mov [DriveNumber], cl
-		mov ax, 0B800h
-		mov gs, ax
 	    call pmode
 	    call clear
             call welcome
@@ -79,6 +75,7 @@ warmboot:
 coldboot:
 	jmp coldboot2
 		shutdown:
+			call realmode
 			mov si, shutdownmsg
 			call rebootit			
 			MOV AX, 5300h	; Shuts down APM-Machines.
@@ -109,6 +106,7 @@ coldboot:
 	    jmp os
 
 	coldboot2:
+			call realmode
 		  	mov si, rebootmsg
 			call rebootit
 			MOV AX, 0040h	; Source: "coldboot.asm"
@@ -117,6 +115,7 @@ coldboot:
 			JMP 0FFFFh:0000h
 			IRET
 		warmboot2:
+			call realmode
 			mov si, rebootmsg
 			call rebootit
 			MOV AX, 0040h	; Source: "warmboot.asm"
