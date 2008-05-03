@@ -56,12 +56,6 @@ wait_kbc:                       ; this is approx. a 25uS delay to wait
 	mov bx, 4
 	mov byte [gs:bx], '3'
 	add bx, 2
-	mov ax, 0
-	mov si, pmodemsg
-	mov dh, 1
-	mov dl, 0
-	mov bl, 7
-	call int30hah1
 	jmp pm
 
 pm:

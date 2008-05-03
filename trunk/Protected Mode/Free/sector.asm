@@ -40,7 +40,7 @@ ReadFloppy:
 	mov es, ax
          mov bx,	0h		; Load at 90000h.
          mov ah,	0x02		; Load disk data to ES:BX
-         mov al,	30		; Load two floppy head full's worth of data.
+         mov al,	50		; Load two floppy head full's worth of data.
 
          mov ch,	0		; First Cylinder
          mov cl,	2		; Start at the 2nd Sector, so you don't load the bootsector, you load

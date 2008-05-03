@@ -1,7 +1,5 @@
     ; MENU.ASM
-[BITS 16]
 prog:
-[ORG 0]
 	    mov ax, cs
 	    mov ds, ax
 	    push ds

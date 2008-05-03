@@ -130,17 +130,28 @@ int30hah1:	;write string in si to screen, endchar in al
 
 	nextlineint:
 		inc dh
+		sub bl, dl
+		add bx, 160
 		mov dl, 0
+		call writecursor
 		cmp dh, 25
 		jae scrollscreen
 		jmp intprint
 	
 	scrollscreen:
 		dec dh
+		sub bx, 160
+		call writecursor
 		mov bx, 0
+		mov ax, 0
+		mov [gs:bx], ax
+		mov bx, 160
+		mov ax, [gs:bx]
+		mov bx, 0
+		mov [gs:bx], ax
 	scrollloop:
 		cmp bx, 0FA0h
-		je near intprint
+		jae near intprint
 		add bx, 162
 		mov ax, [gs:bx]
 		mov word [gs:bx], 0
@@ -149,12 +160,16 @@ int30hah1:	;write string in si to screen, endchar in al
 		jmp scrollloop
 
 	intcarriagereturn:
+		sub bl, dl
 		mov dl, 0
+		call writecursor
 		inc si
 		jmp intprint
 
 	intnewlineprnt:
 		add dh, 1
+		add bx, 160
+		call writecursor
 		inc si
 		cmp dh, 25
 		jae scrollscreen

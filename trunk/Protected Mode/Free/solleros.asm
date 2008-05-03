@@ -217,36 +217,37 @@ dir:	mov si, progstart
 		jmp dirnxt
 	dirdn:	jmp nwcmd
 
-array:	
-	arnxt:	mov al, [si]  ;arraystart in si, arrayend in bx
-		mov ah, 5
-		cmp al, ah
+array:				;arraystart in si, arrayend in bx, arrayseperator in cx
+		                ;ends if array seperator is found backwards after 0
+	arnxt:	      
+		mov al, ch
+		mov ah, cl        
+		cmp [si], ax
+		je ardn
+		cmp [si], cx
 		je arfnd
 		inc si
 		cmp si, bx
 		jae ardn
 		jmp arnxt
-	arfnd:	inc si
-		mov al, [si]
-		mov ah, 4
-		cmp al, ah
-		je arfnd2
+	arfnd: add si, 2
+		mov [arbx], bx
+		mov [arcx], cx
+		call print
+		mov [arsi], si
+		mov si, line
+		call print
+		mov bx, [arbx]
+		mov cx, [arcx]
+		mov si, [arsi]
 		inc si
 		cmp si, bx
 		jae ardn
 		jmp arnxt
-	arfnd2: inc si
-		push bx
-		call print
-		push si
-		mov si, line
-		call print
-		pop si
-		pop bx
-		cmp si, bx
-		jae ardn
-		jmp arnxt
-	ardn:	jmp nwcmd
+	ardn:	ret
+arbx:	db 0,0
+arcx:	db 0,0
+arsi:	db 0,0
 
 clearbuffer:
 	mov si, buf2
@@ -281,6 +282,7 @@ zero:	mov al, '0'
 	jmp cnvrtlp
 
 cnvrttxt: 
+	push dx
 	mov ecx, 0
 	mov eax, 0
 	mov edx, 0
@@ -338,6 +340,7 @@ exp:	sub al, 48
 	inc ecx
 	jmp txtlp
 donecnvrt: mov ecx, edx
+	pop dx
 	ret
 
 realmode:
@@ -356,11 +359,11 @@ sector:
 
 
     read:
-            mov ax, 1000h      ; ES:BX = 1000:0000
+            mov ax, 900h      ; ES:BX = 900:0000
             mov es, ax         ;
             mov bx, 0	       ;
             mov ah, 2           ; Load disk data to ES:BX
-            mov al, 30          ; Load 17 sectors
+            mov al, 50          ; Load 17 sectors
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0
@@ -380,12 +383,12 @@ writesect:
 
 
     read3:
-            mov ax, 1000h      ; ES:BX = 1000:0000
+            mov ax, 900h      ; ES:BX = 900:0000
             mov es, ax         ;
             mov bx, 0	       ;
 
             mov ah, 3           ; Write disk data from ES:BX
-            mov al, 30		; Write 24 sectors
+            mov al, 50		; Write 24 sectors
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0

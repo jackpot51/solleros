@@ -18,9 +18,9 @@
 	line	db	13,10,0
 	blankmsg db 0
 	zeromsg db "0"
-	unamemsg db	"SollerOS-v0.8.2 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
+	unamemsg db	"SollerOS-v0.8.5 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
 	helpmsg db	"This operating system is way too simple to warrant the creation of a help file.",10,13,0
-    msg:       db "SollerOS Alpha version 0.8.2 - compiled by Jeremy Soller.",13,10,"This is the eighth version, with MATH, VARIABLES,",10,13,"and BATCHES with NESTED IF COMMANDS, ELSE COMMANDS, AND LOOPS!!!!",13,10,0
+    msg:       db "SollerOS Beta version 0.8.5 - compiled by Jeremy Soller.",13,10,"This is the eighth version, with MATH, VARIABLES,",10,13,"and BATCHES with NESTED IF COMMANDS, ELSE COMMANDS, AND LOOPS!!!!",13,10,0
     menumsg:   db 13,10,"What do you want to do?",13,10,"Hang(h)",13,10,"Boot(b)",13,10,"Cold Reboot(c)",13,10,"Warm Reboot(w)",13,10,"Shutdown(s)",13,10,0
     bootmsg:   db "Booting...",13,10,"If there was something to boot...",0
     rebootmsg: db "Rebooting...",0
@@ -121,10 +121,12 @@ bufferhelper:	db 0,0
 buftxt: times 200h db 0
 buf2:	times 200h db '0'
 numbuf:	db 0,0
-batch:	db 5,4,"clear",0
+batch:	db 6,5,"tutorial",0
+	db 5,4,"clear",0
 	db 5,4,"echo The batch program can run all commands featured in SollerOS.",0
 	db 5,4,"echo It can also run the extra ",34,"if",34," command.",0
 	db 5,4,"echo Would you like a tour of the SollerOS system?",0
+	db 5,4,"echo If so, you can type yes and press enter.",0
 	db 5,4,"$a=",0
 	db 5,4,"if $a=no",0
 	db 5,4,"echo Fine then.",0
@@ -155,9 +157,11 @@ batch:	db 5,4,"clear",0
 	db 5,4,"echo the $ sign is used for variables",0
 	db 5,4,"echo the BATCHES ONLY!!! programs are for batches only",0
 	db 5,4,"fi",0
-	times 300h db 0
+	db 4,5,0
+	times 500h db 0
 variables: times 500h db 0
 varend:
-wordst:	times 500h db 0
+wordst:	times 1000h db 0
 commandlst:	times 500h db 0
 commandlstend:
+vmem:	times 07A0h db 0
