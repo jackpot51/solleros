@@ -166,7 +166,7 @@ coldboot:
 	    call char
             ret
 
-    delay:  mov cx, 0100h
+    delay:  mov cx, 010h
 	delay1:
 		push cx
 		mov cx, 0FFFFh

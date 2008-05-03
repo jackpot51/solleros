@@ -40,11 +40,19 @@ db 5,4,"protected",0	;cannot do this, causes reset
 		call print
 		jmp nwcmd
 
-progstart:		;programs start here
+db 5,4,"dos",0
+		mov si, dosmode
+		call print
+		call dos
+		jmp nwcmd
 
 db 5,4,"mouse",0
 		jmp mouse
 		jmp nwcmd
+
+progstart:		;programs start here
+
+
 
 db 5,4,"dir",0
 	dircmd:	jmp dir
@@ -313,12 +321,6 @@ db 5,4,"space",0
 		call chkadd
 		mov si, dskmsg
 		call print
-		jmp nwcmd
-		
-db 5,4,"dos",0
-		mov si, dosmode
-		call print
-		call dos
 		jmp nwcmd
 
 db 5,4,"reload",0
