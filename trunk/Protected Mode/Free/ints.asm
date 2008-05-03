@@ -61,12 +61,19 @@ int30hah1:	;write string in si to screen, endchar in al
 		mov bl, dl
 		mov cl, dh
 		mov ch, 0
+		cmp cx, 0
+		je nocxint
 		call intlnprntnm
 		jmp intprint
-
+	nocxint:
+		mov bl, dl
+		mov bh, 0
+		call intlnprnt2
+		jmp intprint
 	intlnprntnm: 
 		add bx, 160
 		loop intlnprntnm
+	intlnprnt2:
 		cmp ah, 8
 		je near backspaceprint
 		call writecursor
