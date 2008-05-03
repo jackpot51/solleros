@@ -1,4 +1,4 @@
-SollerOS is a mediocre operating system designed to have a very low overhead and to run on almost any x86 system. Its features inclued:
+SollerOS is a mediocre operating system designed to have a very low overhead and to run on almost any x86 system. Its features include:
   * Batches/editor
   * Documents/editor
   * Math
@@ -6,12 +6,11 @@ SollerOS is a mediocre operating system designed to have a very low overhead and
   * 3rd party apps(see etch-a-sketch and mouse)
   * VGA mode
   * Loops and if-else commands
+  * Protected Mode
   * And more
 
-Future Features may include:
-  * Multiple batches and documents
+Future Features/Improvements may include
   * Better variables(current variable system causes horrible fragmentation of memory)
-  * Protected mode
   * Multitasking in protected mode
   * Graphics
   * Sound
