@@ -3,7 +3,7 @@
 
     ; Tell the compiler that this is offset 0.
     ; It isn't offset 0, but it will be after the jump.
-
+[BITS 16]
 	; Boot record is loaded at 0000:7C00
 ORG 7c00h
 	jmp start
@@ -52,11 +52,20 @@ ReadFloppy:
          int 13h			; Read the floppy disk.
 
 	 jc ReadFloppy			; Error, try again.
-	
-	mov cl, [DriveNumber]
 
+	mov cl, [DriveNumber]
+		; Stop the floppy motor from spinning 
+ 
+        mov dl,		[DriveNumber]	; Select which motor to stop 
+
+	; Select Stop Floppy Motor function:
+	mov edx, 0x3f2
+	mov al, 0x0c
+
+	; Stop floppy motor:
+	out dx, al      ; Floppy Motor stopped!
         jmp 2000h:0000
 
-
+	heads db 0
     times 510-($-$$) db 0
     dw 0AA55h

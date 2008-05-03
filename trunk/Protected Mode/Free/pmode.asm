@@ -6,8 +6,10 @@
         pIDT            dw 7FFh         ; limit of 256 IDT slots
                         dd 0000h        ; starting at 0000
 
-        pGDT            dw 17FFh        ; limit of 768 GDT slots
-                        dd 0800h        ; starting at 0800h (after IDT)
+	GDTR
+		        dw 17FFh
+			dd 0800h
+
 	linenum:	db 0
 	charnum:	db 0
 	attrib:		db 7
@@ -21,13 +23,14 @@ pmode:
 
         ; set A20 line
 	cli		;no more ints
-        xor cx, cx
+        xor ax, ax
 clear_buf:
         in al, 64h              ; get input from keyboard status port
         test al, 02h            ; test the buffer full flag
         loopnz clear_buf        ; loop until buffer is empty
         mov al, 0D1h            ; keyboard: write to output port
         out 64h, al             ; output command to keyboard
+	mov byte [gs:2], '2'
 clear_buf2:
         in al, 64h              ; wait 'till buffer is empty again
         test al, 02h
@@ -35,16 +38,18 @@ clear_buf2:
         mov al, 0dfh            ; keyboard: set A20
         out 60h, al             ; send it to the keyboard controller
         mov cx, 14h
+	mov byte [gs:4], '3'
 wait_kbc:                       ; this is approx. a 25uS delay to wait
-        out 0edh, ax            ; for the kb controler to execute our 
+
         loop wait_kbc           ; command.
+	mov byte [gs:6], '4'
 
         ; the A20 line is on now.  Let's load in our IDT and GDT tables...
         ; Ideally, there will actually be data in their locations (by loading 
         ; the kernel)
         lidt [pIDT]
-        lgdt [pGDT]
-
+        lgdt [GDTR]
+	mov byte [gs:8], '5'
         ; now let's enter pmode...
 
         mov eax, cr0            ; load the control register in
@@ -53,13 +58,7 @@ wait_kbc:                       ; this is approx. a 25uS delay to wait
         jmp $+2                 ; and clear the prefetch queue
         nop
         nop 
-	mov byte [gs:2], '2'
-	mov bx, 4
-	mov byte [gs:bx], '3'
-	add bx, 2
-	jmp pm
-
-pm:
+pm:	mov byte [gs:10], '6'
 	ret
 
 

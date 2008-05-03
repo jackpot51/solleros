@@ -1,8 +1,9 @@
     ; MENU.ASM
-prog:
+prog:	
 	    mov ax, cs
 	    mov ds, ax
 	    mov es, ax
+	    mov fs, ax
 	    mov [DriveNumber], cl
 	    call pmode
 	    call clear
@@ -51,7 +52,7 @@ DriveNumber db 0
 	    cmp al, 'w'
 	    je warmboot
 	    cmp al, 'b'
-	    je bootit
+	    je near bootit
 	    cmp al, 'h'
             je hangit
 	    cmp al, '`'

@@ -363,13 +363,23 @@ sector:
             mov es, ax         ;
             mov bx, 0	       ;
             mov ah, 2           ; Load disk data to ES:BX
-            mov al, 50          ; 
+            mov al, 34          ; 
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0
             mov dl, [DriveNumber]           ; Drive=0
             int 13h             ; Read!
             jc read             ; ERROR => Try again
+		; Stop the floppy motor from spinning 
+ 
+        mov dl,		[DriveNumber]	; Select which motor to stop 
+
+	; Select Stop Floppy Motor function:
+	mov edx, 0x3f2
+	mov al, 0x0c
+
+	; Stop floppy motor:
+	out dx, al      ; Floppy Motor stopped!
 	    call pmode
 		jmp nwcmd
 
@@ -388,7 +398,7 @@ writesect:
             mov bx, 0	       ;
 
             mov ah, 3           ; Write disk data from ES:BX
-            mov al, 50		; 
+            mov al, 34		; 
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0
@@ -396,6 +406,16 @@ writesect:
             int 13h             ; Read!
 
             jc read3             ; ERROR => Try again
+		; Stop the floppy motor from spinning 
+ 
+        mov dl,		[DriveNumber]	; Select which motor to stop 
+
+	; Select Stop Floppy Motor function:
+	mov edx, 0x3f2
+	mov al, 0x0c
+
+	; Stop floppy motor:
+	out dx, al      ; Floppy Motor stopped!
 	call pmode
             jmp nwcmd      ; Jump to the program
 

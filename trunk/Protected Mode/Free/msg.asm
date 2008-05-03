@@ -8,7 +8,7 @@
 	cleanmsg times 60 db ' '
 	notfound2 db  34," not found.",10,13,0
 	charmsg db	"Enter char:",10,13,0
-	universe1 db	"Only two things are infinite, the universe and human stupidity,",10,13,"and I'm not sure about the former.",13,10,0
+	universe1 db	"Only two things are infinite, the universe and human stupidity,",13,10,"and I'm not sure about the former.",13,10,0
 	wrongpass db	"Wrong password!",13,10,0
 	fullmsg	db	13,10,"Buffer Full",7,0
 	pwdask	db	"Enter Password:",0
@@ -20,7 +20,7 @@
 	zeromsg db "0"
 	unamemsg db	"SollerOS-v0.8.5 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
 	helpmsg db	"This operating system is way too simple to warrant the creation of a help file.",10,13,0
-    msg:       db "SollerOS Beta version 0.8.5 - compiled by Jeremy Soller.",13,10,"This is the eighth version, with MATH, VARIABLES,",10,13,"and BATCHES with NESTED IF COMMANDS, ELSE COMMANDS, AND LOOPS!!!!",13,10,0
+    msg:       db "SollerOS Beta version 0.8.5 - compiled by Jeremy Soller.",13,10,0
     menumsg:   db 13,10,"What do you want to do?",13,10,"Hang(h)",13,10,"Boot(b)",13,10,"Cold Reboot(c)",13,10,"Warm Reboot(w)",13,10,"Shutdown(s)",13,10,0
     bootmsg:   db "Booting...",13,10,"If there was something to boot...",0
     rebootmsg: db "Rebooting...",0
@@ -118,9 +118,6 @@ db "MMM.     !!!MMMMMMMMMMMMXMMXMHXMX!!!!!!!M$$$$X!!!?M!MRMR$$$$$",13,10
 db "!MM$     !!!?MMMMMMMMMXMMMMMMXX!MMMWWHX!!MM!!!!!!!!!!!!!?MMM$",13,10,0
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
 bufferhelper:	db 0,0
-buftxt: times 200h db 0
-buf2:	times 200h db '0'
-numbuf:	db 0,0
 batch:	db 6,5,"tutorial",0
 	db 5,4,"clear",0
 	db 5,4,"echo The batch program can run all commands featured in SollerOS.",0
@@ -161,7 +158,11 @@ batch:	db 6,5,"tutorial",0
 	times 500h db 0
 variables: times 500h db 0
 varend:
-wordst:	times 1000h db 0
-commandlst:	times 500h db 0
-commandlstend:
-vmem:	times 07A0h db 0
+wordst:	db 6,5,"SollerOS",0
+	db 5,4,"Is freaking awesome!",0
+	db 4,5,0
+	times 500h db 0
+commandlst: times 500h db 0
+buftxt: times 200h db 0
+buf2:	times 50h db '0'
+numbuf:	db 0,0

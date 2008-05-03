@@ -656,9 +656,9 @@ db 5,4,"word",0
 		mov al, ' '
 		mov bx, wordst
 	wordname: cmp [si], al
-		   je namefound
+		   je namefound4
 		   cmp byte [si], 0
-		   je nonamefound
+		   je nonamefound4
 		   inc si
 		   jmp wordname
 		nowordname db "You have to type a name after the command.",10,13,0
@@ -724,8 +724,8 @@ db 5,4,"word",0
 		inc si
 		push si
 		call input
-		mov si, buftxt
-		mov bx, exitword
+		mov si, exitword
+		mov bx, buftxt
 		call tester
 		cmp al, 1
 		je doneword2
@@ -742,7 +742,11 @@ db 5,4,"word",0
 		je wordlp
 		inc di
 		jmp wordlp2
-	doneword2: pop si
+	doneword2: 
+		mov si, line
+		call print
+		pop si
+		inc si
 		mov cl, 4
 		mov ch, 5
 		mov [si], cx
