@@ -64,7 +64,7 @@ full:	mov si, fullmsg
 
 nwcmd:	mov al, 1
 	cmp [BATCHISON], al
-	je near batchran
+	jae near batchran
 cancel:	mov al, 0
 	mov [IFON], al
 	mov [BATCHISON], al

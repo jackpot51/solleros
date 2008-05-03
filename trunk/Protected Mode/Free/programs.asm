@@ -582,12 +582,14 @@ db 5,4,"batch",0
 		jae backtonwcmd
 		jmp batchfound
 	backtonwcmd:
-		mov al, 0
+		mov al, [BATCHISON]
+		dec al
 		mov [BATCHISON], al
 		call buftxtclear
 		jmp nwcmd
 	runbatch:
-		mov al, 1
+		mov al, [BATCHISON]
+		inc al
 		mov [BATCHISON], al
 		mov [BATCHPOS], bx
 		mov si, buftxt

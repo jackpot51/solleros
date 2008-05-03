@@ -1,6 +1,7 @@
 @echo off
 cd "F:\Documents and Settings\Administrator\My Documents\My OS\SVN\Protected Mode"
 del SollerOS-exp.bin
+..\nasm kernel-com.asm -f bin -o kernel.com
 ..\nasm Free\sector.asm -f bin -o sector.bin
 ..\nasm kernel.asm -f bin -o kernel.bin
 ..\dd if=sector.bin of=SollerOS-exp.bin bs=512
