@@ -1,6 +1,9 @@
 mouse:
-JMP MAINP
-
+		;;;;;IF YOU WANT DIAGNOSTICS REMOVE THE ; OR RET AFTER DISP AND DISPDEC AND GOTOXY ON int30hah*
+call MAINP
+.mainloop:
+call mousemain
+jmp .mainloop
 ;***********************************************************************
 ;Activate mouse port (PS/2)
 ;***********************************************************************
@@ -18,7 +21,8 @@ CHKPRT:
  .again:
   in   al, 0x64		; read from keyboardcontroller
   test al, 2		; Check if input buffer is empty
-  loopnz  .again
+  je .go
+  loop .again
  .go
 ret
 
@@ -77,7 +81,7 @@ ret
 ;Disable Keyboard
 ;***********************************************************************
 DKEYB:
-  call CHKPRT		; check if command is progressed (demand!)
+  call CHKPRT
   mov  al, 0xad		; Disable Keyboard
   out  0x64, al		; write to keyboardcontroller
   call CHKPRT		; check if command is progressed (demand!)
@@ -87,7 +91,7 @@ ret
 ;Enable Keyboard
 ;***********************************************************************
 EKEYB:
-  call CHKPRT		; check if command is progressed (demand!)
+  call CHKPRT
   mov  al, 0xae		; Enable Keyboard
   out  0x64, al		; write to keyboardcontroller
   call CHKPRT		; check if command is progressed (demand!)
@@ -99,7 +103,7 @@ ret
 GETB:
  .cagain
   call CHKMOUS		; check if a byte is available
-  cmp bl, bl
+  or bl, bl
   jnz .cagain
   call DKEYB		; disable keyboard to read mouse byte
   xor  ax, ax
@@ -179,7 +183,9 @@ MAINP:
   call ACTMOUS
   call GETB 	;Get the responce byte of the mouse (like: Hey i am active)  If the bytes are mixed up, remove this line or add another of this line.
   call GETB
-.main
+  ret
+
+mousemain:
   call GETFIRST
   call GETSECOND
   call GETTHIRD
@@ -312,7 +318,7 @@ call showcursor
  mov  si, stretr	; goto nextline on scr
  call disp
 
-jmp .main
+ret
 
 newmousecursor:
 	add dl, dl
@@ -361,7 +367,7 @@ donecheckmousesign:
 	mov word [si], 0
 	mov al, 1
 	mov bl, 7
-	call int30hah9
+	call int30hah9dr
 	mov dx, [dxcache2]
 	ret
 
@@ -370,7 +376,7 @@ clearmousecursor:
 	mov si, lastmousepos
 	mov dx, [si]
 	mov al, 0
-	call int30hah9
+	call int30hah9dr
 	mov dx, [dxcache2]
 	ret
 
@@ -407,6 +413,7 @@ mousechangesign db 0,0
 ;************************************************
 dxcache2 db 0,0
 DISPDEC:
+	ret
 	mov [dxcache2],dx
     mov  BYTE [zerow], 0x00
     mov  WORD [varbuff], ax
@@ -432,7 +439,7 @@ DISPDEC:
     add  al, 48                              ; lets make it a 0123456789 :D
     mov  bx, 1 
 	mov dx, [dxcache2]
-    call int30hah6
+call int30hah6
 	mov [dxcache2],dx
     mov  BYTE [zerow], 0x01
    jmp .yydis
@@ -461,11 +468,12 @@ DISPDEC:
 ;* display a string at ds:si via BIOS
 ;****************************************************************
 disp:
+	ret
  .HEAD
     mov  bx, 1 				     ; make it a nice fluffy blue (mostly it will be grey but ok..)
 	mov ax, 0
 	mov dx, [dxcache2]
-    call int30hah1
+        call int30hah1
  	mov [dxcache2],dx
  .DONE: 
    ret
@@ -475,6 +483,7 @@ disp:
 ;*****************************
 GOTOXY:
 	call clearmousecursor
+	ret
     mov ah, 2
     mov bh, 0                  ;0:graphic mode 0-3: in modes 2&3 0-7: in modes 0&1
 	mov dx, [dxcache2]

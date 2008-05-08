@@ -101,9 +101,11 @@ nobyteprnt: 	inc bx
 		startdl db 0
 		startdh db 0
 		loccache db 0,0
-
+	writecursoron db 1
 
 	writecursor:
+		cmp byte [writecursoron], 1
+		jne backnowritecursor
 		mov cx, ax
 		mov [loccache], bx
 		mov ax, 0
@@ -133,7 +135,7 @@ nobyteprnt: 	inc bx
 		mov ax, cx
 		mov bx, [loccache]
 		mov dx, [dxcache]
-		ret
+	backnowritecursor:	ret
 
 	cursorzero:
 		mov cx, ax
@@ -213,7 +215,7 @@ int30hah2:	;read string to si, endkey in al, max in cx
 		test al, 1 ; output buffer full?
 		jz near intNOKEY
 		test al, 20h ; PS2-Mouse?
-		jnz near intNOKEY
+		jnz near ps2mouse
 		in al, 60h
 		dec al
 		jz near intNOKEY
@@ -227,6 +229,11 @@ int30hah2:	;read string to si, endkey in al, max in cx
 		je scanfound
 		add di, 3
 		jmp searchscan
+	ps2mouse:
+		pusha
+	    	call int30hah9
+		popa
+		jmp startin
 	scanfound:	
 		cmp byte [lshift], 1
 		je uppercasescan
@@ -433,10 +440,12 @@ int30hah5st: call startin
 
 int30hah6:	;print char
 		;same rules as int30hah1, except that char is in al
+		;no startdl, startdh
 	mov si, charcache
 	mov [charcache], al
-	mov al, 0
-	call int30hah1
+	mov byte [endchar], 0
+	mov al, bl
+	call intprint
 	mov ah, 6
 	mov al, [charcache]
 	ret
@@ -513,8 +522,18 @@ nopixelloop:
 	jmp pixelload
 
 cursorcache db 0,0
+mouseon	db 0
 
-int30hah9:		;draw cursor (dl,dh) al=1=on al=0=off
+int30hah9:		;get mouse info
+	cmp byte [mouseon],1
+	je .maincall
+	call MAINP
+	mov byte [mouseon],1
+	.maincall:
+	call mousemain
+	ret
+
+int30hah9dr:		;draw cursor (dl,dh) al=1=on al=0=off
 	cmp al, 0
 	je nocursor
 	mov bh, 0
@@ -531,7 +550,9 @@ nolinecursorfnd:
 	mov [cursorcache], ax
 	mov al, 'X'	
 	mov bl, 7
+	mov byte [writecursoron], 0
 	call int30hah6
+	mov byte [writecursoron], 1
 	cmp byte [cursorcache],0
 	je cursorspace
 	ret
@@ -541,9 +562,16 @@ nolinecursorfnd:
 	nocursor:	
 	mov al, [cursorcache]
 	mov bl, [cursorcache + 1]
+	mov byte [writecursoron], 0
 	call int30hah6
+	mov byte [writecursoron], 1
 	ret	
 
+int30hah10:		;basicly, this will do everything. This will edit an array in si
+			;using an array seperator in cx, endstring in bx, (dl,dh), and modifier in al
+			;note that the mouse should be used to copy stuff
+	
+	
 scancode:
 	db '1','!',2h
 	db '2','@',3h
