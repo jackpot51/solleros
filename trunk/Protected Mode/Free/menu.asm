@@ -7,15 +7,9 @@ prog:
 	    mov [DriveNumber], cl
 	    call pmode
 	    mov dx, 0
-	    inc dh
-	    mov si, mousemsg
-	    call print
-	    call int30hah9
 	    call clear
             call welcome
 	    jmp menu
-
-mousemsg	db "Connect a mouse and move it to start.",0
 
 DriveNumber db 0
 
@@ -109,8 +103,13 @@ coldboot:
 	    mov si, hangmsg
 	    call print
 	    jmp hang
-		
+	
+	mousemsg db "Move the mouse to start.",0
     bootit:
+		call clear
+		mov si, mousemsg
+		call print
+		call int30hah9
 	    call clear
 	    jmp os
 

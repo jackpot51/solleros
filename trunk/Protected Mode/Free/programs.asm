@@ -16,9 +16,6 @@ db 5,4,"cga",0
 		int 10h
 		jmp nwcmd
 
-db 5,4,"protected",0	;cannot do this, causes reset
-	protect: jmp pmode
-		jmp nwcmd
 	
 ;db 5,4,"time",0
 	time:	call clearbuffer
@@ -50,12 +47,19 @@ db 5,4,"dos",0
 		call dos
 		jmp nwcmd
 
-progstart:		;programs start here
-
 db 5,4,"mouse",0
 		jmp mouse
 		jmp nwcmd
 
+progstart:		;programs start here
+
+db 5,4,"showcopy",0
+	mov si, copybuffer
+	call print
+	mov si, line
+	call print
+	jmp nwcmd
+	
 db 5,4,"dir",0
 	dircmd:	jmp dir
 	
@@ -411,7 +415,7 @@ db 5,4,"showword",0
 	   wordlistshow:
 		mov si, wordst
 		mov bx, commandlst
-		mov cl, 6
+		mov cl, 7
 		mov ch, 5
 		call array
 		jmp nwcmd
@@ -421,7 +425,7 @@ db 5,4,"showword",0
 	namefound3: mov al, 0
 		cmp [si], al
 		je wordlistshow
-		mov cl, 6
+		mov cl, 7
 		mov ch, 5
 	findwordname:
 		cmp bx, commandlst
@@ -672,7 +676,7 @@ db 5,4,"word",0
 		inc si
 		cmp [si], al
 		je nonamefound4
-		mov cl, 6
+		mov cl, 7
 		mov ch, 5
 	findwordname3:
 		cmp bx, commandlst
@@ -703,7 +707,7 @@ db 5,4,"word",0
 		je lastwordfind
 		add bx, 2
 	nameputword:
-		mov byte [bx], 6
+		mov byte [bx], 7
 		inc bx
 		mov byte [bx], 5
 		inc bx

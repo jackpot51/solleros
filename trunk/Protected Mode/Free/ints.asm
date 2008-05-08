@@ -88,9 +88,10 @@ int30hah1:	;write string in si to screen, endchar in al
 		cmp byte [gs:bx], 0
 		jne nobyteprnt
 		mov byte [gs:bx], ' '
-nobyteprnt: 	inc bx
-		mov byte [gs:bx], 7
 		inc bx
+		mov byte [gs:bx], 7
+		dec bx
+	nobyteprnt:
 		add dl,2
 		add si, 1
 		cmp dl, 160
@@ -156,6 +157,12 @@ nobyteprnt: 	inc bx
 		jmp intprint
 	
 	scrollscreen:
+		pusha
+		call clearmousecursor
+		mov dl, 160
+		mov dh, 24
+		mov al, 1
+		call int30hah9dr
 		dec dh
 		sub bx, 160
 		call writecursor
@@ -289,7 +296,6 @@ int30hah2:	;read string to si, endkey in al, max in cx
 
 	bxcache db 0,0
 	cxcache db 0,0
-
 	backspace:
 		mov [bxcache], bx
 		mov [cxcache], cx
@@ -302,7 +308,7 @@ int30hah2:	;read string to si, endkey in al, max in cx
 		mov byte [si], 0
 		dec si
 		mov byte [si], 0
-		sub bx, 4
+nomoreback:	sub bx, 4
 		call backspaceprint
 		mov bx, [bxcache]
 		mov cx, [cxcache]
@@ -433,7 +439,7 @@ int30hah5:	;get char transparent
 	cmp al, 0
 	jne int30hah5st
 	mov byte [trans], 0
-int30hah5st: call startin
+int30hah5st: 	call startin
 	mov byte [trans], 0
 	mov al, [charcache]
 	ret
@@ -533,19 +539,23 @@ int30hah9:		;get mouse info
 	call mousemain
 	ret
 
+startmousepos dw 0FFFh
+endmousepos dw 0FFFh	
+
 int30hah9dr:		;draw cursor (dl,dh) al=1=on al=0=off
 	cmp al, 0
-	je nocursor
+	je near nocursor
 	mov bh, 0
 	mov bl, dl
 	mov cl, dh
 	mov ch, 0
 	cmp cx, 0
-	je nolinecursorfnd
+	je near nolinecursorfnd
 cursorfnd:
 	add bx, 160
 	loop cursorfnd
 nolinecursorfnd:
+	mov [bxcache2], bx
 	mov ax, [gs:bx]
 	mov [cursorcache], ax
 	mov al, 'X'	
@@ -554,12 +564,118 @@ nolinecursorfnd:
 	call int30hah6
 	mov byte [writecursoron], 1
 	cmp byte [cursorcache],0
-	je cursorspace
+	je near cursorspace
+	call clearmouseselect
+	mov bx, [bxcache2]
+	cmp byte [LBUTTON], 1
+	je near clickmouse
+	mov word [endmousepos], 0fffh
+	mov word [startmousepos], 0fffh
 	ret
-	cursorspace:
+clickmouse:
+	sub dl, 2
+	call nocursor
+	mov bx, [bxcache2]
+	cmp word [endmousepos], 0FA0h
+	jae near startclick
+	cmp word [startmousepos], 0FA0h
+	jae near startclick
+	mov [endmousepos], bx
+	jmp textselect
+startclick:
+	mov [startmousepos], bx
+	mov [endmousepos], bx
+	jmp textselect
+switchtextselect:
+	mov bx, [endmousepos]
+	mov cx, [startmousepos]
+	jmp textselectloop
+textselect:
+	mov bx, [startmousepos]
+	mov cx, [endmousepos]
+	mov si, copybuffer
+	cmp cx, bx
+	jb switchtextselect
+textselectloop:
+	mov al, [gs:bx]
+	cmp al, 0
+	je zerotextselect
+	mov [si], al
+	cmp bx, cx
+	jae donecopytext
+	cmp bx, 0FA0h
+	jae donecopytext
+	mov ah, 0F8h
+	inc bx
+	mov [gs:bx], ah
+	inc bx
+	inc si
+	jmp textselectloop
+donecopytext:
+	inc si
+	mov byte [si], 0
+	mov bx, [bxcache2]
+	ret
+bxcache2 db 0,0
+zerotextselect:
+	mov al, 10
+	mov [si], al
+	inc si
+	mov al, 13
+	mov [si], al
+	inc si
+findnext:
+	cmp bx, 0FA0h
+	jae donefind
+	cmp bx, cx
+	jae donefind
+	inc bx
+	mov byte [gs:bx], 0F8h
+	inc bx
+	cmp byte [gs:bx], 0
+	je findnext
+copyloop: 
+	jmp textselectloop
+	
+donefind: jmp textselectloop
+
+switchclearmouse:
+	mov bx, [endmousepos]
+	mov cx, [startmousepos]
+	jmp clearmouseloop
+clearmouseselect:
+	mov bx, [bxcache2]
+	cmp word [startmousepos], 0FA0h
+	jae doneclearmouse
+	cmp word [endmousepos], 0FA0h
+	jae doneclearmouse
+	mov bx, [startmousepos]
+	mov cx, [endmousepos]
+	cmp cx, bx
+	jb switchclearmouse
+clearmouseloop:
+	cmp bx, cx
+	jae doneclearmouse
+	cmp bx, 0FA0h
+	jae doneclearmouse
+	mov ah, 07h
+	inc bx
+	mov [gs:bx], ah
+	inc bx
+	jmp clearmouseloop
+doneclearmouse:
+	mov bx, [bxcache2]
+	ret
+cursorspace:
 	mov byte [cursorcache],' '
+	call clearmouseselect
+	mov bx, [bxcache2]
+	cmp byte [LBUTTON], 1
+	je clickmouse
+	mov word [endmousepos], 0fffh
+	mov word [startmousepos], 0fffh
 	ret
-	nocursor:	
+nocursor:	
 	mov al, [cursorcache]
 	mov bl, [cursorcache + 1]
 	mov byte [writecursoron], 0

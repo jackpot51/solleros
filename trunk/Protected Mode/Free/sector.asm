@@ -41,7 +41,7 @@ ReadFloppy:
 	mov es, ax
          mov bx,	0h		; Load at 2000h:0000h.
          mov ah,	0x02		; Load disk data to ES:BX
-         mov al,	34		; Load two floppy head full's worth of data.
+         mov al,	17		; Load two floppy head full's worth of data.
 
          mov ch,	0		; First Cylinder
          mov cl,	2		; Start at the 2nd Sector, so you don't load the bootsector
@@ -52,6 +52,18 @@ ReadFloppy:
          int 13h			; Read the floppy disk.
 
 	 jc ReadFloppy			; Error, try again.
+
+ReadFloppy2:
+	mov bx, 2200h
+	mov ah, 2
+	mov al,		18 		; The Second Head Full
+	mov ch, 0
+	mov cl, 	1
+	mov dh, 	1	; Set it to the second head
+	mov dl, [DriveNumber]
+	int 13h			; Read the floppy disk.
+
+	jc ReadFloppy2		; If there was a error, try again.
 
 	mov cl, [DriveNumber]
 		; Stop the floppy motor from spinning 
@@ -66,6 +78,5 @@ ReadFloppy:
 	out dx, al      ; Floppy Motor stopped!
         jmp 2000h:0000
 
-	heads db 0
     times 510-($-$$) db 0
     dw 0AA55h

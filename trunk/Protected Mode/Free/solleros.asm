@@ -363,7 +363,7 @@ sector:
             mov es, ax         ;
             mov bx, 0	       ;
             mov ah, 2           ; Load disk data to ES:BX
-            mov al, 34          ; 
+            mov al, 35          ; 
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0
@@ -398,7 +398,7 @@ writesect:
             mov bx, 0	       ;
 
             mov ah, 3           ; Write disk data from ES:BX
-            mov al, 34		; 
+            mov al, 35		; 
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0

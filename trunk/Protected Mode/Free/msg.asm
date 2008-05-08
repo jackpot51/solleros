@@ -119,6 +119,7 @@ db "!MM$     !!!?MMMMMMMMMXMMMMMMXX!MMMWWHX!!MM!!!!!!!!!!!!!?MMM$",13,10,0
 
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
 bufferhelper:	db 0,0
+wordst:
 batch:	db 6,5,"tutorial",0
 	db 5,4,"clear",0
 	db 5,4,"echo The batch program can run all commands featured in SollerOS.",0
@@ -156,14 +157,14 @@ batch:	db 6,5,"tutorial",0
 	db 5,4,"echo the BATCHES ONLY!!! programs are for batches only",0
 	db 5,4,"fi",0
 	db 4,5,0
-	times 500h db 0
-variables: times 500h db 0
-varend:
-wordst:	db 6,5,"SollerOS",0
+	db 7,5,"SollerOS",0
 	db 5,4,"Is freaking awesome!",0
 	db 4,5,0
 	times 500h db 0
-commandlst: times 500h db 0
+commandlst:
+variables: times 500h db 0
+varend:
 buftxt: times 200h db 0
 buf2:	times 50h db '0'
 numbuf:	db 0,0
+copybuffer times 500h db 0
