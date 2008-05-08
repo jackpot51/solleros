@@ -18,8 +18,7 @@ CHKPRT:
  .again:
   in   al, 0x64		; read from keyboardcontroller
   test al, 2		; Check if input buffer is empty
-  jz  .go
-  jmp .again		; (demand!) This may couse hanging, use only when sure.
+  loopnz  .again
  .go
 ret
 
@@ -78,6 +77,7 @@ ret
 ;Disable Keyboard
 ;***********************************************************************
 DKEYB:
+  call CHKPRT		; check if command is progressed (demand!)
   mov  al, 0xad		; Disable Keyboard
   out  0x64, al		; write to keyboardcontroller
   call CHKPRT		; check if command is progressed (demand!)
@@ -87,6 +87,7 @@ ret
 ;Enable Keyboard
 ;***********************************************************************
 EKEYB:
+  call CHKPRT		; check if command is progressed (demand!)
   mov  al, 0xae		; Enable Keyboard
   out  0x64, al		; write to keyboardcontroller
   call CHKPRT		; check if command is progressed (demand!)
@@ -98,7 +99,7 @@ ret
 GETB:
  .cagain
   call CHKMOUS		; check if a byte is available
-  or   bl, bl
+  cmp bl, bl
   jnz .cagain
   call DKEYB		; disable keyboard to read mouse byte
   xor  ax, ax
@@ -177,7 +178,7 @@ MAINP:
   call PS2SET
   call ACTMOUS
   call GETB 	;Get the responce byte of the mouse (like: Hey i am active)  If the bytes are mixed up, remove this line or add another of this line.
-
+  call GETB
 .main
   call GETFIRST
   call GETSECOND
@@ -228,7 +229,12 @@ MAINP:
 ;=============================
  mov  si, strcdx	; display the text for Xcoord
  call disp
+ mov  al, BYTE [XCOORD]
+ mov si, mousechangepos
+ mov [si], al
  mov  al, BYTE [XCOORDN]
+ mov si, mousechangesign
+ mov [si], al
  or   al, al
  jz  .negative
  mov  si, strneg	; if the sign bit is 1 then display - sign
@@ -249,7 +255,14 @@ MAINP:
 ;=============================
  mov  si, strcdy	; display the text for Ycoord
  call disp
+ mov  al, BYTE [YCOORD]
+ mov si, mousechangepos
+ inc si
+ mov [si], al
  mov  al, BYTE [YCOORDN]
+ mov si, mousechangesign
+ inc si
+ mov [si], al
  or   al, al
  jz  .negativex
  mov  si, strneg	; if the sign bit is 1 then display - sign
@@ -265,6 +278,7 @@ MAINP:
  mov  si, stretr	; goto nextline on scr
  call disp
 
+call showcursor
 ;=============================
 ;**Lets display the L button**
 ;=============================
@@ -298,16 +312,67 @@ MAINP:
  mov  si, stretr	; goto nextline on scr
  call disp
 
-;=============================
-;**stop program on keypress**	|Note: sometimes it takes a while for the program stops, or keyboard stalls|
-;=============================  |due to more time is spend looking at the PS/2 mouse port (keyb disabled)  |
-    call int30hah5
-    jnz quitprog
-;*************************************************************
-
-
-
 jmp .main
+
+newmousecursor:
+	add dl, dl
+	mov si, lastmousepos
+	mov cx, dx
+	add dl, [si]
+	inc si
+	mov al, 0
+	sub al, dh
+	mov dh, al
+	add dh, [si]
+	dec si
+	cmp dl, 208
+	jbe nooriginx
+	mov dl, 0
+nooriginx:
+	cmp dh, 208
+	jbe nooriginy
+	mov dh, 0
+nooriginy:
+	cmp dl, 158
+	jbe nofixxcolumn
+	mov dl, 158
+nofixxcolumn:
+	cmp dh, 23
+	jbe nofixyrow
+	mov dh, 23
+nofixyrow:
+	mov [si], dx
+	inc si
+	jmp donecheckmousesign
+
+showcursor:
+	mov [dxcache2],dx
+	mov si, mousechangepos
+	mov dx, [si]
+	jmp newmousecursor
+donecheckmousesign:
+	dec si
+	mov dx, [si]
+	mov si, lastmousepos
+	mov [si], dx
+	mov si, mousechangepos
+	mov word [si], 0
+	mov si, mousechangesign
+	mov word [si], 0
+	mov al, 1
+	mov bl, 7
+	call int30hah9
+	mov dx, [dxcache2]
+	ret
+
+clearmousecursor:
+	mov [dxcache2], dx
+	mov si, lastmousepos
+	mov dx, [si]
+	mov al, 0
+	call int30hah9
+	mov dx, [dxcache2]
+	ret
 
 
 
@@ -321,9 +386,9 @@ quitprog:
 ;-----------------------------------------------------------------------
 
 
-
-
-
+lastmousepos db 10,10
+mousechangepos db 0,0
+mousechangesign db 0,0
 
 
 
@@ -340,7 +405,9 @@ quitprog:
 ;************************************************
 ;* Displays AX in a decimal way 
 ;************************************************
+dxcache2 db 0,0
 DISPDEC:
+	mov [dxcache2],dx
     mov  BYTE [zerow], 0x00
     mov  WORD [varbuff], ax
     xor  ax, ax
@@ -362,10 +429,11 @@ DISPDEC:
     je .nodisp
 
    .ydisp
-    mov  ah, 0x0E                            ; BIOS teletype
     add  al, 48                              ; lets make it a 0123456789 :D
     mov  bx, 1 
+	mov dx, [dxcache2]
     call int30hah6
+	mov [dxcache2],dx
     mov  BYTE [zerow], 0x01
    jmp .yydis
 
@@ -394,14 +462,11 @@ DISPDEC:
 ;****************************************************************
 disp:
  .HEAD
-    lodsb                                    ; load next character
-    or   al, al                              ; test for NUL character
-    jz   .DONE                               ; if NUL char found then goto done
-    mov  ah, 0Eh                             ; BIOS teletype
     mov  bx, 1 				     ; make it a nice fluffy blue (mostly it will be grey but ok..)
-    call int30hah2
-    jmp  .HEAD
- 
+	mov ax, 0
+	mov dx, [dxcache2]
+    call int30hah1
+ 	mov [dxcache2],dx
  .DONE: 
    ret
 ;*******************End Procedure ***********************
@@ -409,13 +474,16 @@ disp:
 ;*GOTOXY  go back to startpos
 ;*****************************
 GOTOXY:
+	call clearmousecursor
     mov ah, 2
     mov bh, 0                  ;0:graphic mode 0-3: in modes 2&3 0-7: in modes 0&1
+	mov dx, [dxcache2]
     mov dl, BYTE [col]
     mov dh, BYTE [row]
-    mov si, blankmsg
+    mov si, blank2
     mov al, 0
-    call int30hah2
+    call int30hah1
+	mov [dxcache2],dx
 ret
 ;*******END********
 ;
@@ -433,6 +501,7 @@ ret
 ;***********************************************************************
 ;variables
 ;***********************************************************************
+blank2	db 10,0
 LBUTTON db 0x00	;	Left   button status 1=PRESSED 0=RELEASED
 RBUTTON db 0x00	;	Right  button status 1=PRESSED 0=RELEASED
 MBUTTON db 0x00	;	Middle button status 1=PRESSED 0=RELEASED

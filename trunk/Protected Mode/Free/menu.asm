@@ -63,6 +63,7 @@ DriveNumber db 0
 	    call print
 	    pop ax
 	    call char
+	    sub dl, 2
 	    mov si, blankmsg
             jmp wrong
 protectedinit:

@@ -13,7 +13,7 @@
 	fullmsg	db	13,10,"Buffer Full",7,0
 	pwdask	db	"Enter Password:",0
 	pwd	db	"password",0
-	cmd	db	"[user@SollerOS-v0.8.2$]",0
+	cmd	db	"[user@SollerOS-v0.8.5$]",0
 	dosmode db "Horrible DOS Compatability enabled.",13,10,0
 	line	db	13,10,0
 	blankmsg db 0
@@ -116,6 +116,7 @@ db "        !!!!!MMMMMMMMMMMMMM\MM!!M$$$$$$$M!!!?MMMMR$$$$$$$$$$$",13,10
 db "xM.     `!!!MMMMMMMMMMMMM!X%!MMk~MR!!!!!XXX!!!!MMMMMMM$$$$$$$",13,10
 db "MMM.     !!!MMMMMMMMMMMMXMMXMHXMX!!!!!!!M$$$$X!!!?M!MRMR$$$$$",13,10
 db "!MM$     !!!?MMMMMMMMMXMMMMMMXX!MMMWWHX!!MM!!!!!!!!!!!!!?MMM$",13,10,0
+
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
 bufferhelper:	db 0,0
 batch:	db 6,5,"tutorial",0

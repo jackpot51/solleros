@@ -6,6 +6,10 @@ db 5,4,"vga",0
 	int 10h
 	jmp nwcmd
 
+db 5,4,"etch-a-sketch",0
+	eas:	jmp etch
+		jmp nwcmd
+
 db 5,4,"cga",0
 	cga:	mov BYTE [vga], 0
 		mov ax, 3h
@@ -46,13 +50,11 @@ db 5,4,"dos",0
 		call dos
 		jmp nwcmd
 
+progstart:		;programs start here
+
 db 5,4,"mouse",0
 		jmp mouse
 		jmp nwcmd
-
-progstart:		;programs start here
-
-
 
 db 5,4,"dir",0
 	dircmd:	jmp dir
@@ -286,10 +288,6 @@ db 5,4,"math",0
 		mov si, line
 		call print
 		ret
-	
-db 5,4,"etch-a-sketch",0
-	eas:	jmp etch
-		jmp nwcmd
 
 db 5,4,"space",0
 	space:	call clearbuffer
