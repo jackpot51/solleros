@@ -87,6 +87,8 @@ int30hah1:	;write string in si to screen, endchar in al
 		inc bx
 		cmp byte [gs:bx], 0
 		jne nobyteprnt
+		cmp byte [writecursoron], 0
+		je nobyteprnt
 		mov byte [gs:bx], ' '
 		inc bx
 		mov byte [gs:bx], 7
@@ -94,9 +96,11 @@ int30hah1:	;write string in si to screen, endchar in al
 	nobyteprnt:
 		add dl,2
 		add si, 1
+		cmp byte [writecursoron], 0
+		je forgetnextline
 		cmp dl, 160
 		jae nextlineint
-		ret
+forgetnextline:		ret
 	
 		endchar db 0
 		startdl db 0
