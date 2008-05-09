@@ -363,7 +363,7 @@ sector:
             mov es, ax         ;
             mov bx, 0	       ;
             mov ah, 2           ; Load disk data to ES:BX
-            mov al, 35          ; 
+            mov al, 17          ; 
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0
@@ -371,6 +371,17 @@ sector:
             int 13h             ; Read!
             jc read             ; ERROR => Try again
 		; Stop the floppy motor from spinning 
+ReadFloppy3:
+	mov bx, 2200h
+	mov ah, 2
+	mov al,		18 		; The Second Head Full
+	mov ch, 0
+	mov cl, 	1
+	mov dh, 	1	; Set it to the second head
+	mov dl, [DriveNumber]
+	int 13h			; Read the floppy disk.
+
+	jc ReadFloppy3		; If there was a error, try again.
  
         mov dl,		[DriveNumber]	; Select which motor to stop 
 
@@ -398,15 +409,26 @@ writesect:
             mov bx, 0	       ;
 
             mov ah, 3           ; Write disk data from ES:BX
-            mov al, 35		; 
+            mov al, 17		; 
             mov ch, 0           ; Cylinder=0
             mov cl, 2           ; Sector=2
             mov dh, 0           ; Head=0
             mov dl, [DriveNumber]           ; Drive=0
-            int 13h             ; Read!
+            int 13h             
 
             jc read3             ; ERROR => Try again
-		; Stop the floppy motor from spinning 
+		; Stop the floppy motor from spinning
+writeFloppy2:
+	mov bx, 2200h
+	mov ah, 3
+	mov al,		18 		; The Second Head Full
+	mov ch, 0
+	mov cl, 	1
+	mov dh, 	1	; Set it to the second head
+	mov dl, [DriveNumber]
+	int 13h			; Read the floppy disk.
+
+	jc writeFloppy2		; If there was a error, try again. 
  
         mov dl,		[DriveNumber]	; Select which motor to stop 
 
