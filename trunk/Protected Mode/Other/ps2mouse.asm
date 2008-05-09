@@ -343,9 +343,9 @@ nooriginy:
 	jbe nofixxcolumn
 	mov dl, 158
 nofixxcolumn:
-	cmp dh, 23
+	cmp dh, 24
 	jbe nofixyrow
-	mov dh, 23
+	mov dh, 24
 nofixyrow:
 	mov [si], dx
 	inc si

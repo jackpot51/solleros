@@ -208,10 +208,10 @@ dir:	mov si, progstart
 		jmp dirnxt
 	dirfnd2: inc si
 		call print
-		push si
+		mov di, si
 		mov si, line
 		call print
-		pop si
+		mov si, di
 		cmp si, progend
 		jae dirdn
 		jmp dirnxt

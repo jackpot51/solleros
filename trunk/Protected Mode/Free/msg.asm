@@ -90,7 +90,7 @@ db "               MMMM!!!X!/ ?MMMMMM!!!!~:((` XMMMMMMMMMM!",13,10
 db "               XHM!!!!!!~ !MMMMMM!!!((~(~ MMMMMMMMMMM~!",13,10
 db "               ~M!!!~!!` '!MMMMM!!!~~ !~ XMMMMMMMMMXM!",13,10
 db "               '!!(~~~.  (!MMMM!!!!~~~ ~XMMMMMMMMMM!!X",13,10
-db "               '!!~     '!!!MM!!!!~    `SMMMMMMMM!!!XX!:    ",13,10
+db "               '!!~     '!!!MM!!!!~    `SMMMMMMMM!!!XX!:",13,10
 db "               X!(:(    !!!!!!!!!!:  .(XXMMMMMMMM!!!!!!!!!!!!",13,10
 db "              '(~!!!!~~(!!!!!!!!!!!HMMMMMMMMMMMM!!!!!!!!!!!!!",13,10
 db "              X/~-!!!!!!!!!!!!!!!MMMMMMMMMMMMMMX!!!!!!!!!!!!!",13,10
@@ -115,7 +115,7 @@ db "~'     !!!!!!MMMMMMMMMMMMMMMMMR!X$$$$$$$$$5$$$$MMM$888M$$$$$$",13,10
 db "        !!!!!MMMMMMMMMMMMMM\MM!!M$$$$$$$M!!!?MMMMR$$$$$$$$$$$",13,10
 db "xM.     `!!!MMMMMMMMMMMMM!X%!MMk~MR!!!!!XXX!!!!MMMMMMM$$$$$$$",13,10
 db "MMM.     !!!MMMMMMMMMMMMXMMXMHXMX!!!!!!!M$$$$X!!!?M!MRMR$$$$$",13,10
-db "!MM$     !!!?MMMMMMMMMXMMMMMMXX!MMMWWHX!!MM!!!!!!!!!!!!!?MMM$",13,10,0
+db "!MM$     !!!?MMMMMMMMMXMMMMMMXX!MMMWWHX!!MM!!!!!!!!!!!!!?MMM$",13,10,0,0
 
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
 bufferhelper:	db 0,0

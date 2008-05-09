@@ -184,7 +184,7 @@ coldboot:
  	    ret
 
     print:			; 'si' comes in with string address
-	    mov bx,7		; write to display
+	    mov bx, 7		; write to display
 	    mov ax, 0
 	    call int30hah1
     finpr:  ret			; finished this line 

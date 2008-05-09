@@ -57,10 +57,6 @@ int30hah1:	;write string in si to screen, endchar in al
 		mov byte ah, [si]
 		cmp ah, [endchar]
 		je near intpmprnt
-		cmp ah, 10
-		je near intnewlineprnt
-		cmp ah, 13
-		je near intcarriagereturn
 		mov bh, 0
 		mov bl, dl
 		mov cl, dh
@@ -78,6 +74,10 @@ int30hah1:	;write string in si to screen, endchar in al
 		add bx, 160
 		loop intlnprntnm
 	intlnprnt2:
+		cmp ah, 10
+		je near intnewlineprnt
+		cmp ah, 13
+		je near intcarriagereturn
 		cmp ah, 8
 		je near backspaceprint
 		call writecursor
@@ -151,52 +151,51 @@ int30hah1:	;write string in si to screen, endchar in al
 		sub bl, dl
 		add bx, 160
 		mov dl, 0
+		cmp dh, 24
+		ja scrollscreen
 		call writecursor
-		cmp dh, 25
-		jae scrollscreen
 		jmp intprint
 	
 	scrollscreen:
 		pusha
+		mov byte [cursorcache], 0
 		call clearmousecursor
-		mov dl, 160
-		mov dh, 24
-		mov al, 1
-		call int30hah9dr
+		popa
 		dec dh
 		sub bx, 160
 		call writecursor
 		mov bx, 0
-		mov ax, 0
-		mov [gs:bx], ax
+		mov cl, 0
+		mov ch, 7
+		mov [gs:bx], cx
 		mov bx, 160
-		mov ax, [gs:bx]
+		mov cx, [gs:bx]
 		mov bx, 0
-		mov [gs:bx], ax
+		mov [gs:bx], cx
 	scrollloop:
 		cmp bx, 0FA0h
-		jae near intprint
+		ja near intprint
 		add bx, 162
-		mov ax, [gs:bx]
-		mov word [gs:bx], 0
+		mov cl, [gs:bx]
+		mov ch, al
 		sub bx, 160
-		mov [gs:bx], ax
+		mov [gs:bx], cx
 		jmp scrollloop
 
 	intcarriagereturn:
 		sub bl, dl
 		mov dl, 0
-		call writecursor
 		inc si
+		call writecursor
 		jmp intprint
 
 	intnewlineprnt:
 		add dh, 1
 		add bx, 160
-		call writecursor
 		inc si
-		cmp dh, 25
-		jae scrollscreen
+		cmp dh, 24
+		ja scrollscreen
+		call writecursor
 		jmp intprint
 
 	intpmprnt:	
@@ -283,19 +282,20 @@ int30hah2:	;read string to si, endkey in al, max in cx
 
 	dlcheck:
 		cmp dh, 0
-		jbe near intprint
+		jbe bcktobck
 		sub dh, 1
 		mov dl, 160
 		jmp bckprnt
 
 	dhcheck: cmp dh, [startdh]
-		jbe intprint
+		jbe bcktobck
 		cmp dl, 0
 		jbe dlcheck
 		jmp bckprnt
 
 	bxcache db 0,0
 	cxcache db 0,0
+	bxcache3 db 0,0
 	backspace:
 		mov [bxcache], bx
 		mov [cxcache], cx
@@ -306,11 +306,14 @@ int30hah2:	;read string to si, endkey in al, max in cx
 	bcklp:  add bx, 160
 		loop bcklp
 		mov byte [si], 0
+		sub bx, 4
+		mov [bxcache3], bx
+		call backspaceprint
+		cmp bx, [bxcache3]
+		je nomoreback
 		dec si
 		mov byte [si], 0
-nomoreback:	sub bx, 4
-		call backspaceprint
-		mov bx, [bxcache]
+nomoreback:	mov bx, [bxcache]
 		mov cx, [cxcache]
 		jmp startin
 
@@ -323,7 +326,7 @@ nomoreback:	sub bx, 4
 		inc bx
 		mov byte [gs:bx], 7
 		sub dl, 2
-		ret
+	bcktobck:	ret
 
 	entup:	
 		mov al, 13
@@ -385,7 +388,7 @@ int30hah3:	;clear screen-pretty simple
 		mov dx, 0
 	clearint:
 		cmp bx, 0FA0h
-		jae doneclearint
+		ja doneclearint
 		mov byte [gs:bx],0
 		inc bx
 		jmp clearint
@@ -577,9 +580,9 @@ clickmouse:
 	call nocursor
 	mov bx, [bxcache2]
 	cmp word [endmousepos], 0FA0h
-	jae near startclick
+	ja near startclick
 	cmp word [startmousepos], 0FA0h
-	jae near startclick
+	ja near startclick
 	mov [endmousepos], bx
 	jmp textselect
 startclick:
@@ -597,14 +600,14 @@ textselect:
 	cmp cx, bx
 	jb switchtextselect
 textselectloop:
+	cmp bx, cx
+	ja donecopytext
+	cmp bx, 0FA0h
+	ja donecopytext
 	mov al, [gs:bx]
 	cmp al, 0
 	je zerotextselect
 	mov [si], al
-	cmp bx, cx
-	jae donecopytext
-	cmp bx, 0FA0h
-	jae donecopytext
 	mov ah, 0F8h
 	inc bx
 	mov [gs:bx], ah
@@ -618,17 +621,17 @@ donecopytext:
 	ret
 bxcache2 db 0,0
 zerotextselect:
-	mov al, 10
+	mov al, 13
 	mov [si], al
 	inc si
-	mov al, 13
+	mov al, 10
 	mov [si], al
 	inc si
 findnext:
 	cmp bx, 0FA0h
-	jae donefind
+	ja donefind
 	cmp bx, cx
-	jae donefind
+	ja donefind
 	inc bx
 	mov byte [gs:bx], 0F8h
 	inc bx
@@ -646,18 +649,18 @@ switchclearmouse:
 clearmouseselect:
 	mov bx, [bxcache2]
 	cmp word [startmousepos], 0FA0h
-	jae doneclearmouse
+	ja doneclearmouse
 	cmp word [endmousepos], 0FA0h
-	jae doneclearmouse
+	ja doneclearmouse
 	mov bx, [startmousepos]
 	mov cx, [endmousepos]
 	cmp cx, bx
 	jb switchclearmouse
 clearmouseloop:
 	cmp bx, cx
-	jae doneclearmouse
+	ja doneclearmouse
 	cmp bx, 0FA0h
-	jae doneclearmouse
+	ja doneclearmouse
 	mov ah, 07h
 	inc bx
 	mov [gs:bx], ah
