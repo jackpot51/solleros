@@ -65,6 +65,18 @@ ReadFloppy2:
 
 	jc ReadFloppy2		; If there was a error, try again.
 
+ReadFloppy3:
+	mov bx, 4800h
+	mov ah, 2
+	mov al,		18 		; The Third Head Full
+	mov ch, 1
+	mov cl, 	1
+	mov dh, 	0	; Set it to the third head
+	mov dl, [DriveNumber]
+	int 13h			; Read the floppy disk.
+
+	jc ReadFloppy3		; If there was a error, try again.
+
 	mov cl, [DriveNumber]
 		; Stop the floppy motor from spinning 
  

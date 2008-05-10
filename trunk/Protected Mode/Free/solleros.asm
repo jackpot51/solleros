@@ -382,6 +382,18 @@ ReadFloppy3:
 	int 13h			; Read the floppy disk.
 
 	jc ReadFloppy3		; If there was a error, try again.
+
+ReadFloppy4:
+	mov bx, 4800h
+	mov ah, 2
+	mov al,		18 		; The Third Head Full
+	mov ch, 1
+	mov cl, 	1
+	mov dh, 	0	; Set it to the third head
+	mov dl, [DriveNumber]
+	int 13h			; Read the floppy disk.
+
+	jc ReadFloppy4		; If there was a error, try again.
  
         mov dl,		[DriveNumber]	; Select which motor to stop 
 
@@ -429,6 +441,18 @@ writeFloppy2:
 	int 13h			; Read the floppy disk.
 
 	jc writeFloppy2		; If there was a error, try again. 
+
+writeFloppy3:
+	mov bx, 4800h
+	mov ah, 3
+	mov al,		18 		; The Third Head Full
+	mov ch, 1
+	mov cl, 	1
+	mov dh, 	0	; Set it to the third head
+	mov dl, [DriveNumber]
+	int 13h			; Read the floppy disk.
+
+	jc writeFloppy3		; If there was a error, try again.
  
         mov dl,		[DriveNumber]	; Select which motor to stop 
 

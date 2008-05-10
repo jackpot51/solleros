@@ -692,7 +692,7 @@ db 5,4,"word",0
 		mov si, di
 		cmp al, 1
 		je badwordname
-		jmp findwordname
+		jmp findwordname3
 		badwordmsg db "This file already exists!",10,13,0
 	badwordname:
 		mov si, badwordmsg
