@@ -404,6 +404,7 @@ ReadFloppy4:
 	; Stop floppy motor:
 	out dx, al      ; Floppy Motor stopped!
 	    call pmode
+	call clear
 		jmp nwcmd
 
 writesect:
@@ -463,6 +464,7 @@ writeFloppy3:
 	; Stop floppy motor:
 	out dx, al      ; Floppy Motor stopped!
 	call pmode
+	call clear
             jmp nwcmd      ; Jump to the program
 
 	

@@ -4,6 +4,7 @@ prog:
 	    mov ds, ax
 	    mov es, ax
 	    mov fs, ax
+	    mov byte [mouseon], 0
 	    mov [DriveNumber], cl
 	    call pmode
 	    mov dx, 0
