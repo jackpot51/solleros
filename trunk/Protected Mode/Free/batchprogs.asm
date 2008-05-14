@@ -1,8 +1,55 @@
+
+
 db 5,4,"&",0
 	multitask:
 	jmp nwcmd
-		
-progend:		;programs end here
+	
+progend:		;programs end here	
+
+wordst:
+batch:	db 6,4,"tutorial",0
+	db 3,4,"clear",0
+	db 3,4,"echo The batch program can run all commands featured in SollerOS.",0
+	db 3,4,"echo It can also run the extra ",34,"if",34," command.",0
+	db 3,4,"echo Would you like a tour of the SollerOS system?",0
+	db 3,4,"echo If so, you can type yes and press enter.",0
+	db 3,4,"$a=",0
+	db 3,4,"if $a=no",0
+	db 3,4,"echo Fine then.",0
+	db 3,4,"stop",0
+	db 3,4,"fi",0
+	db 3,4,"if $a=yes",0
+	db 3,4,"clear",0
+	db 3,4,"dir",0
+	db 3,4,"$b=",0
+	db 3,4,"clear",0
+	db 3,4,"echo ls and dir-these show all available programs",0
+	db 3,4,"echo menu-this returns to the boot menu",0
+	db 3,4,"echo uname-this shows the system build",0
+	db 3,4,"echo help-this shows the nonexistant help file",0
+	db 3,4,"echo logout-this logs the user out",0
+	db 3,4,"echo clear-this clears the screen",0
+	db 3,4,"echo universe-this shows a famous quote from einstein",0
+	db 3,4,"echo echo-this prints text and variables to the screen",0
+	db 3,4,"echo math-this is the obsolete math program",0
+	db 3,4,"echo etch-a-sketch-this is a 3rd party app",0
+	db 3,4,"echo space-this shows the amount of available space for variables",0
+	db 3,4,"echo reload-this reloads the operating system from the floppy",0
+	db 3,4,"echo runbatch-this runs batch files",0
+	db 3,4,"echo showbatch-this shows the currently loaded batch file",0
+	db 3,4,"echo batch-this creates a new batchfile",0
+	db 3,4,"echo time-this reads the system time in an unfamiliar format",0
+	db 3,4,"echo #-this evaluates expresions",0
+	db 3,4,"echo %-this gives back the last answer",0
+	db 3,4,"echo the $ sign is used for variables",0
+	db 3,4,"echo the BATCHES ONLY!!! programs are for batches only",0
+	db 3,4,"fi",0
+	db 4,3,0
+	db 7,4,"SollerOS",0
+	db 3,4,"Is freaking awesome!",0
+	db 4,3,0
+	times 500h db 0
+commandlst:
 	
 	db 5,4,"BATCHES ONLY!!!",0
 notbatch: jmp nwcmd

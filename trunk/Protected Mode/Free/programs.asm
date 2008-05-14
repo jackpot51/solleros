@@ -362,7 +362,7 @@ db 5,4,"showbatch",0
 		mov si, batch
 		mov bx, variables
 		mov cl, 6
-		mov ch, 5
+		mov ch, 4
 		call array
 		jmp nwcmd
 	   batchprogshow:
@@ -372,7 +372,7 @@ db 5,4,"showbatch",0
 		cmp [si], al
 		je batchlistshow
 		mov cl, 6
-		mov ch, 5
+		mov ch, 4
 	findbatchname2:
 		cmp bx, variables
 		je notfoundbatchname2
@@ -392,7 +392,7 @@ db 5,4,"showbatch",0
 		mov si, bx
 		inc si
 		mov bx, variables
-		mov cl, 5
+		mov cl, 3
 		mov ch, 4
 		call array
 		jmp nwcmd
@@ -416,7 +416,7 @@ db 5,4,"showword",0
 		mov si, wordst
 		mov bx, commandlst
 		mov cl, 7
-		mov ch, 5
+		mov ch, 4
 		call array
 		jmp nwcmd
 	   wordprogshow:
@@ -426,7 +426,7 @@ db 5,4,"showword",0
 		cmp [si], al
 		je wordlistshow
 		mov cl, 7
-		mov ch, 5
+		mov ch, 4
 	findwordname:
 		cmp bx, commandlst
 		je notfoundwordname
@@ -446,7 +446,7 @@ db 5,4,"showword",0
 		mov si, bx
 		inc si
 		mov bx, commandlst
-		mov cl, 5
+		mov cl, 3
 		mov ch, 4
 		call array
 		jmp nwcmd
@@ -476,7 +476,7 @@ db 5,4,"batch",0
 		cmp [si], al
 		je nonamefound
 		mov cl, 6
-		mov ch, 5
+		mov ch, 4
 	findbatchname:
 		cmp bx, variables
 		jae goodbatchname
@@ -508,7 +508,7 @@ db 5,4,"batch",0
 	nameputbatch:
 		mov byte [bx], 6
 		inc bx
-		mov byte [bx], 5
+		mov byte [bx], 4
 		inc bx
 	nameputbatchlp:
 		cmp byte [si], 0
@@ -534,7 +534,7 @@ db 5,4,"batch",0
 		je donebatch2
 		pop bx
 		mov si, buftxt
-		mov al, 5
+		mov al, 3
 		mov [bx], al
 		inc bx
 		mov al, 4
@@ -550,7 +550,7 @@ db 5,4,"batch",0
 	donebatch2:
 		pop bx
 		mov cl, 4
-		mov ch, 5
+		mov ch, 3
 		mov [bx], cx 
 		mov si, batchmsg
 		call print
@@ -560,7 +560,7 @@ db 5,4,"batch",0
 		mov si, buftxt
 		mov bx, batch
 	batchfind: mov al, [bx]
-		cmp al, 5
+		cmp al, 3
 		je batchnext
 		cmp bx, variables
 		jae backtonwcmd
@@ -677,7 +677,7 @@ db 5,4,"word",0
 		cmp [si], al
 		je nonamefound4
 		mov cl, 7
-		mov ch, 5
+		mov ch, 4
 	findwordname3:
 		cmp bx, commandlst
 		jae goodwordname
@@ -709,7 +709,7 @@ db 5,4,"word",0
 	nameputword:
 		mov byte [bx], 7
 		inc bx
-		mov byte [bx], 5
+		mov byte [bx], 4
 		inc bx
 	nameputwordlp:
 		cmp byte [si], 0
@@ -724,7 +724,7 @@ db 5,4,"word",0
 		mov byte [bx], 0
 		inc bx
 		mov si, bx
-	wordlp: mov byte [si], 5
+	wordlp: mov byte [si], 3
 		inc si
 		mov byte [si], 4
 		inc si
@@ -754,13 +754,13 @@ db 5,4,"word",0
 		pop si
 		inc si
 		mov cl, 4
-		mov ch, 5
+		mov ch, 3
 		mov [si], cx
 		jmp nwcmd 
 		
 	doneword: sub si, 3
 		mov cl, 4
-		mov ch, 5
+		mov ch, 3
 		mov [si], cx
 		add si, 2
 		mov byte [si], 0 

@@ -6,6 +6,8 @@ prog:
 	    mov fs, ax
 	    mov byte [mouseon], 0
 	    mov [DriveNumber], cl
+		call int30hah8
+		call testfont
 	    call pmode
 	    mov dx, 0
 	    call clear
@@ -195,8 +197,108 @@ coldboot:
 		mov ax, 0
 	    mov si, bx
 	    push bx			; 'bx' comes in with string address
-	    mov bx,7		; write to display
+	    mov bx,7	; write to display
 		call int30hah1    
    	 	pop si
 		pop bx
 		ret			; finished this line 
+
+    testfont:
+	mov si, font
+	mov ax, 0A000h
+	mov gs, ax
+	mov dl,2
+	mov dh,2 
+	mov bl, 1
+	mov al, 'A'
+	call showfont
+	ret
+    showfont:
+	mov [modifier], bl
+	mov si, font
+    findfontloop:
+	cmp [si], al
+	je foundfontdone
+	cmp si, fontend
+	jae nofontfound
+	add si, 14
+	jmp findfontloop
+   nofontfound:
+	ret
+
+charmask	db 10000000b
+		db 01000000b
+		db 00100000b
+		db 00010000b
+		db 00001000b
+		db 00000100b
+		db 00000010b
+		db 00000001b
+
+   foundfontdone:
+	mov di, charmask
+	inc si
+	mov bx, charbitmapend
+   clearcharbitmap:
+	mov byte [bx], 0
+	cmp bx, charbitmap
+	jbe fontcharloadloop
+	dec bx
+	jmp clearcharbitmap
+   fontcharloadloop:
+	mov cl, [si]
+	fontcharfindloadloop:
+		mov ch, [di]
+		and ch, cl
+		cmp ch, 0
+		jne fontcharfoundload
+	loadedcharfont:
+		inc di
+		cmp di, foundfontdone
+		jb fontcharfindloadloop
+		jmp donefontloadchar
+	fontcharfoundload:
+		sub di, charmask
+		add bx, di
+		mov cl, [modifier]	
+		mov [bx], cl
+		sub bx, di
+		add di, charmask
+		jmp loadedcharfont
+	donefontloadchar:
+		add bx, 8
+		inc si
+		mov di, charmask
+		cmp bx, charbitmapend
+		jae doneloadingcharfont
+		jmp fontcharloadloop
+	doneloadingcharfont:
+		mov si, charbitmap
+		mov cl, dh
+		mov ch, 0
+		mov bl, dl
+		mov bh, 0
+		cmp cx, 0
+		je donecolumncharload
+	columncharloadloop:
+		add bx, 160
+		loop columncharloadloop
+	donecolumncharload:
+		mov cx, 7
+		mov ah, 0
+	charput:
+		mov al, [si]
+		mov [gs:bx], al
+		inc si
+		inc bx
+		loop charput
+		add bx, 152
+		inc ah
+		cmp ah, 14
+		jae donecharput
+		jmp charput
+	donecharput:
+		ret
+
+	modifier db 0
+	

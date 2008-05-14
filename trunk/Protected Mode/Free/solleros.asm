@@ -192,10 +192,21 @@ dir:	mov si, progstart
 		add ah, 5
 		cmp al, ah
 		je dirfnd
+		cmp al, 7
+		je dirfnd3
+		cmp al, 6
+		je dirfnd3
 		inc si
-		cmp si, progend
+		cmp si,  commandlst
 		jae dirdn
 		jmp dirnxt
+	batchtypemsg db "batch",0
+	dirfnd3:
+		inc si
+		cmp si, progend
+		jbe dirnxt
+		dec si
+		jmp dirfnd
 	dirfnd:	inc si
 		mov al, [si]
 		mov ah, 0
@@ -203,7 +214,7 @@ dir:	mov si, progstart
 		cmp al, ah
 		je dirfnd2
 		inc si
-		cmp si, progend
+		cmp si,  commandlst
 		jae dirdn
 		jmp dirnxt
 	dirfnd2: inc si
@@ -212,7 +223,7 @@ dir:	mov si, progstart
 		mov si, line
 		call print
 		mov si, di
-		cmp si, progend
+		cmp si,  commandlst
 		jae dirdn
 		jmp dirnxt
 	dirdn:	jmp nwcmd

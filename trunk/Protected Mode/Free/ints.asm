@@ -172,19 +172,47 @@ forgetnextline:		ret
 		mov cl, 0
 		mov ch, 7
 		mov [gs:bx], cx
+		mov si, videobuf1
+		mov bx, si
+		add bx, 160
+	scrollvideobuf:
+		cmp bx, videobuf2
+		ja scrollvideobufdn
+		mov cx, [bx]
+		mov [si], cx
+		add bx, 2
+		add si, 2
+		jmp scrollvideobuf
+	scrollvideobufdn:
+		mov bx, 160
+		mov si, videobuf2
+	scrollbuf:
+		cmp bx, 0
+		je scrollbufdn
+		mov cx, [gs:bx]
+		mov [si], cx
+		sub si, 2
+		sub bx, 2
+		jmp scrollbuf
+	scrollbufdn:
+		mov bx, 0
+		mov cx, [gs:bx]
+		mov [si], cx
 		mov bx, 160
 		mov cx, [gs:bx]
 		mov bx, 0
 		mov [gs:bx], cx
 	scrollloop:
 		cmp bx, 0FA0h
-		ja near intprint
+		ja near scrollloopdn
 		add bx, 162
 		mov cl, [gs:bx]
 		mov ch, al
 		sub bx, 160
 		mov [gs:bx], cx
 		jmp scrollloop
+	scrollloopdn:
+		jmp intprint
 
 	intcarriagereturn:
 		sub bl, dl
@@ -282,6 +310,10 @@ int30hah2:	;read string to si, endkey in al, max in cx
 		je near rshiftdown
 		cmp al, 3Ah
 		je near capslock
+		cmp al, 48h
+		je near upkeydown
+		cmp al, 50h
+		je near downkeydown
 		jmp startin
 
 	dlcheck:
@@ -331,6 +363,162 @@ nomoreback:	mov bx, [bxcache]
 		mov byte [gs:bx], 7
 		sub dl, 2
 	bcktobck:	ret
+
+
+downkeydown:
+		cmp byte [lshift], 1
+		je near screendownscroll
+		cmp byte [rshift], 1
+		je near screendownscroll
+		jmp startin
+upkeydown:
+		cmp byte [lshift], 1
+		je screenupscroll
+		cmp byte [rshift], 1
+		je screenupscroll
+		jmp startin
+
+screenupscroll:
+					;shift videobuf2 down
+					;move last line of video memory into videobuf2
+					;shift video memory down
+					;move last line of videobuf1 into video memory
+					;shift videobuf1 down
+		pusha
+		mov byte [cursorcache], 0
+		call clearmousecursor
+		mov si, videobufend
+		mov bx, videobufend
+		sub bx, 160
+	scrollbuffer2:
+		cmp bx, videobuf2
+		jb scrollbuffer2dn
+		mov cx, [bx]
+		mov [si], cx
+		sub si, 2
+		sub bx, 2
+		jmp scrollbuffer2
+		
+	scrollbuffer2dn:
+		mov si, videobuf2
+		add si, 160
+		mov bx, 0FA0h
+	scrollvideobuf3:
+		cmp si, videobuf2
+		jb near scrollvideobuf3dn
+		mov cx, [gs:bx]
+		mov [si], cx
+		sub si, 2
+		sub bx, 2
+		jmp scrollvideobuf3
+	scrollvideobuf3dn:
+		mov bx, 0FA2h
+	scrollloop2:
+		cmp bx, 160
+		jb near scrollloopdn2
+		sub bx, 162
+		mov cx, [gs:bx]
+		add bx, 160
+		mov [gs:bx], cx
+		jmp scrollloop2
+	scrollloopdn2:
+		mov bx, 0
+		mov si, videobuf2
+		sub si, 160
+	scrollbuf2:
+		cmp si, videobuf2
+		ja scrollbufdn2
+		mov cx, [si]
+		mov [gs:bx], cx
+		add si, 2
+		add bx, 2
+		jmp scrollbuf2
+	scrollbufdn2:
+		mov si, videobuf2
+		mov bx, si
+		sub bx, 160
+	scrollvideobuf2:
+		cmp bx, videobuf1
+		jb near scrollvideobuf2dn
+		mov cx, [bx]
+		mov [si], cx
+		sub si, 2
+		sub bx, 2
+		jmp scrollvideobuf2
+scrollvideobuf2dn:	popa
+		jmp startin
+
+screendownscroll:
+					;shift videobuf1 up
+					;move first line of video memory into videobuf1
+					;shift video memory up
+					;move first line of videobuf2 into video memory
+					;shift videobuf2 up
+		pusha
+		mov byte [cursorcache], 0
+		call clearmousecursor
+		mov si, videobuf1
+		mov bx, si
+		add bx, 160
+	scrollvideobuf4:
+		cmp bx, videobuf2
+		ja scrollvideobufdn4
+		mov cx, [bx]
+		mov [si], cx
+		add bx, 2
+		add si, 2
+		jmp scrollvideobuf4
+	scrollvideobufdn4:
+		mov bx, 160
+		mov si, videobuf2
+		add si, 160
+	scrollbuf4:
+		cmp si, videobuf2
+		jb scrollbufdn4
+		mov cx, [gs:bx]
+		mov [si], cx
+		sub si, 2
+		sub bx, 2
+		jmp scrollbuf4
+	scrollbufdn4:
+		mov bx, 160
+		mov cx, [gs:bx]
+		mov bx, 0
+		mov [gs:bx], cx
+	scrollloop4:
+		cmp bx, 0FA0h
+		jae near scrollloop4dn
+		add bx, 162
+		mov cx, [gs:bx]
+		sub bx, 160
+		mov [gs:bx], cx
+		jmp scrollloop4
+	scrollloop4dn:
+		mov si, videobuf2
+		mov bx, 0FA0h
+		sub bx, 160
+	scrollbuffer:
+		cmp bx, 0FA0h
+		ja near scrollbufferdn
+		mov cx, [si]
+		mov [gs:bx], cx
+		add bx, 2
+		add si, 2
+		jmp scrollbuffer
+	scrollbufferdn:
+		mov si, videobufend
+		mov bx, videobufend
+		sub bx, 160
+	scrollvideobufend:
+		cmp bx, videobuf2
+		jb scrollvideobufenddn
+		mov cx, [si]
+		mov [bx], cx
+		sub bx, 2
+		sub si, 2
+	scrollvideobufenddn:
+		popa
+		jmp startin
 
 	entup:	
 		mov al, 13
@@ -690,9 +878,23 @@ nocursor:
 	mov byte [writecursoron], 1
 	ret	
 
+endstring db 0,0
+arraystring db 0,0
+
 int30hah10:		;basicly, this will do everything. This will edit an array in si
 			;using an array seperator in cx, endstring in bx, (dl,dh), and modifier in al
 			;note that the mouse should be used to copy stuff
+	mov [si], cx
+	add si, 2
+	mov [endstring], bx
+	mov [arraystring], si
+	call input
+	mov bx, [endstring]
+	mov si, buftxt
+	call tester
+	cmp al, 1
+	je doneint30hah10
+doneint30hah10:
 	
 	
 scancode:
@@ -745,97 +947,3 @@ scancode:
 	db '/','?',35h
 	db ' ',' ',39h
 noscan:
-
-font:	
-	db	'A',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'B',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'C',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'D',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'E',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'F',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'G',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'H',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'I',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'J',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'K',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'L',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'M',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'N',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'O',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'P',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'Q',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'R',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'S',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'T',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'U',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'V',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'W',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'X',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'Y',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'Z',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'a',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'b',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'c',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'd',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'e',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'f',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'g',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'h',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'i',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'j',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'k',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'l',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'm',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'n',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'o',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'p',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'q',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'r',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	's',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	't',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'v',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'w',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'x',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'y',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'z',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'1',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'2',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'3',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'4',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'5',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'6',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'7',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'8',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'9',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'0',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'`',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'~',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'!',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'@',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'#',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'$',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'%',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'^',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'&',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'*',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'(',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	')',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'_',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'-',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'+',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'=',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'[',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	']',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'{',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'}',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	';',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	':',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	27h,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	22h,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	',',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'.',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'/',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'<',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'>',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	db	'?',0,0,0,0,0,0,0,0,0,0,0,0,0,0
-fontend:
