@@ -6,7 +6,7 @@
 	minutes db	"Minutes",13,10,0
 	notfound1 db "Program ",34,0
 	cleanmsg times 60 db ' '
-	notfound2 db  34," not found.",10,13,0
+	notfound2 db  34," not found.",13,10,0
 	charmsg db	"Enter char:",10,13,0
 	universe1 db	"Only two things are infinite, the universe and human stupidity,",13,10,"and I'm not sure about the former.",13,10,0
 	wrongpass db	"Wrong password!",13,10,0

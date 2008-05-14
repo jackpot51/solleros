@@ -48,7 +48,7 @@ batch:	db 6,4,"tutorial",0
 	db 7,4,"SollerOS",0
 	db 3,4,"Is freaking awesome!",0
 	db 4,3,0
-	times 500h db 0
+	times 1500h db 0
 commandlst:
 	
 	db 5,4,"BATCHES ONLY!!!",0
