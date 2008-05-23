@@ -15,11 +15,6 @@
 	attrib:		db 7
 
 pmode:
-	mov ax, 3h
-	int 10h
-	mov ax, 0B800h
-	mov gs, ax
-	mov byte [gs:0], '1'
 
         ; set A20 line
 	cli		;no more ints
@@ -30,7 +25,6 @@ clear_buf:
         loopnz clear_buf        ; loop until buffer is empty
         mov al, 0D1h            ; keyboard: write to output port
         out 64h, al             ; output command to keyboard
-	mov byte [gs:2], '2'
 clear_buf2:
         in al, 64h              ; wait 'till buffer is empty again
         test al, 02h
@@ -38,18 +32,15 @@ clear_buf2:
         mov al, 0dfh            ; keyboard: set A20
         out 60h, al             ; send it to the keyboard controller
         mov cx, 14h
-	mov byte [gs:4], '3'
 wait_kbc:                       ; this is approx. a 25uS delay to wait
 
         loop wait_kbc           ; command.
-	mov byte [gs:6], '4'
 
         ; the A20 line is on now.  Let's load in our IDT and GDT tables...
         ; Ideally, there will actually be data in their locations (by loading 
         ; the kernel)
         lidt [pIDT]
         lgdt [GDTR]
-	mov byte [gs:8], '5'
         ; now let's enter pmode...
 
         mov eax, cr0            ; load the control register in
@@ -58,8 +49,8 @@ wait_kbc:                       ; this is approx. a 25uS delay to wait
         jmp $+2                 ; and clear the prefetch queue
         nop
         nop 
-pm:	mov byte [gs:10], '6'
-	ret
+pm:	
+	jmp pmoderet
 
 
 	pmodemsg	db "[root@SollerOS-0.8.2]",0

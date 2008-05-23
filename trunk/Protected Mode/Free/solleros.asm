@@ -89,7 +89,6 @@ stdin:	mov al, 13
 run:	mov si, line
 	call print
 	jmp progtest
-	jmp nwcmd
 
 progtest:
 	mov si, buftxt

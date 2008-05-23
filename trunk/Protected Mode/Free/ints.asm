@@ -80,18 +80,17 @@ int30hah1:	;write string in si to screen, endchar in al
 		je near intcarriagereturn
 		cmp ah, 8
 		je near backspaceprint
-		call writecursor
-		mov  byte [gs:bx], ah
+		mov  byte [fs:bx], ah
 		inc bx
-		mov byte [gs:bx], al
+		mov byte [fs:bx], al
 		inc bx
-		cmp byte [gs:bx], 0
+		cmp byte [fs:bx], 0
 		jne nobyteprnt
 		cmp byte [writecursoron], 0
 		je nobyteprnt
-		mov byte [gs:bx], ' '
+		mov byte [fs:bx], ' '
 		inc bx
-		mov byte [gs:bx], 7
+		mov byte [fs:bx], 7
 		dec bx
 	nobyteprnt:
 		add dl,2
@@ -109,6 +108,7 @@ forgetnextline:		ret
 	writecursoron db 1
 
 	writecursor:
+		ret		;no more cursor!!!
 		cmp byte [writecursoron], 1
 		jne backnowritecursor
 		mov cx, ax
@@ -121,6 +121,7 @@ forgetnextline:		ret
 		inc ax
 		jmp writecursorloop
 	writecursordn:
+		ret
 		mov [dxcache], dx
 		add al, 1
 		mov bx, ax
@@ -147,7 +148,7 @@ forgetnextline:		ret
 		mov bx, 0
 		mov ax, 0
 		mov [loccache], bx
-		jmp writecursordn
+		ret
 		
 
 	nextlineint:
@@ -157,7 +158,6 @@ forgetnextline:		ret
 		mov dl, 0
 		cmp dh, 24
 		ja scrollscreen
-		call writecursor
 		jmp intprint
 	
 	scrollscreen:
@@ -166,50 +166,18 @@ forgetnextline:		ret
 		call clearmousecursor
 		popa
 		dec dh
-		sub bx, 160
-		call writecursor
-		mov bx, 0
-		mov cl, 0
-		mov ch, 7
-		mov [gs:bx], cx
-		mov si, videobuf1
-		mov bx, si
-		add bx, 160
-	scrollvideobuf:
-		cmp bx, videobuf2
-		ja scrollvideobufdn
-		mov cx, [bx]
-		mov [si], cx
-		add bx, 2
-		add si, 2
-		jmp scrollvideobuf
-	scrollvideobufdn:
 		mov bx, 160
-		mov si, videobuf2
-	scrollbuf:
-		cmp bx, 0
-		je scrollbufdn
-		mov cx, [gs:bx]
-		mov [si], cx
-		sub si, 2
-		sub bx, 2
-		jmp scrollbuf
-	scrollbufdn:
+		mov cx, [fs:bx]
 		mov bx, 0
-		mov cx, [gs:bx]
-		mov [si], cx
-		mov bx, 160
-		mov cx, [gs:bx]
-		mov bx, 0
-		mov [gs:bx], cx
+		mov [fs:bx], cx
 	scrollloop:
 		cmp bx, 0FA0h
 		ja near scrollloopdn
 		add bx, 162
-		mov cl, [gs:bx]
+		mov cl, [fs:bx]
 		mov ch, al
 		sub bx, 160
-		mov [gs:bx], cx
+		mov [fs:bx], cx
 		jmp scrollloop
 	scrollloopdn:
 		jmp intprint
@@ -218,7 +186,6 @@ forgetnextline:		ret
 		sub bl, dl
 		mov dl, 0
 		inc si
-		call writecursor
 		jmp intprint
 
 	intnewlineprnt:
@@ -227,7 +194,6 @@ forgetnextline:		ret
 		inc si
 		cmp dh, 24
 		ja scrollscreen
-		call writecursor
 		jmp intprint
 
 	intpmprnt:	
@@ -235,7 +201,8 @@ forgetnextline:		ret
 		mov bl, al
 		mov al, [endchar]
 		mov ah, 1
-		ret
+	jmp videobuf2copy
+	ret
 
 int30hah2:	;read string to si, endkey in al, max in cx
 		;if endkey is 0, only one char is read
@@ -356,13 +323,15 @@ nomoreback:	mov bx, [bxcache]
 	backspaceprint:
 		cmp dl, [startdl]
 		jbe dhcheck
-	bckprnt: call writecursor
+	bckprnt: 
 		add bx, 2
-		mov byte [gs:bx], ' '
+		mov byte [fs:bx], ' '
 		inc bx
-		mov byte [gs:bx], 7
+		mov byte [fs:bx], 7
 		sub dl, 2
-	bcktobck:	ret
+bcktobck: 
+	jmp videobuf2copy
+	ret
 
 
 downkeydown:
@@ -379,146 +348,10 @@ upkeydown:
 		jmp startin
 
 screenupscroll:
-					;shift videobuf2 down
-					;move last line of video memory into videobuf2
-					;shift video memory down
-					;move last line of videobuf1 into video memory
-					;shift videobuf1 down
-		pusha
-		mov byte [cursorcache], 0
-		call clearmousecursor
-		mov si, videobufend
-		mov bx, videobufend
-		sub bx, 160
-	scrollbuffer2:
-		cmp bx, videobuf2
-		jb scrollbuffer2dn
-		mov cx, [bx]
-		mov [si], cx
-		sub si, 2
-		sub bx, 2
-		jmp scrollbuffer2
-		
-	scrollbuffer2dn:
-		mov si, videobuf2
-		add si, 160
-		mov bx, 0FA0h
-	scrollvideobuf3:
-		cmp si, videobuf2
-		jb near scrollvideobuf3dn
-		mov cx, [gs:bx]
-		mov [si], cx
-		sub si, 2
-		sub bx, 2
-		jmp scrollvideobuf3
-	scrollvideobuf3dn:
-		mov bx, 0FA2h
-	scrollloop2:
-		cmp bx, 160
-		jb near scrollloopdn2
-		sub bx, 162
-		mov cx, [gs:bx]
-		add bx, 160
-		mov [gs:bx], cx
-		jmp scrollloop2
-	scrollloopdn2:
-		mov bx, 0
-		mov si, videobuf2
-		sub si, 160
-	scrollbuf2:
-		cmp si, videobuf2
-		ja scrollbufdn2
-		mov cx, [si]
-		mov [gs:bx], cx
-		add si, 2
-		add bx, 2
-		jmp scrollbuf2
-	scrollbufdn2:
-		mov si, videobuf2
-		mov bx, si
-		sub bx, 160
-	scrollvideobuf2:
-		cmp bx, videobuf1
-		jb near scrollvideobuf2dn
-		mov cx, [bx]
-		mov [si], cx
-		sub si, 2
-		sub bx, 2
-		jmp scrollvideobuf2
-scrollvideobuf2dn:	popa
-		jmp startin
+
 
 screendownscroll:
-					;shift videobuf1 up
-					;move first line of video memory into videobuf1
-					;shift video memory up
-					;move first line of videobuf2 into video memory
-					;shift videobuf2 up
-		pusha
-		mov byte [cursorcache], 0
-		call clearmousecursor
-		mov si, videobuf1
-		mov bx, si
-		add bx, 160
-	scrollvideobuf4:
-		cmp bx, videobuf2
-		ja scrollvideobufdn4
-		mov cx, [bx]
-		mov [si], cx
-		add bx, 2
-		add si, 2
-		jmp scrollvideobuf4
-	scrollvideobufdn4:
-		mov bx, 160
-		mov si, videobuf2
-		add si, 160
-	scrollbuf4:
-		cmp si, videobuf2
-		jb scrollbufdn4
-		mov cx, [gs:bx]
-		mov [si], cx
-		sub si, 2
-		sub bx, 2
-		jmp scrollbuf4
-	scrollbufdn4:
-		mov bx, 160
-		mov cx, [gs:bx]
-		mov bx, 0
-		mov [gs:bx], cx
-	scrollloop4:
-		cmp bx, 0FA0h
-		jae near scrollloop4dn
-		add bx, 162
-		mov cx, [gs:bx]
-		sub bx, 160
-		mov [gs:bx], cx
-		jmp scrollloop4
-	scrollloop4dn:
-		mov si, videobuf2
-		mov bx, 0FA0h
-		sub bx, 160
-	scrollbuffer:
-		cmp bx, 0FA0h
-		ja near scrollbufferdn
-		mov cx, [si]
-		mov [gs:bx], cx
-		add bx, 2
-		add si, 2
-		jmp scrollbuffer
-	scrollbufferdn:
-		mov si, videobufend
-		mov bx, videobufend
-		sub bx, 160
-	scrollvideobufend:
-		cmp bx, videobuf2
-		jb scrollvideobufenddn
-		mov cx, [si]
-		mov [bx], cx
-		sub bx, 2
-		sub si, 2
-	scrollvideobufenddn:
-		popa
-		jmp startin
+		
 
 	entup:	
 		mov al, 13
@@ -581,17 +414,15 @@ int30hah3:	;clear screen-pretty simple
 	clearint:
 		cmp bx, 0FA0h
 		ja doneclearint
-		mov byte [gs:bx],0
+		mov byte [fs:bx],0
 		inc bx
 		jmp clearint
 	doneclearint:
 		mov cx, ax
-		mov dx, 0
 		mov word [dxcache], 0
-		call cursorzero
-		mov bx, 0
 		mov ah, 3
-		ret
+	jmp videobuf2copy
+	ret
 
 int30hah4:	;print string and read input into si
 		;(dl,dh) and al apply
@@ -667,6 +498,7 @@ int30hah7:	;play sound
 
 int30hah8:	;load character set, bios must still be alive-i.e. no protected mode
 	mov ax, 12h
+	mov bx, 0
 	int 10h
 	mov si, font
 fontload:
@@ -680,11 +512,12 @@ fontload:
 	mov cx, 0
 	mov dx, 0
 pixelload:
-	cmp cx, 8
-	je nextrow
-	cmp dx, 14
-	je doneloadpixels
+	cmp cx, 7
+	ja nextrow
+	cmp dx, 13
+	ja doneloadpixels
 	mov ah, 0dh
+	mov bh, 0
 	int 10h
 	cmp al, 0
 	je pixeloff
@@ -695,6 +528,8 @@ doneloadpixels:
 	inc si
 	cmp si, fontend
 	jae donefontload
+	cmp byte [si], 0
+	je doneloadpixels
 	jmp fontload
 donefontload:
 	ret
@@ -704,13 +539,12 @@ nextrow: mov cx, 0
 	inc si
 	jmp pixelload
 pixeloff:
-	mov al, 0
-	add [si], al
 	inc cx
 	jmp pixelload
+cxcache2 db 0,0
 pixelon:
 	mov al, 1
-	push cx
+	mov [cxcache2], cx
 pixelloop:
 	cmp cx, 0
 	je nopixelloop
@@ -718,7 +552,7 @@ pixelloop:
 	loop pixelloop
 nopixelloop:
 	add [si], al
-	pop cx
+	mov cx, [cxcache2]
 	inc cx
 	jmp pixelload
 
@@ -751,7 +585,7 @@ cursorfnd:
 	loop cursorfnd
 nolinecursorfnd:
 	mov [bxcache2], bx
-	mov ax, [gs:bx]
+	mov ax, [fs:bx]
 	mov [cursorcache], ax
 	mov al, 'X'	
 	mov bl, 7
@@ -796,13 +630,13 @@ textselectloop:
 	ja donecopytext
 	cmp bx, 0FA0h
 	ja donecopytext
-	mov al, [gs:bx]
+	mov al, [fs:bx]
 	cmp al, 0
 	je zerotextselect
 	mov [si], al
 	mov ah, 0F8h
 	inc bx
-	mov [gs:bx], ah
+	mov [fs:bx], ah
 	inc bx
 	inc si
 	jmp textselectloop
@@ -825,9 +659,9 @@ findnext:
 	cmp bx, cx
 	ja donefind
 	inc bx
-	mov byte [gs:bx], 0F8h
+	mov byte [fs:bx], 0F8h
 	inc bx
-	cmp byte [gs:bx], 0
+	cmp byte [fs:bx], 0
 	je findnext
 copyloop: 
 	jmp textselectloop
@@ -855,7 +689,7 @@ clearmouseloop:
 	ja doneclearmouse
 	mov ah, 07h
 	inc bx
-	mov [gs:bx], ah
+	mov [fs:bx], ah
 	inc bx
 	jmp clearmouseloop
 doneclearmouse:

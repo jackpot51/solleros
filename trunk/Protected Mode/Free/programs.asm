@@ -8,13 +8,13 @@ db 5,4,"vga",0
 
 db 5,4,"etch-a-sketch",0
 	eas:	jmp etch
-		jmp nwcmd
+		iret
 
 db 5,4,"cga",0
 	cga:	mov BYTE [vga], 0
 		mov ax, 3h
 		int 10h
-		jmp nwcmd
+		iret
 
 	
 ;db 5,4,"time",0
@@ -39,17 +39,17 @@ db 5,4,"cga",0
 		call chkadd
 		mov si, line
 		call print
-		jmp nwcmd
+		iret
 
 db 5,4,"dos",0
 		mov si, dosmode
 		call print
 		call dos
-		jmp nwcmd
+		iret
 
 db 5,4,"mouse",0
 		jmp mouse
-		jmp nwcmd
+		iret
 
 progstart:		;programs start here
 

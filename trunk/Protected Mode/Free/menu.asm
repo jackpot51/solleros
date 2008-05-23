@@ -3,16 +3,61 @@ prog:
 	    mov ax, cs
 	    mov ds, ax
 	    mov es, ax
-	    mov fs, ax
 	    mov byte [mouseon], 0
 	    mov [DriveNumber], cl
-		call int30hah8
-		call testfont
-	    call pmode
-	    mov dx, 0
+	mov ax, videobuf2
+	mov fs, ax
+	mov ax, 0012h
+	mov bx, 0
+	int 10h
+	call int30hah8
+	mov ax, 0A000h
+	mov gs, ax
+	jmp pmode
+pmoderet:    mov dx, 0
 	    call clear
-            call welcome
-	    jmp menu
+            jmp welcome
+
+multitaskint:
+	MOV EAX, 0
+	MOV AX, CS
+
+	SHL EAX, 16			; 16 bit left shif of EAX
+	MOV AX, taskswitch		; AX points the the code of the Interrupt
+	XOR BX, BX			; BX = 0
+	MOV FS, BX			; FS = BX = 0
+
+	CLI				; Interrupt Flag clear
+	MOV [FS:70h*4], EAX		; Write the position of the Interrupt code into
+					; the interrupt table (index 21h)
+	STI				; Interrupt Flag set
+	ret
+
+switchtask db 0
+
+taskswitch:
+	cmp byte [multitaskon], 1
+	je taskswitchon
+	ret
+taskswitchon:
+	cmp byte [switchtask], 50
+	je switchtask1
+	cmp byte [switchtask], 100
+	je switchtask2
+	add byte [switchtask], 1
+	ret
+switchtask1:
+	pusha
+	mov eax, stack1
+	mov esp, eax
+	popa
+	ret
+switchtask2:
+	pusha
+	mov eax, stack2
+	mov esp, eax
+	popa
+	ret
 
 DriveNumber db 0
 
@@ -27,7 +72,7 @@ DriveNumber db 0
 	    call print
 	    mov si, jeremymsg2
 	    call print
-	    ret
+	    jmp menu
 
     char: 		    ;char must be in al
             mov [charcache], al
@@ -61,11 +106,6 @@ DriveNumber db 0
             je hangit
 	    cmp al, '`'
 	    je near batchfilerunit
-	    cmp al, 'p'
-	    je near protectedinit
-	    push ax
-	    call print
-	    pop ax
 	    call char
 	    sub dl, 2
 	    mov si, blankmsg
@@ -114,7 +154,7 @@ coldboot:
 		call print
 		call int30hah9
 	    call clear
-	    jmp os
+	    jmp windowterminal
 
 	coldboot2:
 			call realmode
@@ -176,13 +216,15 @@ coldboot:
 	    call char
             ret
 
+	oldercx db 0,0
+
     delay:  mov cx, 010h
 	delay1:
-		push cx
+		mov [oldercx], cx
 		mov cx, 0FFFFh
 	delay2:
             loop delay2
-		pop cx
+		mov cx, [oldercx]
 		loop delay1
  	    ret
 
@@ -203,51 +245,171 @@ coldboot:
 		pop bx
 		ret			; finished this line 
 
-    testfont:
-	mov si, font
-	mov ax, 0A000h
-	mov gs, ax
-	mov dl,2
-	mov dh,2 
-	mov bl, 1
-	mov al, 'A'
+windowmsg db "Terminal:",0
+
+windowterminal:
+	mov dx, 0			;origin
+	mov si, windowmsg		;title
+	jmp window
+
+window:
+titleshow:
+	mov al, [si]
+	cmp al, 0
+	je doneshowtitle
+	pusha
 	call showfont
+	popa
+	inc dl
+	inc si
+	jmp titleshow
+multitaskon db 0
+doneshowtitle:
+	jmp os
+			;don't even try to multitask
+	mov eax, stack1
+	mov esp, eax
+	pusha
+	mov eax, stack2
+	mov esp, eax
+	jmp ebx
+	mov byte [multitaskon], 1
+oldbx2 db 0,0
+olddi db 0,0
+oldax db 0,0
+oldbx db 0,0
+oldcx db 0,0
+olddx db 0,0
+oldsi db 0,0
+videobuf2copy:
+	mov [oldax], ax
+	mov [oldbx], bx
+	mov [oldcx], cx
+	mov [olddx], dx
+	mov [oldsi], si
+	mov [olddi], di
+	mov dh, 1
+	mov dl, 0
+	mov bx, 0
+videobuf2copy1:
+	mov ax, [fs:bx]
+	mov [oldbx2], bx
+	mov bx, 0
+	mov cx, 0
+	mov ah, 0
+	call showfont
+	inc dx
+	mov bx, [oldbx2]
+	add bx, 2
+	mov ax, 0
+	cmp bx, 0FA1h
+	jb videobuf2copy1
+donebuf2copy:
+	mov ax, [oldax]
+	mov bx, [oldbx]
+	mov cx, [oldcx]
+	mov dx, [olddx]
+	mov si, [oldsi]
+	mov di, [olddi]
 	ret
+	
+
     showfont:
-	mov [modifier], bl
-	mov si, font
+	mov byte [modifier], 1		;modifier should be bl, only 1 works properly
+	mov si, font	
+	cmp al, 0
+	je spacefound
     findfontloop:
 	cmp [si], al
 	je foundfontdone
 	cmp si, fontend
 	jae nofontfound
-	add si, 14
+	add si, 16
+	jmp findfontloop
+   spacefound:
+	mov al, ' '
 	jmp findfontloop
    nofontfound:
 	ret
 
-charmask	db 10000000b
+
+	donecharputfixcolumn:
+		inc dh	
+		mov bx, 0
+		mov bl, dl
+		sub bl, 80
+		mov ch, 0
+		mov cl, dh
+		cmp dh, 24
+		jae near donecharput2
+	columnfixit:
+		add bx, 1120
+		cmp bx, 09600h
+		ja near donecharput2
+		loop columnfixit
+		mov dl, 0
+;;;;;;		jmp donethefixcol
+	columnfixitskip:
+		mov dl, 0
+		mov word [oldbx2], 0FA1h
+		add word [markedchars], 1
+		ret
+
+charmask	db 00000001b
+		db 10000000b
 		db 01000000b
 		db 00100000b
 		db 00010000b
 		db 00001000b
 		db 00000100b
 		db 00000010b
-		db 00000001b
+
+donewiththisshit:
+	ret
+
+fixtherow:
+	mov bl, dl
+	sub bl, 80
+	mov dl, 0
+	inc dh
+	jmp donefixingtehrow
 
    foundfontdone:
+	inc si
+	cmp dh, 25
+	jae donewiththisshit
+	cmp dl, 80
+	jae fixtherow
+donefixingtehrow:
+	mov bl, dl
+	mov bh, 0
+	mov cl, dh
+	mov ch, 0
+	mov ah, 0
+	cmp cx, 0
+	je doneloadcolumn
+loadcolumn:
+	add bx, 1120
+	loop loadcolumn
+doneloadcolumn:
+	mov al, [si]
+	ror al, 1
+	mov [gs:bx], al
+	add bx, 80
+	inc ah
+	inc si
+	cmp ah, 14
+	jbe doneloadcolumn
+	ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;THIS IS THE OLD FONT LOADER--HAD PROBLEMS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	mov di, charmask
 	inc si
-	mov bx, charbitmapend
-   clearcharbitmap:
-	mov byte [bx], 0
-	cmp bx, charbitmap
-	jbe fontcharloadloop
-	dec bx
-	jmp clearcharbitmap
+	mov ax, 0
+	mov cx, 0
+	mov bx, charbitmap
    fontcharloadloop:
-	mov cl, [si]
 	fontcharfindloadloop:
+		mov cl, [si]
 		mov ch, [di]
 		and ch, cl
 		cmp ch, 0
@@ -266,39 +428,78 @@ charmask	db 10000000b
 		add di, charmask
 		jmp loadedcharfont
 	donefontloadchar:
-		add bx, 8
+		add bx, 16
+		mov cx, 8
+	clearfontcache:
+		mov byte [bx], 0
+		dec bx
+		loop clearfontcache
 		inc si
+		inc ah
 		mov di, charmask
-		cmp bx, charbitmapend
-		jae doneloadingcharfont
-		jmp fontcharloadloop
+		cmp ah, 14
+		jbe fontcharloadloop
 	doneloadingcharfont:
+		mov ax, 0
 		mov si, charbitmap
 		mov cl, dh
 		mov ch, 0
 		mov bl, dl
 		mov bh, 0
-		cmp cx, 0
-		je donecolumncharload
 	columncharloadloop:
-		add bx, 160
+		cmp cx, 0
+		je charput
+		add bx, 1120		;uses char system, not pixel system
+		cmp bx, 09601h
+		jae donecharput2
 		loop columncharloadloop
-	donecolumncharload:
-		mov cx, 7
-		mov ah, 0
 	charput:
+		add si, 7
 		mov al, [si]
+		rol al, 0
 		mov [gs:bx], al
-		inc si
-		inc bx
-		loop charput
-		add bx, 152
+		dec si
+		mov al, [si]
+		rol al, 1
+		add [gs:bx], al
+		dec si
+		mov al, [si]
+		rol al, 2
+		add [gs:bx], al
+		dec si
+		mov al, [si]
+		rol al, 3
+		add [gs:bx], al
+		dec si
+		mov al, [si]
+		rol al, 4
+		add [gs:bx], al
+		dec si
+		mov al, [si]
+		rol al, 5
+		add [gs:bx], al
+		dec si
+		mov al, [si]
+		rol al, 6
+		add [gs:bx], al
+		dec si
+		mov al, [si]
+		rol al, 7
+		add [gs:bx], al
+		add si, 8
+		add bx, 80
+		cmp bx, 09601h
+		jae donecharput2
 		inc ah
 		cmp ah, 14
-		jae donecharput
-		jmp charput
+		jbe charput
 	donecharput:
+		cmp word [markedchars], 0FA0h
+		jae donecharput2
+		ret
+	donecharput2:
+		mov word [oldbx2], 0FA1h
 		ret
 
+markedchars db 0
 	modifier db 0
-	
