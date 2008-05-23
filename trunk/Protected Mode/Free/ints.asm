@@ -156,7 +156,7 @@ forgetnextline:		ret
 		sub bl, dl
 		add bx, 160
 		mov dl, 0
-		cmp dh, 24
+		cmp dh, 23
 		ja scrollscreen
 		jmp intprint
 	
