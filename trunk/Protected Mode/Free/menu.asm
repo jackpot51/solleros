@@ -281,6 +281,9 @@ oldbx db 0,0
 oldcx db 0,0
 olddx db 0,0
 oldsi db 0,0
+checkcursorselect:
+	mov byte [mouseselecton], 1
+	jmp checkcursorselectdone
 videobuf2copy:
 	mov [oldax], ax
 	mov [oldbx], bx
@@ -293,6 +296,10 @@ videobuf2copy:
 	mov bx, 0
 videobuf2copy1:
 	mov ax, [fs:bx]
+	mov byte [mouseselecton], 0
+	cmp ah, 0F8h
+	je checkcursorselect
+checkcursorselectdone:
 	mov [oldbx2], bx
 	mov bx, 0
 	mov cx, 0
@@ -340,7 +347,7 @@ donebuf2copy:
 		sub bl, 80
 		mov ch, 0
 		mov cl, dh
-		cmp dh, 24
+		cmp dh, 25
 		jae near donecharput2
 	columnfixit:
 		add bx, 1120
@@ -376,7 +383,7 @@ fixtherow:
 
    foundfontdone:
 	inc si
-	cmp dh, 25
+	cmp dh, 26
 	jae donewiththisshit
 	cmp dl, 80
 	jae fixtherow
@@ -394,6 +401,9 @@ loadcolumn:
 doneloadcolumn:
 	mov al, [si]
 	ror al, 1
+	cmp byte [mouseselecton], 1
+	je notcheck
+notcheckdone:
 	mov [gs:bx], al
 	add bx, 80
 	inc ah
@@ -401,6 +411,12 @@ doneloadcolumn:
 	cmp ah, 14
 	jbe doneloadcolumn
 	ret
+	
+notcheck:
+	not al
+	jmp notcheckdone
+
+mouseselecton db 0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;THIS IS THE OLD FONT LOADER--HAD PROBLEMS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	mov di, charmask
 	inc si
