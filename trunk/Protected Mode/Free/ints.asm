@@ -40,6 +40,8 @@ int30hah0:	;shutdown application
 	jmp nwcmd
 
 	dxcache db 0,0
+	enddh db 0
+	scrolledlines db 0
 
 int30hah1:	;write string in si to screen, endchar in al
 		;location on screen in (dl, dh)
@@ -51,6 +53,7 @@ int30hah1:	;write string in si to screen, endchar in al
 		mov [startdl], dl
 		mov [startdh], dh
 		mov [endchar], al
+		mov byte [scrolledlines], 0
 		mov al, bl
 		mov bx, 0
 	intprint: 
@@ -180,6 +183,7 @@ forgetnextline:		ret
 		mov [fs:bx], cx
 		jmp scrollloop
 	scrollloopdn:
+		add byte [scrolledlines], 1
 		jmp intprint
 
 	intcarriagereturn:
@@ -201,6 +205,7 @@ forgetnextline:		ret
 		mov bl, al
 		mov al, [endchar]
 		mov ah, 1
+		mov [enddh], dh
 	jmp videobuf2copy
 	ret
 
@@ -421,6 +426,9 @@ int30hah3:	;clear screen-pretty simple
 		mov cx, ax
 		mov word [dxcache], 0
 		mov ah, 3
+		mov byte [enddh], 24
+		mov byte [startdh], 0
+		mov byte [scrolledlines], 0
 	jmp videobuf2copy
 	ret
 
@@ -526,7 +534,7 @@ pixelload:
 	jmp pixelload
 doneloadpixels:
 	inc si
-	cmp si, fontend
+	cmp si, fontend2
 	jae donefontload
 	cmp byte [si], 0
 	je doneloadpixels
@@ -587,17 +595,17 @@ nolinecursorfnd:
 	mov [bxcache2], bx
 	mov ax, [fs:bx]
 	mov [cursorcache], ax
-	mov al, 'X'	
+	mov al, 169	
 	mov bl, 7
 	mov byte [writecursoron], 0
 	call int30hah6
 	mov byte [writecursoron], 1
 	cmp byte [cursorcache],0
 	je near cursorspace
-	call clearmouseselect
 	mov bx, [bxcache2]
 	cmp byte [LBUTTON], 1
 	je near clickmouse
+	call clearmouseselect
 	mov word [endmousepos], 0fffh
 	mov word [startmousepos], 0fffh
 	ret
@@ -605,6 +613,7 @@ clickmouse:
 	sub dl, 2
 	call nocursor
 	mov bx, [bxcache2]
+	call clearmouseselect
 	cmp word [endmousepos], 0FA0h
 	ja near startclick
 	cmp word [startmousepos], 0FA0h
@@ -697,10 +706,10 @@ doneclearmouse:
 	ret
 cursorspace:
 	mov byte [cursorcache],' '
-	call clearmouseselect
-	mov bx, [bxcache2]
 	cmp byte [LBUTTON], 1
 	je clickmouse
+	mov bx, [bxcache2]
+	call clearmouseselect
 	mov word [endmousepos], 0fffh
 	mov word [startmousepos], 0fffh
 	ret

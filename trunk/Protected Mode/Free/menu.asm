@@ -281,6 +281,30 @@ oldbx db 0,0
 oldcx db 0,0
 olddx db 0,0
 oldsi db 0,0
+endscan dw 0FA1h
+nooverscroll:
+	mov dh, [enddh]
+	mov dl, 0
+	mov bx, 0
+	add dh, 1
+	mov cl, dh
+	mov ch, 0
+noverscrolloop2:
+	add bx, 160
+	loop noverscrolloop
+	inc bx
+	mov [endscan], bx
+	mov dl, 0
+	mov dh, [startdh]
+	sub dh, [scrolledlines]
+	mov bx, 0
+	mov cl, dh
+	mov ch, 0
+noverscrolloop:
+	add bx, 160
+	loop noverscrolloop
+	inc dh
+	jmp videobuf2copy1
 checkcursorselect:
 	mov byte [mouseselecton], 1
 	jmp checkcursorselectdone
@@ -291,6 +315,9 @@ videobuf2copy:
 	mov [olddx], dx
 	mov [oldsi], si
 	mov [olddi], di
+	;mov ah, [startdh]
+	;cmp [scrolledlines], ah		;Does not quite work yet--should only update necessary lines
+	;jb nooverscroll
 	mov dh, 1
 	mov dl, 0
 	mov bx, 0
@@ -309,7 +336,7 @@ checkcursorselectdone:
 	mov bx, [oldbx2]
 	add bx, 2
 	mov ax, 0
-	cmp bx, 0FA1h
+	cmp bx, [endscan]
 	jb videobuf2copy1
 donebuf2copy:
 	mov ax, [oldax]
@@ -347,7 +374,7 @@ donebuf2copy:
 		sub bl, 80
 		mov ch, 0
 		mov cl, dh
-		cmp dh, 25
+		cmp dh, 26
 		jae near donecharput2
 	columnfixit:
 		add bx, 1120
@@ -397,6 +424,8 @@ donefixingtehrow:
 	je doneloadcolumn
 loadcolumn:
 	add bx, 1120
+	cmp bx, 09600h
+	ja donewiththisshit
 	loop loadcolumn
 doneloadcolumn:
 	mov al, [si]
@@ -406,6 +435,8 @@ doneloadcolumn:
 notcheckdone:
 	mov [gs:bx], al
 	add bx, 80
+	cmp bx, 09600h
+	ja donewiththisshit
 	inc ah
 	inc si
 	cmp ah, 14

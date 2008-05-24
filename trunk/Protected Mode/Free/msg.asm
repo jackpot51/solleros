@@ -317,6 +317,23 @@ font:
 		times 15 db 0
 	db	21
 		times 15 db 0
+fontend2:
+	db	169
+	db	00000001b		
+	db	10000001b
+	db	11000001b
+	db	11100001b
+	db	11110001b
+	db	11111001b
+	db	11111101b
+	db	11111111b
+	db	11111001b
+	db	10111001b
+	db	00111001b
+	db	00011100b
+	db	00011100b
+	db	00001110b
+	db	00001110b
 fontend:
 charbitmap:
 	db	0,0,0,0,0,0,0,0
