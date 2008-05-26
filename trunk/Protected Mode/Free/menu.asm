@@ -1,6 +1,10 @@
     ; MENU.ASM
 prog:	
 	    mov ax, cs
+	    jmp filesystemdn
+filesystem:
+	    dw 5,4,progstart,0
+filesystemdn:
 	    mov ds, ax
 	    mov es, ax
 	    mov byte [mouseon], 0
@@ -13,8 +17,12 @@ prog:
 	call int30hah8
 	mov ax, 0A000h
 	mov gs, ax
+;;	mov ax, 03h
+;;	mov bx, 0
+;;	int 10h
 	jmp pmode
 pmoderet:    mov dx, 0
+	    ;jmp graphical
 	    call clear
             jmp welcome
 
@@ -229,10 +237,11 @@ coldboot:
  	    ret
 
     print:			; 'si' comes in with string address
-	    mov bx, 7		; write to display
-	    mov ax, 0
-	    call int30hah1
+		mov ax, 0
+		mov bx, 7
+		jmp int30hah1
     finpr:  ret			; finished this line 
+
 
     printbx:
 	    push si
@@ -257,10 +266,10 @@ titleshow:
 	mov al, [si]
 	cmp al, 0
 	je doneshowtitle
-	pusha
+	push si
 	call showfont
-	popa
-	inc dl
+	pop si
+	add dx, 8
 	inc si
 	jmp titleshow
 multitaskon db 0
@@ -282,29 +291,9 @@ oldcx db 0,0
 olddx db 0,0
 oldsi db 0,0
 endscan dw 0FA1h
-nooverscroll:
-	mov dh, [enddh]
-	mov dl, 0
-	mov bx, 0
-	add dh, 1
-	mov cl, dh
-	mov ch, 0
-noverscrolloop2:
-	add bx, 160
-	loop noverscrolloop
-	inc bx
-	mov [endscan], bx
-	mov dl, 0
-	mov dh, [startdh]
-	sub dh, [scrolledlines]
-	mov bx, 0
-	mov cl, dh
-	mov ch, 0
-noverscrolloop:
-	add bx, 160
-	loop noverscrolloop
-	inc dh
-	jmp videobuf2copy1
+startscan dw 0
+mousecursorposition dw 30,30
+lastcursorposition dw 0,0
 checkcursorselect:
 	mov byte [mouseselecton], 1
 	jmp checkcursorselectdone
@@ -315,13 +304,27 @@ videobuf2copy:
 	mov [olddx], dx
 	mov [oldsi], si
 	mov [olddi], di
-	;mov ah, [startdh]
-	;cmp [scrolledlines], ah		;Does not quite work yet--should only update necessary lines
-	;jb nooverscroll
-	mov dh, 1
-	mov dl, 0
+;;;;;;;;;mov ah, [startdh]
+;;;;;;;;;cmp [scrolledlines], ah		;Does not quite work yet--should only update necessary lines
+;;;;;;;;;jb nooverscroll
+	mov cl, [enddh]
+	mov al, [enddl]
+	mov ah, 0
+	mov ch, 0
+	cmp cx, 0
+	je donevideobufcolumn
+videobufcolumn:
+	mov dx, 0
+	mov bx, ax
+	mov ax, 160
+	mul cx
+	add ax, bx
+donevideobufcolumn:
+	mov [endscan], ax
+	mov cx, 14
+	mov dx, 0
 	mov bx, 0
-videobuf2copy1:
+videobuf2copy11:
 	mov ax, [fs:bx]
 	mov byte [mouseselecton], 0
 	cmp ah, 0F8h
@@ -329,15 +332,14 @@ videobuf2copy1:
 checkcursorselectdone:
 	mov [oldbx2], bx
 	mov bx, 0
-	mov cx, 0
 	mov ah, 0
 	call showfont
-	inc dx
+	add dx, 8
 	mov bx, [oldbx2]
 	add bx, 2
 	mov ax, 0
 	cmp bx, [endscan]
-	jb videobuf2copy1
+	jbe videobuf2copy11
 donebuf2copy:
 	mov ax, [oldax]
 	mov bx, [oldbx]
@@ -348,24 +350,8 @@ donebuf2copy:
 	ret
 	
 
-    showfont:
-	mov byte [modifier], 1		;modifier should be bl, only 1 works properly
-	mov si, font	
-	cmp al, 0
-	je spacefound
-    findfontloop:
-	cmp [si], al
-	je foundfontdone
-	cmp si, fontend
-	jae nofontfound
-	add si, 16
-	jmp findfontloop
-   spacefound:
-	mov al, ' '
-	jmp findfontloop
-   nofontfound:
-	ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;THIS IS THE OLD FONT LOADER--HAD PROBLEMS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	donecharputfixcolumn:
 		inc dh	
@@ -398,57 +384,6 @@ charmask	db 00000001b
 		db 00000100b
 		db 00000010b
 
-donewiththisshit:
-	ret
-
-fixtherow:
-	mov bl, dl
-	sub bl, 80
-	mov dl, 0
-	inc dh
-	jmp donefixingtehrow
-
-   foundfontdone:
-	inc si
-	cmp dh, 26
-	jae donewiththisshit
-	cmp dl, 80
-	jae fixtherow
-donefixingtehrow:
-	mov bl, dl
-	mov bh, 0
-	mov cl, dh
-	mov ch, 0
-	mov ah, 0
-	cmp cx, 0
-	je doneloadcolumn
-loadcolumn:
-	add bx, 1120
-	cmp bx, 09600h
-	ja donewiththisshit
-	loop loadcolumn
-doneloadcolumn:
-	mov al, [si]
-	ror al, 1
-	cmp byte [mouseselecton], 1
-	je notcheck
-notcheckdone:
-	mov [gs:bx], al
-	add bx, 80
-	cmp bx, 09600h
-	ja donewiththisshit
-	inc ah
-	inc si
-	cmp ah, 14
-	jbe doneloadcolumn
-	ret
-	
-notcheck:
-	not al
-	jmp notcheckdone
-
-mouseselecton db 0
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;THIS IS THE OLD FONT LOADER--HAD PROBLEMS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	mov di, charmask
 	inc si
 	mov ax, 0
@@ -547,6 +482,32 @@ mouseselecton db 0
 	donecharput2:
 		mov word [oldbx2], 0FA1h
 		ret
+nooverscroll:
+	mov dl, [enddh]
+	mov dh, 0
+	mov bx, 0
+	add dl, 14
+	mov cx, dx
+noverscrolloop2:
+	add bx, 160
+	loop noverscrolloop
+	inc bx
+	mov [endscan], bx
+	mov cx, 0
+	mov cl, [startdh]
+	mov ch, 0
+	mov ax, cx
+	mov cx, 8
+	mul al
+	mov cl, al
+	mov ch, 0
+	sub cx, [scrolledlines]
+	mov bx, 0
+noverscrolloop:
+	add bx, 160
+	loop noverscrolloop
+	add cx, 14
+;	jmp videobuf2copy1
 
 markedchars db 0
 	modifier db 0

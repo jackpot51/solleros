@@ -53,49 +53,51 @@ db 5,4,"mouse",0
 
 progstart:		;programs start here
 
-db 5,4,"showcopy",0
+db 10,4,1,"Programs",0
+
+db 5,4,2,"showcopy",0
 	mov si, copybuffer
 	call print
 	mov si, line
 	call print
 	jmp nwcmd
 	
-db 5,4,"dir",0
+db 5,4,2,"dir",0
 	dircmd:	jmp dir
 	
-db 5,4,"ls",0
+db 5,4,2,"ls",0
 	lscmd:	mov si, progstart
 		mov bx, progend
 		jmp dir	
 	
-db 5,4,"menu",0
+db 5,4,2,"menu",0
 	bckmnu: call clear
 		call begin
 		jmp menu
 
-db 5,4,"uname",0
+db 5,4,2,"uname",0
 	uname:	mov si, unamemsg
 		call print
 		jmp nwcmd
 
-db 5,4,"help",0
+db 5,4,2,"help",0
 	help:	mov si, helpmsg
 		call print
 		jmp nwcmd
 
-db 5,4,"logout",0
+db 5,4,2,"logout",0
 	logout:	jmp os
 
-db 5,4,"clear",0
+db 5,4,2,"clear",0
 	cls:	call clear
 		jmp nwcmd
 
-db 5,4,"universe",0
+db 5,4,2,"universe",0
 	universe: mov si, universe1
 		call print
 		jmp nwcmd
 
-db 5,4,"echo",0
+db 5,4,2,"echo",0
 	echo:	mov si, buftxt
 		add si, 5
 		mov al, [si]
@@ -141,7 +143,7 @@ db 5,4,"echo",0
 		call print
 		jmp nwcmd
 	
-db 5,4,"math",0
+db 5,4,2,"math",0
 		mov si, mathmsg
 		call print
 	math:	mov si, mathmsg2
@@ -293,7 +295,7 @@ db 5,4,"math",0
 		call print
 		ret
 
-db 5,4,"space",0
+db 5,4,2,"space",0
 	space:	call clearbuffer
 		mov si, variables
 		dec si
@@ -325,29 +327,29 @@ db 5,4,"space",0
 		call print
 		jmp nwcmd
 
-db 5,4,"reload",0
+db 5,4,2,"reload",0
 	reload:	call clear
 		mov si, sectormsg
 		call print
 		jmp sector
 		
-;db 5,4,"restore",0
+;db 5,4,2,"restore",0
 	;restore:	
 	;	jmp restoresect
 	
-db 5,4,"save",0
+db 5,4,2,"save",0
 	savesect:	
 		mov si, si
 		mov bx, bx
 		jmp writesect
 	
-db 5,4,"runbatch",0
+db 5,4,2,"runbatch",0
 	runbatch2:	
 		mov si, si
 		mov bx, bx
 		jmp donebatch
 	
-db 5,4,"showbatch",0
+db 5,4,2,"showbatch",0
 	showbatch:
 		mov si, buftxt
 	    testshowbatch:
@@ -362,7 +364,7 @@ db 5,4,"showbatch",0
 		mov si, batch
 		mov bx, variables
 		mov cl, 6
-		mov ch, 4
+		mov ch, 2
 		call array
 		jmp nwcmd
 	   batchprogshow:
@@ -372,7 +374,7 @@ db 5,4,"showbatch",0
 		cmp [si], al
 		je batchlistshow
 		mov cl, 6
-		mov ch, 4
+		mov ch, 2
 	findbatchname2:
 		cmp bx, variables
 		je notfoundbatchname2
@@ -381,7 +383,7 @@ db 5,4,"showbatch",0
 		inc bx
 		jmp findbatchname2
 	checkbatchname2:
-		add bx, 2
+		add bx, 3
 		mov di, si
 		call tester
 		mov si, di
@@ -402,7 +404,7 @@ db 5,4,"showbatch",0
 		call print
 		jmp nwcmd
 	
-db 5,4,"showword",0
+db 5,4,2,"showword",0
 		mov si, buftxt
 	    testshowword:
 		mov al, [si]
@@ -435,7 +437,7 @@ db 5,4,"showword",0
 		inc bx
 		jmp findwordname
 	checkwordname:
-		add bx, 2
+		add bx, 3
 		mov di, si
 		call tester
 		mov si, di
@@ -456,7 +458,7 @@ db 5,4,"showword",0
 		call print
 		jmp nwcmd
 	
-db 5,4,"batch",0
+db 5,4,2,"batch",0
 	batchst: mov si, buftxt
 		mov al, ' '
 		mov bx, batch
@@ -485,7 +487,7 @@ db 5,4,"batch",0
 		inc bx
 		jmp findbatchname
 	checkbatchname:
-		add bx, 2
+		add bx, 3
 		mov di, si
 		call tester
 		mov si, di
@@ -509,6 +511,8 @@ db 5,4,"batch",0
 		mov byte [bx], 6
 		inc bx
 		mov byte [bx], 4
+		inc bx
+		mov byte [bx], 2
 		inc bx
 	nameputbatchlp:
 		cmp byte [si], 0
@@ -655,7 +659,7 @@ db 5,4,"batch",0
 	exitword db "\x",0
 	wordmsg db "Type \x to exit.",10,13,0
 
-db 5,4,"word",0
+db 5,4,2,"word",0
 		mov si, wordmsg
 		call print
 	        mov si, buftxt
@@ -686,7 +690,7 @@ db 5,4,"word",0
 		inc bx
 		jmp findwordname3
 	checkwordname3:
-		add bx, 2
+		add bx, 3
 		mov di, si
 		call tester
 		mov si, di
@@ -710,6 +714,8 @@ db 5,4,"word",0
 		mov byte [bx], 7
 		inc bx
 		mov byte [bx], 4
+		inc bx
+		mov byte [bx], 2
 		inc bx
 	nameputwordlp:
 		cmp byte [si], 0
@@ -766,7 +772,7 @@ db 5,4,"word",0
 		mov byte [si], 0 
 		jmp nwcmd
 
-db 5,4,"#",0
+db 5,4,2,"#",0
 	num:	call clearbuffer
 		mov si, buftxt
 		mov eax, 0
@@ -887,12 +893,12 @@ db 5,4,"#",0
 		jmp retnum
 	retnum: jmp nwcmd
 	
-db 5,4,"%",0
+db 5,4,2,"%",0
 	ans:	mov si, buf2
 		call chkadd
 		jmp nwcmd
 
-	db 5,4,"$",0
+db 5,4,2,"$",0
 var:	mov si, buftxt
 	mov bx, variables
 lkeq:	mov al, [si]

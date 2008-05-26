@@ -119,6 +119,8 @@ db "!MM$     !!!?MMMMMMMMMXMMMMMMXX!MMMWWHX!!MM!!!!!!!!!!!!!?MMM$",13,10,0,0
 
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
 font:	
+	db	0
+	times 15 db 0
 	db	' '
 	times 15 db 0
 	db	10
@@ -360,7 +362,7 @@ buftxt: times 200h db 0
 buf2:	times 50h db '0'
 numbuf:	db 0,0
 copybuffer times 500h db 0
-videobuf2 times 0Fa0h 	db 0
+videobuf2 times 0Fa0h 	db ' '
 videobufend:
 
 stack1:	times 500h db 0

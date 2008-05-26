@@ -1,13 +1,13 @@
 
 
-db 5,4,"&",0
+db 5,4,2,"&",0
 	multitask:
 	jmp nwcmd
 	
 progend:		;programs end here	
 
 wordst:
-batch:	db 6,4,"tutorial",0
+batch:	db 6,4,2,"tutorial",0
 	db 3,4,"clear",0
 	db 3,4,"echo The batch program can run all commands featured in SollerOS.",0
 	db 3,4,"echo It can also run the extra ",34,"if",34," command.",0
@@ -45,16 +45,17 @@ batch:	db 6,4,"tutorial",0
 	db 3,4,"echo the BATCHES ONLY!!! programs are for batches only",0
 	db 3,4,"fi",0
 	db 4,3,0
-	db 7,4,"SollerOS",0
+	db 7,4,2,"SollerOS",0
 	db 3,4,"Is freaking awesome!",0
 	db 4,3,0
 	times 1500h db 0
+	db 4,10,1
 commandlst:
 	
-	db 5,4,"BATCHES ONLY!!!",0
+	db 10,4,1,"BATCHES ONLY!!!",0
 notbatch: jmp nwcmd
 
-	db 5,4,"while",0
+	db 5,4,2,"while",0
 while:  mov al, 1
 	cmp [BATCHISON], al
 	jne notbatch
@@ -72,7 +73,7 @@ whilefnd: dec si
 	jmp chkeqsn
 
 
-	db 5,4,"if",0
+	db 5,4,2,"if",0
 if:	mov al, 1
 	cmp [BATCHISON], al
 	jne notbatch
@@ -133,7 +134,7 @@ ifvar3: push si
 	pop si
 	jmp ifvar4
 
-	db 5,4,"else",0
+	db 5,4,2,"else",0
 else:	mov ah, 0
 	mov al, [IFON]
 	mov si, IFTRUE
@@ -151,7 +152,7 @@ else2:	mov al, 0
 	mov [si], al
 	jmp nwcmd
 
-	db 5,4,"loop",0
+	db 5,4,2,"loop",0
 	cmp [LOOPON], al
 	je filoop
 	jmp nwcmd
@@ -160,7 +161,7 @@ filoop: mov si, [LOOPPOS]
 	jmp nwcmd
 	
 
-	db 5,4,"fi",0
+	db 5,4,2,"fi",0
 	mov al, 1
 	cmp [BATCHISON], al
 	jne NEAR nwcmd
@@ -168,7 +169,7 @@ fi:	mov al, 1
 	sub [IFON],al
 	jmp nwcmd
 
-	db 5,4,"stop",0
+	db 5,4,2,"stop",0
 stop:	mov al, 0
 	mov [BATCHISON], al
 	mov [IFON], al
@@ -176,9 +177,11 @@ stop:	mov al, 0
 	mov [LOOPON], al
 	jmp nwcmd
 	
-	db 5,4,"easter",0
+	db 5,4,2,"easter",0
 easter:	mov si, easteregg
 	call print
 	jmp nwcmd
+	
+	db 4,10,1
 
 batchprogend:

@@ -7,4 +7,6 @@
     %include 'Free\dosemul.asm'
     %include 'Free\pmode.asm'
     %include 'Free\ints.asm'
+    %include 'Free\graphical.asm'
+    %include 'Other\LINE.asm'
     %include 'Free\msg.asm'

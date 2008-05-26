@@ -111,7 +111,7 @@ forgetnextline:		ret
 	writecursoron db 1
 
 	writecursor:
-		ret		;no more cursor!!!
+		;ret		;no more cursor!!!
 		cmp byte [writecursoron], 1
 		jne backnowritecursor
 		mov cx, ax
@@ -124,7 +124,7 @@ forgetnextline:		ret
 		inc ax
 		jmp writecursorloop
 	writecursordn:
-		ret
+		;ret
 		mov [dxcache], dx
 		add al, 1
 		mov bx, ax
@@ -206,8 +206,10 @@ forgetnextline:		ret
 		mov al, [endchar]
 		mov ah, 1
 		mov [enddh], dh
+		mov [enddl], dl
 	jmp videobuf2copy
 	ret
+enddl db 0
 
 int30hah2:	;read string to si, endkey in al, max in cx
 		;if endkey is 0, only one char is read
@@ -333,8 +335,10 @@ nomoreback:	mov bx, [bxcache]
 		mov byte [fs:bx], ' '
 		inc bx
 		mov byte [fs:bx], 7
+	mov [enddl], dl
 		sub dl, 2
 bcktobck: 
+	mov [enddh], dh
 	jmp videobuf2copy
 	ret
 
@@ -427,6 +431,7 @@ int30hah3:	;clear screen-pretty simple
 		mov word [dxcache], 0
 		mov ah, 3
 		mov byte [enddh], 24
+		mov byte [enddl], 160
 		mov byte [startdh], 0
 		mov byte [scrolledlines], 0
 	jmp videobuf2copy
@@ -595,7 +600,7 @@ nolinecursorfnd:
 	mov [bxcache2], bx
 	mov ax, [fs:bx]
 	mov [cursorcache], ax
-	mov al, 169	
+	mov al, 169
 	mov bl, 7
 	mov byte [writecursoron], 0
 	call int30hah6

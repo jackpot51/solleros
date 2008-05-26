@@ -284,7 +284,8 @@ mousemain:
  mov  si, stretr	; goto nextline on scr
  call disp
 
-call showcursor
+;;;;;call showpixelcursor ;must be enabled to allow cursor in vga mode
+call showcursor	;must be enabled to allow cursor in text mode
 ;=============================
 ;**Lets display the L button**
 ;=============================
@@ -319,6 +320,10 @@ call showcursor
  call disp
 
 ret
+
+cxcache4 db 0,0
+
+bxcache4 db 0,0
 
 newmousecursor:
 	add dl, dl
@@ -368,6 +373,56 @@ donecheckmousesign:
 	mov al, 1
 	mov bl, 7
 	call int30hah9dr
+	mov dx, [dxcache2]
+	ret
+
+showpixelcursor:
+	mov [cxcache4], cx
+	mov [bxcache4], bx
+	mov [dxcache2],dx
+	mov bx, [mousechangepos]
+	add bl, bl
+	mov dx, [mousecursorposition]
+	mov cx, [mousecursorposition + 2]
+	mov ax, 0
+	sub al, bh
+	mov bh, 0
+	add dx, bx
+	add cx, ax
+	cmp dx, 1000
+	jbe nooriginx2
+	mov dx, 0
+nooriginx2:
+	cmp cx, 1000
+	jbe nooriginy2
+	mov cx, 0
+nooriginy2:
+	cmp dx, 638
+	jbe nofixxcolumn2
+	mov dx, 638
+nofixxcolumn2:
+	cmp cx, 478
+	jbe nofixyrow2
+	mov cx, 478
+nofixyrow2:
+	mov [mousecursorposition], dx
+	mov [mousecursorposition + 2], cx
+	mov bx, 0 
+	mov ah, 0
+	mov al, ' '
+	mov dx, [lastcursorposition]
+	mov cx, [lastcursorposition + 2]
+	call showfont
+	mov eax, [mousecursorposition]
+	mov [lastcursorposition], eax
+	mov bx, 0
+	mov ah, 0
+	mov al, 169
+	mov dx, [mousecursorposition]
+	mov cx, [mousecursorposition + 2]
+	call showfont
+	mov cx, [cxcache4]
+	mov bx, [bxcache4]
 	mov dx, [dxcache2]
 	ret
 
