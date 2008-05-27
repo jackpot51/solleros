@@ -100,6 +100,23 @@ indexloop2done:
 		jmp indexloop
 indexloopdone: 	ret
 
+db 5,4,"showindex",0
+	mov si, fileindex
+	mov bx, fileindexend
+	mov cl, 5
+	mov ch, 4
+	call array
+	mov si, fileindex
+	mov bx, fileindexend
+	mov cl, 6
+	mov ch, 4
+	call array
+	mov si, fileindex
+	mov bx, fileindexend
+	mov cl, 7
+	mov ch, 4
+	call array
+	jmp nwcmd
 
 db 5,4,"showcopy",0
 	mov si, copybuffer
