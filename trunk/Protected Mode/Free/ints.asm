@@ -83,6 +83,7 @@ int30hah1:	;write string in si to screen, endchar in al
 		je near intcarriagereturn
 		cmp ah, 8
 		je near backspaceprint
+		call writecursor
 		mov  byte [fs:bx], ah
 		inc bx
 		mov byte [fs:bx], al
@@ -331,6 +332,7 @@ nomoreback:	mov bx, [bxcache]
 		cmp dl, [startdl]
 		jbe dhcheck
 	bckprnt: 
+	call writecursor
 		add bx, 2
 		mov byte [fs:bx], ' '
 		inc bx
@@ -600,7 +602,7 @@ nolinecursorfnd:
 	mov [bxcache2], bx
 	mov ax, [fs:bx]
 	mov [cursorcache], ax
-	mov al, 169
+	mov al, 'X'
 	mov bl, 7
 	mov byte [writecursoron], 0
 	call int30hah6

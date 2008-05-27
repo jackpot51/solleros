@@ -108,7 +108,7 @@ fndprg:	inc bx
 	cmp bx, batchprogend
 	jae prgnf
 	jmp prgnxt
-fndprg2: add bx, 2
+fndprg2: add bx, 1
 	mov si, buftxt
 	call tester
 	cmp al, 1
@@ -194,27 +194,16 @@ dir:	mov si, progstart
 		je dirfnd3
 		cmp al, 6
 		je dirfnd3
-		;cmp al, 10
-		;je currentdirup
-		;cmp al, [currentdir]
-		;je currentdirdown
 		inc si
 		cmp si,  commandlst
 		jae dirdn
 		jmp dirnxt
 	typetable db 6,4,0,"batch",0,7,4,0,"document",0,10,4,0,"folder",0,5,4,0,"executable",0
-	currentdirup:
-		inc si
-		mov al, [si]
-		mov [currentdir], al
-		jmp dirfnd2
-	currentdirdown:
 	dirfnd3:
 		inc si
 		cmp si, progend
 		jbe dirnxt
 		dec si
-		jmp dirfnd
 	dirfnd:	inc si
 		mov al, [si]
 		mov ah, 0
@@ -224,7 +213,7 @@ dir:	mov si, progstart
 		cmp si,  commandlst
 		jae dirdn
 		jmp dirnxt
-	dirfnd2: add si, 2
+	dirfnd2: add si, 1
 		call print
 		mov di, si
 		mov si, line

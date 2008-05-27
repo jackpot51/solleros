@@ -3,13 +3,13 @@ prog:
 	    mov ax, cs
 	    jmp filesystemdn
 filesystem:
-	    dw 5,4,progstart,0
+	    dw 5,4,progstart,batchprogend,fileindex,fileindexend,variables,varend,0
 filesystemdn:
 	    mov ds, ax
 	    mov es, ax
 	    mov byte [mouseon], 0
 	    mov [DriveNumber], cl
-	mov ax, videobuf2
+	mov ax, 0B800h
 	mov fs, ax
 	mov ax, 0012h
 	mov bx, 0
@@ -17,9 +17,10 @@ filesystemdn:
 	call int30hah8
 	mov ax, 0A000h
 	mov gs, ax
-;;	mov ax, 03h
-;;	mov bx, 0
-;;	int 10h
+	mov ax, 03h
+	mov bx, 0
+	int 10h
+	call indexfiles
 	jmp pmode
 pmoderet:    mov dx, 0
 	    ;jmp graphical
@@ -298,6 +299,7 @@ checkcursorselect:
 	mov byte [mouseselecton], 1
 	jmp checkcursorselectdone
 videobuf2copy:
+	ret
 	mov [oldax], ax
 	mov [oldbx], bx
 	mov [oldcx], cx
