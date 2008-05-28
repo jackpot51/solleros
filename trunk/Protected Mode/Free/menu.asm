@@ -1,11 +1,12 @@
     ; MENU.ASM
 prog:	
 	    mov ax, cs
-	    jmp filesystemdn
-filesystem:
-	    dw 5,4,progstart,batchprogend,fileindex,fileindexend,variables,varend,0
-filesystemdn:
+	    jmp mainindexdn
+mainindex:
+	    dw 0405h,progstart,batchprogend,fileindex,fileindexend,variables,varend,nwcmd,int30h,0
+mainindexdn:
 	    mov ds, ax
+	    mov ax, 9000h
 	    mov es, ax
 	    mov byte [mouseon], 0
 	    mov [DriveNumber], cl

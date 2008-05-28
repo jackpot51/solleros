@@ -12,27 +12,28 @@ ints:	;these are inits to be used in pmode or by 3rd party apps
 					; the interrupt table (index 30h)
 	STI				; Interrupt Flag set
 	ret
+db "INTS HERE",0
 
 int30h:
-	cmp ah, 0
+	test ah, 0
 	je near int30hah0
-	cmp ah, 1
+	test ah, 1
 	je near int30hah1
-	cmp ah, 2
+	test ah, 2
 	je near int30hah2
-	cmp ah, 3
+	test ah, 3
 	je near int30hah3
-	cmp ah, 4
+	test ah, 4
 	je near int30hah4
-	cmp ah, 5
+	test ah, 5
 	je near int30hah5
-	cmp ah, 6
+	test ah, 6
 	je near int30hah6
-	cmp ah, 7
+	test ah, 7
 	je near int30hah7
-	cmp ah, 8
+	test ah, 8
 	je near int30hah8
-	cmp ah, 9
+	test ah, 9
 	je near int30hah9
 	ret
 

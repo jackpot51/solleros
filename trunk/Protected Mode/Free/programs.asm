@@ -90,6 +90,8 @@ indexloop2done:
 		jmp nameindex
 	nameindexdone:
 		inc bx
+		mov byte [bx], 0
+		inc bx
 		inc si
 		mov [bx], si
 		add bx, 2

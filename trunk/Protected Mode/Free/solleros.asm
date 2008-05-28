@@ -92,12 +92,12 @@ run:	mov si, line
 
 progtest:
 	mov si, buftxt
-	mov bx, progstart
+	mov bx, fileindex
 prgnxt:	mov al, [bx]
 	cmp al, 5
 	je fndprg
 	inc bx
-	cmp bx, batchprogend
+	cmp bx, fileindexend
 	jae prgnf
 	jmp prgnxt
 fndprg:	inc bx
@@ -105,7 +105,7 @@ fndprg:	inc bx
 	cmp al, 4
 	je fndprg2
 	inc bx
-	cmp bx, batchprogend
+	cmp bx, fileindexend
 	jae prgnf
 	jmp prgnxt
 fndprg2: add bx, 1
@@ -113,10 +113,10 @@ fndprg2: add bx, 1
 	call tester
 	cmp al, 1
 	jne prgnxt
-	cmp bx, batchprogend
+	cmp bx, fileindexend
 	jae prgdn
-	inc bx
-	jmp bx
+	add bx, 2
+	jmp word [bx]
 prgnf:	mov si, notfound1
 	call print
 	mov si, buftxt
@@ -185,7 +185,7 @@ cndtestalmost:
 	mov al, 2
 	ret
 currentdir db 0
-dir:	mov si, progstart
+dir:	mov si, fileindex
 	dirnxt:	mov al, [si]
 		mov ah, 0
 		cmp al, 5
@@ -195,7 +195,7 @@ dir:	mov si, progstart
 		cmp al, 6
 		je dirfnd3
 		inc si
-		cmp si,  commandlst
+		cmp si,  fileindexend
 		jae dirdn
 		jmp dirnxt
 	typetable db 6,4,0,"batch",0,7,4,0,"document",0,10,4,0,"folder",0,5,4,0,"executable",0
@@ -210,7 +210,7 @@ dir:	mov si, progstart
 		cmp al, 4
 		je dirfnd2
 		inc si
-		cmp si,  commandlst
+		cmp si,  fileindexend
 		jae dirdn
 		jmp dirnxt
 	dirfnd2: add si, 1
@@ -219,7 +219,7 @@ dir:	mov si, progstart
 		mov si, line
 		call print
 		mov si, di
-		cmp si,  commandlst
+		cmp si,  fileindexend
 		jae dirdn
 		jmp dirnxt
 	dirdn:	jmp nwcmd
