@@ -35,6 +35,8 @@ int30h:
 	je near int30hah8
 	test ah, 9
 	je near int30hah9
+	test ah, 10
+	je near int30hah10
 	ret
 
 int30hah0:	;shutdown application
@@ -113,7 +115,7 @@ forgetnextline:		ret
 	writecursoron db 1
 
 	writecursor:
-		;ret		;no more cursor!!!
+	ret		;no more cursor!!!
 		cmp byte [writecursoron], 1
 		jne backnowritecursor
 		mov cx, ax
@@ -209,7 +211,7 @@ forgetnextline:		ret
 		mov ah, 1
 		mov [enddh], dh
 		mov [enddl], dl
-	jmp videobuf2copy
+	call videobuf2copy
 	ret
 enddl db 0
 
@@ -272,6 +274,8 @@ int30hah2:	;read string to si, endkey in al, max in cx
 	intcheckkey:	;i actually mean down when i say up
 		cmp byte [trans], 1
 		je near intNOKEY
+		cmp al, 0Fh
+		je near tabdown
 		cmp al, 1Ch
 		je near entup
 		cmp al, 0Eh
@@ -291,16 +295,19 @@ int30hah2:	;read string to si, endkey in al, max in cx
 		cmp al, 50h
 		je near downkeydown
 		jmp startin
-
+	tabdown:
+		cmp byte [commandline], 1
+		jne near startin
+		jmp startin
 	dlcheck:
 		cmp dh, 0
-		jbe bcktobck
+		jbe near bcktobck
 		sub dh, 1
 		mov dl, 160
 		jmp bckprnt
 
 	dhcheck: cmp dh, [startdh]
-		jbe bcktobck
+		jbe near bcktobck
 		cmp dl, 0
 		jbe dlcheck
 		jmp bckprnt
@@ -439,7 +446,7 @@ int30hah3:	;clear screen-pretty simple
 		mov byte [scrolledlines], 0
 	jmp videobuf2copy
 	ret
-
+commandline db 0
 int30hah4:	;print string and read input into si
 		;(dl,dh) and al apply
 
@@ -466,6 +473,7 @@ int30hah4:	;print string and read input into si
 		mov bl, [blcache]
 		jmp int30hah4lp
 	doneint30hah4:
+		mov byte [commandline], 0
 		ret
 	sicache	db 0,0
 	alcache db 0
@@ -574,7 +582,6 @@ nopixelloop:
 
 cursorcache db 0,0
 mouseon	db 0
-
 int30hah9:		;get mouse info
 	cmp byte [mouseon],1
 	je .maincall
@@ -603,7 +610,7 @@ nolinecursorfnd:
 	mov [bxcache2], bx
 	mov ax, [fs:bx]
 	mov [cursorcache], ax
-	mov al, 'X'
+	mov al, 169
 	mov bl, 7
 	mov byte [writecursoron], 0
 	call int30hah6
@@ -732,7 +739,7 @@ nocursor:
 endstring db 0,0
 arraystring db 0,0
 
-int30hah10:		;basicly, this will do everything. This will edit an array in si
+int30hah10:		;basicaly, this will do everything. This will edit an array in si
 			;using an array seperator in cx, endstring in bx, (dl,dh), and modifier in al
 			;note that the mouse should be used to copy stuff
 	mov [si], cx
@@ -745,7 +752,11 @@ int30hah10:		;basicly, this will do everything. This will edit an array in si
 	call tester
 	cmp al, 1
 	je doneint30hah10
-doneint30hah10:
+doneint30hah10: ret
+
+int30hah11:		;This will retrieve the position of a file with the name in si 
+			;and put its position in bx and file separator in cx
+
 	
 	
 scancode:

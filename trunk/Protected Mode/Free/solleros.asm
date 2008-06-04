@@ -63,6 +63,7 @@ full:	mov si, fullmsg
 
 
 nwcmd:	mov al, 1
+		mov byte [commandline], 1
 	cmp [BATCHISON], al
 	jae near batchran
 cancel:	mov al, 0
@@ -115,7 +116,7 @@ fndprg2: add bx, 1
 	jne prgnxt
 	cmp bx, fileindexend
 	jae prgdn
-	add bx, 2
+	add bx, 3
 	jmp word [bx]
 prgnf:	mov si, notfound1
 	call print
@@ -201,7 +202,7 @@ dir:	mov si, fileindex
 	typetable db 6,4,0,"batch",0,7,4,0,"document",0,10,4,0,"folder",0,5,4,0,"executable",0
 	dirfnd3:
 		inc si
-		cmp si, progend
+		cmp si, fileindexend
 		jbe dirnxt
 		dec si
 	dirfnd:	inc si
@@ -494,6 +495,7 @@ writeFloppy4:
 
 	; Stop floppy motor:
 	out dx, al      ; Floppy Motor stopped!
+	ret
 	call pmode
 	call clear
             jmp nwcmd      ; Jump to the program

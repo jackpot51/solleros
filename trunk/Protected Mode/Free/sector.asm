@@ -9,13 +9,21 @@ ORG 7c00h
 	jmp start
 
 	DriveNumber db 0
+	modifier db 0,7
 
-	sectormsg2 db "Loading OS...",0
+	sectormsg2 db "Loading OS...",10,13,0
+	sectormsg3 db "Roses are 0xFF",10,13,0
+	sectormsg4 db "Violets are 0x01",10,13,0
+	sectormsg5 db "All of my base",10,13,0
+	sectormsg6 db "Are belong to you",10,13,0
 	
     start:                ; Update the segment registers
 	mov [DriveNumber], dl
 	xor ax,		ax		; XOR ax
 	mov ds,		ax		; Mov AX into DS
+	mov ax, 12h
+	mov bx, 0
+	int 10h
 
 ResetFloppy:
 	mov ax,		0x00		; Select Floppy Reset BIOS Function
@@ -25,8 +33,22 @@ ResetFloppy:
         jc ResetFloppy		; If there was a error, try again.
 
 	mov si, sectormsg2
+	call print2
+	mov byte [modifier + 1], 0FFh
+	mov si, sectormsg3
+	call print2
+	mov byte [modifier + 1], 1
+	mov si, sectormsg4
+	call print2
+	mov byte [modifier + 1], 7
+	mov si, sectormsg5
+	call print2
+	mov byte [modifier + 1], 7
+	mov si, sectormsg6
+	call print2
+	jmp ReadFloppy
     print2:			; 'si' comes in with string address
-	    mov bx,7		; write to display
+	    mov bx,[modifier]		; write to display
 	    mov ah,0Eh		; screen function
     prs2:    mov al,[si]         ; get next character
 	    cmp al,0		; look for terminator 
@@ -34,7 +56,7 @@ ResetFloppy:
 	    int 10h		; write character to screen.    
      	    inc si	     	; move to next character
 	    jmp prs2		; loop
-    finpr2:
+    finpr2: ret
 
 ReadFloppy:
 	mov ax, 2000h

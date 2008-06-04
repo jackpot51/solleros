@@ -51,6 +51,11 @@ db 5,4,"mouse",0
 		jmp mouse
 		iret
 fileindex: times 500h db 0	;index format can be found in SollerOS programming guide
+customprograms:			;put custom index items here. I promise I won't overwrite them
+				;although they may be written twice if they are in the filesystem
+	db 5,4,"Hello World"
+	dw 0,hello,0		;;example of a custom file descriptor
+	
 fileindexend:
 filetypes db 5,4,6,4,7,4
 progstart:		;programs start here
@@ -68,7 +73,7 @@ indexloop:
 		cmp cx, [di]
 		je indexloop2done
 		sub di, 2
-		cmp di, fileindexend
+		cmp di, customprograms
 		jae indexloop2
 	mov di, progstart
 	sub di, 2
@@ -90,17 +95,74 @@ indexloop2done:
 		jmp nameindex
 	nameindexdone:
 		inc bx
-		mov byte [bx], 0
-		inc bx
+		mov word [bx], 0
+		add bx, 2
 		inc si
 		mov [bx], si
 		add bx, 2
-		mov byte [bx], 0
-		cmp bx, fileindexend
+		mov word [bx], 0
+		add bx, 2
+		cmp bx, customprograms
 		jae indexloopdone
 		add si, 1
 		jmp indexloop
 indexloopdone: 	ret
+com dw 0
+db 5,4,"tely",0				;file header, must add to customindex
+	tely:
+	call realmode
+		push dx
+	mov ah, 0
+	mov al, 11100011b ; 1 start bit, 1 stop bit, no parity bit
+	mov dl, [buftxt + 6]
+	mov dh, 0
+	sub dl, 49
+	mov [com], dx
+	int 14h ; 8-bit data, 9600 baud rate
+	;;;;;Serial Port is set;;;;;
+		mov si, buftxt
+		cmp byte [buftxt + 5], 's'
+		jne receive
+		add si, 7
+	send:
+	sendloop:
+		mov al, [si]
+		cmp al, 0
+		je donesend
+		mov dx, [com] ;Select COM:
+		mov ah, 1 ;Transmit opcode
+		int 14h	
+		inc si
+		jmp sendloop
+	donesend:
+		mov al, 21
+		mov dx, [com] ;Select COM:
+		mov ah, 1 ;Transmit opcode
+		int 14h	
+		pop dx
+		jmp nwcmd
+	receive:
+	receiveloop:
+		mov dx, [com]          ;Select COM:
+		mov al, 0
+                mov ah, 2           ;Receive opcode
+                int 14h
+		mov [si], al
+		inc si
+		push si
+		pop dx
+		call int30hah6
+		pop si
+		push dx
+		cmp al, 21
+		jne receiveloop
+	donereceive:
+		pop dx
+		mov si, buftxt	
+		call print
+		mov si, line
+		call print
+		jmp nwcmd
 
 db 5,4,"showindex",0
 	mov si, fileindex

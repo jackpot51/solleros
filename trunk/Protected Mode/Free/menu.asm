@@ -1,16 +1,17 @@
     ; MENU.ASM
+	[BITS 16]
 prog:	
 	    mov ax, cs
 	    jmp mainindexdn
 mainindex:
-	    dw 0405h,progstart,batchprogend,fileindex,fileindexend,variables,varend,nwcmd,int30h,0
+	    dw 0405h,progstart,batchprogend,fileindex,fileindexend,variables,varend,nwcmd,int30h,physbaseptr,0
 mainindexdn:
 	    mov ds, ax
 	    mov ax, 9000h
 	    mov es, ax
 	    mov byte [mouseon], 0
 	    mov [DriveNumber], cl
-	mov ax, 0B800h
+	mov ax, videobuf2
 	mov fs, ax
 	mov ax, 0012h
 	mov bx, 0
@@ -18,15 +19,25 @@ mainindexdn:
 	call int30hah8
 	mov ax, 0A000h
 	mov gs, ax
-	mov ax, 03h
+	mov ax, 12h
 	mov bx, 0
 	int 10h
-	call indexfiles
-	jmp pmode
-pmoderet:    mov dx, 0
-	    ;jmp graphical
+	call pmode
+pmoderet:    
+	call indexfiles	
+	mov dx, 0
 	    call clear
             jmp welcome
+
+svga:
+	mov ax, 04F01h
+	mov cx, 0000000100000000b
+	mov di, VBEMODEINFOBLOCK
+	int 10h
+	mov ax, 04F02h	
+	mov bx, 0000000100000000b
+	int 10h
+	ret
 
 multitaskint:
 	MOV EAX, 0
@@ -39,34 +50,58 @@ multitaskint:
 
 	CLI				; Interrupt Flag clear
 	MOV [FS:70h*4], EAX		; Write the position of the Interrupt code into
-					; the interrupt table (index 21h)
+					; the interrupt table (index 70h)
 	STI				; Interrupt Flag set
+	mov ax, 0B800h
+	mov fs, ax
 	ret
 
-switchtask db 0
+switchtask dw 0
 
 taskswitch:
 	cmp byte [multitaskon], 1
 	je taskswitchon
 	ret
 taskswitchon:
-	cmp byte [switchtask], 50
+	cmp word [switchtask], 50
 	je switchtask1
-	cmp byte [switchtask], 100
-	je switchtask2
-	add byte [switchtask], 1
+	cmp word [switchtask], 100
+	jae switchtask2
+	add word [switchtask], 1
 	ret
 switchtask1:
 	pusha
-	mov eax, stack1
-	mov esp, eax
+	push ds
+	push es
+	push fs
+	push gs
+	push cs
+	mov ax, stack1
+	mov sp, ax
 	popa
+	pop ds
+	pop es
+	pop fs
+	pop gs
+	pop cs
 	ret
 switchtask2:
+	mov word [switchtask], 0
 	pusha
-	mov eax, stack2
-	mov esp, eax
+	push ds
+	push es
+	push fs
+	push gs
+	push cs
+	mov ax, stack2
+	mov sp, ax
 	popa
+	pop ds
+	pop es
+	pop fs
+	pop gs
+	pop cs
+	jmp awesome
 	ret
 
 DriveNumber db 0
@@ -276,241 +311,26 @@ titleshow:
 	jmp titleshow
 multitaskon db 0
 doneshowtitle:
-	jmp os
-			;don't even try to multitask
-	mov eax, stack1
-	mov esp, eax
+			
+	jmp os	;don't even try to multitask
+	mov ax, stack1
+	mov sp, ax
 	pusha
-	mov eax, stack2
-	mov esp, eax
-	jmp ebx
+	push ds
+	push es
+	push fs
+	push gs
+	push cs
+	cmp byte [multitaskon], 1
+	je awesome
+	mov ax, stack2
+	mov sp, ax
 	mov byte [multitaskon], 1
-oldbx2 db 0,0
-olddi db 0,0
-oldax db 0,0
-oldbx db 0,0
-oldcx db 0,0
-olddx db 0,0
-oldsi db 0,0
-endscan dw 0FA1h
-startscan dw 0
-mousecursorposition dw 30,30
-lastcursorposition dw 0,0
-checkcursorselect:
-	mov byte [mouseselecton], 1
-	jmp checkcursorselectdone
-videobuf2copy:
-	ret
-	mov [oldax], ax
-	mov [oldbx], bx
-	mov [oldcx], cx
-	mov [olddx], dx
-	mov [oldsi], si
-	mov [olddi], di
-;;;;;;;;;mov ah, [startdh]
-;;;;;;;;;cmp [scrolledlines], ah		;Does not quite work yet--should only update necessary lines
-;;;;;;;;;jb nooverscroll
-	mov cl, [enddh]
-	mov al, [enddl]
-	mov ah, 0
-	mov ch, 0
-	cmp cx, 0
-	je donevideobufcolumn
-videobufcolumn:
-	mov dx, 0
-	mov bx, ax
-	mov ax, 160
-	mul cx
-	add ax, bx
-donevideobufcolumn:
-	mov [endscan], ax
-	mov cx, 14
-	mov dx, 0
-	mov bx, 0
-videobuf2copy11:
-	mov ax, [fs:bx]
-	mov byte [mouseselecton], 0
-	cmp ah, 0F8h
-	je checkcursorselect
-checkcursorselectdone:
-	mov [oldbx2], bx
-	mov bx, 0
-	mov ah, 0
-	call showfont
-	add dx, 8
-	mov bx, [oldbx2]
-	add bx, 2
-	mov ax, 0
-	cmp bx, [endscan]
-	jbe videobuf2copy11
-donebuf2copy:
-	mov ax, [oldax]
-	mov bx, [oldbx]
-	mov cx, [oldcx]
-	mov dx, [olddx]
-	mov si, [oldsi]
-	mov di, [olddi]
-	ret
-	
+	jmp bx
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;THIS IS THE OLD FONT LOADER--HAD PROBLEMS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-	donecharputfixcolumn:
-		inc dh	
-		mov bx, 0
-		mov bl, dl
-		sub bl, 80
-		mov ch, 0
-		mov cl, dh
-		cmp dh, 26
-		jae near donecharput2
-	columnfixit:
-		add bx, 1120
-		cmp bx, 09600h
-		ja near donecharput2
-		loop columnfixit
-		mov dl, 0
-;;;;;;		jmp donethefixcol
-	columnfixitskip:
-		mov dl, 0
-		mov word [oldbx2], 0FA1h
-		add word [markedchars], 1
-		ret
-
-charmask	db 00000001b
-		db 10000000b
-		db 01000000b
-		db 00100000b
-		db 00010000b
-		db 00001000b
-		db 00000100b
-		db 00000010b
-
-	mov di, charmask
-	inc si
-	mov ax, 0
-	mov cx, 0
-	mov bx, charbitmap
-   fontcharloadloop:
-	fontcharfindloadloop:
-		mov cl, [si]
-		mov ch, [di]
-		and ch, cl
-		cmp ch, 0
-		jne fontcharfoundload
-	loadedcharfont:
-		inc di
-		cmp di, foundfontdone
-		jb fontcharfindloadloop
-		jmp donefontloadchar
-	fontcharfoundload:
-		sub di, charmask
-		add bx, di
-		mov cl, [modifier]	
-		mov [bx], cl
-		sub bx, di
-		add di, charmask
-		jmp loadedcharfont
-	donefontloadchar:
-		add bx, 16
-		mov cx, 8
-	clearfontcache:
-		mov byte [bx], 0
-		dec bx
-		loop clearfontcache
-		inc si
-		inc ah
-		mov di, charmask
-		cmp ah, 14
-		jbe fontcharloadloop
-	doneloadingcharfont:
-		mov ax, 0
-		mov si, charbitmap
-		mov cl, dh
-		mov ch, 0
-		mov bl, dl
-		mov bh, 0
-	columncharloadloop:
-		cmp cx, 0
-		je charput
-		add bx, 1120		;uses char system, not pixel system
-		cmp bx, 09601h
-		jae donecharput2
-		loop columncharloadloop
-	charput:
-		add si, 7
-		mov al, [si]
-		rol al, 0
-		mov [gs:bx], al
-		dec si
-		mov al, [si]
-		rol al, 1
-		add [gs:bx], al
-		dec si
-		mov al, [si]
-		rol al, 2
-		add [gs:bx], al
-		dec si
-		mov al, [si]
-		rol al, 3
-		add [gs:bx], al
-		dec si
-		mov al, [si]
-		rol al, 4
-		add [gs:bx], al
-		dec si
-		mov al, [si]
-		rol al, 5
-		add [gs:bx], al
-		dec si
-		mov al, [si]
-		rol al, 6
-		add [gs:bx], al
-		dec si
-		mov al, [si]
-		rol al, 7
-		add [gs:bx], al
-		add si, 8
-		add bx, 80
-		cmp bx, 09601h
-		jae donecharput2
-		inc ah
-		cmp ah, 14
-		jbe charput
-	donecharput:
-		cmp word [markedchars], 0FA0h
-		jae donecharput2
-		ret
-	donecharput2:
-		mov word [oldbx2], 0FA1h
-		ret
-nooverscroll:
-	mov dl, [enddh]
-	mov dh, 0
-	mov bx, 0
-	add dl, 14
-	mov cx, dx
-noverscrolloop2:
-	add bx, 160
-	loop noverscrolloop
-	inc bx
-	mov [endscan], bx
-	mov cx, 0
-	mov cl, [startdh]
-	mov ch, 0
-	mov ax, cx
-	mov cx, 8
-	mul al
-	mov cl, al
-	mov ch, 0
-	sub cx, [scrolledlines]
-	mov bx, 0
-noverscrolloop:
-	add bx, 160
-	loop noverscrolloop
-	add cx, 14
-;	jmp videobuf2copy1
-
-markedchars db 0
-	modifier db 0
+awesome:
+	mov si, windowmsg
+	mov dl, 0
+	mov dh, 2
+	call print
+	jmp awesome

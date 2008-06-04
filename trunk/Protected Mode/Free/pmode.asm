@@ -10,12 +10,7 @@
 		        dw 17FFh
 			dd 0800h
 
-	linenum:	db 0
-	charnum:	db 0
-	attrib:		db 7
-
 pmode:
-
         ; set A20 line
 	cli		;no more ints
         xor ax, ax
@@ -50,7 +45,7 @@ wait_kbc:                       ; this is approx. a 25uS delay to wait
         nop
         nop 
 pm:	
-	jmp pmoderet
+	ret
 
 
 	pmodemsg	db "[root@SollerOS-0.8.2]",0
