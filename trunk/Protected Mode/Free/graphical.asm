@@ -1,30 +1,3 @@
-startupbmp:
-	dw 1000000000000010b,0000000001000000b, 0000000000000000b,0010000000000000b
-	dw 0100000000000010b,0000000000100000b, 0000000000000000b,0001000000000000b
-	dw 0010000000000010b,0000000000010000b, 0000000000000000b,0000100000000000b
-	dw 0001000000000010b,0000000000001000b, 0000000000000000b,0000010000000000b
-	dw 0000100000000010b,0000000000000100b, 0000000000000000b,0000001000000000b
-	dw 0000010000000010b,0000000000000010b, 0000000000000000b,0000000100000000b
-	dw 0000001000000010b,0000000000000001b, 0000000000000000b,0000000010000000b
-	dw 0000000100000010b,0000000000000000b, 1000000000000000b,0000000001000000b
-	dw 0000000010000010b,0000000000000000b, 0100000000000000b,0000000000100000b
-	dw 0000000001000010b,0000000000000000b, 0010000000000000b,0000000000010000b
-	dw 0000000000100010b,0000000000000000b, 0001000000000000b,0000000000001000b
-	dw 0000000000010010b,0000000000000000b, 0000100000000000b,0000000000000100b
-	dw 0000000000001010b,0000000000000000b, 0000010000000000b,0000000000000010b
-	dw 0000000000000110b,0000000000000000b, 0000001000000000b,0000000000000001b
-	dw 0000000000000010b,0000000000000000b, 0000000100000000b,0000000000000000b
-	dw 0000000000000011b,0000000000000000b, 0000000010000000b,0000000000000000b
-	dw 0000000000000010b,1000000000000000b, 0000000001000000b,0000000000000000b
-	dw 0000000000000010b,0100000000000000b, 0000000000100000b,0000000000000000b
-	dw 0000000000000010b,0010000000000000b, 0000000000010000b,0000000000000000b
-	dw 0000000000000010b,0001000000000000b, 0000000000001000b,0000000000000000b
-	dw 0000000000000010b,0000100000000000b, 0000000000000100b,0000000000000000b
-	dw 0000000000000010b,0000010000000000b, 0000000000000010b,0000000000000000b
-	dw 0000000000000010b,0000001000000000b, 0000000000000001b,0000000000000000b
-	dw 0000000000000010b,0000000100000000b, 0000000000000000b,1000000000000000b
-	dw 0000000000000010b,0000000010000000b, 0000000000000000b,0100000000000000b
-
 oldbx2 db 0,0
 olddi db 0,0
 oldax db 0,0
@@ -34,8 +7,7 @@ olddx db 0,0
 oldsi db 0,0
 endscan dw 0FA1h
 startscan dw 0
-mousecursorposition dw 30,30
-lastcursorposition dw 0,0
+
 checkcursorselect:
 	mov byte [mouseselecton], 1
 	jmp checkcursorselectdone
@@ -130,29 +102,15 @@ graphicspos db 0,0
 
 bluescreen:
 	mov edi, [physbaseptr]
-	mov cx, 0ffffh
+	mov cx, 0FFFh
 	mov ax, 0FFh
 bluescreenloop
 	mov [edi], ax
-	add edi, 2
+	inc edi
+	inc edi
 	loop bluescreenloop
 donebluescreen:
 	jmp donebluescreen
-
-
-graphical:	
-	mov si, startupbmp
-	mov dx, 8
-	mov cx, 8
-	mov ax, 64
-	mov bx, 25
-	;call showbmp
-	mov bx, 0
-	mov dx, 100
-	mov cx, 1
-	mov ax, 'S'
-	call showfont
-	jmp graphical
 	
 
 
@@ -181,6 +139,12 @@ sub [widthoffset], ax
 mov [widthdived], ax
 mov bx, 0
 jmp foundfontdone
+
+savefont:
+	mov byte [savefonton], 1
+	call showfont
+	mov byte [savefonton], 0
+	ret
 
 showfont:
 	mov [cxcache3], cx
@@ -241,11 +205,14 @@ loadcolumn:
 	mov dx, 0
 	mul cx
 	add bx, ax
-	mov dx, [dxcache4]
 doneloadcolumn:
 	mov cx, [cxcache3]
 	mov ah, 0
+	cmp byte [savefonton], 1
+	je savefonthere
 	mov al, [si]
+	mov dh, 11111111b
+	mov dl, 0
 	ror al, 1
 	cmp byte [mouseselecton], 1
 	je notcheck
@@ -256,24 +223,39 @@ notcheckdone:
 	jne loadcharpos
 loadcharposdone:
 	mov cx, [cxcache3]
-	mov [gs:bx], al
+	and dx, [gs:bx]
+	mov [gs:bx], ax
+	or [gs:bx], dx
+donesavefont:
 	inc bx
-	or [gs:bx], ah
-	;	inc si
-	;	add dx, 8
-	;	cmp dx, [endwidth]
-	;	jb doneloadcolumn
-	;	sub dx, 8
-	;	dec si
 	add bx, [widthoffset]
 	inc di
 	inc si
 	cmp di, [height]
 	jbe doneloadcolumn
 	mov cx, [cxcache3]
+	mov dx, [dxcache4]
 	ret
 
+savefonthere:
+	mov ax, [gs:bx]
+	mov cx, [remainder]
+	cmp cx, 0
+	jne savefonthereloop
+savefonthere2:
+	mov cx, [cxcache3]
+	rol al, 1
+	mov [si], al
+	mov ah, 0
+	jmp donesavefont	
+
+savefonthereloop:
+	rol ax, 1
+	loop savefonthereloop
+	jmp savefonthere2
+
 loadcharpos:
+	ror dx, 1
 	ror ax, 1
 	loop loadcharpos
 	jmp loadcharposdone
@@ -282,6 +264,7 @@ notcheck:
 	not al
 	jmp notcheckdone
 		
+savefonton db 0
 
 mouseselecton db 0
 
@@ -338,7 +321,7 @@ rsvdfieldposition	db 0	    ;Bit position of lsb of reserved bask
 directcolormodeinfo	db 0	    ;Direct color mode attributes
 
 ;Mandatory information for VBE 2.0 and above
-physbaseptr dw 0,0         ;Physical address for flat frame buffer
+physbaseptr dw 69h,69         ;Physical address for flat frame buffer
 offscreenmemoffset dw 0,0  ;Pointer to start of off screen memory
 offscreenmemsize dw 0      ;Amount of off screen memory in 1Kb units
 reserved2 times 206 db 0   ;Remainder of ModeInfoBlock

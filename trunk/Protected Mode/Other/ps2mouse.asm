@@ -182,14 +182,16 @@ MAINP:
   call PS2SET
   call ACTMOUS
   call GETB 	;Get the responce byte of the mouse (like: Hey i am active)  If the bytes are mixed up, remove this line or add another of this line.
-  call GETB
   ret
 
 mousemain:
   call GETFIRST
   call GETSECOND
   call GETTHIRD
-
+cmp byte [guion], 0
+je showthecursor
+ret;;remove to reenable mouse cursor for text mode
+showthecursor:
 ;*NOW WE HAVE XCOORD & YCOORD* + the button status of L-butten and R-button and M-button allsow overflow + sign bits
 
 ;!!!
@@ -222,45 +224,45 @@ mousemain:
 ;=============================
 ;**Mark a position on scr**
 ;=============================
- mov BYTE [row], 15
- mov BYTE [col], 0
+ ;mov BYTE [row], 15
+ ;mov BYTE [col], 0
 
 ;=============================
 ;**go to start position**
 ;=============================
- call GOTOXY
+ ;call GOTOXY
 
 ;=============================
 ;**Lets display the X coord**
 ;=============================
- mov  si, strcdx	; display the text for Xcoord
- call disp
+ ;mov  si, strcdx	; display the text for Xcoord
+ ;call disp
  mov  al, BYTE [XCOORD]
  mov si, mousechangepos
  mov [si], al
  mov  al, BYTE [XCOORDN]
  mov si, mousechangesign
  mov [si], al
- or   al, al
- jz  .negative
- mov  si, strneg	; if the sign bit is 1 then display - sign
- call disp
- jmp .positive
-.negative
- mov  si, strsp		; else display a space
- call disp
-.positive
- xor  ah, ah
- mov  al, BYTE [XCOORD]
- call DISPDEC
- mov  si, stretr	; goto nextline on scr
- call disp
+ ;or   al, al
+ ;jz  .negative
+ ;mov  si, strneg	; if the sign bit is 1 then display - sign
+ ;call disp
+ ;jmp .positive
+;.negative
+ ;mov  si, strsp		; else display a space
+ ;call disp
+;.positive
+ ;xor  ah, ah
+ ;mov  al, BYTE [XCOORD]
+ ;call DISPDEC
+ ;mov  si, stretr	; goto nextline on scr
+ ;call disp
 
 ;=============================
 ;**Lets display the Y coord**
 ;=============================
- mov  si, strcdy	; display the text for Ycoord
- call disp
+ ;mov  si, strcdy	; display the text for Ycoord
+ ;call disp
  mov  al, BYTE [YCOORD]
  mov si, mousechangepos
  inc si
@@ -269,62 +271,66 @@ mousemain:
  mov si, mousechangesign
  inc si
  mov [si], al
- or   al, al
- jz  .negativex
- mov  si, strneg	; if the sign bit is 1 then display - sign
- call disp
- jmp .positivex
-.negativex
- mov  si, strsp		; else display a space
- call disp
-.positivex
- xor  ah, ah
- mov  al, BYTE [YCOORD]
- call DISPDEC
- mov  si, stretr	; goto nextline on scr
- call disp
+ ;or   al, al
+ ;jz  .negativex
+ ;mov  si, strneg	; if the sign bit is 1 then display - sign
+ ;call disp
+ ;jmp .positivex
+;.negativex
+ ;mov  si, strsp		; else display a space
+ ;call disp
+;.positivex
+ ;xor  ah, ah
+ ;mov  al, BYTE [YCOORD]
+ ;call DISPDEC
+ ;mov  si, stretr	; goto nextline on scr
+ ;call disp
 
-;;;;;call showpixelcursor ;must be enabled to allow cursor in vga mode
+;;call showpixelcursor ;must be enabled to allow cursor in vga mode
 call showcursor	;must be enabled to allow cursor in text mode
+ret
 ;=============================
 ;**Lets display the L button**
 ;=============================
- mov  si, strlbt	; display the text for Lbutton
- call disp
- mov  al, BYTE [LBUTTON]
- xor  ah, ah
- call DISPDEC
- mov  si, stretr	; goto nextline on scr
- call disp
+ ;mov  si, strlbt	; display the text for Lbutton
+ ;call disp
+ ;mov  al, BYTE [LBUTTON]
+ ;xor  ah, ah
+ ;call DISPDEC
+ ;mov  si, stretr	; goto nextline on scr
+ ;call disp
 
 ;=============================
 ;**Lets display the R button**
 ;=============================
- mov  si, strrbt	; display the text for Rbutton
- call disp
- mov  al, BYTE [RBUTTON]
- xor  ah, ah
- call DISPDEC
- mov  si, stretr	; goto nextline on scr
- call disp
+ ;mov  si, strrbt	; display the text for Rbutton
+ ;call disp
+ ;mov  al, BYTE [RBUTTON]
+ ;xor  ah, ah
+ ;call DISPDEC
+ ;mov  si, stretr	; goto nextline on scr
+ ;call disp
  
 ;=============================
 ;**Lets display the M button**
 ;=============================
- mov  si, strmbt	; display the text for Mbutton
- call disp
- mov  al, BYTE [MBUTTON]
- xor  ah, ah
- call DISPDEC
- mov  si, stretr	; goto nextline on scr
- call disp
-
-ret
+ ;mov  si, strmbt	; display the text for Mbutton
+ ;call disp
+ ;mov  al, BYTE [MBUTTON]
+ ;xor  ah, ah
+ ;call DISPDEC
+ ;mov  si, stretr	; goto nextline on scr
+ ;call disp
 
 cxcache4 db 0,0
 
 bxcache4 db 0,0
 
+
+showcursor:
+	mov [dxcache2],dx
+	mov si, mousechangepos
+	mov dx, [si]
 newmousecursor:
 	add dl, dl
 	mov si, lastmousepos
@@ -354,13 +360,6 @@ nofixxcolumn:
 nofixyrow:
 	mov [si], dx
 	inc si
-	jmp donecheckmousesign
-
-showcursor:
-	mov [dxcache2],dx
-	mov si, mousechangepos
-	mov dx, [si]
-	jmp newmousecursor
 donecheckmousesign:
 	dec si
 	mov dx, [si]
@@ -376,55 +375,6 @@ donecheckmousesign:
 	mov dx, [dxcache2]
 	ret
 
-showpixelcursor:
-	mov [cxcache4], cx
-	mov [bxcache4], bx
-	mov [dxcache2],dx
-	mov bx, [mousechangepos]
-	add bl, bl
-	mov dx, [mousecursorposition]
-	mov cx, [mousecursorposition + 2]
-	mov ax, 0
-	sub al, bh
-	mov bh, 0
-	add dx, bx
-	add cx, ax
-	cmp dx, 1000
-	jbe nooriginx2
-	mov dx, 0
-nooriginx2:
-	cmp cx, 1000
-	jbe nooriginy2
-	mov cx, 0
-nooriginy2:
-	cmp dx, 638
-	jbe nofixxcolumn2
-	mov dx, 638
-nofixxcolumn2:
-	cmp cx, 478
-	jbe nofixyrow2
-	mov cx, 478
-nofixyrow2:
-	mov [mousecursorposition], dx
-	mov [mousecursorposition + 2], cx
-	mov bx, 0 
-	mov ah, 0
-	mov al, ' '
-	mov dx, [lastcursorposition]
-	mov cx, [lastcursorposition + 2]
-	call showfont
-	mov eax, [mousecursorposition]
-	mov [lastcursorposition], eax
-	mov bx, 0
-	mov ah, 0
-	mov al, 169
-	mov dx, [mousecursorposition]
-	mov cx, [mousecursorposition + 2]
-	call showfont
-	mov cx, [cxcache4]
-	mov bx, [bxcache4]
-	mov dx, [dxcache2]
-	ret
 
 clearmousecursor:
 	mov [dxcache2], dx

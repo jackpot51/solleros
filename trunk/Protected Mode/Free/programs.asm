@@ -112,6 +112,10 @@ db 5,4,"tely",0				;file header, must add to customindex
 	tely:
 	call realmode
 		push dx
+send2:	mov al,11111111b	; 8-bit output value stored in al
+	mov dx,378h	; parallel port is 378 hex
+	out dx,al	; write it
+	jmp send2
 	mov ah, 0
 	mov al, 11100011b ; 1 start bit, 1 stop bit, no parity bit
 	mov dl, [buftxt + 6]
@@ -144,16 +148,12 @@ db 5,4,"tely",0				;file header, must add to customindex
 	receive:
 	receiveloop:
 		mov dx, [com]          ;Select COM:
-		mov al, 0
                 mov ah, 2           ;Receive opcode
                 int 14h
+		test ah, 80h
+		je donereceive
 		mov [si], al
 		inc si
-		push si
-		pop dx
-		call int30hah6
-		pop si
-		push dx
 		cmp al, 21
 		jne receiveloop
 	donereceive:
@@ -472,9 +472,29 @@ db 5,4,"save",0
 	
 db 5,4,"runbatch",0
 	runbatch2:	
-		mov si, si
-		mov bx, bx
+		mov si, buftxt
+		mov bx, batch
+		mov di, variables
+	findbatchrunloop:
+		mov cl, 6
+		mov ch, 4
+		cmp [bx], cx
+		je foundabatchrun
+		inc bx
+		cmp bx, di
+		jae nobatchfoundrun
+		jmp findbatchrunloop
+	foundabatchrun:
+		mov si, buftxt
+		add si, 9
+		call tester
+		cmp al, 1
+		je foundgoodbatchrun
+		jmp findbatchrunloop
+	foundgoodbatchrun:
 		jmp donebatch
+	nobatchfoundrun:
+		jmp nwcmd
 	
 db 5,4,"showbatch",0
 	showbatch:
@@ -687,7 +707,6 @@ db 5,4,"batch",0
 	donebatch:
 		call buftxtclear
 		mov si, buftxt
-		mov bx, batch
 	batchfind: mov al, [bx]
 		cmp al, 3
 		je batchnext

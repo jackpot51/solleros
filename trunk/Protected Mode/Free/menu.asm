@@ -7,7 +7,6 @@ mainindex:
 	    dw 0405h,progstart,batchprogend,fileindex,fileindexend,variables,varend,nwcmd,int30h,physbaseptr,0
 mainindexdn:
 	    mov ds, ax
-	    mov ax, 9000h
 	    mov es, ax
 	    mov byte [mouseon], 0
 	    mov [DriveNumber], cl
@@ -27,15 +26,16 @@ pmoderet:
 	call indexfiles	
 	mov dx, 0
 	    call clear
-            jmp welcome
+            jmp near gui
 
 svga:
 	mov ax, 04F01h
-	mov cx, 0000000100000000b
+	mov cx, 0100000100010001b
 	mov di, VBEMODEINFOBLOCK
 	int 10h
+	ret
 	mov ax, 04F02h	
-	mov bx, 0000000100000000b
+	mov bx, 0100000100010001b
 	int 10h
 	ret
 
@@ -139,6 +139,8 @@ DriveNumber db 0
 	    call print
 	    mov si, wrongmsg
     wrong:  call getkey
+    	    cmp al, 'g'
+	    je near gui
 	    cmp al, 's'
             je shutdown
 	    cmp al, 'c'

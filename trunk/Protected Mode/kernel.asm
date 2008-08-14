@@ -9,4 +9,5 @@
     %include 'Free\pmode.asm'
     %include 'Free\ints.asm'
     %include 'Free\graphical.asm'
+    %include 'Free\gui.asm'
     %include 'Free\msg.asm'
