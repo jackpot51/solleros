@@ -346,7 +346,7 @@ guion db 0
 	pacmsg	db "Pacman was awesome!",0
 	pacnom  db "Om nom nom nom",0
 	start	db "start",0
-	gotomenu db 21,"ollerOS",0
+	gotomenu db "SollerOS",0
 	winmsg	db "windows sucks balls",0
 	screenxdived dw 80
 	screenx dw 640
