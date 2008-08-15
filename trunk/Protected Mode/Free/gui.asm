@@ -2,33 +2,41 @@ gui:	;Let's see what I can do
 	;I am going to try to make this as freestanding as possible
 	mov byte [guion], 1
 	call clear
+	mov si, ghostie
+	mov ax, 0
+	mov bx, boo
+	mov cx, 150
+	mov dx, 100
+	call showicon
 	mov si, pacmsg
 	mov cx, 40
 	mov dx, 120
+	mov ax, 0
+	mov bx, 0
 	call showstring
-	mov ax, pacman
-	mov [icon], ax
+	mov si, pacman
+	mov ax, 0
+	mov bx, pacmannomnom
 	mov cx, 80
 	mov dx, 130
 	call showicon
-	mov ax, pacmanpellet
-	mov [icon], ax
+	mov si, pacmanpellet
+	mov ax, 0
+	mov bx, 0
 	mov cx, 80
 	mov dx, 80
-	call showicon
-	mov byte [iconselected], 1
-	mov ax, ghost
-	mov [icon], ax
-	mov cx, 80
-	mov dx, 241
 	call showicon
 	mov si, start
 	mov cx, 464
 	mov dx, 0
+	mov ax, 0
+	mov bx, winblows
 	call showstring
 	mov si, gotomenu
 	mov cx, 0
 	mov dx, 0
+	mov ax, 0
+	mov bx, gotomenuboot
 	call showstring
 	mov dx, [mousecursorposition]
 	mov cx, [mousecursorposition + 2]
@@ -36,7 +44,6 @@ gui:	;Let's see what I can do
 	mov ah, 0
 	mov al, 170
 	call savefont
-	call cursorgui
 guiloop:
 	call cursorgui
 	jmp guiloop
@@ -105,6 +112,8 @@ guion db 0
 	nofixyrow2:
 		cmp byte [LBUTTON], 1
 		je clickicon
+		cmp byte [RBUTTON], 1
+		je clickicon
 		mov [mousecursorposition], dx
 		mov [mousecursorposition + 2], cx
 		mov bx, 0
@@ -149,17 +158,19 @@ guion db 0
 		mov word [si + 8], 1
 		mov ax, [si + 2]
 		mov bx, [si + 10]
+		mov si, ax
+		mov ax, 1
 		mov [codepointer], bx
-		mov [icon],  ax
-		mov byte [iconselected], 1
 		call showicon
 		jmp doneiconsel
 	unselecticon:
 		mov word [si + 8], 0
 		mov ax, [si + 2]
-		mov [icon],  ax
-		mov byte [iconselected], 0
+		mov si, ax
+		mov ax, 0
+		mov bx, [si + 10]
 		call showicon
+		mov word [codepointer], 0
 		jmp doneiconsel
 	textselected:
 		mov bx, [si + 2]
@@ -186,17 +197,18 @@ guion db 0
 		cmp word [si + 8], 1
 		je near unselecttext
 		mov word [si + 8], 1
-		mov byte [mouseselecton], 1
 		mov bx, [si + 10]
 		mov [codepointer], bx
 		mov si, [si + 2]
+		mov ax, 1
 		call showstring
-		mov byte [mouseselecton], 0
 		jmp doneiconsel
 	unselecttext:
 		mov word [si + 8], 0
-		mov byte [mouseselecton], 0
+		mov bx, [si + 10]
 		mov si, [si + 2]
+		mov word [codepointer], 0
+		mov ax, 0
 		call showstring
 		jmp doneiconsel		
 	nexticonsel:
@@ -224,7 +236,45 @@ guion db 0
 		call showfont
 		ret
 
+	graphicsadd:
+		mov di, graphicstable
+	shwgrph1:
+		cmp word [di + 2], si
+		je showgraphicsreplace
+		add di, 12
+		cmp di, graphicstableend
+		jae showgraphicsnew
+		jmp shwgrph1
+	showgraphicsreplace:
+		mov word [di + 2], si
+		mov word [di + 4], dx
+		mov word [di + 6], cx
+		mov word [di + 10], bx
+		mov bh, 0
+		mov bl, ah
+		mov ah, 0
+		mov word [di + 8], ax		
+		mov word [di], bx
+		mov bx, [di + 10]
+		mov ax, [di + 8]
+		jmp showgraphics2
+	showgraphicsnew:
+		mov di, graphicstable
+	shwgrph2:
+		cmp word [di], 0
+		je showgraphicsreplace
+		add di, 12
+		cmp di, graphicstableend
+		jae showgraphics2
+		jmp shwgrph2		
+	showgraphics2:
+		ret
+
 	showstring:
+		mov ah, 2
+		mov [mouseselecton], al
+		call graphicsadd
+	showstring2:
 		mov ah, 0
 		mov al, [si]
 		cmp al, 0
@@ -234,11 +284,15 @@ guion db 0
 		call showfont
 		add dx, 8
 		mov si, [showstringsi]
-		jmp showstring
+		jmp showstring2
 	doneshowstring:
+		mov byte [mouseselecton], 0
 		ret
 		
-	showicon:	;;icon in [icon], position in (dx,cx), selected in [iconselected]
+	showicon:	;;icon in si, position in (dx,cx), selected in ax, code in bx
+		mov ah, 1
+		mov [iconselected], al
+		call graphicsadd
 		cmp dx, [screenx]
 		jb screenxgood
 		mov dx, [screenx]
@@ -259,7 +313,6 @@ guion db 0
 		add bx, word [screenxdived]
 		loop screenygood
 		mov cx, 31
-		mov si, [icon]
 		sub si, 4
 	writeicon:
 		add si, 7
@@ -273,10 +326,12 @@ guion db 0
 		jne nosel1
 		not al
 	nosel1:	mov cx, [remainder]
+		cmp cx, 0
+		je wi12
 	wi1:	ror ax, 1
 		ror dx, 1
 		loop wi1
-		and dx, [gs:bx]
+	wi12:	and dx, [gs:bx]
 		mov [gs:bx], ax
 		or [gs:bx], dx
 		add bx, 1
@@ -290,10 +345,12 @@ guion db 0
 		jne nosel2
 		not al
 	nosel2:	mov cx, [remainder]
+		cmp cx, 0
+		je wi22
 	wi2:	ror ax, 1
 		ror dx, 1
 		loop wi2
-		and dx, [gs:bx]
+	wi22:	and dx, [gs:bx]
 		mov [gs:bx], ax
 		or [gs:bx], dx
 		add bx, 1
@@ -307,10 +364,12 @@ guion db 0
 		jne nosel3
 		not al
 	nosel3:	mov cx, [remainder]
+		cmp cx, 0
+		je wi32
 	wi3:	ror ax, 1
 		ror dx, 1
 		loop wi3
-		and dx, [gs:bx]
+	wi32:	and dx, [gs:bx]
 		mov [gs:bx], ax
 		or [gs:bx], dx
 		add bx, 1
@@ -324,10 +383,12 @@ guion db 0
 		jne nosel4
 		not al
 	nosel4:	mov cx, [remainder]
+		cmp cx, 0
+		je wi42
 	wi4:	ror ax, 1
 		ror dx, 1
 		loop wi4
-		and dx, [gs:bx]
+	wi42:	and dx, [gs:bx]
 		mov [gs:bx], ax
 		or [gs:bx], dx
 		sub bx, 3
@@ -361,30 +422,36 @@ guion db 0
 		jmp bootit
 
 	winblows:
-		mov byte [mouseselecton], 1
 		mov si, winmsg
 		mov dx, 0
 		mov cx, 448
+		mov bx, 0
+		mov ax, 1
 		call showstring
-		mov byte [mouseselecton], 0
 		ret
 
 	pacmannomnom:
 		mov si, pacnom
 		mov dx, 130
 		mov cx, 60
+		mov bx, 0
+		mov ax, 0
+		call showstring
+		ret
+
+	boomsg db "Boo",0
+	boo:
+		mov si, boomsg
+		mov dx, 100
+		mov cx, 320
+		mov bx, 0
+		mov ax, 0
 		call showstring
 		ret
 		
 
-	graphicstable 
-		  dw 1,ghost,241,80,1,0	;;type, icon bitmap, x, y, selected, code (0 for none)
-		  dw 1,pacman,130,80,0,pacmannomnom
-		  dw 1,pacmanpellet,80,80,0,0
-		  dw 2,pacmsg,120,40,0,0
-		  dw 2,start,0,464,0,winblows
-		  dw 2,gotomenu,0,0,0,gotomenuboot
-	times 100 dw 0
+	graphicstable
+	times 200h dw 0
 	graphicstableend
 
 	cursor	db	10000000b ;cursor bitmap, monochrome, 8x16
@@ -472,7 +539,7 @@ guion db 0
 		dd	00000000000000000000000000000000b
 		dd	00000000000000000000000000000000b
 
-	ghost	dd	00000000000000000000000000000000b	;Icon 32x32
+	ghostie	dd	00000000000000000000000000000000b	;Icon 32x32
 		dd	00000000000000000000000000000000b
 		dd	00000000000011111111000000000000b
 		dd	00000000000011111111000000000000b
