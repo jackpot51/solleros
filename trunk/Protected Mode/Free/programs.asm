@@ -1,60 +1,8 @@
-vga db 0
-realmodeprogs:
-db 5,4,"vga",0
-	mov BYTE [vga], 1
-	mov ax, 12h
-	int 10h
-	jmp nwcmd
-
-db 5,4,"etch-a-sketch",0
-	eas:	jmp etch
-		iret
-
-db 5,4,"cga",0
-	cga:	mov BYTE [vga], 0
-		mov ax, 3h
-		int 10h
-		iret
-
-	
-;db 5,4,"time",0
-	time:	call clearbuffer
-		mov ah, 2
-		int 1Ah
-		mov cl, ch
-		mov ch, 0
-		mov si, numbuf
-		call convert	
-		mov si, buf2
-		call chkadd
-		mov si, line
-		call print
-		call clearbuffer
-		mov ah, 2
-		int 1Ah
-		mov ch, 0
-		mov si, numbuf
-		call convert	
-		mov si, buf2
-		call chkadd
-		mov si, line
-		call print
-		iret
-
-db 5,4,"dos",0
-		mov si, dosmode
-		call print
-		call dos
-		iret
-
-db 5,4,"mouse",0
-		jmp mouse
-		iret
 fileindex: times 500h db 0	;index format can be found in SollerOS programming guide
 customprograms:			;put custom index items here. I promise I won't overwrite them
 				;although they may be written twice if they are in the filesystem
-	db 5,4,"Hello World"
-	dw 0,hello,0		;;example of a custom file descriptor
+;;	db 5,4,"Hello World"
+;;	dw 0,hello,0		;;example of a custom file descriptor
 	
 fileindexend:
 filetypes db 5,4,6,4,7,4
@@ -73,7 +21,7 @@ indexloop:
 		cmp cx, [di]
 		je indexloop2done
 		sub di, 2
-		cmp di, customprograms
+		cmp di, filetypes
 		jae indexloop2
 	mov di, progstart
 	sub di, 2
@@ -108,61 +56,140 @@ indexloop2done:
 		jmp indexloop
 indexloopdone: 	ret
 com dw 0
-db 5,4,"tely",0				;file header, must add to customindex
+
+db 5,4,"internet",0
+	internettest: 			;;initialize network card, lets hope this is right
+		jmp packettest
+
+db 5,4,"tely",0		
 	tely:
-	call realmode
-		push dx
-send2:	mov al,11111111b	; 8-bit output value stored in al
-	mov dx,378h	; parallel port is 378 hex
-	out dx,al	; write it
-	jmp send2
-	mov ah, 0
-	mov al, 11100011b ; 1 start bit, 1 stop bit, no parity bit
-	mov dl, [buftxt + 6]
-	mov dh, 0
-	sub dl, 49
-	mov [com], dx
-	int 14h ; 8-bit data, 9600 baud rate
-	;;;;;Serial Port is set;;;;;
-		mov si, buftxt
-		cmp byte [buftxt + 5], 's'
-		jne receive
-		add si, 7
-	send:
-	sendloop:
-		mov al, [si]
-		cmp al, 0
-		je donesend
-		mov dx, [com] ;Select COM:
-		mov ah, 1 ;Transmit opcode
-		int 14h	
-		inc si
-		jmp sendloop
-	donesend:
-		mov al, 21
-		mov dx, [com] ;Select COM:
-		mov ah, 1 ;Transmit opcode
-		int 14h	
-		pop dx
-		jmp nwcmd
-	receive:
-	receiveloop:
-		mov dx, [com]          ;Select COM:
-                mov ah, 2           ;Receive opcode
-                int 14h
-		test ah, 80h
-		je donereceive
-		mov [si], al
-		inc si
-		cmp al, 21
-		jne receiveloop
-	donereceive:
-		pop dx
-		mov si, buftxt	
-		call print
 		mov si, line
 		call print
-		jmp nwcmd
+		push dx
+		push ax
+		push cx
+	      	mov dx, [BASEADDRSERIAL]		;;initialize serial
+		mov al, 0
+		add dx, 1
+		out dx, al
+	      	mov dx, [BASEADDRSERIAL]
+		mov al, 80h
+		add dx, 3
+		out dx, al
+	      	mov dx, [BASEADDRSERIAL]
+		mov al, 3
+		out dx, al
+		add dx, 1
+		mov al, 0
+		out dx, al
+	      	mov dx, [BASEADDRSERIAL]
+		mov al, 3
+		add dx, 3
+		out dx, al
+	      	mov dx, [BASEADDRSERIAL]
+		mov al, 0c7h
+		add dx, 2
+		out dx, al
+	      	mov dx, [BASEADDRSERIAL]
+		mov al, 0Bh
+		add dx, 4
+		out dx, al
+		mov cx, 1000
+	telyreceive:
+		mov ax, 0
+		mov dx, [BASEADDRSERIAL]		;;wait until char received or keyboard pressed
+		add dx, 5
+		in al, dx
+		cmp al, 1
+		je telyreceive2
+		loop telyreceive
+		mov al, 23
+		call int30hah5
+		mov ah, [charcache]
+		mov al, 0
+		mov cx, 100
+		jmp telysend
+	
+	nullchar db 0,0
+
+	telyreceive2:
+		mov dx, [BASEADDRSERIAL]
+		in al, dx
+		mov [chartely], al
+		pop cx
+		pop dx
+		pop ax
+		mov si, chartely
+		cmp byte [chartely], 10
+		je telyline
+		cmp byte [chartely], 13
+		je telyline
+		cmp byte [chartely], 0Eh
+		je novalidchartely
+		jmp notelyline
+	telyline:
+		mov si, line
+	notelyline:
+		mov bx, 7
+		mov ax, 0
+		call int30hah1
+	novalidchartely:
+		push cx
+		push dx
+		push ax
+		mov cx, 1000
+		jmp telyreceive
+		
+		chartely db 0,0,0
+		chartely2 db 0,0,0
+
+	telysend:
+		mov dx, [BASEADDRSERIAL]		;;wait until transmit is empty
+		add dx, 5
+		in al, dx
+		cmp al, 20h
+		jne telysend2
+		loop telysend
+	telysend2:	
+		mov [chartely2], ah				;;send ASCII
+		mov al, ah
+		mov dx, [BASEADDRSERIAL]
+		out dx, al
+		mov cx, 1000
+		cmp al, 0
+		je telyreceive
+		pop cx
+		pop dx
+		pop ax 
+		mov si, chartely2
+		cmp byte [chartely2], 10
+		je telyline2
+		cmp byte [chartely2], 13
+		je telyline2
+		cmp byte [chartely2], 0Eh
+		je novalidchartely2
+		jmp notelyline2
+	telyline2:
+		mov si, line
+	notelyline2:
+		mov ax, 0
+		mov bx, 0f8h
+		call int30hah1
+	novalidchartely2:
+		push cx
+		push dx
+		push ax
+		mov cx, 1000
+		jmp telyreceive
+	donetely:
+		pop dx
+		pop ax
+		pop cx
+		mov si, line
+		call print
+		jmp nwcmd 
+
+BASEADDRSERIAL dw 03f8h
 
 db 5,4,"showindex",0
 	mov si, fileindex
@@ -240,6 +267,11 @@ db 5,4,"echo",0
 		jmp prntvr2
 	echvar:	mov cl, '='
 		inc bx
+		mov al, [bx]
+		cmp al, 0
+		je nxtvrech
+		cmp al, '='
+		je nxtvrechb1
 		mov si, buftxt
 		add si, di
 		call cndtest
@@ -250,6 +282,9 @@ db 5,4,"echo",0
 		mov si, buftxt
 		add si, di
 		jmp nxtvrech
+	nxtvrechb1:
+		sub bx, 2
+		jmp echvar
 	nxtvrech: mov al, [bx]
 		cmp al, 5
 		je nxtvrec2
@@ -412,11 +447,14 @@ db 5,4,"math",0
 		mov si, buf2
 		call chkadd
 		jmp math
-	chkadd:	mov al, [si]
+	chkadd: mov al, [si]
 		cmp al, '0'
 		jne dnadd
 		inc si
+		cmp si, numbuf
+		je dnaddm1
 		jmp chkadd
+	dnaddm1: dec si
 	dnadd:	call print
 		mov si, line
 		call print
@@ -453,28 +491,12 @@ db 5,4,"space",0
 		mov si, dskmsg
 		call print
 		jmp nwcmd
-
-db 5,4,"reload",0
-	reload:	call clear
-		mov si, sectormsg
-		call print
-		jmp sector
-		
-;db 5,4,"restore",0
-	;restore:	
-	;	jmp restoresect
-	
-db 5,4,"save",0
-	savesect:	
-		mov si, si
-		mov bx, bx
-		jmp writesect
 	
 db 5,4,"runbatch",0
-	runbatch2:	
+	runbatch2:
 		mov si, buftxt
 		mov bx, batch
-		mov di, variables
+		mov di, commandlst
 	findbatchrunloop:
 		mov cl, 6
 		mov ch, 4
@@ -485,6 +507,7 @@ db 5,4,"runbatch",0
 		jae nobatchfoundrun
 		jmp findbatchrunloop
 	foundabatchrun:
+		add bx, 2
 		mov si, buftxt
 		add si, 9
 		call tester
@@ -492,6 +515,7 @@ db 5,4,"runbatch",0
 		je foundgoodbatchrun
 		jmp findbatchrunloop
 	foundgoodbatchrun:
+		mov byte [BATCHISON], 1
 		jmp donebatch
 	nobatchfoundrun:
 		jmp nwcmd
@@ -509,7 +533,7 @@ db 5,4,"showbatch",0
 		jmp testshowbatch
 	   batchlistshow:
 		mov si, batch
-		mov bx, variables
+		mov bx, commandlst
 		mov cl, 6
 		mov ch, 4
 		call array
@@ -523,7 +547,7 @@ db 5,4,"showbatch",0
 		mov cl, 6
 		mov ch, 4
 	findbatchname2:
-		cmp bx, variables
+		cmp bx, commandlst
 		je notfoundbatchname2
 		cmp [bx],cx
 		je checkbatchname2
@@ -540,7 +564,7 @@ db 5,4,"showbatch",0
 	showfoundbatch:
 		mov si, bx
 		inc si
-		mov bx, variables
+		mov bx, commandlst
 		mov cl, 3
 		mov ch, 4
 		call array
@@ -627,7 +651,7 @@ db 5,4,"batch",0
 		mov cl, 6
 		mov ch, 4
 	findbatchname:
-		cmp bx, variables
+		cmp bx, commandlst
 		jae goodbatchname
 		cmp [bx],cx
 		je checkbatchname
@@ -647,7 +671,7 @@ db 5,4,"batch",0
 		call print
 		jmp nwcmd
 	goodbatchname:
-		mov bx, variables
+		mov bx, commandlst
 		mov al, 0
 	lastbatchfind:
 		dec bx
@@ -699,8 +723,10 @@ db 5,4,"batch",0
 	donebatch2:
 		pop bx
 		mov cl, 4
+		mov [bx], cl
+		inc bx
 		mov ch, 3
-		mov [bx], cx 
+		mov [bx], ch
 		mov si, batchmsg
 		call print
 		jmp nwcmd
@@ -710,9 +736,24 @@ db 5,4,"batch",0
 	batchfind: mov al, [bx]
 		cmp al, 3
 		je batchnext
-		cmp bx, variables
+		cmp al, 4
+		je batchendtest
+		cmp bx, commandlst
 		jae backtonwcmd
 		inc bx
+		jmp batchfind
+	batchendtest:
+		inc bx
+		mov al, [bx]
+		cmp al, 3
+		je backtonwcmdtest
+		jmp batchfind
+	backtonwcmdtest:
+		inc bx
+		mov al, [bx]
+		cmp al, 0
+		je backtonwcmd
+		dec bx
 		jmp batchfind
 	batchnext:
 		mov si, buftxt
@@ -720,7 +761,7 @@ db 5,4,"batch",0
 		mov al, [bx]
 		cmp al, 4
 		je batchfound
-		cmp bx, variables
+		cmp bx, commandlst
 		jae backtonwcmd
 		jmp batchfind
 	batchfound:
@@ -730,7 +771,7 @@ db 5,4,"batch",0
 		inc si
 		cmp al, 0
 		je runbatch
-		cmp bx, variables
+		cmp bx, commandlst
 		jae backtonwcmd
 		jmp batchfound
 	backtonwcmd:
@@ -746,7 +787,7 @@ db 5,4,"batch",0
 		mov [BATCHPOS], bx
 		mov si, buftxt
 		mov ah, [IFON]
-		cmp ah, al
+		cmp ah, 1
 		jae ifit
 	brun:	jmp progtest
 	ifit:	mov al, [si]
@@ -781,11 +822,14 @@ db 5,4,"batch",0
 		cmp al, 's'
 		je ifelse3
 		dec si
+		dec si
 		jmp ifitst
 	ifelse3:	inc si
 		mov al, [si]
 		cmp al, 'e'
 		je ifelse4
+		dec si
+		dec si
 		dec si
 		jmp ifitst
 	ifelse4: dec si
@@ -915,12 +959,13 @@ db 5,4,"word",0
 		jmp nwcmd
 
 db 5,4,"#",0
-	num:	call clearbuffer
+	num:	
+		mov [edxnumbuf], edx
+		call clearbuffer
 		mov si, buftxt
 		mov eax, 0
 		mov ecx, 0
 		mov ebx, 0
-		call num2
 	num2:	mov al, [si]
 		cmp al, '+'
 		je operatorfound
@@ -936,17 +981,20 @@ db 5,4,"#",0
 		cmp al, 0
 		je nwcmd
 		jmp num2
-	operatorfound: push ax
+	operatorfound: mov [eaxcachenum], eax
 		mov ah, 0
 		mov [si], ah
 		inc si
 		mov al, [si]
 		cmp al, '$'
 		je varnum1
+		jmp varnum2
+	ebxcachenum dw 0,0
+	eaxcachenum dw 0,0
 	varnum2: 
 		call cnvrttxt
 		mov ebx, ecx
-		push ebx
+		mov [ebxcachenum], ebx
 		call clearbuffer
 		mov si, buftxt
 		inc si
@@ -955,8 +1003,8 @@ db 5,4,"#",0
 		je varnum3
 	varnum4: 
 		call cnvrttxt
-		pop ebx
-		pop ax
+		mov ebx, [ebxcachenum]
+		mov eax, [eaxcachenum]
 		cmp al, '+'
 		je plusnum
 		cmp al, '-'
@@ -969,44 +1017,30 @@ db 5,4,"#",0
 		je expnum2
 	expnum2: jmp expnum
 	divnum2: jmp divnum
-	varnum1: push si
-		sub si, buftxt
+	varnum1: sub si, buftxt
 		mov di, si
-		pop si
+		add si, buftxt
 		inc di
 		mov bx, variables
 		call nxtvrech
 		jmp varnum2
-	varnum3: push si
-		sub si, buftxt
+	varnum3: sub si, buftxt
 		mov di, si
-		pop si
+		add si, buftxt
 		inc di
 		mov bx, variables
 		call nxtvrech
 		jmp varnum4
 	plusnum:
 		add ecx, ebx
-		mov si, numbuf
-		call convert
-		mov si, buf2
-		call chkadd
 		jmp retnum
 	subnum:
 		sub ecx, ebx
-		mov si, numbuf
-		call convert
-		mov si, buf2
-		call chkadd
 		jmp retnum
 	mulnum:
 		mov eax, ecx
 		mul ebx
 		mov ecx, eax
-		mov si, numbuf
-		call convert
-		mov si, buf2
-		call chkadd
 		jmp retnum
 	divnum:
 		mov ax, cx
@@ -1015,10 +1049,6 @@ db 5,4,"#",0
 		div bl
 		mov ecx, 0
 		mov cl, al
-		mov si, numbuf
-		call convert
-		mov si, buf2
-		call chkadd	
 		jmp retnum
 	expnum:
 		mov eax, ecx
@@ -1028,12 +1058,15 @@ db 5,4,"#",0
 	expnumlp: mul ebx
 		loop expnumlp
 		mov ecx, eax
+		jmp retnum
+	retnum: 
+		mov edx, [edxnumbuf]
 		mov si, numbuf
 		call convert
 		mov si, buf2
 		call chkadd
-		jmp retnum
-	retnum: jmp nwcmd
+		jmp nwcmd
+edxnumbuf dw 0,0
 	
 db 5,4,"%",0
 	ans:	mov si, buf2
@@ -1054,7 +1087,8 @@ echovars: mov si, variables
 	mov bx, varend
 	mov cl, 5
 	mov ch, 4
-	jmp array
+	call array
+	jmp nwcmd
 eqfnd:	inc si
 	mov al, [si]
 	cmp al, 0
@@ -1062,7 +1096,6 @@ eqfnd:	inc si
 	mov si, buftxt
 	mov bx, variables
 	jmp seek
-
 readvar: call stdin
 	mov si, line
 	call print

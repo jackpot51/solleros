@@ -15,27 +15,27 @@ ints:	;these are inits to be used in pmode or by 3rd party apps
 db "INTS HERE",0
 
 int30h:
-	test ah, 0
+	cmp ah, 0
 	je near int30hah0
-	test ah, 1
+	cmp ah, 1
 	je near int30hah1
-	test ah, 2
+	cmp ah, 2
 	je near int30hah2
-	test ah, 3
+	cmp ah, 3
 	je near int30hah3
-	test ah, 4
+	cmp ah, 4
 	je near int30hah4
-	test ah, 5
+	cmp ah, 5
 	je near int30hah5
-	test ah, 6
+	cmp ah, 6
 	je near int30hah6
-	test ah, 7
+	cmp ah, 7
 	je near int30hah7
-	test ah, 8
+	cmp ah, 8
 	je near int30hah8
-	test ah, 9
+	cmp ah, 9
 	je near int30hah9
-	test ah, 10
+	cmp ah, 10
 	je near int30hah10
 	ret
 
@@ -46,21 +46,23 @@ int30hah0:	;shutdown application
 	enddh db 0
 	scrolledlines db 0
 
+	colorah1 db 0
+
 int30hah1:	;write string in si to screen, endchar in al
 		;location on screen in (dl, dh)
 		;modifier in bl
 
 		;if (dl,dh) is unchanged, current position is used
-		;screen must be in 3h mode!
-		
+		shr dl, 1
+		shl dl, 1
 		mov [startdl], dl
 		mov [startdh], dh
 		mov [endchar], al
 		mov byte [scrolledlines], 0
-		mov al, bl
+		mov [colorah1], bl
 		mov bx, 0
 	intprint: 
-		mov byte ah, [si]
+		mov ah, [si]
 		cmp ah, [endchar]
 		je near intpmprnt
 		mov bh, 0
@@ -69,32 +71,27 @@ int30hah1:	;write string in si to screen, endchar in al
 		mov ch, 0
 		cmp cx, 0
 		je nocxint
-		call intlnprntnm
-		jmp intprint
+	intlnprntnm: 
+		add bx, 160
+		dec cx
+		cmp cx, 0
+		je intlnprnt2
+		jmp intlnprntnm
 	nocxint:
 		mov bl, dl
 		mov bh, 0
-		call intlnprnt2
-		jmp intprint
-	intlnprntnm: 
-		add bx, 160
-		loop intlnprntnm
 	intlnprnt2:
 		cmp ah, 10
 		je near intnewlineprnt
 		cmp ah, 13
 		je near intcarriagereturn
-		cmp ah, 8
-		je near backspaceprint
-		call writecursor
 		mov  byte [fs:bx], ah
 		inc bx
+		mov al, [colorah1]
 		mov byte [fs:bx], al
 		inc bx
 		cmp byte [fs:bx], 0
 		jne nobyteprnt
-		cmp byte [writecursoron], 0
-		je nobyteprnt
 		mov byte [fs:bx], ' '
 		inc bx
 		mov byte [fs:bx], 7
@@ -102,93 +99,47 @@ int30hah1:	;write string in si to screen, endchar in al
 	nobyteprnt:
 		add dl,2
 		add si, 1
-		cmp byte [writecursoron], 0
-		je forgetnextline
 		cmp dl, 160
 		jae nextlineint
-forgetnextline:		ret
+forgetnextline:	jmp intprint
 	
 		endchar db 0
 		startdl db 0
 		startdh db 0
 		loccache db 0,0
-	writecursoron db 1
-
-	writecursor:
-	ret		;no more cursor!!!
-		cmp byte [writecursoron], 1
-		jne backnowritecursor
-		mov cx, ax
-		mov [loccache], bx
-		mov ax, 0
-	writecursorloop:
-		cmp bx, 0
-		jbe writecursordn
-		sub bx, 2
-		inc ax
-		jmp writecursorloop
-	writecursordn:
-		;ret
-		mov [dxcache], dx
-		add al, 1
-		mov bx, ax
-		mov dx, 03d4h
-		mov al, 0Fh
-		mov ah, 0Eh
-		out dx, al
-		mov dx, 03d5h
-		mov al, bl
-		out dx, al
-		mov dx, 03d4h
-		mov al, ah
-		out dx, al
-		mov dx, 03d5h
-		mov al, bh
-		out dx, al
-		mov ax, cx
-		mov bx, [loccache]
-		mov dx, [dxcache]
-	backnowritecursor:	ret
-
-	cursorzero:
-		mov cx, ax
-		mov bx, 0
-		mov ax, 0
-		mov [loccache], bx
-		ret
 		
 
 	nextlineint:
 		inc dh
-		sub bl, dl
+		mov al, dl
+		mov ah, 0
+		sub bx, ax
 		add bx, 160
 		mov dl, 0
 		cmp dh, 24
 		ja scrollscreen
-		jmp intprint
-	
+		mov ah, [si]
+		cmp ah, [endchar]
+		je near intpmprnt
+		jmp intlnprnt2	
+
 	scrollscreen:
-		pusha
-		mov byte [cursorcache], 0
-		call clearmousecursor
-		popa
 		dec dh
 		mov bx, 160
 		mov cx, [fs:bx]
 		mov bx, 0
 		mov [fs:bx], cx
 	scrollloop:
-		cmp bx, 0FA0h
-		ja near scrollloopdn
+		mov cx, videobufend
+		sub cx, videobuf2
+		cmp bx, cx
+		ja near intprint
 		add bx, 162
 		mov cl, [fs:bx]
 		mov ch, al
 		sub bx, 160
 		mov [fs:bx], cx
 		jmp scrollloop
-	scrollloopdn:
-		add byte [scrolledlines], 1
-		jmp intprint
 
 	intcarriagereturn:
 		sub bl, dl
@@ -200,7 +151,7 @@ forgetnextline:		ret
 		add dh, 1
 		add bx, 160
 		inc si
-		cmp dh, 24
+		cmp dh, 29
 		ja scrollscreen
 		jmp intprint
 
@@ -211,21 +162,22 @@ forgetnextline:		ret
 		mov ah, 1
 		mov [enddh], dh
 		mov [enddl], dl
-	call videobuf2copy
-	ret
-enddl db 0
+	jmp videobuf2copy
 
+enddl db 0
+maxcx dw 0
+printbackspaces db 0
 int30hah2:	;read string to si, endkey in al, max in cx
 		;if endkey is 0, only one char is read
 		mov bl, al
-		call startin
+		mov [maxcx], cx
+		jmp startin
 	intinput:
+		mov [maxcx], cx
 		cmp bl, al
 		je near doneintin
 		cmp bl, 0
 		je near doneintin
-		call startin
-		loop intinput
 	startin:
 		in al, 64h ; Status
 		test al, 1 ; output buffer full?
@@ -239,16 +191,44 @@ int30hah2:	;read string to si, endkey in al, max in cx
 		mov di, scancode
 		add di, 2
 	searchscan: cmp di, noscan
-		jae intcheckkey
+		jae near intcheckkey
 		mov ah, [di]
 		cmp al, ah
-		je scanfound
+		je near scanfound
 		add di, 3
 		jmp searchscan
+entupinput:
+	loop intinput
+	ret
+
+Meax dd 0
+Mebx dd 0
+Mecx dd 0
+Medx dd 0
+Medi dd 0
+Mesi dd 0
+
 	ps2mouse:
-		pusha
-	    	call int30hah9
-		popa
+		cmp byte [guion], 0
+		je near intNOKEY
+		mov [Meax], eax
+		mov [Mebx], ebx
+		mov [Mecx], ecx
+		mov [Medx], edx
+		mov [Medi], edi
+		mov [Mesi], esi
+		call maincall2
+		mov eax, [Meax]
+		mov ebx, [Mebx]
+		mov ecx, [Mecx]
+		mov edx, [Medx]
+		mov edi, [Medi]
+		mov esi, [Mesi]
+;		cmp byte [trans], 1
+;		je near intNOKEY
+;		pusha
+;	    	call int30hah9
+;		popa
 		jmp startin
 	scanfound:	
 		cmp byte [lshift], 1
@@ -263,37 +243,38 @@ int30hah2:	;read string to si, endkey in al, max in cx
 		cmp byte [trans], 1
 		je near intNOKEY
 		inc si
-		ret
+		mov cx, [maxcx]
+		jmp entupinput
+
 	uppercasescan:
 		sub di, 1
 		mov al,[di]
 		mov [si], al
 		inc si
-		ret
+		mov cx, [maxcx]
+		jmp entupinput
 		
 	intcheckkey:	;i actually mean down when i say up
-		cmp byte [trans], 1
-		je near intNOKEY
-		cmp al, 0Fh
-		je near tabdown
-		cmp al, 1Ch
-		je near entup
-		cmp al, 0Eh
-		je near backspace
 		cmp al, 2Ah
 		je near lshiftup
 		cmp al, 36h
 		je near rshiftup
+		cmp al, 1Ch
+		je near entup
 		cmp al, 0AAh
 		je near lshiftdown
 		cmp al, 0B6h
 		je near rshiftdown
 		cmp al, 3Ah
 		je near capslock
-		cmp al, 48h
-		je near upkeydown
-		cmp al, 50h
-		je near downkeydown
+		cmp byte [trans], 1
+		je near intNOKEY
+		cmp byte [printbackspaces], 0
+		je near intNOKEY
+		cmp al, 0Fh
+		je near tabdown
+		cmp al, 0Eh
+		je near backspace
 		jmp startin
 	tabdown:
 		cmp byte [commandline], 1
@@ -318,6 +299,8 @@ int30hah2:	;read string to si, endkey in al, max in cx
 	backspace:
 		mov [bxcache], bx
 		mov [cxcache], cx
+		cmp byte [trans], 1
+		je nomoreback
 		mov cl, dh
 		mov bh, 0
 		mov ch, 0
@@ -340,7 +323,6 @@ nomoreback:	mov bx, [bxcache]
 		cmp dl, [startdl]
 		jbe dhcheck
 	bckprnt: 
-	call writecursor
 		add bx, 2
 		mov byte [fs:bx], ' '
 		inc bx
@@ -350,30 +332,13 @@ nomoreback:	mov bx, [bxcache]
 bcktobck: 
 	mov [enddh], dh
 	jmp videobuf2copy
-	ret
-
-
-downkeydown:
-		cmp byte [lshift], 1
-		je near screendownscroll
-		cmp byte [rshift], 1
-		je near screendownscroll
-		jmp startin
-upkeydown:
-		cmp byte [lshift], 1
-		je screenupscroll
-		cmp byte [rshift], 1
-		je screenupscroll
-		jmp startin
-
-screenupscroll:
-
-
-screendownscroll:
-		
 
 	entup:	
 		mov al, 13
+		mov byte [si], 13
+		cmp byte [trans], 1
+		je near intNOKEY
+		mov byte [si], 0
 		cmp bl, al
 		je near doneintin
 		cmp bl, 0
@@ -382,27 +347,40 @@ screendownscroll:
 		inc si
 		mov byte [si], 10
 		inc si
-		ret
+		mov cx, [maxcx]
+		jmp entupinput
 
 	lshiftup:
 		mov byte [lshift], 1
+		cmp byte [trans], 1
+		je near intNOKEY
 		jmp startin
 	rshiftup:
 		mov byte [rshift], 1
+		cmp byte [trans], 1
+		je near intNOKEY
 		jmp startin
 	lshiftdown:
 		mov byte [lshift], 0
+		cmp byte [trans], 1
+		je near intNOKEY
 		jmp startin
 	rshiftdown:
-		mov byte [rshift], 0	
+		mov byte [rshift], 0
+		cmp byte [trans], 1
+		je near intNOKEY	
 		jmp startin
 	capslock:
 		cmp byte [caps], 0
 		je capslockon
 		mov byte [caps], 0
+		cmp byte [trans], 1
+		je near intNOKEY
 		jmp startin
 	capslockon:
 		mov byte [caps], 1
+		cmp byte [trans], 1
+		je near intNOKEY
 		jmp startin
 	trans db 0
 	intNOKEY:
@@ -417,6 +395,7 @@ screendownscroll:
 		jne startin
 	doneintin:
 		mov ah, 2
+		mov cx, [maxcx]
 		ret
 
 	lshift 	db 0
@@ -430,8 +409,10 @@ screendownscroll:
 int30hah3:	;clear screen-pretty simple
 		mov bx, 0
 		mov dx, 0
+		mov cx, videobufend
+		sub cx, videobuf2
 	clearint:
-		cmp bx, 0FA0h
+		cmp bx, cx
 		ja doneclearint
 		mov byte [fs:bx],0
 		inc bx
@@ -458,7 +439,9 @@ int30hah4:	;print string and read input into si
 	int30hah4lp:	mov si, [sicache]
 		mov al, 0
 		mov bl, 0
+		mov byte [printbackspaces], 1
 		call int30hah2
+		mov byte [printbackspaces], 0
 		mov [sicache], si
 		cmp al, [alcache]
 		je doneint30hah4
@@ -485,6 +468,10 @@ int30hah5:	;get char transparent
 		;waits if al is zero
 	mov bl, 0
 	mov si, charcache
+	mov [si], bl
+	inc si
+	mov [si], bl
+	dec si
 	mov byte [trans], 1
 	cmp al, 0
 	jne int30hah5st
@@ -520,17 +507,23 @@ int30hah7:	;play sound
 	jne int30hah7
 	ret
 
+currentfont db 0
+
 int30hah8:	;load character set, bios must still be alive-i.e. no protected mode
 	mov ax, 12h
 	mov bx, 0
 	int 10h
-	mov si, font
+	mov si, fonts
 fontload:
 	mov ah, 09h
 	mov bx, 7
 	mov cx, 1
-	mov al, [si]
+	mov al, [currentfont] 
 	int 10h
+	mov al, [currentfont] 
+	mov [si], al
+	inc al
+	mov [currentfont], al
 	inc si
 	mov bx, 0
 	mov cx, 0
@@ -538,7 +531,7 @@ fontload:
 pixelload:
 	cmp cx, 7
 	ja nextrow
-	cmp dx, 13
+	cmp dx, 14
 	ja doneloadpixels
 	mov ah, 0dh
 	mov bh, 0
@@ -552,8 +545,6 @@ doneloadpixels:
 	inc si
 	cmp si, fontend2
 	jae donefontload
-	cmp byte [si], 0
-	je doneloadpixels
 	jmp fontload
 donefontload:
 	ret
@@ -610,11 +601,9 @@ nolinecursorfnd:
 	mov [bxcache2], bx
 	mov ax, [fs:bx]
 	mov [cursorcache], ax
-	mov al, 169
+	mov al, 128
 	mov bl, 7
-	mov byte [writecursoron], 0
 	call int30hah6
-	mov byte [writecursoron], 1
 	cmp byte [cursorcache],0
 	je near cursorspace
 	mov bx, [bxcache2]
@@ -709,7 +698,7 @@ clearmouseselect:
 clearmouseloop:
 	cmp bx, cx
 	ja doneclearmouse
-	cmp bx, 0FA0h
+	cmp bx, 0x12C0
 	ja doneclearmouse
 	mov ah, 07h
 	inc bx
@@ -731,9 +720,7 @@ cursorspace:
 nocursor:	
 	mov al, [cursorcache]
 	mov bl, [cursorcache + 1]
-	mov byte [writecursoron], 0
 	call int30hah6
-	mov byte [writecursoron], 1
 	ret	
 
 endstring db 0,0

@@ -17,13 +17,13 @@ ret
 ;Check if command is accepted. (not got stuck in inputbuffer)
 ;***********************************************************************
 CHKPRT:
-  xor  cx, cx		
+  mov  cx, 100
  .again:
   in   al, 0x64		; read from keyboardcontroller
   test al, 2		; Check if input buffer is empty
   je .go
   loop .again
- .go
+ .go:
 ret
 
 ;***********************************************************************
@@ -41,7 +41,7 @@ ret
 ;mouse output buffer full
 ;***********************************************************************
 MBUFFUL:
-  xor  cx, cx
+  mov cx, 100
  .mn:
   in   al, 0x64		; read from keyboardcontroller
   test al, 0x20		; check if mouse output buffer is full
@@ -67,7 +67,7 @@ ret
 ;***********************************************************************
 CHKMOUS:
   mov  bl, 0
-  xor  cx, cx
+  mov cx, 100
  .vrd:
   in   al, 0x64		; read from keyboardcontroller
   test al, 1		; check if controller buffer (60h) has data
@@ -81,7 +81,6 @@ ret
 ;Disable Keyboard
 ;***********************************************************************
 DKEYB:
-  call CHKPRT
   mov  al, 0xad		; Disable Keyboard
   out  0x64, al		; write to keyboardcontroller
   call CHKPRT		; check if command is progressed (demand!)
@@ -91,7 +90,6 @@ ret
 ;Enable Keyboard
 ;***********************************************************************
 EKEYB:
-  call CHKPRT
   mov  al, 0xae		; Enable Keyboard
   out  0x64, al		; write to keyboardcontroller
   call CHKPRT		; check if command is progressed (demand!)
@@ -101,15 +99,19 @@ ret
 ;Get Mouse Byte
 ;***********************************************************************
 GETB:
- .cagain
+ .cagain:
   call CHKMOUS		; check if a byte is available
   or bl, bl
   jnz .cagain
-  call DKEYB		; disable keyboard to read mouse byte
+  mov  al, 0xad		; Disable Keyboard
+  out  0x64, al		; write to keyboardcontroller
+  call CHKPRT		; check if command is progressed (demand!)
   xor  ax, ax
   in   al, 0x60		; read ps/2 controller output port (mousebyte)
   mov  dl, al
-  call EKEYB		; enable keyboard
+  mov  al, 0xae		; Enable Keyboard
+  out  0x64, al		; write to keyboardcontroller
+  call CHKPRT		; check if command is progressed (demand!)
   mov  al, dl
 ret
 
@@ -158,6 +160,9 @@ GETSECOND:
   xor  ah, ah
   mov  BYTE [XCOORD], al
 ret
+  mov  al, 0xae		; Enable Keyboard
+  out  0x64, al		; write to keyboardcontroller
+  call CHKPRT		; check if command is progressed (demand!)
 
 
 ;***********************************************************************
@@ -168,8 +173,6 @@ GETTHIRD:
   xor  ah, ah
   mov  BYTE [YCOORD], al
 ret
-
-
 
 ;-----------------------------------------------------------------------
 ;***********************************************************************
@@ -182,6 +185,7 @@ MAINP:
   call PS2SET
   call ACTMOUS
   call GETB 	;Get the responce byte of the mouse (like: Hey i am active)  If the bytes are mixed up, remove this line or add another of this line.
+  call GETB
   ret
 
 mousemain:
@@ -190,8 +194,9 @@ mousemain:
   call GETTHIRD
 cmp byte [guion], 0
 je showthecursor
-ret;;remove to reenable mouse cursor for text mode
+ret ;;remove to reenable mouse cursor for text mode
 showthecursor:
+ret
 ;*NOW WE HAVE XCOORD & YCOORD* + the button status of L-butten and R-button and M-button allsow overflow + sign bits
 
 ;!!!
@@ -427,7 +432,7 @@ DISPDEC:
     xor  dx, dx
     mov  bx, 10000
     mov  WORD [deel], bx
-   .mainl    
+   .mainl:    
     mov  bx, WORD [deel]
     mov  ax, WORD [varbuff]
     xor  dx, dx
@@ -436,11 +441,11 @@ DISPDEC:
     mov  WORD [varbuff], dx
     jmp .ydisp
    
-   .vdisp
+   .vdisp:
     cmp  BYTE [zerow], 0x00
     je .nodisp
 
-   .ydisp
+   .ydisp:
     add  al, 48                              ; lets make it a 0123456789 :D
     mov  bx, 1 
 	mov dx, [dxcache2]
@@ -449,9 +454,9 @@ call int30hah6
     mov  BYTE [zerow], 0x01
    jmp .yydis
 
-   .nodisp
+   .nodisp:
 
-   .yydis
+   .yydis:
     xor  dx, dx
     xor  cx, cx
     xor  bx, bx
@@ -465,7 +470,7 @@ call int30hah6
     mov  WORD [deel], ax
    jmp .mainl
 
-   .bver
+   .bver:
    ret
 ;***************END of PROCEDURE*********************************
 ;****************************************************************
@@ -474,7 +479,7 @@ call int30hah6
 ;****************************************************************
 disp:
 	ret
- .HEAD
+ .HEAD:
     mov  bx, 1 				     ; make it a nice fluffy blue (mostly it will be grey but ok..)
 	mov ax, 0
 	mov dx, [dxcache2]

@@ -18,11 +18,12 @@ videobuf2copy:
 	mov [olddx], dx
 	mov [oldsi], si
 	mov [olddi], di
-	mov ax, 0FA0h
+	mov ax, videobufend
+	sub ax, videobuf2
 	jmp donevideobufcolumn
 	mov cl, [enddh]
 	mov al, [enddl]
-	mov bx, 0
+	mov ebx, 0
 	mov ah, 0
 	mov ch, 0
 	cmp cx, 0
@@ -48,12 +49,12 @@ checkcursorselectdone:
 	mov [oldbx2], bx
 	mov bx, [graphicspos]
 	mov ah, 0
-	mov si, font
+	mov si, fonts
 	mov di, fontend
 	mov cx, 0
-	sub si, 16
+	sub si, 17
 fontfindnobx:
-	add si, 16
+	add si, 17
 	cmp si, di
 	jae nofontfoundnobx
 	cmp al, [si]
@@ -65,21 +66,23 @@ fontshownobx:
 	cmp byte [mouseselecton], 1
 	jne donotnotal
 	not al
-donotnotal:
+donotnotal:	
 	mov [gs:bx], al
 	add bx, 80
 	inc cx
-	cmp cx, 14
+	cmp cx, 15
 	je doneshowfontnobx
 	jmp fontshownobx
 doneshowfontnobx:
-	sub bx, 1120
+	mov al, 0
+	mov [gs:bx], al
+	sub bx, 1200
 nofontfoundnobx:
 	inc dx
 	cmp dx, 80
 	jne norowchangenobx
 	mov dx, 0
-	add bx, 1120
+	add bx, 1200
 norowchangenobx:
 	inc bx
 	mov [graphicspos], bx
@@ -88,7 +91,11 @@ norowchangenobx:
 	mov ax, 0
 	cmp bx, [endscan]
 	jbe videobuf2copy11
-donebuf2copy:
+donebuf2copy:	
+	mov byte [mouseselecton], 0
+	mov byte [termcopyon], 1
+	cmp byte [guion], 1
+	je near windowvideocopy
 	mov ax, [oldax]
 	mov bx, [oldbx]
 	mov cx, [oldcx]
@@ -96,180 +103,17 @@ donebuf2copy:
 	mov si, [oldsi]
 	mov di, [olddi]
 	ret
-
+	
+termcopyon db 0
 graphicsset db 0
 graphicspos db 0,0
-
-bluescreen:
-	mov edi, [physbaseptr]
-	mov cx, 0FFFh
-	mov ax, 0FFh
-bluescreenloop
-	mov [edi], ax
-	inc edi
-	inc edi
-	loop bluescreenloop
-donebluescreen:
-	jmp donebluescreen
-	
-
-
-widthoffset db 0,0
-width db 0,0
-height db 0,0
-dxolder db 0,0
-widthdived db 0,0
-endwidth db 0,0
-bxset db 0
-showbmp:				;bmp location in si
-					;location in (dx, cx)
-					;dimensions in (ax, bx)		
-dec si
-mov [dxolder], dx
-mov [endwidth], dx
-add [endwidth], ax
-mov dx, 0
-mov [width], ax
-mov [height], bx
-mov word [widthoffset], 80
-mov bx, 8
-div bx
-mov dx, [dxolder]
-sub [widthoffset], ax
-mov [widthdived], ax
-mov bx, 0
-jmp foundfontdone
-
-savefont:
-	mov byte [savefonton], 1
-	call showfont
-	mov byte [savefonton], 0
-	ret
-
-showfont:
-	mov [cxcache3], cx
-	mov si, font	
-	mov word [width], 8
-	mov [endwidth], dx
-	add word [endwidth], 8
-	mov word [height], 14
-	mov word [widthoffset], 80
-	sub word [widthoffset], 1
-	mov word [widthdived], 1
-    findfontloop:
-	cmp [si], al
-	je foundfontdone
-	cmp si, fontend
-	jae nofontfound
-	add si, 16
-	jmp findfontloop
-   nofontfound:
-	mov cx, [cxcache3]
-	ret
-
-fixtherow:
-	sub dx, 640
-	add bx, 80
-	add cx, 14
-	mov [cxcache3], cx
-	jmp donefixingtehrow
-
-cxcache3 db 0,0
-remainder db 0,0
-dxcache4 db 0,0
-foundfontdone:
-	inc si
-	cmp cx, 480
-	jae nofontfound
-	cmp dx, 640
-	jae fixtherow
-donefixingtehrow:
-	mov ax, dx
-	mov [cxcache3], cx
-	mov ecx, 0
-	mov cx, dx
-	mov dx, 0
-	mov bx, 8
-	div bx
-	mov bl, al
-	mov bh, 0
-	mov [remainder], dx
-	mov dx, cx
-	mov cx, [cxcache3]
-	mov di, 0
-	cmp cx, 0
-	je doneloadcolumn
-loadcolumn:
-	mov ax, 80
-	mov [dxcache4], dx
-	mov dx, 0
-	mul cx
-	add bx, ax
-doneloadcolumn:
-	mov cx, [cxcache3]
-	mov ah, 0
-	cmp byte [savefonton], 1
-	je savefonthere
-	mov al, [si]
-	mov dh, 11111111b
-	mov dl, 0
-	ror al, 1
-	cmp byte [mouseselecton], 1
-	je notcheck
-notcheckdone:
-	mov cx, [remainder]
-	mov ah, 0
-	cmp cx, 0
-	jne loadcharpos
-loadcharposdone:
-	mov cx, [cxcache3]
-	and dx, [gs:bx]
-	mov [gs:bx], ax
-	or [gs:bx], dx
-donesavefont:
-	inc bx
-	add bx, [widthoffset]
-	inc di
-	inc si
-	cmp di, [height]
-	jbe doneloadcolumn
-	mov cx, [cxcache3]
-	mov dx, [dxcache4]
-	ret
-
-savefonthere:
-	mov ax, [gs:bx]
-	mov cx, [remainder]
-	cmp cx, 0
-	jne savefonthereloop
-savefonthere2:
-	mov cx, [cxcache3]
-	rol al, 1
-	mov [si], al
-	mov ah, 0
-	jmp donesavefont	
-
-savefonthereloop:
-	rol ax, 1
-	loop savefonthereloop
-	jmp savefonthere2
-
-loadcharpos:
-	ror dx, 1
-	ror ax, 1
-	loop loadcharpos
-	jmp loadcharposdone
-
-notcheck:
-	not al
-	jmp notcheckdone
-		
+showcursorfonton db 0
 savefonton db 0
-
 mouseselecton db 0
 
+
 VBEMODEBLOCK:
-vbesignature 	times 4 db 0   	;VBE Signature
+vbesignature 	times 4 db 0 	;VBE Signature
 vbeversion  		dw 0    ;VBE Version
 oemstringptr  		dw 0,0  ;Pointer to OEM String
 capabilities 	times 4 db 0   	;Capabilities of graphics cont.
@@ -282,7 +126,6 @@ oemproductrevptr 	dw 0,0	;Pointer to Product Revision String
 reserved	times 222 db 0	;Reserved for VBE implementation scratch area
 oemdata 	times 256 db 0	;Data Area for OEM Strings
 
-db "MODE BLOCK HERE:"
 
 VBEMODEINFOBLOCK:
 ;Mandatory information for all VBE revision
@@ -321,7 +164,7 @@ rsvdfieldposition	db 0	    ;Bit position of lsb of reserved bask
 directcolormodeinfo	db 0	    ;Direct color mode attributes
 
 ;Mandatory information for VBE 2.0 and above
-physbaseptr dw 69h,69         ;Physical address for flat frame buffer
+physbaseptr dw 0,0         ;Physical address for flat frame buffer
 offscreenmemoffset dw 0,0  ;Pointer to start of off screen memory
 offscreenmemsize dw 0      ;Amount of off screen memory in 1Kb units
 reserved2 times 206 db 0   ;Remainder of ModeInfoBlock

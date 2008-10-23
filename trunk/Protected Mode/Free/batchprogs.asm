@@ -1,5 +1,3 @@
-
-
 db 5,4,"&",0
 	multitask:
 	jmp nwcmd
@@ -48,15 +46,15 @@ batch:	db 6,4,"tutorial",0
 	db 7,4,"SollerOS",0
 	db 3,4,"Is freaking awesome!",0
 	db 4,3,0
-	times 1500h db 0
+	times 1500 db 0
 commandlst:
 	
 notbatch: jmp nwcmd
 
 	db 5,4,"while",0
-while:  mov al, 1
+while:  mov al, 0
 	cmp [BATCHISON], al
-	jne notbatch
+	je notbatch
 	MOV si, [BATCHPOS]
 whilefnd: dec si
 	mov al, [si]
@@ -72,11 +70,11 @@ whilefnd: dec si
 
 
 	db 5,4,"if",0
-if:	mov al, 1
+if:	mov al, 0
 	cmp [BATCHISON], al
-	jne notbatch
+	je notbatch
 	add [IFON], al
-	 mov si, buftxt
+	mov si, buftxt
 	mov bx, buftxt
 	add bx, 3
 chkeqsn: mov al, [si]
@@ -95,12 +93,13 @@ chkeqdn: mov al, 0
 ifvar2: mov al, [bx]
 	cmp al, '$'
 	je ifvar3
-ifvar4:	mov cl, 0
-	call cndtest
+ifvar4:	call tester
 	cmp al, 1
 	je trueif
 	jmp falseif
 trueif:	mov al, [IFON]
+	inc al
+	mov [IFON], al
 	mov ah, 0
 	mov si, IFTRUE
 	add si, ax
@@ -108,27 +107,26 @@ trueif:	mov al, [IFON]
 	mov [si], ah
 	jmp nwcmd
 falseif: mov al, [IFON]
+	inc al
+	mov [IFON], al
 	mov ah, 0
 	mov si, IFTRUE
 	add si, ax
+	mov ah, 0
 	mov [si], ah
 	jmp nwcmd
-ifvar1: push si
-	sub si, buftxt
-	mov di, si
-	pop si
+ifvar1: mov di, si
+	sub di, buftxt
 	inc di
 	mov bx, variables
 	call nxtvrech
+	mov bx, buftxt
+	add bx, 3
 	jmp ifvar2
 ifvar3: push si
-	mov si, bx
-	sub si, buftxt
-	mov di, si
-	inc di
+	mov di, 4
 	mov bx, variables
 	call nxtvrech
-	mov bx, si
 	pop si
 	jmp ifvar4
 
@@ -160,9 +158,9 @@ filoop: mov si, [LOOPPOS]
 	
 
 	db 5,4,"fi",0
-	mov al, 1
+	mov al, 0
 	cmp [BATCHISON], al
-	jne NEAR nwcmd
+	je near notbatch
 fi:	mov al, 1
 	sub [IFON],al
 	jmp nwcmd
@@ -174,11 +172,5 @@ stop:	mov al, 0
 	mov [IFTRUE], al
 	mov [LOOPON], al
 	jmp nwcmd
-	
-	db 5,4,"easter",0
-easter:	mov si, easteregg
-	call print
-	jmp nwcmd
-	
 
 batchprogend:

@@ -6,6 +6,7 @@
 [BITS 16]
 	; Boot record is loaded at 0000:7C00
 ORG 7c00h
+	xor ax, ax
 	jmp start
 
 	DriveNumber db 0
@@ -19,11 +20,7 @@ ORG 7c00h
 	
     start:                ; Update the segment registers
 	mov [DriveNumber], dl
-	xor ax,		ax		; XOR ax
 	mov ds,		ax		; Mov AX into DS
-	mov ax, 12h
-	mov bx, 0
-	int 10h
 
 ResetFloppy:
 	mov ax,		0x00		; Select Floppy Reset BIOS Function
@@ -75,59 +72,55 @@ ReadFloppy:
 
 	 jc ReadFloppy			; Error, try again.
 
-ReadFloppy2:
-	mov bx, 2200h
-	mov ah, 2
-	mov al,		18 		; The Second Head Full
-	mov ch, 	0
-	mov cl, 	1
-	mov dh, 	1	; Set it to the second head
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
+setupfloppyloop:
+	mov bx, 2200h		;;start at 2000h:2200h
+	mov ch, 0		;;cylinder 0
+	mov dh, 1		;;head 1
+	mov byte [track], 1	;;this is track 1
 
-	jc ReadFloppy2		; If there was a error, try again.
+Readfloppyloop:
+save:			        ;;SAVE VALUES
+	mov [bxcache], bx	
+	mov [cylinder], ch	
+	mov [head], dh	
 
-ReadFloppy3:
-	mov bx, 4600h
-	mov ah, 2
-	mov al,		18 		; The Third Head Full
-	mov ch, 	1
-	mov cl, 	1
-	mov dh, 	0	; Set it to the third head
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
+error:
+	mov bx, [bxcache]
+	mov ch, [cylinder]
+	mov dh, [head]
+	mov ah, 2		;;load disk data at ES:BX
+	mov al, 18		;;read one track
+	mov cl, 1		;;start at first sector
+	mov dl, [DriveNumber] 	;;use found drive
+	int 13h			;;read!!
+	jc error
+	
+restorevalues:
+	mov bx, [bxcache]
+	mov ch, [cylinder]
+	mov dh, [head]
 
-	jc ReadFloppy3		; If there was a error, try again.
+	cmp dh, 1		;;if head is not 1
+	jne incdh		;;switch head
+	mov dh, 0		;;head = 0			
+	add ch, 1		;;switch cylinder
+	jmp noincdh		
+incdh:	mov dh, 1		;;switch head
+noincdh:
+	cmp bx, 0DC00h		;;If bx is the correct size
+	jb nextbx		;;increment bx
+	mov ax, es		;;otherwise,			
+	add ax, 1000h		;;add 1000h to es		
+	mov es, ax		;;and rollover bx		
+nextbx:	add bx, 2400h		;;increment bx
+	inc byte [track]	;;next track
+	mov ax, [maxtrack]	;;get max track
+	cmp [track], ax		;;too many tracks?
+	jbe Readfloppyloop	;;if not, read next track
+	
 
-ReadFloppy4:
-	mov bx, 6A00h
-	mov ah, 2
-	mov al,		18 		
-	mov ch, 	1
-	mov cl, 	1
-	mov dh, 	1	
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
-
-	jc ReadFloppy4	; If there was a error, try again.
-
-ReadFloppy5:
-	mov bx, 8E00h
-	mov ah, 2
-	mov al,		18 		
-	mov ch, 	2
-	mov cl, 	1
-	mov dh, 	0	
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
-
-	jc ReadFloppy5	; If there was a error, try again.
-
-	mov cl, [DriveNumber]
-		; Stop the floppy motor from spinning 
- 
         mov dl,		[DriveNumber]	; Select which motor to stop 
-
+	mov cl,		[DriveNumber]
 	; Select Stop Floppy Motor function:
 	mov edx, 0x3f2
 	mov al, 0x0c
@@ -136,5 +129,29 @@ ReadFloppy5:
 	out dx, al      ; Floppy Motor stopped!
         jmp 2000h:0000
 
+track db 0
+maxtrack db 5	;;use dd to figure this out
+cylinder db 0
+head	db 0
+bxcache db 0,0
     times 510-($-$$) db 0
     dw 0AA55h
+
+;	ch	dh		  es:bx
+;track	cyl	head	sector	startmem	endmem
+;0	0	0	18	2000:0000	2000:2200
+;1	0	1	36	2000:2200	2000:4600
+;2	1	0	54	2000:4600	2000:6A00
+;3	1	1	72	2000:6A00	2000:8E00
+;4	2	0	90	2000:8E00	2000:B200
+;5	2	1	108	2000:B200	2000:D600
+;6	3	0	126	2000:D600	2000:FA00
+;7	3	1	144	2000:FA00	3000:1E00
+;8	4	0	162	3000:1E00	3000:4200
+;9	4	1	180	3000:4200	3000:6600
+;10	5	0	198	3000:6600	3000:8A00
+;11	5	1	216	3000:8A00	3000:AE00
+;12	6	0	234	3000:AE00	3000:D200
+;13	6	1	252	3000:D200	3000:F600
+;14	7	0	270	3000:F600	4000:1A00
+;15	7	1	288	4000:1A00	4000:3E00

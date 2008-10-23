@@ -9,7 +9,8 @@ passcheck:
 	mov si, buftxt
 	mov al, 13
 	mov bl, 7
-	call int30hah4
+	mov cx, 200h
+	call int30hah2
 	jmp passenter
 pwdrgt:	call clear
 	mov cx, 200h
@@ -47,7 +48,11 @@ fullpass: mov si, fullmsg
 buftxtclear:
 	mov al, 0
 	mov si, buftxt
-	mov bx, buf2
+clearbuftxt: cmp si, buf2
+	jae retbufclr
+	mov [si], al
+	inc si
+	jmp clearbuftxt
 clearitbuf: cmp si, bx
 	jae retbufclr
 	mov [si], al
@@ -63,7 +68,7 @@ full:	mov si, fullmsg
 
 
 nwcmd:	mov al, 1
-		mov byte [commandline], 1
+	mov byte [commandline], 1
 	cmp [BATCHISON], al
 	jae near batchran
 cancel:	mov al, 0
@@ -111,10 +116,14 @@ fndprg:	inc bx
 	jmp prgnxt
 fndprg2: add bx, 1
 	mov si, buftxt
-	call tester
+	mov cl, 0
+	call cndtest
 	cmp al, 1
-	jne prgnxt
-	cmp bx, fileindexend
+	je prggood
+	cmp al, 2
+	je prggood
+	jmp prgnxt
+prggood: cmp bx, fileindexend
 	jae prgdn
 	add bx, 3
 	jmp word [bx]
@@ -131,7 +140,7 @@ tester:			;si=user bx=prog returns 1 in al if true
 	mov al, 0
 retest:	mov al, [si]
 	mov ah, [bx]
-	cmp ah, 0
+	cmp al, 0
 	je testtrue
 	cmp al, ah
 	jne testfalse
@@ -139,6 +148,8 @@ retest:	mov al, [si]
 	inc si
 	jmp retest
 testtrue:
+	cmp ah, 0
+	jne testfalse
 	mov al, 1
 	ret
 testfalse:
@@ -147,8 +158,8 @@ testfalse:
 
 optest:			;si=user bx=prog returns 1 in al if true
 	mov al, 0
-opretest:	mov al, [bx]
-	mov ah, [si]
+opretest:	mov al, [si]
+	mov ah, [bx]
 	cmp al, ah
 	jne optestfalse
 	cmp ah, 0
@@ -157,6 +168,8 @@ opretest:	mov al, [bx]
 	inc si
 	jmp opretest
 optesttrue:
+	cmp al, 0
+	jne optestfalse
 	mov al, 1
 	ret
 optestfalse:
@@ -265,32 +278,291 @@ clearbuf: cmp si, numbuf
 	mov [si], al
 	inc si
 	jmp clearbuf
-doneclearbuff: ret
+doneclearbuff: 
+		ret
 
 convert: dec si
-	mov bx, si		;place to convert to must be in si, number to convert must be in cx
-cnvrt:  mov al, [si]
-	cmp al, '9'
-	je zero
-	mov ah, [si]
-	inc ah
-	mov [si], ah
+	mov bx, si		;place to convert into must be in si, number to convert must be in cx
+cnvrt:
 	mov si, bx
-cnvrtlp: dec ecx
-	cmp ecx, 0
-	jne cnvrt
+	sub si, 9
+	cmp ecx, 1000000000
+	jb ten8
+	sub ecx, 1000000000
+	inc byte [si]
+	jmp cnvrt
+ten8:	inc si
+	cmp ecx, 100000000
+	jb ten7
+	sub ecx, 100000000
+	inc byte [si]
+	jmp cnvrt
+ten7:	inc si
+	cmp ecx, 10000000
+	jb ten6
+	sub ecx, 10000000
+	inc byte [si]
+	jmp cnvrt
+ten6:	inc si
+	cmp ecx, 1000000
+	jb ten5
+	sub ecx, 1000000
+	inc byte [si]
+	jmp cnvrt
+ten5:	inc si
+	cmp ecx, 100000
+	jb ten4
+	sub ecx, 100000
+	inc byte [si]
+	jmp cnvrt
+ten4:	inc si
+	cmp ecx, 10000
+	jb ten3
+	sub ecx, 10000
+	inc byte [si]
+	jmp cnvrt
+ten3:	inc si
+	cmp ecx, 1000
+	jb ten2
+	sub ecx, 1000
+	inc byte [si]
+	jmp cnvrt
+ten2:	inc si
+	cmp ecx, 100
+	jb ten1
+	sub ecx, 100
+	inc byte [si]
+	jmp cnvrt
+ten1:	inc si
+	cmp ecx, 10
+	jb ten0
+	sub ecx, 10
+	inc byte [si]
+	jmp cnvrt
+ten0:	inc si
+	cmp ecx, 1
+	jb tendn
+	sub ecx, 1
+	inc byte [si]
+	jmp cnvrt
+tendn:
 	ret
-zero:	mov al, '0'
+	
+hexnumber times 8 db 0
+hexnumberend db "  ",0
+
+sibuf db 0,0
+dibuf db 0,0
+converthex: 
+clearbufferhex:
+	mov al, '0'
+	mov [sibuf], si
+	mov [dibuf], di
+clearbufhex: cmp si, di
+	jae doneclearbuffhex
+	mov [si], al
+	inc si
+	jmp clearbufhex
+doneclearbuffhex:
+	mov si, [dibuf]
+	mov edx, ecx
+	cmp edx, 0
+	je donenxtephx
+nxtexphx:			;0x10^x
+	dec si
+	mov di, si		;;location of 0x10^x
+	mov ecx, edx
+	and ecx, 0xF		;;just this digit
+	call cnvrtexphx		;;get this digit
+	mov si, di
+	shr edx, 4		;;next digit
+	cmp edx, 0
+	je donenxtephx
+	jmp nxtexphx 
+donenxtephx:
+	mov si, [sibuf]
+	mov di, [dibuf]
+	ret
+cnvrtexphx:			;;convert this number
+	mov bx, si		;place to convert to must be in si, number to convert must be in cx
+	cmp ecx, 0
+	je zerohx
+cnvrthx:  mov al, [si]
+	cmp al, '9'
+	je lettershx
+lttrhxdn: cmp al, 'F'
+	je zerohx
+	mov al, [si]
+	inc al
+	mov [si], al
+	mov si, bx
+cnvrtlphx: sub ecx, 1
+	cmp ecx, 0
+	jne cnvrthx
+	ret
+lettershx:
+	mov al, 'A'
+	sub al, 1
+	mov [si], al
+	jmp lttrhxdn
+zerohx:	mov al, '0'
 	mov [si], al
 	dec si
 	mov al, [si]
-	cmp al, '9'
-	je zero
+	cmp al, 'F'
+	je zerohx
 	inc ecx
-	jmp cnvrtlp
+	jmp cnvrtlphx
 
+shxeax db 0,0,0,0
+shxebx db 0,0,0,0
+shxecx db 0,0,0,0
+shxedx db 0,0,0,0
+shxsi db 0,0
+shxdi db 0,0
+firsthexshown db 1
+showhex:
+	mov [shxeax], eax
+	mov [shxebx], ebx
+	mov [shxecx], ecx
+	mov [shxedx], edx
+	mov [shxsi], si
+	mov [shxdi], di
+	mov si, hexnumber
+	mov di, hexnumberend
+	call converthex
+	cmp byte [shownumberstack], 0
+	jne nopopahex
+	popa
+nopopahex:
+	cmp byte [firsthexshown], 1
+	jne showthathex
+	mov dx, 0
+showthathex:
+	cmp byte [firsthexshown], 3
+	jne nonewhexline
+	mov si, line
+	call print
+nonewhexline:
+	cmp byte [firsthexshown], 4
+	jne notabfixhex
+	mov cl, 160
+	sub cl, dl
+	shr cl, 5
+	shl cl, 5
+	cmp cl, 0
+	jne nonewlinetabfixhex
+	mov si, line
+	call print
+	jmp notabfixhex
+nonewlinetabfixhex:
+	add dl, 15
+	shr dl, 4
+	shl dl, 4
+notabfixhex:
+	mov si, hexnumber
+	call print
+	cmp byte [firsthexshown], 2
+	jne hexshown
+	mov si, line
+	call print
+hexshown:
+	mov byte [firsthexshown], 0
+	cmp byte [shownumberstack], 0
+	jne nopushahex
+	pusha
+	mov edx, [shxedx]
+nopushahex:
+	mov eax, [shxeax]
+	mov ebx, [shxebx]
+	mov ecx, [shxecx]
+	mov si, [shxsi]
+	mov di, [shxdi]
+	ret
+
+sdceax db 0,0,0,0
+sdcebx db 0,0,0,0
+sdcecx db 0,0,0,0
+sdcedx db 0,0,0,0
+sdcsi db 0,0
+sdcdi db 0,0
+
+decnumber db "00000000000000"
+decnumberend: db " ",0
+shownumberstack db 0
+
+showdec: ;;same as showhex, just uses decimal conversion
+	mov [sdceax], eax
+	mov [sdcebx], ebx
+	mov [sdcecx], ecx
+	mov [sdcedx], edx
+	mov [sdcsi], si
+	mov [sdcdi], di
+	mov di, decnumber
+	mov si, decnumberend
+cleardecbuf:
+	mov byte [di], '0'
+	inc di
+	cmp di, si
+	jb cleardecbuf
+	mov di, decnumber
+	call convert
+	cmp byte [shownumberstack], 0
+	jne nopopadec
+	popa
+nopopadec:
+	cmp byte [firsthexshown], 1
+	jne showthatdec
+	mov dx, 0
+showthatdec:
+	cmp byte [firsthexshown], 3
+	jne nonewdecline
+	mov si, line
+	call print
+nonewdecline:
+	cmp byte [firsthexshown], 4
+	jne notabfixdec
+	mov cl, 160
+	sub cl, dl
+	shr cl, 5
+	shl cl, 5
+	cmp cl, 0
+	jne nonewlinetabfixdec
+	mov si, line
+	call print
+	jmp notabfixdec
+nonewlinetabfixdec:
+	add dl, 15
+	shr dl, 4
+	shl dl, 4
+notabfixdec:
+	mov si, decnumber
+	dec si
+sifind:	inc si
+	cmp byte [si], '0'
+	je sifind
+	call print
+	cmp byte [firsthexshown], 2
+	jne decshown
+	mov si, line
+	call print
+decshown:
+	mov byte [firsthexshown], 0
+	cmp byte [shownumberstack], 0
+	jne nopushadec
+	pusha
+	mov edx, [sdcedx]
+nopushadec:
+	mov eax, [sdceax]
+	mov ebx, [sdcebx]
+	mov ecx, [sdcecx]
+	mov si, [sdcsi]
+	mov di, [sdcdi]
+	ret
+
+edxcachecnvrt dw 0,0
 cnvrttxt: 
-	push dx
+	mov [edxcachecnvrt], edx
 	mov ecx, 0
 	mov eax, 0
 	mov edx, 0
@@ -311,20 +583,23 @@ zerotest: cmp si, buftxt
 txtlp:	mov al, [si]
 	cmp al, '='
 	je donecnvrt
-	cmp al, 0
-	je donecnvrt
+	cmp al, 48
+	jb donecnvrt
 	cmp al, '#'
 	je donecnvrt
 	cmp si, buftxt
 	jb donecnvrt
 	cmp ecx, 0
-	je noexp
-	jmp exp
+	ja exp
 noexp:	sub al, 48
 	add edx, eax
 	dec si
 	inc ecx
 	jmp txtlp
+exp:	cmp ecx, 0
+	je noexp
+	sub al, 48
+	mov [ecxbufnum], ecx
 expmul:	mov ebx, eax
 	add eax, ebx
 	add eax, ebx
@@ -335,172 +610,26 @@ expmul:	mov ebx, eax
 	add eax, ebx
 	add eax, ebx
 	add eax, ebx
-	loop expmul
-	ret
-exp:	sub al, 48
-	mov ebx, ecx
-	push ecx
-	mov ecx, ebx
-	call expmul
+	sub ecx, 1
+	cmp ecx, 0
+	ja expmul
 	add edx, eax
-	pop ecx
+	mov ecx, [ecxbufnum]
 	dec si
 	inc ecx
 	jmp txtlp
 donecnvrt: mov ecx, edx
-	pop dx
+	mov edx, [edxcachecnvrt]
 	ret
+ecxbufnum dw 0,0
 
 realmode:
+   mov eax, cr0
    and al,0xFE     ; back to realmode
    mov  cr0, eax   ; by toggling bit again
    sti
+   mov eax, 0
    ret
-
-sector:
-	call realmode
-    reset:                      ; Reset the floppy drive
-            mov ax, 0           ;
-            mov dl, [DriveNumber]           ; Drive=0 (=A)
-            int 13h             ;
-            jc reset            ; ERROR => reset again
-
-
-    read:
-            mov ax, 2000h      ; ES:BX = 2000:0000
-            mov es, ax         ;
-            mov bx, 0	       ;
-            mov ah, 2           ; Load disk data to ES:BX
-            mov al, 17          ; 
-            mov ch, 0           ; Cylinder=0
-            mov cl, 2           ; Sector=2
-            mov dh, 0           ; Head=0
-            mov dl, [DriveNumber]           ; Drive=0
-            int 13h             ; Read!
-            jc read             ; ERROR => Try again
-		; Stop the floppy motor from spinning 
-ReadFloppy3:
-	mov bx, 2200h
-	mov ah, 2
-	mov al,		18 		; The Second Head Full
-	mov ch, 0
-	mov cl, 	1
-	mov dh, 	1	; Set it to the second head
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
-
-	jc ReadFloppy3		; If there was a error, try again.
-
-ReadFloppy4:
-	mov bx, 4600h
-	mov ah, 2
-	mov al,		18 		; The Third Head Full
-	mov ch, 	1
-	mov cl, 	1
-	mov dh, 	0	; Set it to the third head
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
-
-	jc ReadFloppy4		; If there was a error, try again.
-
-ReadFloppy5:
-	mov bx, 6A00h
-	mov ah, 2
-	mov al,		18 		; The Third Head Full
-	mov ch, 	1
-	mov cl, 	1
-	mov dh, 	1	; Set it to the third head
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
-
-	jc ReadFloppy5		; If there was a error, try again.
- 
-        mov dl,		[DriveNumber]	; Select which motor to stop 
-
-	; Select Stop Floppy Motor function:
-	mov edx, 0x3f2
-	mov al, 0x0c
-
-	; Stop floppy motor:
-	out dx, al      ; Floppy Motor stopped!
-	    call pmode
-	call clear
-		jmp nwcmd
-
-writesect:
-	 call realmode
-    reset3:                      ; Reset the floppy drive
-            mov ax, 0           ;
-            mov dl, [DriveNumber]           ; Drive=0 (=A)
-            int 13h             ;
-            jc reset3            ; ERROR => reset again
-
-
-    read3:
-            mov ax, 2000h      ; ES:BX = 2000:0000
-            mov es, ax         ;
-            mov bx, 0	       ;
-
-            mov ah, 3           ; Write disk data from ES:BX
-            mov al, 17		; 
-            mov ch, 0           ; Cylinder=0
-            mov cl, 2           ; Sector=2
-            mov dh, 0           ; Head=0
-            mov dl, [DriveNumber]           ; Drive=0
-            int 13h             
-
-            jc read3             ; ERROR => Try again
-		; Stop the floppy motor from spinning
-writeFloppy2:
-	mov bx, 2200h
-	mov ah, 3
-	mov al,		18 		; The Second Head Full
-	mov ch, 0
-	mov cl, 	1
-	mov dh, 	1	; Set it to the second head
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
-
-	jc writeFloppy2		; If there was a error, try again. 
-
-writeFloppy3:
-	mov bx, 4600h
-	mov ah, 3
-	mov al,		18 		; The Third Head Full
-	mov ch, 1
-	mov cl, 	1
-	mov dh, 	0	; Set it to the third head
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
-
-	jc writeFloppy3		; If there was a error, try again.
-
-writeFloppy4:
-	mov bx, 6A00h
-	mov ah, 2
-	mov al,		18 		; The Third Head Full
-	mov ch, 1
-	mov cl, 	1
-	mov dh, 	1	; Set it to the third head
-	mov dl, [DriveNumber]
-	int 13h			; Read the floppy disk.
-
-	jc writeFloppy4		; If there was a error, try again.
- 
-        mov dl,		[DriveNumber]	; Select which motor to stop 
-
-	; Select Stop Floppy Motor function:
-	mov edx, 0x3f2
-	mov al, 0x0c
-
-	; Stop floppy motor:
-	out dx, al      ; Floppy Motor stopped!
-	ret
-	call pmode
-	call clear
-            jmp nwcmd      ; Jump to the program
-
-	
 
 
 IFON db 0

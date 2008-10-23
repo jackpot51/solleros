@@ -6,8 +6,7 @@
         pIDT            dw 7FFh         ; limit of 256 IDT slots
                         dd 0000h        ; starting at 0000
 
-	GDTR
-		        dw 17FFh
+	GDTR	        dw 17FFh
 			dd 0800h
 
 pmode:

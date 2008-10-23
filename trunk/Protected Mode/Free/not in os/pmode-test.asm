@@ -135,13 +135,13 @@ user1:	lea esi,[hi1_msg]
 	call wrstr
 	mov ecx,0xFFFF
 	loop $
-	jmp bluescreen		; infinite loop (until timer interrupt)
+	jmp user1		; infinite loop (until timer interrupt)
 
 user2:	lea esi,[hi2_msg]
 	call wrstr
 	mov ecx,0xFFFF
 	loop $
-;;	jmp user2		; infinite loop (until timer interrupt)
+	jmp user2		; infinite loop (until timer interrupt)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	character-output video routine
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -200,8 +200,7 @@ wrstr2:		lodsb
 ;	default handler for interrupts/exceptions
 ;	prints " Unhandled interrupt!"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-unhand:	ret
-	cli
+unhand:	cli
 	mov ax,SYS_DATA_SEL
 	mov ss,ax
 	mov ds,ax
