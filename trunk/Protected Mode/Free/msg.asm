@@ -11,7 +11,7 @@
 	wrongpass db	"Wrong password!",13,10,0
 	fullmsg	db	13,10,"Buffer Full",7,0
 	pwdask	db	"Enter Password:",0
-	pwd	db	"password",0
+	pwd	db	"pa",0
 	cmd	db	"[user@SollerOS-v0.8.9$]",0
 	dosmode db "Horrible DOS Compatability enabled.",13,10,0
 	line	db	13,10,0
@@ -65,13 +65,9 @@
     operandmsg	db 10,13,"Operand:",0
     dskmsg	db "Bytes free for user variables.",10,13,0
     sectormsg	db "Loading OS...(SollerOS floppy must be inserted)",0
- 
-
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
-fonts:	times 2159 db 0
-	
+fonts:	times 2048 db 0
 fontend2:
-	db	128
 	db	00000001b
 	db	10000001b
 	db	11000001b
@@ -88,17 +84,15 @@ fontend2:
 	db	00001110b
 	db	00001110b
 	db	00001100b
-	db	129
-	times 16 db 0xFF
 fontend:
-
 bufferhelper:	db 0,0
 variables: times 500 db 0
 varend:
 buftxt: times 200 db 0
 buf2:	times 20 db '0'
 numbuf:	db 0,0
-copybuffer times 500 db 0
-videobuf2 times 0x12C0 	db ' '
+videobuf2 times 0x12C0 	db 0
 videobufend:
 rbuffstart:
+
+;oldstuff:

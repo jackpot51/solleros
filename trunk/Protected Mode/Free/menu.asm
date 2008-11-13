@@ -1,5 +1,4 @@
     ; MENU.ASM
-	[BITS 16]
 prog:	
 	    mov ax, cs
 	    jmp mainindex	;;this command gives the solleros user the location of mainindex
@@ -8,90 +7,88 @@ mainindex:
 	    jmp mainindexdn	;;this gives the size of the index
 	    dw 0405h,progstart,batchprogend,fileindex,fileindexend,variables,varend,nwcmd,int30h,physbaseptr,0
 mainindexdn:
-	    mov ds, ax
-	    mov es, ax
-	    mov ss, ax
-	    call realmode	;;make sure we are in realmode
-	    mov byte [mouseon], 0
-	    mov [DriveNumber], cl
-	mov ax, videobuf2
-	mov fs, ax
-	call int30hah8
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	mov [DriveNumber], cl
 	mov ax, 0xA000
 	mov gs, ax
 	mov ax, 12h
 	mov bx, 0
 	int 10h
-	call indexfiles	
-	mov dx, 0
+	call fontload
 	jmp guiload ;;strait to gui
-	iret
+
 
 DriveNumber db 0
 
-    welcome:
-	xor eax, eax
-	xor ebx, ebx
-	xor ecx, ecx
-	xor edx, edx
-	xor esi, esi
-	xor edi, edi	;;reset registers
-	    mov si, jeremymsg
-	    call print
-	    mov si, loadmsg
-	    call print
-	    call countdown
-	    call clear
-    begin:  mov si, msg
-	    call print
-	    mov si, jeremymsg2
-	    call print
-	    call pmode
-	    jmp menu
+currentfont db 0
 
-    char: 		    ;char must be in al
-            mov [charcache], al
-            mov bx, 7
-	    mov si, charcache
-	    mov al, 0
-            call int30hah1
-	    mov al, [charcache]
-	    ret
-	charcache db 0,0,0
-
-    getkey:
-            mov al, 0               ; wait for key
-	    call int30hah5
-            ret
-
-    menu:
-	    mov si, menumsg
-	    call print
-	    mov si, wrongmsg
-    wrong:  call getkey
-    	    cmp al, 'g'
-	    je near guiload
-	    cmp al, 's'
-            je near shutdown
-	    cmp al, 'c'
-	    je near coldboot
-	    cmp al, 'w'
-	    je near warmboot
-	    cmp al, 'b'
-	    je near bootit
-	    cmp al, '`'
-	    je near batchfilerunit
-	    call char
-	    sub dl, 2
-	    mov si, line
-	    add si, 2
-            jmp wrong
-
+fontload:
+	mov ah, 09h
+	mov bx, 7
+	mov cx, 1
+	mov al, [currentfont] 
+	int 10h
+	mov al, [currentfont]
+	inc al
+	mov [currentfont], al
+	mov ah, 0
+	dec al
+	mov si, fonts
+	shl ax, 4
+	add si, ax
+	shr ax, 4
+	mov bx, 0
+	mov cx, 0
+	mov dx, 0
+pixelload:
+	cmp cx, 7
+	ja nextrow
+	cmp dx, 14
+	ja doneloadpixels
+	mov ah, 0dh
+	mov bh, 0
+	int 10h
+	cmp al, 0
+	je pixeloff
+	cmp al, 1
+	jae pixelon
+	jmp pixelload
+doneloadpixels:
+	inc si
+	cmp si, fontend2
+	jae donefontload
+	jmp fontload
+donefontload:
+	ret
+	
+nextrow: mov cx, 0
+	add dx, 1
+	inc si
+	jmp pixelload
+pixeloff:
+	inc cx
+	jmp pixelload
+cxcache2 db 0,0
+pixelon:
+	mov al, 1
+	mov [cxcache2], cx
+pixelloop:
+	cmp cx, 0
+	je nopixelloop
+	ror al, 1
+	loop pixelloop
+nopixelloop:
+	add [si], al
+	mov cx, [cxcache2]
+	inc cx
+	jmp pixelload
 
 vesamode dw 0
 videomodecache dw 0
+
 guiload:
-	call realmode
 	mov ax, 04F00h
 	mov di, VBEMODEBLOCK
 	int 10h
@@ -102,43 +99,18 @@ findvideomodes:
 	mov cx, [si]
 	cmp cx, 0xFFFF
 	je near nextvmode
-	cmp di, oemdata
-	jae near welcome ;;kill if no valid list is found
-	jmp findvideomodes
-;;debug,shows vmodes available
-	mov [vesamode], cx
-	mov [videomodecache], si
-	mov ax, 04F01h
-	mov di, VBEMODEINFOBLOCK
-	int 10h
-	mov si, [videomodecache]
-	mov cl, [bitsperpixel]
-	cmp cl, 16
-	jne findvideomodes
-	mov ecx, 0
-	mov cx, [xresolution]
-	call showdec
-	mov ecx, 0
-	mov cx, [yresolution]
-	call showdec
-	mov ecx, 0
-	mov cl, [bitsperpixel]
-	call showdec
-	mov cx, [vesamode]
-	call showhex
-	mov byte [firsthexshown], 4
 	cmp si, oemdata
-	jb findvideomodes
-	jmp welcome
-
+	jae near guiload	;;kill if no valid list is found
+	jmp findvideomodes 	
+;;debug,shows vmodes available
 nextvmode:
 	sub si, 2
 	cmp si, reserved
-	jb near welcome
+	jb near guiload
 	mov cx, [si]
 	cmp cx, 0xFFFF
-	je near welcome
-	add cx, 0x4000 ;;Linear Frame Buffer
+	je near guiload
+	add cx, 0x4000 		;;Linear Frame Buffer
 	mov ax, 04F01h
 	mov di, VBEMODEINFOBLOCK
 	mov [vesamode], cx
@@ -150,41 +122,25 @@ nextvmode:
 	cmp ah, 0
 	je near setvesamode
 	jmp nextvmode
-modes:
-	dw 0x4161	;;1280*800*16 bits
-	dw 0x411A	;;1280*1024*16 bits
-	dw 0x4117	;;1024*768*16 bits
-	dw 0x4114	;;800*600*16 bits
-	dw 0x4111	;;640*480*16 bits
-
-isthisvideook db 10,13,"Is this video mode OK?(y/n)",0
-
+isthisvideook db 10,13,"Is this video mode OK?(y/n)",13,10,0
 setvesamode:
-	call clear
-	mov byte [shownumberstack], 1
-	mov ecx, 0
 	mov cx, [xresolution]
-	call showdec
-	sub dl, 2
+	call decshow
 	mov al, "x"
 	call char
-	mov ecx, 0
 	mov cx, [yresolution]
-	call showdec
-	sub dl, 2
+	call decshow
 	mov al, "@"
 	call char
-	mov ecx, 0
 	mov cl, [bitsperpixel]
-	call showdec
+	call decshow
 	mov si, isthisvideook
-	call print
+	call printrm
 	mov ax, 0
 	int 16h
-	mov di, [videomodecache]
+	mov si, [videomodecache]
 	cmp al, "y"
 	jne nextvmode
-	mov byte [shownumberstack], 0
 	mov dx, [xresolution]
 	mov cx, [yresolution]
 	mov [resolutionx], dx
@@ -196,8 +152,6 @@ setvesamode:
 	mov ax, 04F02h
 	mov bx, [vesamode]
 	int 10h		;;enter VESA mode
-	mov ax, 0x9000
-	mov gs, ax
 	mov edi, [physbaseptr]
 	sub edi, 0x20000
 	mov [physbaseptr], edi	;;fix lfb base, is over by 0x20000 or 0x2000:0 where OS starts
@@ -207,20 +161,94 @@ setvesamode:
 	xor edx, edx
 	xor esi, esi
 	xor edi, edi	;;reset registers
-	call pmode
-	jmp gui ;;test vesa
-batchfilerunit:
-	call clear
-	jmp runbatch2 ;;batch is in buftxt2, change buftxt2 to the batch you want
-warmboot:
-	jmp warmboot2
+jmp pmode
 
-coldboot:
-	jmp coldboot2
+;;	jmp gui ;;test vesa
+
+
+    printrm:			; 'si' comes in with string address
+	    mov bx,07		; write to display
+	    mov ah,0Eh		; screen function
+    prs2:    mov al,[si]         ; get next character
+	    cmp al,0		; look for terminator 
+            je finpr2		; zero byte at end of string
+	    int 10h		; write character to screen.    
+     	    inc si	     	; move to next character
+	    jmp prs2		; loop
+    finpr2: ret
+
+dcnm db 0,0,0,0,0
+dcnmend db 0,0
+
+
+decshow:
+	mov si, dcnm
+decclear:
+	mov al, "0"
+	mov [si], al
+	inc si
+	cmp si, dcnmend
+	jbe decclear
+	dec si
+	call convertrm
+	mov si, dcnm
+dectst:
+	mov al, [si]
+	inc si
+	cmp si, dcnmend
+	ja dectstend
+	cmp al, "0"
+	jbe dectst
+dectstend:
+	dec si
+	call printrm
+	ret
+	
+	
+convertrm:
+	dec si
+	mov bx, si		;place to convert into must be in si, number to convert must be in cx
+cnvrtrm:
+	mov si, bx
+	sub si, 3
+ten3rm:	inc si
+	cmp cx, 1000
+	jb ten2rm
+	sub cx, 1000
+	inc byte [si]
+	jmp cnvrtrm
+ten2rm:	inc si
+	cmp cx, 100
+	jb ten1rm
+	sub cx, 100
+	inc byte [si]
+	jmp cnvrtrm
+ten1rm:	inc si
+	cmp cx, 10
+	jb ten0rm
+	sub cx, 10
+	inc byte [si]
+	jmp cnvrtrm
+ten0rm:	inc si
+	cmp cx, 1
+	jb tendnrm
+	sub cx, 1
+	inc byte [si]
+	jmp cnvrtrm
+tendnrm:
+	ret
+
+
+
+
+    char: 		    ;char must be in al
+           mov bx, 07
+	   mov ah, 0Eh
+	   int 10h
+	    ret
+
 		shutdown:
-			call realmode
-			mov si, shutdownmsg
-			call rebootit			
+			call realmode	
 			MOV AX, 5300h	; Shuts down APM-Machines.
 			XOR BX, BX	; Newer machines automatically
 			INT 15h		; shut down
@@ -235,94 +263,86 @@ coldboot:
 			MOV CX, 3
 			INT 15h
 			IRET
-    bootit:
-		call clear
-	    jmp os
 
-	coldboot2:
+	coldboot:
 			call realmode
-		  	mov si, rebootmsg
-			call rebootit
-			MOV AX, 0040h	; Source: "coldboot.asm"
-			MOV ES, AX	; ASM 1.0
+			MOV AX, 0040h
+			MOV ES, AX
 			MOV WORD [ES:00072h], 0h
 			JMP 0FFFFh:0000h
 			IRET
-		warmboot2:
+
+		warmboot:
 			call realmode
-			mov si, rebootmsg
-			call rebootit
-			MOV AX, 0040h	; Source: "warmboot.asm"
-			MOV ES, AX	; ASM 1.0
+			MOV AX, 0040h
+			MOV ES, AX
 			MOV WORD [ES:00072h], 01234h
 			JMP 0FFFFh:0000h
 			IRET
 
-    rebootit:
-	    push si
-	    call clear
-	    mov si, jeremymsg
-	    call print
-	    pop si
-	    call print
-	    call countdown
-	    ret
-	
-	clear:
-	call int30hah3
-	ret
 
-    countdown:
-    	    mov al, '5'
-	    call char
-	    call delay
-	    sub dl, 2
-	    mov al, '4'
-	    call char
-	    call delay
-	    sub dl, 2
-	    mov al, '3'
-	    call char
-	    call delay
-	    sub dl, 2
-	    mov al, '2'
-	    call char
-	    call delay
-	    sub dl, 2
-	    mov al, '1'
-	    call char
-	    call delay
-	    sub dl, 2
-	    mov al, '0'
-	    call char
-            ret
+realmode:
+   mov eax, cr0
+   and al,0xFE     ; back to realmode
+   mov  cr0, eax   ; by toggling bit again
+   sti
 
-	oldercx db 0,0
+   mov eax, 0
+   ret
 
-    delay:  mov cx, 010h
-	delay1:
-		mov [oldercx], cx
-		mov cx, 0FFFFh
-	delay2:
-            loop delay2
-		mov cx, [oldercx]
-		loop delay1
- 	    ret
-
-    print:			; 'si' comes in with string address
-		mov ax, 0
-		mov bx, 7
-		jmp int30hah1
-    finpr:  ret			; finished this line 
+VBEMODEBLOCK:
+vbesignature 	times 4 db 0 	;VBE Signature
+vbeversion  		dw 0    ;VBE Version
+oemstringptr  		dw 0,0  ;Pointer to OEM String
+capabilities 	times 4 db 0   	;Capabilities of graphics cont.
+videomodeptr 		dw 0,0  ;Pointer to Video Mode List
+totalmemory   		dw 0    ;number of 64Kb memory blocks
+oemsoftwarerev  	dw 0  	;VBE implementation Software revision
+oemvendornameptr 	dw 0,0 	;Pointer to Vendor Name String
+oemproductnameptr 	dw 0,0 	;Pointer to Product Name String
+oemproductrevptr 	dw 0,0	;Pointer to Product Revision String
+reserved	times 222 db 0	;Reserved for VBE implementation scratch area
+oemdata 	times 256 db 0	;Data Area for OEM Strings
 
 
-    printbx:
-	    push si
-		mov ax, 0
-	    mov si, bx
-	    push bx			; 'bx' comes in with string address
-	    mov bx,7	; write to display
-		call int30hah1    
-   	 	pop si
-		pop bx
-		ret			; finished this line 
+VBEMODEINFOBLOCK:
+;Mandatory information for all VBE revision
+modeattributes   dw 0  ;Mode attributes
+winaattributes   db 0  ;Window A attributes
+winbattributes   db 0  ;Window B attributes
+wingranularity   dw 0  ;Window granularity
+winsize          dw 0  ;Window size
+winasegment      dw 0  ;Window A start segment
+winbsegment      dw 0  ;Window B start segment
+winfuncptr       dw 0,0  ;pointer to window function
+bytesperscanline dw 0  ;Bytes per scan line
+
+;Mandatory information for VBE 1.2 and above
+xresolution     dw 0	    ;Horizontal resolution in pixel or chars
+yresolution	dw 0        ;Vertical resolution in pixel or chars
+xcharsize       db 0	    ;Character cell width in pixel
+ycharsize       db 0	    ;Character cell height in pixel
+numberofplanes  db 0	    ;Number of memory planes
+bitsperpixel    db 0	    ;Bits per pixel
+numberofbanks   db 0	    ;Number of banks
+memorymodel     db 0	    ;Memory model type
+banksize        db 0 	    ;Bank size in KB
+numberofimagepages    db 0  ;Number of images
+reserved1       db 0	    ;Reserved for page function
+
+;Direct Color fields (required for direct/6 and YUV/7 memory models)
+redmasksize		db 0        ;Size of direct color red mask in bits
+redfieldposition	db 0	    ;Bit position of lsb of red bask
+greenmasksize   	db 0	    ;Size of direct color green mask in bits
+greenfieldposition	db 0	    ;Bit position of lsb of green bask
+bluemasksize		db 0        ;Size of direct color blue mask in bits
+bluefieldposition	db 0	    ;Bit position of lsb of blue bask
+rsvdmasksize        	db 0	    ;Size of direct color reserved mask in bits
+rsvdfieldposition	db 0	    ;Bit position of lsb of reserved bask
+directcolormodeinfo	db 0	    ;Direct color mode attributes
+
+;Mandatory information for VBE 2.0 and above
+physbaseptr dw 0,0         ;Physical address for flat frame buffer
+offscreenmemoffset dw 0,0  ;Pointer to start of off screen memory
+offscreenmemsize dw 0      ;Amount of off screen memory in 1Kb units
+reserved2 times 206 db 0   ;Remainder of ModeInfoBlock

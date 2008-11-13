@@ -1,18 +1,4 @@
 ints:	;these are inits to be used in pmode or by 3rd party apps
-	MOV EAX, 0
-	MOV AX, CS
-
-	SHL EAX, 16			; 16 bit left shif of EAX
-	MOV AX, int30h			; AX points the the code of the Interrupt
-	XOR BX, BX			; BX = 0
-	MOV FS, BX			; FS = BX = 0
-
-	CLI				; Interrupt Flag clear
-	MOV [FS:30h*4], EAX		; Write the position of the Interrupt code into
-					; the interrupt table (index 30h)
-	STI				; Interrupt Flag set
-	ret
-db "INTS HERE",0
 
 int30h:
 	cmp ah, 0
@@ -29,14 +15,6 @@ int30h:
 	je near int30hah5
 	cmp ah, 6
 	je near int30hah6
-	cmp ah, 7
-	je near int30hah7
-	cmp ah, 8
-	je near int30hah8
-	cmp ah, 9
-	je near int30hah9
-	cmp ah, 10
-	je near int30hah10
 	ret
 
 int30hah0:	;shutdown application
@@ -48,12 +26,21 @@ int30hah0:	;shutdown application
 
 	colorah1 db 0
 
+
+	charcache db 0,0,0
+
+
+    print:
+		mov ax, 0
+		mov bx, 7
+
 int30hah1:	;write string in si to screen, endchar in al
 		;location on screen in (dl, dh)
 		;modifier in bl
 
 		;if (dl,dh) is unchanged, current position is used
 		shr dl, 1
+
 		shl dl, 1
 		mov [startdl], dl
 		mov [startdh], dh
@@ -74,8 +61,11 @@ int30hah1:	;write string in si to screen, endchar in al
 	intlnprntnm: 
 		add bx, 160
 		dec cx
+
 		cmp cx, 0
+
 		je intlnprnt2
+
 		jmp intlnprntnm
 	nocxint:
 		mov bl, dl
@@ -85,16 +75,17 @@ int30hah1:	;write string in si to screen, endchar in al
 		je near intnewlineprnt
 		cmp ah, 13
 		je near intcarriagereturn
-		mov  byte [fs:bx], ah
+		mov  byte [videobuf2 + bx], ah
 		inc bx
+
 		mov al, [colorah1]
-		mov byte [fs:bx], al
+		mov byte [videobuf2 + bx], al
 		inc bx
-		cmp byte [fs:bx], 0
+		cmp byte [videobuf2 + bx], 0
 		jne nobyteprnt
-		mov byte [fs:bx], ' '
+		mov byte [videobuf2 + bx], ' '
 		inc bx
-		mov byte [fs:bx], 7
+		mov byte [videobuf2 + bx], 7
 		dec bx
 	nobyteprnt:
 		add dl,2
@@ -111,7 +102,9 @@ forgetnextline:	jmp intprint
 
 	nextlineint:
 		inc dh
+
 		mov al, dl
+
 		mov ah, 0
 		sub bx, ax
 		add bx, 160
@@ -126,19 +119,21 @@ forgetnextline:	jmp intprint
 	scrollscreen:
 		dec dh
 		mov bx, 160
-		mov cx, [fs:bx]
+		mov cx, [videobuf2 + bx]
 		mov bx, 0
-		mov [fs:bx], cx
+		mov [videobuf2 + bx], cx
 	scrollloop:
+
 		mov cx, videobufend
+
 		sub cx, videobuf2
 		cmp bx, cx
 		ja near intprint
 		add bx, 162
-		mov cl, [fs:bx]
+		mov cl, [videobuf2 + bx]
 		mov ch, al
 		sub bx, 160
-		mov [fs:bx], cx
+		mov [videobuf2 + bx], cx
 		jmp scrollloop
 
 	intcarriagereturn:
@@ -162,17 +157,27 @@ forgetnextline:	jmp intprint
 		mov ah, 1
 		mov [enddh], dh
 		mov [enddl], dl
-	jmp videobuf2copy
+jmp videobuf2copy
+ret
 
 enddl db 0
 maxcx dw 0
+
 printbackspaces db 0
 int30hah2:	;read string to si, endkey in al, max in cx
 		;if endkey is 0, only one char is read
 		mov bl, al
+
 		mov [maxcx], cx
 		jmp startin
+entupinput:
+	loop intinput
+
+	ret
+
+
 	intinput:
+
 		mov [maxcx], cx
 		cmp bl, al
 		je near doneintin
@@ -197,15 +202,18 @@ int30hah2:	;read string to si, endkey in al, max in cx
 		je near scanfound
 		add di, 3
 		jmp searchscan
-entupinput:
-	loop intinput
-	ret
+
+
 
 Meax dd 0
+
 Mebx dd 0
 Mecx dd 0
+
 Medx dd 0
+
 Medi dd 0
+
 Mesi dd 0
 
 	ps2mouse:
@@ -224,11 +232,6 @@ Mesi dd 0
 		mov edx, [Medx]
 		mov edi, [Medi]
 		mov esi, [Mesi]
-;		cmp byte [trans], 1
-;		je near intNOKEY
-;		pusha
-;	    	call int30hah9
-;		popa
 		jmp startin
 	scanfound:	
 		cmp byte [lshift], 1
@@ -269,16 +272,12 @@ Mesi dd 0
 		je near capslock
 		cmp byte [trans], 1
 		je near intNOKEY
+
 		cmp byte [printbackspaces], 0
+
 		je near intNOKEY
-		cmp al, 0Fh
-		je near tabdown
 		cmp al, 0Eh
 		je near backspace
-		jmp startin
-	tabdown:
-		cmp byte [commandline], 1
-		jne near startin
 		jmp startin
 	dlcheck:
 		cmp dh, 0
@@ -301,37 +300,36 @@ Mesi dd 0
 		mov [cxcache], cx
 		cmp byte [trans], 1
 		je nomoreback
+		mov ecx, 0
 		mov cl, dh
 		mov bh, 0
 		mov ch, 0
 		mov bl, dl
+		cmp cx, 0
+		je nobcklp
 	bcklp:  add bx, 160
 		loop bcklp
+	nobcklp:
 		mov byte [si], 0
 		sub bx, 4
-		mov [bxcache3], bx
-		call backspaceprint
-		cmp bx, [bxcache3]
-		je nomoreback
-		dec si
-		mov byte [si], 0
-nomoreback:	mov bx, [bxcache]
-		mov cx, [cxcache]
-		jmp startin
-
+		mov [bxcache3], bx	
 	backspaceprint:
 		cmp dl, [startdl]
 		jbe dhcheck
-	bckprnt: 
-		add bx, 2
-		mov byte [fs:bx], ' '
+	bckprnt: add bx, 2
+		mov byte [videobuf2 + bx], ' '
 		inc bx
-		mov byte [fs:bx], 7
-	mov [enddl], dl
+		mov byte [videobuf2 + bx], 7
+		mov [enddl], dl
 		sub dl, 2
-bcktobck: 
-	mov [enddh], dh
-	jmp videobuf2copy
+	bcktobck: mov [enddh], dh
+		cmp bx, [bxcache3]
+		je nomoreback
+		dec si
+nomoreback:	mov bx, [bxcache]
+		mov cx, [cxcache]
+	call videobuf2copy
+		jmp startin
 
 	entup:	
 		mov al, 13
@@ -395,7 +393,9 @@ bcktobck:
 		jne startin
 	doneintin:
 		mov ah, 2
+
 		mov cx, [maxcx]
+
 		ret
 
 	lshift 	db 0
@@ -406,15 +406,19 @@ bcktobck:
 	ralt	db 0
 	caps	db 0
 
+clear:
+
 int30hah3:	;clear screen-pretty simple
 		mov bx, 0
 		mov dx, 0
+
 		mov cx, videobufend
+
 		sub cx, videobuf2
 	clearint:
 		cmp bx, cx
 		ja doneclearint
-		mov byte [fs:bx],0
+		mov byte [videobuf2 + bx],0
 		inc bx
 		jmp clearint
 	doneclearint:
@@ -425,9 +429,11 @@ int30hah3:	;clear screen-pretty simple
 		mov byte [enddl], 160
 		mov byte [startdh], 0
 		mov byte [scrolledlines], 0
-	jmp videobuf2copy
-	ret
-commandline db 0
+
+jmp videobuf2copy
+ret
+
+
 int30hah4:	;print string and read input into si
 		;(dl,dh) and al apply
 
@@ -439,8 +445,10 @@ int30hah4:	;print string and read input into si
 	int30hah4lp:	mov si, [sicache]
 		mov al, 0
 		mov bl, 0
+
 		mov byte [printbackspaces], 1
 		call int30hah2
+
 		mov byte [printbackspaces], 0
 		mov [sicache], si
 		cmp al, [alcache]
@@ -456,7 +464,6 @@ int30hah4:	;print string and read input into si
 		mov bl, [blcache]
 		jmp int30hah4lp
 	doneint30hah4:
-		mov byte [commandline], 0
 		ret
 	sicache	db 0,0
 	alcache db 0
@@ -492,259 +499,6 @@ int30hah6:	;print char
 	mov ah, 6
 	mov al, [charcache]
 	ret
-
-int30hah7:	;play sound
-		;bx is the length, cx is the inverse of the frequency
-	in al, 61h
-	and al, 0fch
-	xor al, 2
-	out 61h, al
-	mov ax, cx
-	loop $
-	mov cx, ax
-	dec bx
-	cmp bx, 0
-	jne int30hah7
-	ret
-
-currentfont db 0
-
-int30hah8:	;load character set, bios must still be alive-i.e. no protected mode
-	mov ax, 12h
-	mov bx, 0
-	int 10h
-	mov si, fonts
-fontload:
-	mov ah, 09h
-	mov bx, 7
-	mov cx, 1
-	mov al, [currentfont] 
-	int 10h
-	mov al, [currentfont] 
-	mov [si], al
-	inc al
-	mov [currentfont], al
-	inc si
-	mov bx, 0
-	mov cx, 0
-	mov dx, 0
-pixelload:
-	cmp cx, 7
-	ja nextrow
-	cmp dx, 14
-	ja doneloadpixels
-	mov ah, 0dh
-	mov bh, 0
-	int 10h
-	cmp al, 0
-	je pixeloff
-	cmp al, 1
-	jae pixelon
-	jmp pixelload
-doneloadpixels:
-	inc si
-	cmp si, fontend2
-	jae donefontload
-	jmp fontload
-donefontload:
-	ret
-	
-nextrow: mov cx, 0
-	add dx, 1
-	inc si
-	jmp pixelload
-pixeloff:
-	inc cx
-	jmp pixelload
-cxcache2 db 0,0
-pixelon:
-	mov al, 1
-	mov [cxcache2], cx
-pixelloop:
-	cmp cx, 0
-	je nopixelloop
-	ror al, 1
-	loop pixelloop
-nopixelloop:
-	add [si], al
-	mov cx, [cxcache2]
-	inc cx
-	jmp pixelload
-
-cursorcache db 0,0
-mouseon	db 0
-int30hah9:		;get mouse info
-	cmp byte [mouseon],1
-	je .maincall
-	call MAINP
-	mov byte [mouseon],1
-	.maincall:
-	call mousemain
-	ret
-
-startmousepos dw 0FFFh
-endmousepos dw 0FFFh	
-
-int30hah9dr:		;draw cursor (dl,dh) al=1=on al=0=off
-	cmp al, 0
-	je near nocursor
-	mov bh, 0
-	mov bl, dl
-	mov cl, dh
-	mov ch, 0
-	cmp cx, 0
-	je near nolinecursorfnd
-cursorfnd:
-	add bx, 160
-	loop cursorfnd
-nolinecursorfnd:
-	mov [bxcache2], bx
-	mov ax, [fs:bx]
-	mov [cursorcache], ax
-	mov al, 128
-	mov bl, 7
-	call int30hah6
-	cmp byte [cursorcache],0
-	je near cursorspace
-	mov bx, [bxcache2]
-	cmp byte [LBUTTON], 1
-	je near clickmouse
-	call clearmouseselect
-	mov word [endmousepos], 0fffh
-	mov word [startmousepos], 0fffh
-	ret
-clickmouse:
-	sub dl, 2
-	call nocursor
-	mov bx, [bxcache2]
-	call clearmouseselect
-	cmp word [endmousepos], 0FA0h
-	ja near startclick
-	cmp word [startmousepos], 0FA0h
-	ja near startclick
-	mov [endmousepos], bx
-	jmp textselect
-startclick:
-	mov [startmousepos], bx
-	mov [endmousepos], bx
-	jmp textselect
-switchtextselect:
-	mov bx, [endmousepos]
-	mov cx, [startmousepos]
-	jmp textselectloop
-textselect:
-	mov bx, [startmousepos]
-	mov cx, [endmousepos]
-	mov si, copybuffer
-	cmp cx, bx
-	jb switchtextselect
-textselectloop:
-	cmp bx, cx
-	ja donecopytext
-	cmp bx, 0FA0h
-	ja donecopytext
-	mov al, [fs:bx]
-	cmp al, 0
-	je zerotextselect
-	mov [si], al
-	mov ah, 0F8h
-	inc bx
-	mov [fs:bx], ah
-	inc bx
-	inc si
-	jmp textselectloop
-donecopytext:
-	inc si
-	mov byte [si], 0
-	mov bx, [bxcache2]
-	ret
-bxcache2 db 0,0
-zerotextselect:
-	mov al, 13
-	mov [si], al
-	inc si
-	mov al, 10
-	mov [si], al
-	inc si
-findnext:
-	cmp bx, 0FA0h
-	ja donefind
-	cmp bx, cx
-	ja donefind
-	inc bx
-	mov byte [fs:bx], 0F8h
-	inc bx
-	cmp byte [fs:bx], 0
-	je findnext
-copyloop: 
-	jmp textselectloop
-	
-donefind: jmp textselectloop
-
-switchclearmouse:
-	mov bx, [endmousepos]
-	mov cx, [startmousepos]
-	jmp clearmouseloop
-clearmouseselect:
-	mov bx, [bxcache2]
-	cmp word [startmousepos], 0FA0h
-	ja doneclearmouse
-	cmp word [endmousepos], 0FA0h
-	ja doneclearmouse
-	mov bx, [startmousepos]
-	mov cx, [endmousepos]
-	cmp cx, bx
-	jb switchclearmouse
-clearmouseloop:
-	cmp bx, cx
-	ja doneclearmouse
-	cmp bx, 0x12C0
-	ja doneclearmouse
-	mov ah, 07h
-	inc bx
-	mov [fs:bx], ah
-	inc bx
-	jmp clearmouseloop
-doneclearmouse:
-	mov bx, [bxcache2]
-	ret
-cursorspace:
-	mov byte [cursorcache],' '
-	cmp byte [LBUTTON], 1
-	je clickmouse
-	mov bx, [bxcache2]
-	call clearmouseselect
-	mov word [endmousepos], 0fffh
-	mov word [startmousepos], 0fffh
-	ret
-nocursor:	
-	mov al, [cursorcache]
-	mov bl, [cursorcache + 1]
-	call int30hah6
-	ret	
-
-endstring db 0,0
-arraystring db 0,0
-
-int30hah10:		;basicaly, this will do everything. This will edit an array in si
-			;using an array seperator in cx, endstring in bx, (dl,dh), and modifier in al
-			;note that the mouse should be used to copy stuff
-	mov [si], cx
-	add si, 2
-	mov [endstring], bx
-	mov [arraystring], si
-	call input
-	mov bx, [endstring]
-	mov si, buftxt
-	call tester
-	cmp al, 1
-	je doneint30hah10
-doneint30hah10: ret
-
-int30hah11:		;This will retrieve the position of a file with the name in si 
-			;and put its position in bx and file separator in cx
-
-	
 	
 scancode:
 	db '1','!',2h

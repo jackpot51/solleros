@@ -9,6 +9,7 @@ passcheck:
 	mov si, buftxt
 	mov al, 13
 	mov bl, 7
+
 	mov cx, 200h
 	call int30hah2
 	jmp passenter
@@ -20,13 +21,6 @@ bufclr:	mov [si], al
 	inc si
 	loop bufclr
 	jmp nwcmd
-wrngpwd:
-	call char
-	mov si, line
-	call print
-	mov si, wrongpass
-	call print
-	jmp os
 
 passenter:
 	mov al,0
@@ -38,7 +32,7 @@ passenter:
 	call tester
 	cmp al, 1
 	je pwdrgt
-	jmp wrngpwd
+	jmp os
 fullpass: mov si, fullmsg
 	call print
 	mov si, line
@@ -53,6 +47,7 @@ clearbuftxt: cmp si, buf2
 	mov [si], al
 	inc si
 	jmp clearbuftxt
+
 clearitbuf: cmp si, bx
 	jae retbufclr
 	mov [si], al
@@ -68,7 +63,6 @@ full:	mov si, fullmsg
 
 
 nwcmd:	mov al, 1
-	mov byte [commandline], 1
 	cmp [BATCHISON], al
 	jae near batchran
 cancel:	mov al, 0
@@ -116,12 +110,16 @@ fndprg:	inc bx
 	jmp prgnxt
 fndprg2: add bx, 1
 	mov si, buftxt
+
 	mov cl, 0
 	call cndtest
 	cmp al, 1
 	je prggood
+
 	cmp al, 2
+
 	je prggood
+
 	jmp prgnxt
 prggood: cmp bx, fileindexend
 	jae prgdn
@@ -148,7 +146,9 @@ retest:	mov al, [si]
 	inc si
 	jmp retest
 testtrue:
+
 	cmp ah, 0
+
 	jne testfalse
 	mov al, 1
 	ret
@@ -158,7 +158,8 @@ testfalse:
 
 optest:			;si=user bx=prog returns 1 in al if true
 	mov al, 0
-opretest:	mov al, [si]
+opretest:
+	mov al, [si]
 	mov ah, [bx]
 	cmp al, ah
 	jne optestfalse
@@ -168,7 +169,9 @@ opretest:	mov al, [si]
 	inc si
 	jmp opretest
 optesttrue:
+
 	cmp al, 0
+
 	jne optestfalse
 	mov al, 1
 	ret
@@ -281,7 +284,8 @@ clearbuf: cmp si, numbuf
 doneclearbuff: 
 		ret
 
-convert: dec si
+convert:
+	dec si
 	mov bx, si		;place to convert into must be in si, number to convert must be in cx
 cnvrt:
 	mov si, bx
@@ -327,68 +331,120 @@ ten3:	inc si
 	sub ecx, 1000
 	inc byte [si]
 	jmp cnvrt
+
 ten2:	inc si
+
 	cmp ecx, 100
+
 	jb ten1
+
 	sub ecx, 100
+
 	inc byte [si]
+
 	jmp cnvrt
+
 ten1:	inc si
+
 	cmp ecx, 10
+
 	jb ten0
+
 	sub ecx, 10
+
 	inc byte [si]
+
 	jmp cnvrt
+
 ten0:	inc si
+
 	cmp ecx, 1
+
 	jb tendn
+
 	sub ecx, 1
+
 	inc byte [si]
+
 	jmp cnvrt
+
 tendn:
 	ret
+
 	
+
 hexnumber times 8 db 0
+
 hexnumberend db "  ",0
 
+
 sibuf db 0,0
+
 dibuf db 0,0
-converthex: 
+
+converthex:
+
 clearbufferhex:
 	mov al, '0'
+
 	mov [sibuf], si
+
 	mov [dibuf], di
 clearbufhex: cmp si, di
 	jae doneclearbuffhex
 	mov [si], al
 	inc si
 	jmp clearbufhex
+
 doneclearbuffhex:
+
 	mov si, [dibuf]
+
 	mov edx, ecx
+
 	cmp edx, 0
+
 	je donenxtephx
-nxtexphx:			;0x10^x
+
+nxtexphx:	;0x10^x
+
 	dec si
-	mov di, si		;;location of 0x10^x
+
+	mov di, si
+		;;location of 0x10^x
+
 	mov ecx, edx
+
 	and ecx, 0xF		;;just this digit
+
 	call cnvrtexphx		;;get this digit
+
 	mov si, di
+
 	shr edx, 4		;;next digit
+
 	cmp edx, 0
+
 	je donenxtephx
-	jmp nxtexphx 
+
+	jmp nxtexphx
 donenxtephx:
+
 	mov si, [sibuf]
+
 	mov di, [dibuf]
+
 	ret
 cnvrtexphx:			;;convert this number
 	mov bx, si		;place to convert to must be in si, number to convert must be in cx
+
 	cmp ecx, 0
+
 	je zerohx
 cnvrthx:  mov al, [si]
+
 	cmp al, '9'
+
 	je lettershx
 lttrhxdn: cmp al, 'F'
 	je zerohx
@@ -400,10 +456,15 @@ cnvrtlphx: sub ecx, 1
 	cmp ecx, 0
 	jne cnvrthx
 	ret
+
 lettershx:
+
 	mov al, 'A'
+
 	sub al, 1
+
 	mov [si], al
+
 	jmp lttrhxdn
 zerohx:	mov al, '0'
 	mov [si], al
@@ -414,150 +475,290 @@ zerohx:	mov al, '0'
 	inc ecx
 	jmp cnvrtlphx
 
+
 shxeax db 0,0,0,0
+
 shxebx db 0,0,0,0
+
 shxecx db 0,0,0,0
+
 shxedx db 0,0,0,0
+
 shxsi db 0,0
+
 shxdi db 0,0
+
 firsthexshown db 1
+
 showhex:
+
 	mov [shxeax], eax
+
 	mov [shxebx], ebx
+
 	mov [shxecx], ecx
+
 	mov [shxedx], edx
+
 	mov [shxsi], si
+
 	mov [shxdi], di
+
 	mov si, hexnumber
+
 	mov di, hexnumberend
+
 	call converthex
+
 	cmp byte [shownumberstack], 0
+
 	jne nopopahex
+
 	popa
+
 nopopahex:
+
 	cmp byte [firsthexshown], 1
+
 	jne showthathex
+
 	mov dx, 0
+
 showthathex:
+
 	cmp byte [firsthexshown], 3
+
 	jne nonewhexline
+
 	mov si, line
+
 	call print
+
 nonewhexline:
+
 	cmp byte [firsthexshown], 4
+
 	jne notabfixhex
+
 	mov cl, 160
+
 	sub cl, dl
+
 	shr cl, 5
+
 	shl cl, 5
+
 	cmp cl, 0
+
 	jne nonewlinetabfixhex
+
 	mov si, line
+
 	call print
+
 	jmp notabfixhex
+
 nonewlinetabfixhex:
+
 	add dl, 15
+
 	shr dl, 4
+
 	shl dl, 4
+
 notabfixhex:
+
 	mov si, hexnumber
+
 	call print
+
 	cmp byte [firsthexshown], 2
+
 	jne hexshown
+
 	mov si, line
+
 	call print
+
 hexshown:
+
 	mov byte [firsthexshown], 0
+
 	cmp byte [shownumberstack], 0
+
 	jne nopushahex
+
 	pusha
+
 	mov edx, [shxedx]
+
 nopushahex:
+
 	mov eax, [shxeax]
+
 	mov ebx, [shxebx]
+
 	mov ecx, [shxecx]
+
 	mov si, [shxsi]
+
 	mov di, [shxdi]
+
 	ret
 
 sdceax db 0,0,0,0
+
 sdcebx db 0,0,0,0
+
 sdcecx db 0,0,0,0
+
 sdcedx db 0,0,0,0
+
 sdcsi db 0,0
+
 sdcdi db 0,0
 
+
 decnumber db "00000000000000"
+
 decnumberend: db " ",0
+
 shownumberstack db 0
 
+
 showdec: ;;same as showhex, just uses decimal conversion
+
 	mov [sdceax], eax
+
 	mov [sdcebx], ebx
+
 	mov [sdcecx], ecx
+
 	mov [sdcedx], edx
+
 	mov [sdcsi], si
+
 	mov [sdcdi], di
+
 	mov di, decnumber
+
 	mov si, decnumberend
+
 cleardecbuf:
+
 	mov byte [di], '0'
+
 	inc di
 	cmp di, si
+
 	jb cleardecbuf
+
 	mov di, decnumber
+
 	call convert
+
 	cmp byte [shownumberstack], 0
+
 	jne nopopadec
+
 	popa
+
 nopopadec:
+
 	cmp byte [firsthexshown], 1
+
 	jne showthatdec
+
 	mov dx, 0
+
 showthatdec:
+
 	cmp byte [firsthexshown], 3
+
 	jne nonewdecline
+
 	mov si, line
+
 	call print
+
 nonewdecline:
+
 	cmp byte [firsthexshown], 4
+
 	jne notabfixdec
+
 	mov cl, 160
+
 	sub cl, dl
+
 	shr cl, 5
+
 	shl cl, 5
+
 	cmp cl, 0
+
 	jne nonewlinetabfixdec
+
 	mov si, line
+
 	call print
+
 	jmp notabfixdec
+
 nonewlinetabfixdec:
+
 	add dl, 15
+
 	shr dl, 4
+
 	shl dl, 4
+
 notabfixdec:
+
 	mov si, decnumber
+
 	dec si
-sifind:	inc si
+sifind:
+	inc si
+
 	cmp byte [si], '0'
+
 	je sifind
+
 	call print
+
 	cmp byte [firsthexshown], 2
+
 	jne decshown
+
 	mov si, line
+
 	call print
+
 decshown:
+
 	mov byte [firsthexshown], 0
+
 	cmp byte [shownumberstack], 0
+
 	jne nopushadec
+
 	pusha
+
 	mov edx, [sdcedx]
+
 nopushadec:
+
 	mov eax, [sdceax]
+
 	mov ebx, [sdcebx]
+
 	mov ecx, [sdcecx]
+
 	mov si, [sdcsi]
+
 	mov di, [sdcdi]
+
 	ret
 
 edxcachecnvrt dw 0,0
@@ -597,7 +798,9 @@ noexp:	sub al, 48
 	inc ecx
 	jmp txtlp
 exp:	cmp ecx, 0
+
 	je noexp
+
 	sub al, 48
 	mov [ecxbufnum], ecx
 expmul:	mov ebx, eax
@@ -611,7 +814,9 @@ expmul:	mov ebx, eax
 	add eax, ebx
 	add eax, ebx
 	sub ecx, 1
+
 	cmp ecx, 0
+
 	ja expmul
 	add edx, eax
 	mov ecx, [ecxbufnum]
@@ -622,14 +827,6 @@ donecnvrt: mov ecx, edx
 	mov edx, [edxcachecnvrt]
 	ret
 ecxbufnum dw 0,0
-
-realmode:
-   mov eax, cr0
-   and al,0xFE     ; back to realmode
-   mov  cr0, eax   ; by toggling bit again
-   sti
-   mov eax, 0
-   ret
 
 
 IFON db 0

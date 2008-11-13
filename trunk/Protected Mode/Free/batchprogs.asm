@@ -46,7 +46,7 @@ batch:	db 6,4,"tutorial",0
 	db 7,4,"SollerOS",0
 	db 3,4,"Is freaking awesome!",0
 	db 4,3,0
-	times 1500 db 0
+	times 1000 db 0
 commandlst:
 	
 notbatch: jmp nwcmd

@@ -57,17 +57,28 @@ indexloop2done:
 indexloopdone: 	ret
 com dw 0
 
-db 5,4,"internet",0
+;db 5,4,"internet",0
+datmsg: db "Internet has not been implemented yet.",10,13,0
 	internettest: 			;;initialize network card, lets hope this is right
-		jmp packettest
+					;;^^used to^^, now tests int30h functions
+;		jmp packettest
+		mov ah, 3
+		int 30h
+		mov ah, 1
+		mov si, datmsg
+		mov bx, 7
+		mov al, 0
+		int 30h
+		jmp nwcmd
 
 db 5,4,"tely",0		
 	tely:
 		mov si, line
 		call print
-		push dx
-		push ax
-		push cx
+		mov [olddx], dx
+		mov ecx, 0
+		mov edx, 0
+		mov eax, 0
 	      	mov dx, [BASEADDRSERIAL]		;;initialize serial
 		mov al, 0
 		add dx, 1
@@ -108,6 +119,9 @@ db 5,4,"tely",0
 		mov ah, [charcache]
 		mov al, 0
 		mov cx, 100
+		cmp ah, 13
+		jne telysend
+		mov ah, 10
 		jmp telysend
 	
 	nullchar db 0,0
@@ -116,9 +130,7 @@ db 5,4,"tely",0
 		mov dx, [BASEADDRSERIAL]
 		in al, dx
 		mov [chartely], al
-		pop cx
-		pop dx
-		pop ax
+		mov dx, [olddx]
 		mov si, chartely
 		cmp byte [chartely], 10
 		je telyline
@@ -134,9 +146,7 @@ db 5,4,"tely",0
 		mov ax, 0
 		call int30hah1
 	novalidchartely:
-		push cx
-		push dx
-		push ax
+		mov [olddx], dx
 		mov cx, 1000
 		jmp telyreceive
 		
@@ -158,9 +168,7 @@ db 5,4,"tely",0
 		mov cx, 1000
 		cmp al, 0
 		je telyreceive
-		pop cx
-		pop dx
-		pop ax 
+		mov dx, [olddx]
 		mov si, chartely2
 		cmp byte [chartely2], 10
 		je telyline2
@@ -176,15 +184,11 @@ db 5,4,"tely",0
 		mov bx, 0f8h
 		call int30hah1
 	novalidchartely2:
-		push cx
-		push dx
-		push ax
+		mov [olddx], dx
 		mov cx, 1000
 		jmp telyreceive
 	donetely:
-		pop dx
-		pop ax
-		pop cx
+		mov dx, [olddx]
 		mov si, line
 		call print
 		jmp nwcmd 
@@ -208,13 +212,6 @@ db 5,4,"showindex",0
 	mov ch, 4
 	call array
 	jmp nwcmd
-
-db 5,4,"showcopy",0
-	mov si, copybuffer
-	call print
-	mov si, line
-	call print
-	jmp nwcmd
 	
 db 5,4,"dir",0
 	dircmd:	jmp dir
@@ -222,12 +219,7 @@ db 5,4,"dir",0
 db 5,4,"ls",0
 	lscmd:	mov si, progstart
 		mov bx, progend
-		jmp dir	
-	
-db 5,4,"menu",0
-	bckmnu: call clear
-		call begin
-		jmp menu
+		jmp dir
 
 db 5,4,"uname",0
 	uname:	mov si, unamemsg

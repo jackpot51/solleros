@@ -52,10 +52,10 @@ getmac:	call clear
 	mov di, data2
 	call senddata	;;returns with response in memory at bx with length in cx
 	cmp bx, data2
-	jne packettestfail
+	jne near packettestfail
 	add bx, cx
 	cmp bx, data3
-	jne packettestfail
+	jne near packettestfail
 	popa
 	mov si, data2
 	call print
@@ -82,7 +82,7 @@ senddata:
 		mov di, arptable
 	checkarp:
 		cmp [di], eax
-		je foundmac
+		je near foundmac
 		add di, 10
 		cmp di, arptableend
 		jae sendarprequest
@@ -154,7 +154,7 @@ findemptyarpspot:		;;duh
 	or edx, eax
 	or edx, ebx
 	cmp edx, 0
-	je emptyarpspot
+	je near emptyarpspot
 	add di, 10
 	cmp di, arptableend
 	jae noemptyarpspots
@@ -188,29 +188,29 @@ receiveframe:	;;ETHERTYPE IN AX, DATACACHE IN BX WITH MAXLENGTH IN CX, DESTINATI
 		;;RETURNS DATA IN DATACACHE
 	mov edx, [di]
 	cmp edx, [ethernetinputcache]
-	jne notexpecteddstmac
+	jne near notexpecteddstmac
 	add di, 4
 	mov dx, [di]
 	cmp dx, [ethernetinputcache + 4]
-	jne notexpecteddstmac
+	jne near notexpecteddstmac
 	mov [dstmac], di
 	mov di, ethernetinputcache
 	add di, 10
 	cmp si, 0
-	je noneedtochecksource
+	je near noneedtochecksource
 	sub di, 4
 	mov edx, [si]
 	cmp edx, [di]
-	jne notexpectedsrcmac
+	jne near notexpectedsrcmac
 	add si, 4
 	add di, 4
 	mov dx, [si]
 	cmp dx, [di]
-	jne notexpectedsrcmac
+	jne near notexpectedsrcmac
 noneedtochecksource:
 	add di, 2
 	cmp ax, [di]
-	jne notexpectedethertype
+	jne near notexpectedethertype
 	mov [srcmac], si
 	add di, 2
 	mov si, ethernetcacheend
@@ -358,7 +358,7 @@ resetnicwait:
 	in al, dx
 	and al, 0x10
 	cmp al, 0x10
-	je resetnicwait
+	je near resetnicwait
 	mov edx, [basenicaddr]
 	add edx, 0x30
 	mov eax, rbuffstart
@@ -402,7 +402,7 @@ checknicstatus:
 	in eax, dx
 	and eax, 0x8000
 	cmp eax, 0x8000
-	jne checknicstatus
+	jne near checknicstatus
 	mov di, [dstmac]
 	mov si, [srcmac]
 	mov bx, [retpack]
@@ -479,7 +479,7 @@ pcitype: db 0,0,0,0
 checkpcidevice:
 	mov al, 0
 	cmp [pcireqtype], al
-	je dumppcidevice
+	je near dumppcidevice
 	mov al, 0x08
 	mov [pciregister], al	;;class code, subclass, revision id
 	call getpciaddr
