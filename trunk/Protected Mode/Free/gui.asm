@@ -1690,7 +1690,8 @@ noswmsy2:	mov eax, [edi]
 		cmp cx, 16
 		jbe noswmsy2
 		ret
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Here are some vars;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Here are some vars;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	showstringsi db 0,0
 	mouseon db 0
 	pacmsg	db "Pacman was easy to draw.",0

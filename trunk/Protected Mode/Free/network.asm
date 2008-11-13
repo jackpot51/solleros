@@ -315,8 +315,7 @@ pcifunction	db 0
 pciregister	db 0
 initnicmsg	db "Initiating NIC",0
 nic2:		;;here come the low level drivers :(
-			;;frame begins at si, ends at di
-			;;0x0200 is the class code for ethernet cards
+			;;frame begins at si, ends at di 			;;0x0200 is the class code for ethernet cards
 	cmp byte [nicconfig], 1
 	je near sendcachedata
 	mov ebx, nicdump
