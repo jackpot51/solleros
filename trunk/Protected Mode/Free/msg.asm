@@ -4,12 +4,12 @@
 	universe1 db	"Only two things are infinite, the universe and human stupidity,",13,10,"and I'm not sure about the former.",13,10,0
 	pwdask	db	"Enter Password:",0
 	pwd	db	"password",0
-	cmd	db	"[user@SollerOS-v0.8.9$]",0
+	cmd	db	"[user@SollerOS-v0.9.0$]",0
 	line	db	13,10,0
 	zeromsg db "0"
-	unamemsg db	"SollerOS-v0.8.9 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
+	unamemsg db	"SollerOS-v0.9.0 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
 	helpmsg db	"This operating system is way too simple to warrant the creation of a help file.",10,13,0
-    msg:       db "SollerOS Beta version 0.8.9 - compiled by Jeremy Soller.",13,10,0
+    msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
     menumsg:   db 13,10,"What do you want to do?",13,10,"GUI(g)",13,10,"Boot(b)",13,10,"Cold Reboot(c)",13,10,"Warm Reboot(w)",13,10,"Shutdown(s)",13,10,0
     bootmsg:   db "Booting...",13,10,"If there was something to boot...",0
     rebootmsg: db "Rebooting...",0
@@ -54,7 +54,7 @@ fonts:	resb 2048
 fontend2:
 		resb 16
 fontend:
-fileindex: resb 500	;index format can be found in SollerOS programming guide
+fileindex: resb 500h	;index format can be found in SollerOS programming guide
 customprograms:			;put custom index items here. I promise I won't overwrite them
 				;although they may be written twice if they are in the filesystem
 ;;	db 5,4,"Hello World"
@@ -62,9 +62,9 @@ customprograms:			;put custom index items here. I promise I won't overwrite them
 	
 fileindexend:
 bufferhelper:	resb 2
-variables: resb 500
+variables: resb 500h
 varend:
-buftxt: resb 200
+buftxt: resb 200h
 buf2:	resb 20	;;should be initialized as '0'
 numbuf:	resb 2
 videobuf2 resb 0x12C0

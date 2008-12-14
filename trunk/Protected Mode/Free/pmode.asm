@@ -97,11 +97,19 @@ out 0x20,al
 	; clear busy bit of user1 task
 mov [gdt7 + 5],byte 0x89
 
-;jmp USER2_TSS:0
+jmp USER1_TSS:0
 	; timer interrupt returns us here. Reset 8259 PIC:
-;out 0x20,al
+out 0x20,al
 	; clear busy bit of user1 task
-;mov [gdt8 + 5],byte 0x89
+mov [gdt7 + 5],byte 0x89
+
+cmp dword [user2codepoint], 0
+je sched
+jmp USER2_TSS:0
+	; timer interrupt returns us here. Reset 8259 PIC:
+out 0x20,al
+	; clear busy bit of user2 task
+mov [gdt8 + 5],byte 0x89
 
 	jmp sched
 
@@ -115,8 +123,8 @@ user1:	call gui
 user2:  mov ebx, [user2codepoint]
 	cmp ebx, 0
 	je user2
-	jmp ebx
-
+	call ebx
+	jmp user2
 	; infinite loop (until timer interrupt)
 
 user2codepoint dw 0,0

@@ -1,7 +1,7 @@
 	;SOLLEROS.ASM
 os:
-	call clear
-	mov dx, 0
+	mov ah, 3
+	int 30h
 	mov si, pwdask
 	call print
 
@@ -773,7 +773,9 @@ cnvrtlptxt:
 	jmp txtlp
 zerotest: cmp si, buftxt
 	je donecnvrt
-txtlp:	mov al, [si]
+txtlp:	
+	mov eax, 0
+	mov al, [si]
 	cmp al, '='
 	je donecnvrt
 	cmp al, 48
@@ -790,9 +792,7 @@ noexp:	sub al, 48
 	inc ecx
 	jmp txtlp
 exp:	cmp ecx, 0
-
 	je noexp
-
 	sub al, 48
 	mov [ecxbufnum], ecx
 expmul:	mov ebx, eax
@@ -806,9 +806,7 @@ expmul:	mov ebx, eax
 	add eax, ebx
 	add eax, ebx
 	sub ecx, 1
-
 	cmp ecx, 0
-
 	ja expmul
 	add edx, eax
 	mov ecx, [ecxbufnum]

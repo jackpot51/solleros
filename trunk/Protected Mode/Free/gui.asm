@@ -160,7 +160,7 @@ videobuf2copy:
 	mov [olddi], di
 	mov byte [mouseselecton], 0
 	mov byte [termcopyon], 1
-	cmp byte [guion], 1
+	cmp byte [termguion], 1
 	je near windowvideocopy
 	mov ax, [oldax]
 	mov bx, [oldbx]
@@ -169,6 +169,7 @@ videobuf2copy:
 	mov si, [oldsi]
 	mov di, [olddi]
 	ret
+termguion db 0
 termcopyon db 0
 graphicsset db 0
 graphicspos db 0,0
@@ -642,6 +643,7 @@ windowselect:
 		jmp doneiconsel
 	killwin:
 		mov word [si], 0
+		mov byte [termguion], 0
 		call guiclear
 		jmp doneiconsel2
 	nexticonsel:
@@ -656,7 +658,7 @@ windowselect:
 		cmp word [codepointer], 0
 		je doneiconsel2
 		mov bx, [codepointer]
-		jmp bx
+		jmp bx 
 	doneiconsel2:
 		mov al, [LBUTTON]
 		mov [pLBUTTON], al
@@ -1036,7 +1038,7 @@ windowbufloc: dw 0,0
 
 
 	showwindow:	;;windowstuff in si, position in (dx, cx), nothing in ax, code in bx
-
+		mov byte [termguion], 1
 		add cx, 16
 		mov [winvcopystx], dx
 
@@ -1717,9 +1719,7 @@ colorfontmatch:
 		mov ebx, 0
 		mov bx, internettest
 		mov ax, 0
-		call showwindow
-		;;ret
-	jmp internettest
+		jmp showwindow
 
 	gotomenuboot:
 		mov si, termwindow
@@ -1730,9 +1730,7 @@ colorfontmatch:
 		mov ebx, 0
 		mov bx, os
 		mov ax, 0
-		call showwindow
-		;;ret
-	jmp os
+		jmp showwindow
 
 	winblows:
 		mov si, winmsg
@@ -1766,8 +1764,8 @@ colorfontmatch:
 		mov cx, 60
 		mov bx, 0
 		mov ax, 0
-		call showstring
-		ret		
+		jmp showstring	
+		
 	termwindow:	dw 640,480	;;window size
 	termmsg:	db "TERMINAL",0	;;window title
 
