@@ -33,11 +33,7 @@ passenter:
 	cmp al, 1
 	je pwdrgt
 	jmp os
-fullpass: mov si, fullmsg
-	call print
-	mov si, line
-	call print
-	jmp os
+fullpass: jmp passenter
 
 buftxtclear:
 	mov al, 0
@@ -55,11 +51,7 @@ clearitbuf: cmp si, bx
 	jmp clearitbuf
 retbufclr: ret
 
-full:	mov si, fullmsg
-	call print
-	mov si, line
-	call print
-	jmp nwcmd
+full:	jmp nwcmd
 
 
 nwcmd:	mov al, 1

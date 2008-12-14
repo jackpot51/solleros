@@ -1,7 +1,3 @@
-db 5,4,"&",0
-	multitask:
-	jmp nwcmd
-
 progend:		;programs end here	
 
 wordst:

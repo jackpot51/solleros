@@ -16,8 +16,6 @@ guiclearloop:
 	ret
 background dw 0111101111001111b
 
-
-
 gui:	;Let's see what I can do
 	;I am going to try to make this as freestanding as possible
 	call indexfiles
@@ -95,14 +93,17 @@ guistart:
 		jz near guistartin
 		inc al
 		mov di, scancode
-		add di, 2
-	guisearchscan: cmp di, noscan
+	guisearchscan: 
+		cmp al, 40h
 		jae guiscanother
+		mov ah, 0
+		shl al, 1
+		add di, ax
+		shr al, 1
 		mov ah, [di]
-		cmp al, ah
-		je near guiscanfound
-		add di, 3
-		jmp guisearchscan
+		cmp ah, 0
+		je guiscanother
+		jmp guiscanfound
 guiupper db 0
 guiscanother:
 		cmp al, 2Ah
@@ -131,7 +132,7 @@ guiscanother:
 	guientdown:
 		jmp guistartin
 	guiscanfound:
-		sub di, 1
+		add di, 1
 		cmp byte [guiupper], 1
 		jae uppercasegui
 		sub di, 1
@@ -143,6 +144,37 @@ uppercasegui:
 		call showfontvesa
 		jmp guistartin
 
+oldbx2 db 0,0
+olddi db 0,0
+oldax db 0,0
+oldbx db 0,0
+oldcx db 0,0
+olddx db 0,0
+oldsi db 0,0
+videobuf2copy:
+	mov [oldax], ax
+	mov [oldbx], bx
+	mov [oldcx], cx
+	mov [olddx], dx
+	mov [oldsi], si
+	mov [olddi], di
+	mov byte [mouseselecton], 0
+	mov byte [termcopyon], 1
+	cmp byte [guion], 1
+	je near windowvideocopy
+	mov ax, [oldax]
+	mov bx, [oldbx]
+	mov cx, [oldcx]
+	mov dx, [olddx]
+	mov si, [oldsi]
+	mov di, [olddi]
+	ret
+termcopyon db 0
+graphicsset db 0
+graphicspos db 0,0
+showcursorfonton db 0
+savefonton db 0
+mouseselecton db 0
 
 guichar db 0
 mousecursorposition dw 132,132	
@@ -152,6 +184,9 @@ lastmouseposition dw 132,132
 	cursorgui:
 		cmp byte [mouseon], 1
 		je near maincall2
+
+	initmouse:
+		call switchmousepos2
 	  	call PS2SET
 		call ACTMOUS
 		call GETB 	;;Get the responce byte of the mouse (like: Hey i am active)
@@ -159,6 +194,7 @@ lastmouseposition dw 132,132
 				;;remove this line or add another of this line.
 		call GETB
 		mov byte [mouseon],1
+
 	maincall2:  
 		  xor  ax, ax
 		  in   al, 0x60		; read ps/2 controller output port (mousebyte)
@@ -167,7 +203,7 @@ lastmouseposition dw 132,132
 		  mov  BYTE [LBUTTON], bl
 		  mov  bl, al
 		  and  bl, 2
-	          shr  bl, 1
+	      shr  bl, 1
 		  mov  BYTE [RBUTTON], bl
 		  mov  bl, al
 		  and  bl, 4
@@ -235,16 +271,25 @@ lastmouseposition dw 132,132
 	nofixyrow2:
 		mov [mousecursorposition], dx
 		mov [mousecursorposition + 2], cx
-		call switchmousepos
+		call switchmousepos ;;use dragging code to ensure proper icon drag
 		cmp byte [LBUTTON], 1
-		je clickicon
+		je near clickicon
 		cmp byte [RBUTTON], 1
-		je clickicon
+		je near clickicon
+		mov al, [pbutton]
+		mov word [dragging], 0
+		cmp al, 0
+		je nopreviousbutton
+		call clearmousecursor
+		call reloadallgraphics
+		call switchmousepos2
+	nopreviousbutton:
+		mov al, 0
+		mov [pbutton], al
 		mov al, [LBUTTON]
 		mov [pLBUTTON], al
 		mov al, [RBUTTON]
 		mov [pRBUTTON], al
-		mov word [dragging], 0
 		mov ecx, 0
 		mov edx, 0
 		mov dx, [mousecursorposition]
@@ -256,18 +301,105 @@ lastmouseposition dw 132,132
 		call showfontvesa
 		mov byte [showcursorfonton], 0
 		ret
+		
+clearmousecursor:
+		mov esi, background
+		mov edi, [physbaseptr]
+		mov edx, 0
+		mov ecx, 0
+		mov dx, [lastmouseposition]
+		mov cx, [lastmouseposition + 2]
+		add edi, edx
+		mov edx, 0
+		mov dx, [resolutionx2]
+		cmp cx, 0
+		je noyclr
+yclr:	add edi, edx
+		dec cx
+		cmp cx, 0
+		jne yclr
+noyclr:	mov ax, [esi]
+		rol eax, 16
+		mov ax, [esi]
+		mov [edi], eax
+		mov [edi + 4], eax
+		mov [edi + 8], eax
+		mov [edi + 12], eax
+		add edi, edx
+		inc cx
+		cmp cx, 16
+		jb noyclr
+		ret
 
+switchmousepos:		;;switch were the mouse is located
+		mov esi, mousecolorbuf
+		mov edi, [physbaseptr]
+		mov edx, 0
+		mov ecx, 0
+		mov dx, [lastmouseposition]
+		mov cx, [lastmouseposition + 2]
+		add edi, edx
+		mov edx, 0
+		mov dx, [resolutionx2]
+		cmp cx, 0
+		je noswmsy
+swmsy:		add edi, edx
+		dec cx
+		cmp cx, 0
+		jne swmsy
+noswmsy:	mov eax, [esi]
+		mov ebx, [esi + 4]
+		mov [edi], eax
+		mov [edi + 4], ebx
+		mov eax, [esi + 8]
+		mov ebx, [esi + 12]
+		mov [edi + 8], eax
+		mov [edi + 12], ebx
+		add edi, edx
+		add esi, 16
+		cmp esi, mcolorend
+		jb noswmsy
+		
+switchmousepos2:
+		mov esi, mousecolorbuf
+		mov edi, [physbaseptr]
+		mov edx, 0
+		mov ecx, 0
+		mov dx, [mousecursorposition]
+		mov cx, [mousecursorposition + 2]
+		add edi, edx
+		mov edx, 0
+		mov dx, [resolutionx2]
+		cmp cx, 0
+		je noswmsy2
+swmsy2:		add edi, edx
+		dec cx
+		cmp cx, 0
+		jne swmsy2
+noswmsy2:	mov eax, [edi]
+		mov ebx, [edi + 4]
+		mov [esi], eax
+		mov [esi + 4], ebx
+		mov eax, [edi + 8]
+		mov ebx, [edi + 12]
+		mov [esi + 8], eax
+		mov [esi + 12], ebx
+		add edi, edx
+		add esi, 16
+		cmp esi, mcolorend
+		jb noswmsy2
+		ret
+
+pbutton db 0
 pLBUTTON db 0
-
 pRBUTTON db 0
-
 dragging dw 0
-
 lastpos dw 0,0
-
 colorbuf dw 0,0
 	
 	clickicon:
+		mov al, 1
+		mov [pbutton], al
 		mov al, [pLBUTTON]
 		and al, [LBUTTON]
 		mov ah, [pRBUTTON]
@@ -530,7 +662,8 @@ windowselect:
 		mov [pLBUTTON], al
 		mov al, [RBUTTON]
 		mov [pRBUTTON], al
-	call reloadallgraphics
+call clearmousecursor
+call reloadallgraphics
 		mov ecx, 0
 		mov edx, 0
 		mov ah, 0
@@ -553,93 +686,49 @@ reloadallgraphics:
 		mov di, graphicstable
 
 reloadgraphicsloop:
-
 		mov si, [di + 2]
-
 		mov dx, [di + 4]
-
 		mov cx, [di + 6]
-
 		mov ax, [di]
-
 		mov bx, [di + 8]
-
 		mov [grpctblpos], di
-
 		cmp di, [dragging]
-
 		je loadedgraphic
-
 		cmp ax, 1
-
 		je near icongraphic
-
 		cmp ax, 2
-
 		je near stringgraphic
-
 		cmp ax, 3
-
 		je near windowgraphic
-
 loadedgraphic:  mov di, [grpctblpos]
-
 		add di, 12
-
 		cmp di, graphicstableend
-
 		jae donereloadgraphics
-
 		jmp reloadgraphicsloop
-
 windowgraphic:	call showwindow2
-
 		jmp loadedgraphic
-
 icongraphic:	and bl, 1
-
 		mov [iconselected], bl
-
 		call showicon2
-
 		jmp loadedgraphic
-
 stringgraphic:  and bl, 1
-
 		mov [mouseselecton], bl
-
 		call showstring2
-
 		jmp loadedgraphic
-
 donereloadgraphics:
-
 		mov di, [dragging]
-
 		cmp di, graphicstable
-
 		jb notcorrectdrag
-
 		mov ax, [di]
-
 		mov si, [di + 2]
-
 		mov dx, [di + 4]
-
 		mov cx, [di + 6]
-
 		mov bx, [di + 8]
-
 		cmp ax, 1
-
 		jne noticondragging
-
 		and bl, 1
-
 		mov [iconselected], bl
-
 		call showicon2
-
 		ret
 
 	noticondragging:
@@ -1569,127 +1658,41 @@ donefontvesa:
 	mov dx, [posxvesa]
 
 	mov bl, [charwidth]
-
 	mov bh, 0
-
 	add dx, bx
-
 	mov bx, [colorfont]
-
 	mov cx, [posyvesa]
-
 	mov byte [savefonton], 0
-
 	ret
 
 charwidth db 8
-
 vesafontsaver:
-	
 	mov al, 0
-
 	mov cl, 0
-
 vesafontsaver2:
-
 	mov dx, [edi]
-
 	cmp dx, [colorfont]
-
 	je colorfontmatch
-
 donecolormatch:
-	
 	add edi, 2
-
 	rol al, 1
-
 	inc cl
-
 	cmp cl, 8
-
 	jb vesafontsaver2
-
 	mov [si], al
-
 	inc si
 	inc ch
-
 	mov edx, 0
-
 	mov dx, [resolutionx2]
-
 	add edi, edx
-
 	sub edi, 16
-
 	cmp ch, 16
-
 	jb vesafontsaver
-
 	jmp donefontvesa
 
 colorfontmatch:
 	add al, 1
-
 	jmp donecolormatch
-		
-
-switchmousepos:		;;switch were the mouse is located
-		mov esi, mousecolorbuf
-		mov edi, [physbaseptr]
-		mov edx, 0
-		mov ecx, 0
-		mov dx, [lastmouseposition]
-		mov cx, [lastmouseposition + 2]
-		add edi, edx
-		mov edx, 0
-		mov dx, [resolutionx2]
-		cmp cx, 0
-		je noswmsy
-swmsy:		add edi, edx
-		loop swmsy
-noswmsy:	mov eax, [esi]
-		mov ebx, [esi + 4]
-		mov [edi], eax
-		mov [edi + 4], ebx
-		mov eax, [esi + 8]
-		mov ebx, [esi + 12]
-		mov [edi + 8], eax
-		mov [edi + 12], ebx
-		add edi, edx
-		add si, 16
-		inc cx
-		cmp cx, 16
-		jbe noswmsy
-
-		mov esi, mousecolorbuf
-		mov edi, [physbaseptr]
-		mov edx, 0
-		mov ecx, 0
-		mov dx, [mousecursorposition]
-		mov cx, [mousecursorposition + 2]
-		add edi, edx
-		mov edx, 0
-		mov dx, [resolutionx2]
-		cmp cx, 0
-		je noswmsy2
-swmsy2:		add edi, edx
-		loop swmsy2
-noswmsy2:	mov eax, [edi]
-		mov ebx, [edi + 4]
-		mov [esi], eax
-		mov [esi + 4], ebx
-		mov eax, [edi + 8]
-		mov ebx, [edi + 12]
-		mov [esi + 8], eax
-		mov [esi + 12], ebx
-		add edi, edx
-		add si, 16
-		inc cx
-		cmp cx, 16
-		jbe noswmsy2
-		ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Here are some vars;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	showstringsi db 0,0
@@ -1699,50 +1702,35 @@ noswmsy2:	mov eax, [edi]
 	start	db "start",0
 	gotomenu db "SollerOS",0
 	winmsg	db "windows sucks",0
-
 	boomsg db "Boo!",0
-
 	xmsg db "X",0
 	icon dw 0	;pointer to icon
 	codepointer dw 0 ;pointer to code
 	iconselected db 0
 	
 	noie:
-
 		mov si, termwindow
-
 		mov dx, 0
-
 		mov cx, 0
-
 		mov ebx, internettest
-
 		mov [user2codepoint], ebx
 		mov ebx, 0
 		mov bx, internettest
 		mov ax, 0
-
 		call showwindow
-
 		;;ret
 	jmp internettest
 
 	gotomenuboot:
-
 		mov si, termwindow
-
 		mov dx, 0
-
 		mov cx, 0
-
 		mov ebx, os
 		mov [user2codepoint], ebx
 		mov ebx, 0
 		mov bx, os
 		mov ax, 0
-
 		call showwindow
-
 		;;ret
 	jmp os
 
@@ -1750,20 +1738,15 @@ noswmsy2:	mov eax, [edi]
 		mov si, winmsg
 		mov dx, 0
 		mov cx, [resolutiony]
-
 		sub cx, 32
 		mov bx, 0
-
 		mov ah, 0
 		mov al, 00010001b
 		call showstring
-
 		mov si, gotomenu
 		mov cx, [resolutiony]
-
 		sub cx, 48
 		mov dx, 0
-
 		mov ah, 0
 		mov al, 00010000b
 		mov bx, gotomenuboot
@@ -1781,24 +1764,19 @@ noswmsy2:	mov eax, [edi]
 		mov si, pacnom
 		mov dx, 130
 		mov cx, 60
-
 		mov bx, 0
-
 		mov ax, 0
-
 		call showstring
-
 		ret		
 	graphicstable: ;w type, w datalocation, w locationx, w locationy, w selected, w code
 	times 200h dw 0
 	graphicstableend:
 	termwindow:	dw 640,480	;;window size
-
 	termmsg:	db "TERMINAL",0	;;window title
 
 mousecolorbuf: ;where the gui under the mouse is stored
-times 256 dw 0
-
+times 256 db 0
+mcolorend:
 	pacmanpellet: dw 0xFFE0
 		dd	00000000000000000000000000000000b ;32x32 icon
 		dd	00000000000000000000000000000000b
@@ -1837,64 +1815,36 @@ times 256 dw 0
 
 		dd	00000000000000000000000000000000b	;Icon 32x32
 		dd	00000000000000000000000000000000b
-
 		dd	00000000000000000000000000000000b
 		dd	00000000000011111111000000000000b
 		dd	00000000000011111111000000000000b
 		dd	00000000111111111111111100000000b
-
 		dd	00000000111111111111111100000000b ;because I can
-
 		dd	00000011111111111111111111000000b
-
 		dd	00000011111111111111111111000000b
-
 		dd	00001111111111111111111111110000b
-
 		dd	00001111111111111111111111110000b
-
 		dd	00001111111111111111111111110000b
-
 		dd	00001111111111111111111111110000b
-
 		dd	00001111000011111111000011110000b
-
 		dd	00001111000011111111000011110000b
-
 		dd	00111100011000111100011000111100b
-
 		dd	00111100111100111100111100111100b
-
 		dd	00111100111100111100111100111100b
-
 		dd	00111100011000111100011000111100b
-
 		dd	00111111000011111111000011111100b
-
 		dd	00111111000011111111000011111100b
-
 		dd	00111111111111111111111111111100b
-
 		dd	00111111111111111111111111111100b
-
 		dd	00111111111111111111111111111100b
-
 		dd	00111111111111111111111111111100b
-
 		dd	00111111111111111111111111111100b
-
 		dd	00111111111111111111111111111100b
-
 		dd	00111100111111000011111100111100b
-
 		dd	00111100111111000011111100111100b
-
 		dd	00110000001111000011110000001100b
-
 		dd	00110000001111000011110000001100b
-
 		dd	00000000000000000000000000000000b
-
 
 	pacman	dw 0xFFE0
 
@@ -1903,7 +1853,6 @@ times 256 dw 0
 		dd	00000000000000000000000000000000b
 		dd	00000000000000000000000000000000b
 		dd	00000000000000000000000000000000b
-
 		dd	00000000000011111111000000000000b
 		dd	00000000000011111111000000000000b ;because I can
 		dd	00000000001111111111110000000000b

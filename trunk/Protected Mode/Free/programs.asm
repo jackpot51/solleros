@@ -122,8 +122,7 @@ db 5,4,"tely",0
 		cmp ah, 13
 		jne telysend
 		mov ah, 10
-		jmp telysend
-	
+		jmp telysend
 	nullchar db 0,0
 
 	telyreceive2:
@@ -238,11 +237,6 @@ db 5,4,"clear",0
 	cls:	call clear
 		jmp nwcmd
 
-db 5,4,"universe",0
-	universe: mov si, universe1
-		call print
-		jmp nwcmd
-
 db 5,4,"echo",0
 	echo:	mov si, buftxt
 		add si, 5
@@ -295,194 +289,7 @@ db 5,4,"echo",0
 	prntvr2: call print
 		mov si, line
 		call print
-		jmp nwcmd
-	
-db 5,4,"math",0
-		mov si, mathmsg
-		call print
-	math:	mov si, mathmsg2
-		call print
-		call input
-		mov si, line
-		call print
-		mov si, buftxt
-		mov bx, exitmsg
-		call tester
-		cmp al, 1
-		je nwcmd
-		jmp adder
-		jmp math
-	adder:	mov si, number1
-		call print
-		call clearbuffer
-		call input
-		mov si, buftxt
-		mov al, [si]
-		cmp al, '$'
-		je varadd1
-	vraddn1: call cnvrttxt
-		mov ebx, ecx
-		push ebx
-		mov si, line
-		call print
-		mov si, number2
-		call print
-		call clearbuffer
-		call input
-		mov si, buftxt
-		mov al, [si]
-		cmp al, '$'
-		je varadd2
-	vraddn2: call cnvrttxt
-		push ecx
-		mov si, operandmsg
-		call print
-		call input
-		mov si, buftxt
-		mov al, [si]
-		cmp al, '+'
-		je addit
-		cmp al, '-'
-		je subit
-		cmp al, '*'
-		je mulit2
-		cmp al, '/'
-		je divit2
-		cmp al, '^'
-		je expit2
-		mov si, line
-		call print
-		jmp math
-	expit2: jmp expit
-	divit2: jmp divit
-	mulit2:	jmp mulit
-	varadd1: mov di, 1
-		mov bx, variables
-		call nxtvrech
-		jmp vraddn1
-	varadd2: mov di, 1
-		mov bx, variables
-		call nxtvrech
-		jmp vraddn2
-	addit:	pop ebx
-		pop ecx
-		add ecx, ebx
-		cmp ecx, 0
-		je zerocx
-		mov si, numbuf
-		call convert
-		mov si, line
-		call print
-		mov si, buf2
-		call chkadd
-		jmp math
-	subit:	pop ebx
-		pop ecx
-		sub ecx, ebx
-		cmp ecx, 0
-		je zerocx
-		mov si, numbuf
-		call convert
-		mov si, line
-		call print
-		mov si, buf2
-		call chkadd
-		jmp math
-	zerocx: mov si, line
-		call print
-		call clearbuf
-		mov si, zeromsg
-		call print
-		jmp math
-	mulit:	pop ebx
-		pop ecx
-		mov eax, ecx
-		mul bx
-		mov ecx, eax
-		cmp ecx, 0
-		je zerocx
-		mov si, numbuf
-		call convert
-		mov si, line
-		call print
-		mov si, buf2
-		call chkadd
-		jmp math
-	expit:	pop ebx
-		pop ecx
-		mov eax, ecx
-		mov ecx, ebx
-		mov ebx, eax
-		dec ecx
-	expitlp: mul bx
-		loop expitlp
-		mov ecx, eax
-		cmp ecx, 0
-		je zerocx
-		mov si, numbuf
-		call convert
-		mov si, line
-		call print
-		mov si, buf2
-		call chkadd
-		jmp math
-	divit:	pop ebx
-		pop ecx
-		mov eax, ecx
-		div bl
-		mov ecx, 0
-		mov cx, ax
-		mov si, numbuf
-		call convert
-		mov si, line
-		call print
-		mov si, buf2
-		call chkadd
-		jmp math
-	chkadd: mov al, [si]
-		cmp al, '0'
-		jne dnadd
-		inc si
-		cmp si, numbuf
-		je dnaddm1
-		jmp chkadd
-	dnaddm1: dec si
-	dnadd:	call print
-		mov si, line
-		call print
-		ret
-
-db 5,4,"space",0
-	space:	call clearbuffer
-		mov si, variables
-		dec si
-	spcchk:	inc si
-		cmp si, varend
-		jae donechk
-		mov al, [si]
-		cmp al, 0
-		je spcchk2
-		jmp spcchk
-	spcchk2: inc si
-		mov al, [si]
-		cmp al, 0
-		je spcchk3
-		jmp spcchk
-	spcchk3: inc si
-		mov al, [si]
-		cmp al, 0
-		je donechk
-		jmp spcchk
-	donechk: mov cx, varend
-		sub cx, si
-		add cx, 2
-		mov si, numbuf
-		call convert
-		mov si, buf2
-		call chkadd
-		mov si, dskmsg
-		call print
-		jmp nwcmd
+		jmp nwcmd
 	
 db 5,4,"runbatch",0
 	runbatch2:
@@ -1059,6 +866,18 @@ db 5,4,"#",0
 		call chkadd
 		jmp nwcmd
 edxnumbuf dw 0,0
+	chkadd: mov al, [si]
+		cmp al, '0'
+		jne dnadd
+		inc si
+		cmp si, numbuf
+		je dnaddm1
+		jmp chkadd
+	dnaddm1: dec si
+	dnadd:	call print
+		mov si, line
+		call print
+		ret
 	
 db 5,4,"%",0
 	ans:	mov si, buf2

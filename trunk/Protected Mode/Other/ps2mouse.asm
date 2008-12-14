@@ -69,24 +69,6 @@ CHKMOUS:
 ret
 
 ;***********************************************************************
-;Disable Keyboard
-;***********************************************************************
-DKEYB:
-  mov  al, 0xad		; Disable Keyboard
-  out  0x64, al		; write to keyboardcontroller
-  call CHKPRT		; check if command is progressed (demand!)
-ret
-
-;***********************************************************************
-;Enable Keyboard
-;***********************************************************************
-EKEYB:
-  mov  al, 0xae		; Enable Keyboard
-  out  0x64, al		; write to keyboardcontroller
-  call CHKPRT		; check if command is progressed (demand!)
-ret
-
-;***********************************************************************
 ;Get Mouse Byte
 ;***********************************************************************
 GETB:
@@ -106,9 +88,6 @@ GETB:
   mov  al, dl
 ret
 
-lastmousepos db 10,10
-mousechangepos db 0,0
-mousechangesign db 0,0
 LBUTTON db 0x00	;	Left   button status 1=PRESSED 0=RELEASED
 RBUTTON db 0x00	;	Right  button status 1=PRESSED 0=RELEASED
 MBUTTON db 0x00	;	Middle button status 1=PRESSED 0=RELEASED

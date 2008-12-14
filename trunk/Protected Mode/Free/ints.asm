@@ -18,8 +18,7 @@ int30h:
 	ret
 
 int30hah0:	;shutdown application
-	jmp nwcmd
-
+	jmp nwcmd
 	dxcache db 0,0
 	enddh db 0
 	scrolledlines db 0
@@ -194,26 +193,25 @@ entupinput:
 		jz near intNOKEY
 		inc al
 		mov di, scancode
-		add di, 2
-	searchscan: cmp di, noscan
+	searchscan: 
+		cmp al, 40h
 		jae near intcheckkey
+		mov ah, 0
+		shl al, 1
+		add di, ax
+		shr al, 1
 		mov ah, [di]
-		cmp al, ah
-		je near scanfound
-		add di, 3
-		jmp searchscan
+		cmp ah, 0
+		je near intcheckkey
+		jmp scanfound
 
 
 
 Meax dd 0
-
 Mebx dd 0
 Mecx dd 0
-
 Medx dd 0
-
 Medi dd 0
-
 Mesi dd 0
 
 	ps2mouse:
@@ -240,7 +238,6 @@ Mesi dd 0
 		je uppercasescan
 		cmp byte [caps], 1
 		je uppercasescan
-		sub di, 2
 		mov al,[di]
 		mov [si], al
 		cmp byte [trans], 1
@@ -250,7 +247,7 @@ Mesi dd 0
 		jmp entupinput
 
 	uppercasescan:
-		sub di, 1
+		add di, 1
 		mov al,[di]
 		mov [si], al
 		inc si
@@ -328,7 +325,7 @@ Mesi dd 0
 		dec si
 nomoreback:	mov bx, [bxcache]
 		mov cx, [cxcache]
-	call videobuf2copy
+call videobuf2copy
 		jmp startin
 
 	entup:	
@@ -501,52 +498,62 @@ int30hah6:	;print char
 	ret
 	
 scancode:
-	db '1','!',2h
-	db '2','@',3h
-	db '3','#',4h
-	db '4','$',5h
-	db '5','%',6h
-	db '6','^',7h
-	db '7','&',8h
-	db '8','*',9h
-	db '9','(',0Ah
-	db '0',')',0Bh
-	db '-','_',0Ch
-	db '=','+',0Dh
-	db 'q','Q',10h
-	db 'w','W',11h
-	db 'e','E',12h
-	db 'r','R',13h
-	db 't','T',14h
-	db 'y','Y',15h
-	db 'u','U',16h
-	db 'i','I',17h
-	db 'o','O',18h
-	db 'p','P',19h
-	db '[','{',1Ah
-	db ']','}',1Bh
-	db 'a','A',1Eh
-	db 's','S',1Fh
-	db 'd','D',20h
-	db 'f','F',21h
-	db 'g','G',22h
-	db 'h','H',23h
-	db 'j','J',24h
-	db 'k','K',25h
-	db 'l','L',26h
-	db ';',':',27h
-	db 27h,22h,28h
-	db '`','~',29h
-	db '\','|',2Bh
-	db 'z','Z',2Ch
-	db 'x','X',2Dh
-	db 'c','C',2Eh
-	db 'v','V',2Fh
-	db 'b','B',30h
-	db 'n','N',31h
-	db 'm','M',32h
-	db ',','<',33h
-	db '.','>',34h
-	db '/','?',35h
-	db ' ',' ',39h
+	db 0,0		;,0h
+	db 0,0		;,1h
+	db '1','!'	;,2h
+	db '2','@'	;,3h
+	db '3','#'	;,4h
+	db '4','$'	;,5h
+	db '5','%'	;,6h
+	db '6','^'	;,7h
+	db '7','&'	;,8h
+	db '8','*'	;,9h
+	db '9','('	;,0Ah
+	db '0',')'	;,0Bh
+	db '-','_'	;,0Ch
+	db '=','+'	;,0Dh
+	db 0,0		;,0Eh
+	db 0,0		;,0Fh
+	db 'q','Q'	;,10h
+	db 'w','W'	;,11h
+	db 'e','E'	;,12h
+	db 'r','R'	;,13h
+	db 't','T'	;,14h
+	db 'y','Y'	;,15h
+	db 'u','U'	;,16h
+	db 'i','I'	;,17h
+	db 'o','O'	;,18h
+	db 'p','P'	;,19h
+	db '[','{'	;,1Ah
+	db ']','}'	;,1Bh
+	db 0,0		;,1Ch
+	db 0,0		;,1Dh
+	db 'a','A'	;,1Eh
+	db 's','S'	;,1Fh
+	db 'd','D'	;,20h
+	db 'f','F'	;,21h
+	db 'g','G'	;,22h
+	db 'h','H'	;,23h
+	db 'j','J'	;,24h
+	db 'k','K'	;,25h
+	db 'l','L'	;,26h
+	db ';',':'	;,27h
+	db 27h,22h	;,28h
+	db '`','~'	;,29h
+	db 0,0		;,2Ah
+	db '\','|'	;,2Bh
+	db 'z','Z'	;,2Ch
+	db 'x','X'	;,2Dh
+	db 'c','C'	;,2Eh
+	db 'v','V'	;,2Fh
+	db 'b','B'	;,30h
+	db 'n','N'	;,31h
+	db 'm','M'	;,32h
+	db ',','<'	;,33h
+	db '.','>'	;,34h
+	db '/','?'	;,35h
+	db 0,0		;,36h
+	db 0,0		;,37h
+	db 0,0		;,38h
+	db ' ',' '	;,39h
 noscan:

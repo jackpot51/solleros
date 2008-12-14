@@ -9,7 +9,6 @@
     %include 'Free\userprogs.asm'
     %include 'Other\ps2mouse.asm'
     %include 'Free\ints.asm'
-    %include 'Free\graphical.asm'
     %include 'Free\gui.asm'
-    %include 'Free\network.asm'
+;    %include 'Free\network.asm'
     %include 'Free\msg.asm'
