@@ -16,6 +16,23 @@ mainindexdn:
 	mov ax, 12h
 	mov bx, 0
 	int 10h
+	mov si, graphicstable
+	mov di, rbuffstart
+	mov eax, 0
+initmemory:
+	mov [si], eax
+	add si, 4
+	cmp si, di
+	jbe initmemory
+	mov si, mcursor
+	mov di, fontend2
+cursorcopyinit:
+	mov ax, [si]
+	mov [di], ax
+	add di, 2
+	add si, 2
+	cmp di, fontend
+	jb cursorcopyinit
 	call fontload
 	jmp guiload ;;strait to gui
 
@@ -289,60 +306,3 @@ realmode:
 
    mov eax, 0
    ret
-
-VBEMODEBLOCK:
-vbesignature 	times 4 db 0 	;VBE Signature
-vbeversion  		dw 0    ;VBE Version
-oemstringptr  		dw 0,0  ;Pointer to OEM String
-capabilities 	times 4 db 0   	;Capabilities of graphics cont.
-videomodeptr 		dw 0,0  ;Pointer to Video Mode List
-totalmemory   		dw 0    ;number of 64Kb memory blocks
-oemsoftwarerev  	dw 0  	;VBE implementation Software revision
-oemvendornameptr 	dw 0,0 	;Pointer to Vendor Name String
-oemproductnameptr 	dw 0,0 	;Pointer to Product Name String
-oemproductrevptr 	dw 0,0	;Pointer to Product Revision String
-reserved	times 222 db 0	;Reserved for VBE implementation scratch area
-oemdata 	times 256 db 0	;Data Area for OEM Strings
-
-
-VBEMODEINFOBLOCK:
-;Mandatory information for all VBE revision
-modeattributes   dw 0  ;Mode attributes
-winaattributes   db 0  ;Window A attributes
-winbattributes   db 0  ;Window B attributes
-wingranularity   dw 0  ;Window granularity
-winsize          dw 0  ;Window size
-winasegment      dw 0  ;Window A start segment
-winbsegment      dw 0  ;Window B start segment
-winfuncptr       dw 0,0  ;pointer to window function
-bytesperscanline dw 0  ;Bytes per scan line
-
-;Mandatory information for VBE 1.2 and above
-xresolution     dw 0	    ;Horizontal resolution in pixel or chars
-yresolution	dw 0        ;Vertical resolution in pixel or chars
-xcharsize       db 0	    ;Character cell width in pixel
-ycharsize       db 0	    ;Character cell height in pixel
-numberofplanes  db 0	    ;Number of memory planes
-bitsperpixel    db 0	    ;Bits per pixel
-numberofbanks   db 0	    ;Number of banks
-memorymodel     db 0	    ;Memory model type
-banksize        db 0 	    ;Bank size in KB
-numberofimagepages    db 0  ;Number of images
-reserved1       db 0	    ;Reserved for page function
-
-;Direct Color fields (required for direct/6 and YUV/7 memory models)
-redmasksize		db 0        ;Size of direct color red mask in bits
-redfieldposition	db 0	    ;Bit position of lsb of red bask
-greenmasksize   	db 0	    ;Size of direct color green mask in bits
-greenfieldposition	db 0	    ;Bit position of lsb of green bask
-bluemasksize		db 0        ;Size of direct color blue mask in bits
-bluefieldposition	db 0	    ;Bit position of lsb of blue bask
-rsvdmasksize        	db 0	    ;Size of direct color reserved mask in bits
-rsvdfieldposition	db 0	    ;Bit position of lsb of reserved bask
-directcolormodeinfo	db 0	    ;Direct color mode attributes
-
-;Mandatory information for VBE 2.0 and above
-physbaseptr dw 0,0         ;Physical address for flat frame buffer
-offscreenmemoffset dw 0,0  ;Pointer to start of off screen memory
-offscreenmemsize dw 0      ;Amount of off screen memory in 1Kb units
-reserved2 times 206 db 0   ;Remainder of ModeInfoBlock

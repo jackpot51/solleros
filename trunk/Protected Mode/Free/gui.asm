@@ -1768,15 +1768,9 @@ colorfontmatch:
 		mov ax, 0
 		call showstring
 		ret		
-	graphicstable: ;w type, w datalocation, w locationx, w locationy, w selected, w code
-	times 200h dw 0
-	graphicstableend:
 	termwindow:	dw 640,480	;;window size
 	termmsg:	db "TERMINAL",0	;;window title
 
-mousecolorbuf: ;where the gui under the mouse is stored
-times 256 db 0
-mcolorend:
 	pacmanpellet: dw 0xFFE0
 		dd	00000000000000000000000000000000b ;32x32 icon
 		dd	00000000000000000000000000000000b

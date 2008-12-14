@@ -193,7 +193,8 @@ entupinput:
 		jz near intNOKEY
 		inc al
 		mov di, scancode
-	searchscan: 
+	searchscan:
+		mov di, scancode
 		cmp al, 40h
 		jae near intcheckkey
 		mov ah, 0
@@ -250,6 +251,8 @@ Mesi dd 0
 		add di, 1
 		mov al,[di]
 		mov [si], al
+		cmp byte [trans], 1
+		je near intNOKEY
 		inc si
 		mov cx, [maxcx]
 		jmp entupinput

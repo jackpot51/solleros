@@ -819,10 +819,3 @@ donecnvrt: mov ecx, edx
 	mov edx, [edxcachecnvrt]
 	ret
 ecxbufnum dw 0,0
-
-
-IFON db 0
-IFTRUE times 100 db 0
-BATCHPOS db 0,0
-LOOPON db 0
-LOOPPOS	db 0,0

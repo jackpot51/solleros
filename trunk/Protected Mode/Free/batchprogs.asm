@@ -23,26 +23,19 @@ batch:	db 6,4,"tutorial",0
 	db 3,4,"echo help-this shows the nonexistant help file",0
 	db 3,4,"echo logout-this logs the user out",0
 	db 3,4,"echo clear-this clears the screen",0
-	db 3,4,"echo universe-this shows a famous quote from einstein",0
 	db 3,4,"echo echo-this prints text and variables to the screen",0
-	db 3,4,"echo math-this is the obsolete math program",0
-	db 3,4,"echo etch-a-sketch-this is a 3rd party app",0
-	db 3,4,"echo space-this shows the amount of available space for variables",0
-	db 3,4,"echo reload-this reloads the operating system from the floppy",0
 	db 3,4,"echo runbatch-this runs batch files",0
 	db 3,4,"echo showbatch-this shows the currently loaded batch file",0
 	db 3,4,"echo batch-this creates a new batchfile",0
-	db 3,4,"echo time-this reads the system time in an unfamiliar format",0
 	db 3,4,"echo #-this evaluates expresions",0
 	db 3,4,"echo %-this gives back the last answer",0
 	db 3,4,"echo the $ sign is used for variables",0
-	db 3,4,"echo the BATCHES ONLY!!! programs are for batches only",0
 	db 3,4,"fi",0
 	db 4,3,0
 	db 7,4,"SollerOS",0
 	db 3,4,"Is freaking awesome!",0
 	db 4,3,0
-	times 1000 db 0
+	times 500 db 0
 commandlst:
 	
 notbatch: jmp nwcmd

@@ -1,10 +1,3 @@
-fileindex: times 500h db 0	;index format can be found in SollerOS programming guide
-customprograms:			;put custom index items here. I promise I won't overwrite them
-				;although they may be written twice if they are in the filesystem
-;;	db 5,4,"Hello World"
-;;	dw 0,hello,0		;;example of a custom file descriptor
-	
-fileindexend:
 filetypes db 5,4,6,4,7,4
 progstart:		;programs start here
 db 5,4,"index",0
