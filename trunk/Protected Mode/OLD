@@ -1,0 +1,213 @@
+;;  jeremymsg:  db '        ________   ________   ______     ________   ___        __  __    __',10,13
+;;		db '       |__    __| |   _____| |   __ \   |______  | |   \      /  \ \ \  / /',10,13
+;;		db '          |  |    |  |_____  |  |__| |   _____|  | | |\ \    / /\ \ \ \/ /',10,13
+;;		db '     ___  |  |    |   _____| |   _   |  |_____   | | | \ \  / /  \ \ \  /',10,13
+;;		db '     \  \_|  |    |  |_____  |  | \  \   _____|  | | |  \ \/ /    \ \ \ \',10,13
+;;		db '      \______|    |________| |__|  \__\ |________| |_|   \__/      \_\ \_\',10,13
+;;		db '    _______________________________________________________________________',10,13
+;;		db '       ______      ________   __    ___  ________   _     __        __  __',10,13
+;;		db '      /  _   |    |   _____| |  |  /  / |______  | | |   /  \      / / / /',10,13
+;;		db '     /__/ |  |    |  |_____  |  |_/  /   _____|  | | |  / /\ \    / / / / ',10,13
+;;		db '          |  |    |   _____| |   __  |  |_____   | | | / /  \ \  / / /  \',10,13
+;;		db '        __|  |__  |  |_____  |  |__| |   _____|  | | |/ /    \ \/ / / /\ \ ',10,13
+;;		db '       |________| |________| |______/   |________| |___/      \__/ /_/  \_\ ',10,13
+;;		db '    ________________________________________________________________________ ',10,13
+;;		db '        ________  _________  _______     _________  ____  |   __  __    __ ',10,13
+;;		db '       /__&&&__/ /&&______/ /&&___&&\   /______&&/ /&&&&\ |  /&&\ \&\  /&/ ',10,13
+;;		db '         /&&/   /&&/_____  /&&/__/&&/  ______/&&/ /&&/\&&\| /&/\&\ \&\/&/ ',10,13
+;;		db '  ___   /&&/   /&&______/ /&&_&&&__/  /______&&/ /&&/  \&&\/&/  \&\ \&&/ ',10,13
+;;		db '  \&&\_/&&/   /&&/_____  /&&/ \&&\   ______/&&/ /&&/    \&&&/    \&\ \&\',10,13
+;;		db '   \_____/   /________/ /__/   \__\ /________/ /__/      \_/      \_\ \_\ ',10,13
+;;		db '                                                          | ',10,13
+;;		db '                                                   Yd 3bAM|MAdE bY ',10,13
+;;		db '                                                       JaCkPoT',10,13,0
+;;  jeremymsg2: db '   ___________________________________      __    __',13,10
+;;		db '  /____&&&/&&______/&&___&&&/______&&/\    /\&\  /&/',13,10
+;;		db '      /&&/&&/_____/&&/__/&&/_____/&&/&&\  /&&\&\/&/',13,10
+;;		db '___  /&&/&&______/&&_&&&__/______&&/&/\&\/&/\&\&&/',13,10
+;;		db '\&&\/&&/&&/_____/&&/ \&&\______/&&/&/  \&&/  \&\&\',13,10
+;;		db ' \____/________/__/   \_/________/_/    \/    \_\_\',13,10
+;;		db '',13,10
+;;		db 'MADE by JaCkPoT',13,10
+;;		db "A ",21,"oller",21,"oft project",0
+
+
+db 5,4,"math",0
+		mov si, mathmsg
+		call print
+;	math:	mov si, mathmsg2
+		call print
+		call input
+		mov si, line
+		call print
+		mov si, buftxt
+		mov bx, exitmsg
+		call tester
+		cmp al, 1
+		je nwcmd
+		jmp adder
+		jmp math
+;	adder:	mov si, number1
+		call print
+		call clearbuffer
+		call input
+		mov si, buftxt
+		mov al, [si]
+		cmp al, '$'
+		je varadd1
+;	vraddn1: call cnvrttxt
+		mov ebx, ecx
+		push ebx
+		mov si, line
+		call print
+		mov si, number2
+		call print
+		call clearbuffer
+		call input
+		mov si, buftxt
+		mov al, [si]
+		cmp al, '$'
+		je varadd2
+;	vraddn2: call cnvrttxt
+		push ecx
+		mov si, operandmsg
+		call print
+		call input
+		mov si, buftxt
+		mov al, [si]
+		cmp al, '+'
+		je addit
+		cmp al, '-'
+		je subit
+		cmp al, '*'
+		je mulit2
+		cmp al, '/'
+		je divit2
+		cmp al, '^'
+		je expit2
+		mov si, line
+		call print
+		jmp math
+;	expit2: jmp expit
+;	divit2: jmp divit
+;	mulit2:	jmp mulit
+;	varadd1: mov di, 1
+		mov bx, variables
+		call nxtvrech
+		jmp vraddn1
+;	varadd2: mov di, 1
+		mov bx, variables
+		call nxtvrech
+		jmp vraddn2
+;	addit:	pop ebx
+		pop ecx
+		add ecx, ebx
+		cmp ecx, 0
+		je zerocx
+		mov si, numbuf
+		call convert
+		mov si, line
+		call print
+		mov si, buf2
+		call chkadd
+		jmp math
+;	subit:	pop ebx
+		pop ecx
+		sub ecx, ebx
+		cmp ecx, 0
+		je zerocx
+		mov si, numbuf
+		call convert
+		mov si, line
+		call print
+		mov si, buf2
+		call chkadd
+		jmp math
+;	zerocx: mov si, line
+		call print
+		call clearbuf
+		mov si, zeromsg
+		call print
+		jmp math
+;	mulit:	pop ebx
+		pop ecx
+		mov eax, ecx
+		mul bx
+		mov ecx, eax
+		cmp ecx, 0
+		je zerocx
+		mov si, numbuf
+		call convert
+		mov si, line
+		call print
+		mov si, buf2
+		call chkadd
+		jmp math
+;	expit:	pop ebx
+		pop ecx
+		mov eax, ecx
+		mov ecx, ebx
+		mov ebx, eax
+		dec ecx
+;	expitlp: mul bx
+		loop expitlp
+		mov ecx, eax
+		cmp ecx, 0
+		je zerocx
+		mov si, numbuf
+		call convert
+		mov si, line
+		call print
+		mov si, buf2
+		call chkadd
+		jmp math
+;	divit:	pop ebx
+		pop ecx
+		mov eax, ecx
+		div bl
+		mov ecx, 0
+		mov cx, ax
+		mov si, numbuf
+		call convert
+		mov si, line
+		call print
+		mov si, buf2
+		call chkadd
+		jmp math
+
+
+
+
+
+
+db 5,4,"space",0
+	space:	call clearbuffer
+		mov si, variables
+		dec si
+	spcchk:	inc si
+		cmp si, varend
+		jae donechk
+		mov al, [si]
+		cmp al, 0
+		je spcchk2
+		jmp spcchk
+	spcchk2: inc si
+		mov al, [si]
+		cmp al, 0
+		je spcchk3
+		jmp spcchk
+	spcchk3: inc si
+		mov al, [si]
+		cmp al, 0
+		je donechk
+		jmp spcchk
+	donechk: mov cx, varend
+		sub cx, si
+		add cx, 2
+		mov si, numbuf
+		call convert
+		mov si, buf2
+		call chkadd
+		mov si, dskmsg
+		call print
+		jmp nwcmd
