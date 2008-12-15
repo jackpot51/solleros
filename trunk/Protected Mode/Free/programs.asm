@@ -754,6 +754,8 @@ db 5,4,"#",0
 	num:	
 		mov [edxnumbuf], edx
 		call clearbuffer
+		mov byte [decimal], 0
+		mov byte [decimal2], 0
 		mov si, buftxt
 		mov eax, 0
 		mov ecx, 0
@@ -771,7 +773,7 @@ db 5,4,"#",0
 		je operatorfound
 		inc si
 		cmp al, 0
-		je nwcmd
+		je near nwcmd
 		jmp num2
 	operatorfound: mov [eaxcachenum], eax
 		mov ah, 0
@@ -779,12 +781,16 @@ db 5,4,"#",0
 		inc si
 		mov al, [si]
 		cmp al, '$'
-		je varnum1
+		je near varnum1
+		cmp al, '%'
+		je near resultnum1
 		jmp varnum2
 	ebxcachenum dw 0,0
 	eaxcachenum dw 0,0
 	varnum2: 
+		call checkdecimal
 		call cnvrttxt
+	vrnm2:
 		mov ebx, ecx
 		mov [ebxcachenum], ebx
 		call clearbuffer
@@ -792,23 +798,32 @@ db 5,4,"#",0
 		inc si
 		mov al, [si]
 		cmp al, '$'
-		je varnum3
+		je near varnum3
+		cmp al, '%'
+		je near resultnum2
 	varnum4: 
+		call checkdecimal2
 		call cnvrttxt
+	vrnm4:
 		mov ebx, [ebxcachenum]
 		mov eax, [eaxcachenum]
 		cmp al, '+'
-		je plusnum
+		je near plusnum
 		cmp al, '-'
-		je subnum
+		je near subnum
 		cmp al, '*'
-		je mulnum
+		je near mulnum
 		cmp al, '/'
-		je divnum2
+		je near divnum
 		cmp al, '^'
-		je expnum2
-	expnum2: jmp expnum
-	divnum2: jmp divnum
+		je near expnum
+		jmp nwcmd
+	resultnum1:
+		mov ecx, [result]
+		jmp vrnm2
+	resultnum2:
+		mov ecx, [result]
+		jmp vrnm4
 	varnum1: sub si, buftxt
 		mov di, si
 		add si, buftxt
@@ -823,38 +838,104 @@ db 5,4,"#",0
 		mov bx, variables
 		call nxtvrech
 		jmp varnum4
+	checkdecimal2:
+		mov ah, [decimal]
+		mov [decimal2], ah
+		mov ah, 0
+		mov [decimal], ah
+	checkdecimal:
+		mov di, si
+	chkdec1:
+		mov al, [di]
+		cmp al, '.'
+		je near fnddec
+		cmp al, 0
+		je near nodecimal
+		inc di
+		jmp chkdec1
+	fnddec:
+		mov al, [di + 1]
+		mov [di], al
+		cmp al, 0
+		je near nodecimal
+		inc byte [decimal]
+		inc di
+		jmp fnddec
+	nodecimal:
+		ret
 	plusnum:
+		call decaddfix
 		add ecx, ebx
 		jmp retnum
 	subnum:
+		call decaddfix
 		sub ecx, ebx
 		jmp retnum
 	mulnum:
+		mov al, [decimal2]
+		add [decimal], al
 		mov eax, ecx
 		mul ebx
 		mov ecx, eax
 		jmp retnum
 	divnum:
+		call decaddfix
+		mov al, 0
+		mov [decimal], al
 		mov ax, cx
 		cmp bl, 0
-		je retnum
+		je near retnum
 		div bl
 		mov ecx, 0
 		mov cl, al
 		jmp retnum
 	expnum:
+		mov dl, [decimal]
+		mov [decimal2], dl
+		mov edx, 0
 		mov eax, ecx
 		mov ecx, ebx
 		mov ebx, eax
+		cmp ecx, 0
+		je noexpnum
 		dec ecx
+		cmp ecx, 0
+		je noexpnumlp
 	expnumlp: mul ebx
+		mov dl, [decimal2]
+		add [decimal], dl
+		mov edx, 0
 		loop expnumlp
+	noexpnumlp:
 		mov ecx, eax
 		jmp retnum
+	noexpnum:
+		mov ecx, 1
 	retnum: 
 		mov edx, [edxnumbuf]
 		mov si, numbuf
+		mov [result], ecx
 		call convert
+		mov si, numbuf
+		mov ah, [decimal]
+		cmp ah, 0
+		je near noputdecimal
+	putdecimal:
+		dec si
+		dec ah
+		cmp ah, 0
+		ja near putdecimal
+		dec si
+		mov al, [si]
+		mov byte [si], '.'
+	decputloop:
+		dec si
+		mov ah, [si]
+		mov [si], al
+		mov al, ah
+		cmp si, buf2
+		ja near decputloop
+	noputdecimal:
 		mov si, buf2
 		call chkadd
 		jmp nwcmd
@@ -871,9 +952,46 @@ edxnumbuf dw 0,0
 		mov si, line
 		call print
 		ret
+		
+	decaddfix:
+		mov al, [decimal2]
+		mov ah, [decimal]
+		cmp al, ah
+		je gooddecadd
+		cmp al, ah
+		jb lowdecadd
+	highdecadd:
+		inc ah
+		mov edx, ecx
+		shl ecx, 3
+		add ecx, edx
+		add ecx, edx
+		cmp al, ah
+		ja highdecadd
+		mov [decimal], ah
+		jmp gooddecadd
+	lowdecadd:
+		inc al
+		mov edx, ebx
+		shl ebx, 3
+		add ebx, edx
+		add ebx, edx
+		cmp al, ah
+		jb lowdecadd
+		mov [decimal], al
+	gooddecadd:
+		ret
+		
+decimal db 0
+decimal2 db 0
+result db 0,0,0,0
 	
 db 5,4,"%",0
-	ans:	mov si, buf2
+	ans:	call clearbuffer
+		mov ecx, [result]
+		mov si, buf2
+		call convert
+		mov si, buf2
 		call chkadd
 		jmp nwcmd
 

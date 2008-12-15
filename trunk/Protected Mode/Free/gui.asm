@@ -677,16 +677,11 @@ call reloadallgraphics
 		call showfontvesa
 		mov byte [showcursorfonton], 0
 		ret
-
 lastdrag dw 0
-
 grpctblpos dw 0
 
-
 reloadallgraphics:
-
 		mov di, graphicstable
-
 reloadgraphicsloop:
 		mov si, [di + 2]
 		mov dx, [di + 4]
@@ -734,24 +729,15 @@ donereloadgraphics:
 		ret
 
 	noticondragging:
-
 		cmp ax, 2
-
 		jne notcorrectdrag
-
 		and bl, 1
-
 		mov [mouseselecton], bl
-
 		call showstring2
-
 	notcorrectdrag:
-
 		ret
 
-
 grphbuf times 12 db 0
-
 	graphicsadd:
 		mov di, graphicstable
 	shwgrph1:
@@ -761,7 +747,6 @@ grphbuf times 12 db 0
 		cmp di, graphicstableend
 		jae near showgraphicsnew
 		jmp shwgrph1
-
 	showgraphicsreplace2:
 		mov [grphbuf + 2], si
 		mov [grphbuf + 4], dx
@@ -772,203 +757,110 @@ grphbuf times 12 db 0
 		mov ah, 0
 		mov [grphbuf + 8], ax	
 		mov [grphbuf], bx
-
 		mov ax, [grphbuf]
-
 		cmp ax, 1
-
 		je near replaceicon
-
 		cmp ax, 2
-
 		je near replacestring
-
 		cmp ax, 3
-
 		je near replacewindow
-
 		jmp showgraphicsreplace
-
 	replaceicon:
-
 		mov [lastpos], di
-
 		mov [lastpos + 2], si
 		mov si, [di + 2]
 		mov bx, [di + 10]
-
 		mov dx, [di + 4]
-
 		mov cx, [di + 6]
-
 		mov ax, [si]
-
 		mov [colorbuf], ax
-
 		mov ax, [background]
-
 		mov [si], ax
 		mov bx, [di + 10]
 		mov ax, [di + 8]
-
 		and al, 1
-
 		mov [iconselected], al
-
 		mov ax, [di + 8]
 		call showicon2
-
 		mov di, [lastpos]
-
 		mov si, [di + 2]
-
 		mov ax, [colorbuf]
-
 		mov [si], ax
-
 		mov si, [lastpos + 2]
-
 		mov dx, [grphbuf + 4]
-
 		mov cx, [grphbuf + 6]
-
 		mov bx, [grphbuf]
-
 		mov ax, [grphbuf + 8]
-
 		mov ah, bl
-
 		mov bx, [grphbuf + 10]
-
 		jmp showgraphicsreplace
-
 	replacestring:
-
 		mov [lastpos], di
-
 		mov [lastpos + 2], si
 		mov bx, [di + 10]
 		mov si, [di + 2]
-
 		mov dx, [di + 4]
-
 		mov cx, [di + 6]
-
 		mov ax, [colorfont2]
-
 		mov [colorbuf], ax
-
 		mov ax, [background]
-
 		mov [colorfont2], ax		
 		mov bx, [di + 10]
 		mov ax, [di + 8]
-
 		and al, 1
-
 		mov [mouseselecton], al
 		mov ax, [di + 8]
 		call showstring2
-
 		mov ax, [colorbuf]
-
 		mov [colorfont2], ax
-
 		mov di, [lastpos]
-
 		mov si, [di + 2]
-
 		mov dx, [grphbuf + 4]
-
 		mov cx, [grphbuf + 6]
-
 		mov bx, [grphbuf]
-
 		mov ax, [grphbuf + 8]
-
 		mov ah, bl
-
 		mov bx, [grphbuf + 10]
-
 		jmp showgraphicsreplace
-
 	replacewindow:
-
 		mov [lastpos], di
-
 		mov [lastpos + 2], si
 		mov si, [di + 2]
-
 		mov edi, [windowbufloc]
-
 		mov edx, 0
-
 		mov dx, [resolutionx2]
-
 		shl edx, 4
-
 		sub edi, edx
-
 		mov edx, 0
-
 		mov dx, [si]
-
 		add dx, [si]
-
 		mov cx, [si + 2]
-
 		add cx, 16
-
 		mov ax, [background]
-
 	clearwindow:
-
 		mov [edi], ax
-
 		add edi, 2
-
 		sub edx, 2
-
 		cmp edx, 0
-
 		jne clearwindow
-
 		dec cx
-
 		mov dx, [resolutionx2]
-
 		sub dx, [si]
-
 		sub dx, [si]
-
 		add edi, edx
-
 		mov dx, [si]
-
 		add dx, [si]
-
 		cmp cx, 0
-
 		jne clearwindow
-
 		mov byte [termcopyon], 0
-
 		mov di, [lastpos]
-
 		mov si, [grphbuf + 2]
-
 		mov dx, [grphbuf + 4]
-
 		mov cx, [grphbuf + 6]
-
 		mov bx, [grphbuf]
-
 		mov ax, [grphbuf + 8]
-
 		mov ah, bl
-
 		mov bx, [grphbuf + 10]
-
 		jmp showgraphicsreplace
 	showgraphicsreplace:
 		mov [di + 2], si
@@ -978,11 +870,10 @@ grphbuf times 12 db 0
 		mov bh, 0
 		mov bl, ah
 		mov ah, 0
-		mov [di + 8], ax		
+		mov [di + 8], ax
 		mov [di], bx
 		mov bx, [di + 10]
 		mov ax, [di + 8]
-
 		ret
 	showgraphicsnew:
 		mov di, graphicstable
@@ -992,15 +883,12 @@ grphbuf times 12 db 0
 		add di, 12
 		cmp di, graphicstableend
 		jb shwgrph2
-
 	showgraphicsdone:
 		ret
 
 	showstring:
 		mov [mouseselecton], al
-
 		and byte [mouseselecton], 1
-
 		mov ah, 2
 		call graphicsadd
 	showstring2:
@@ -1010,7 +898,6 @@ grphbuf times 12 db 0
 		je doneshowstring
 		inc si
 		mov [showstringsi], si
-
 		mov bx, [colorfont2]
 		call showfontvesa
 		add dx, 8
@@ -1020,250 +907,130 @@ grphbuf times 12 db 0
 		mov byte [mouseselecton], 0
 		ret
 
-
 colorfont2 dw 0xFFFF
-
-
 winvcopystx dw 0
-
 winvcopysty dw 0
-
 winvcopydx dw 0
-
 winvcopycx dw 0
-
 windowcolor dw 0xFFFF,0x0
-
 windowbufloc: dw 0,0
-
 
 	showwindow:	;;windowstuff in si, position in (dx, cx), nothing in ax, code in bx
 		mov byte [termguion], 1
 		add cx, 16
 		mov [winvcopystx], dx
-
 		mov [winvcopysty], cx
-
 		mov dx, [si]
-
 		mov cx, [si + 2]
-
 		add dx, dx
-
 		mov [winvcopydx], dx
-
 		mov [winvcopycx], cx
-
 		mov cx, [winvcopysty]
-
 		sub cx, 16
-
 		mov dx, [winvcopystx]
-
 		mov byte [termcopyon], 0
-
 		mov ah, 3
-
 		call graphicsadd
-
 	showwindow2:
-
 		add cx, 16
-
 		mov [winvcopystx], dx
-
 		mov [winvcopysty], cx
-
 		mov dx, [si]
-
 		mov cx, [si + 2]
-
 		add dx, dx
-
 		mov [winvcopydx], dx
-
 		mov [winvcopycx], cx
-
 		mov edi, [windowbufloc]
-
 		mov edx, 0
-
 		mov dx, [resolutionx2]
-
 		shl edx, 4
-
 		sub edi, edx
-
 		cmp byte [termcopyon], 0
-
 		jne nocleartitlebarpos
-
 		mov edi, [physbaseptr]
-
 		mov edx, 0
-
 		mov dx, [winvcopystx]
-
 		add edi, edx
-
 		mov cx, [winvcopysty]
-
 		sub cx, 16
-
 		cmp cx, 0
-
 		je nocleartitlebarpos
-
 	cleartitlebarpos:
-
 		mov edx, 0
-
 		mov dx, [resolutionx2]
-
 		add edi, edx
-
 		dec cx
-
 		cmp cx, 0
-
 		jne cleartitlebarpos
-
 	nocleartitlebarpos:
-
 		mov cx, 16
-
 		mov dx, [winvcopydx]
-
 		cmp cx, 0
-
 		je near canceltitlebarput
-
 		cmp dx, 0
-
 		je near canceltitlebarput
-
 	titlebarput:
-
 		mov ax, [windowcolor]
-
 		mov [edi], ax
-
 		sub dx, 2
-
 		add edi, 2
-
 		cmp dx, 0
-
 		jne titlebarput
-
 		mov edx, 0
-
 		mov dx, [resolutionx2]
-
 		dec cx
-
 		sub dx, [winvcopydx]
-
 		add edi, edx
-
 		mov dx, [winvcopydx]
-
 		cmp cx, 0
-
 		jne titlebarput
-
 	canceltitlebarput:
-
 		mov [windowbufloc], edi
-
 		cmp byte [termcopyon], 2
-
 		je near winvcpst
-
 		mov ax, 0
-
 		add si, 4
-
 		mov dx, [winvcopystx]
-
 		mov cx, [winvcopysty]
-
 		sub cx, 16
-
 		mov bx, 0
-
 		mov byte [mouseselecton], 1
-
 		call showstring2
-
 		mov al, "X"
-
 		mov ah, 0
-
 		mov bx, [colorfont2]
-
 		mov dx, [winvcopystx]
-
 		mov cx, [winvcopysty]
-
 		sub cx, 16
-
 		sub dx, 20
-
 		add dx, [winvcopydx]
-
 		mov byte [mouseselecton], 1
-
 		call showfontvesa
-
 	winvcpst:
-
 		mov edi, [windowbufloc]
-
 		jmp windowvideocopyset
 
-
 	windowvideocopy:
-
 		mov edi, [windowbufloc]
 		cmp edi, [physbaseptr]
-
 		jae near windowvideocopyset
-
 		mov ecx, 0
-
 		mov edx, 0
-
 		mov dx, [winvcopystx]
-
 		mov cx, [winvcopysty]
-
 		mov edi, [physbaseptr]
-
 		add edi, edx
-
 		cmp ecx, 0
-
 		je windowvideocopyset
-
 	yrescopylp:
-
 		mov edx, 0
-
 		mov dx, [resolutionx2]
-
 		add edi, edx
-
 		dec cx
-
 		cmp cx, 0
-
 		jne yrescopylp
-
 		mov [windowbufloc], edi
-
 	windowvideocopyset:
-
 		mov cx, 0
 		mov [charposline], cx
 		mov si, videobuf2
@@ -1272,58 +1039,34 @@ windowbufloc: dw 0,0
 		mov bh, 0
 		shl bx, 4
 		mov dh, [fonts + bx]
-
 		ror dh, 1
 		mov esi, edi
-
 	copywindow:
-
 		mov dl, 1
 		rol dh, 1
-
 		and dl, dh
-
 		mov ax, [windowcolor + 2]
-
 		mov [edi], ax
-
 		cmp dl, 0
-
 		je nowritewin
-
 		mov ax, [windowcolor]
-
 		mov [edi], ax
-
 	nowritewin:
-
 		add edi, 2
-
 		inc cl
-
 		cmp cl, 8
-
 		jne copywindow
-
 		inc bx
-
 		mov cl, 0
-
 		mov edx, 0
-
 		mov dx, [resolutionx2]
-
 		add esi, edx
-
 		mov edi, esi
-
 		mov dh, [fonts + bx]
-
 		ror dh, 1
 		inc ch
 		cmp ch, 16
 		jne copywindow
-
 		mov cx, 0
 		mov di, [charposvbuf]
 		add di, 2
@@ -1346,10 +1089,8 @@ windowbufloc: dw 0,0
 		mov [charposline], cx
 		mov cx, 0
 		mov dh, [fonts + bx]
-
 		ror dh, 1
 		jmp copywindow
-
 fixwindowcopy:
 		mov cx, 0
 		mov [charposline], cx
@@ -1357,12 +1098,10 @@ fixwindowcopy:
 		add esi, edx
 		mov edi, esi
 		mov dh, [fonts + bx]
-
 		ror dh, 1
 		jmp copywindow
 donewincopynow:
 		cmp byte [termcopyon], 1
-
 		jne forgetresetstuff
 		mov ax, [oldax]
 		mov bx, [oldbx]
@@ -1370,12 +1109,9 @@ donewincopynow:
 		mov dx, [olddx]
 		mov si, [oldsi]
 		mov di, [olddi]
-
 forgetresetstuff:
-
 		mov byte [termcopyon], 0
 		ret
-
 
 charposline dw 0
 charposvbuf dw 0
@@ -1383,282 +1119,156 @@ iconcolor dw 0
 	showicon:	;;icon in si, position in (dx,cx), selected in ax, code in bx
 		mov [iconselected], al
 		and byte [iconselected], 1
-
 		mov ah, 1
 		call graphicsadd
-
 	showicon2:
-
 		mov edi, [physbaseptr]
-
 		add dx, dx
 		cmp dx, [resolutionx2]
 		jb screenxgood
 		mov dx, [resolutionx2]
 		sub dx, 64
 	screenxgood:
-
 		cmp cx, 0
-
 		je noscreenygoodchk
 		cmp cx, [resolutiony]
 		jb screenygood
 		mov cx, [resolutiony]
 		sub cx, 32
 	screenygood:
-
 		mov ebx, 0
-
 		mov bx, [resolutionx2]
 		add edi, ebx
 		loop screenygood
-
 	noscreenygoodchk:
-
 		mov ebx, 0
-
 		mov bx, dx
-
 		add edi, ebx
 		mov cx, 0
-
 		mov ax, [si]
-
 		add si, 2
-
 		mov [iconcolor], ax
 	writeicon:
-
 		mov eax, [si]
-
 		rol eax, 1
-
 		mov cl, 0
-
 	writeiconline:
 		mov dl, 1
-
 		and dl, al
-
 		xor dl, [iconselected]
-
 		mov bx, [background]
-
 		mov [edi], bx
-
 		cmp dl, 0
-
 		je noiconline
-
 		mov dx, [iconcolor]
-
 		mov [edi], dx
-
 	noiconline:
-
 		add edi, 2
-
 		rol eax, 1
-
 		inc cl
-
 		cmp cl, 32
-
 		jb writeiconline
-
 		add si, 4
-
 		inc ch
-
 		mov edx, 0
-
 		mov dx, [resolutionx2]
-
 		add edi, edx
-
 		sub edi, 64
-
 		cmp ch, 32
-
 		jb writeicon
-
 		mov eax, 0
-
 		ret
 
-
 resolutiony dw 0
-
 resolutionx dw 0
-
 resolutionx2 dw 0
-
 resolutionbytes db 2
-
 posxvesa dw 0
-
 posyvesa dw 0
-
 colorfont dw 0xFFFF
-
 savefontvesa:		;;same rules as showfontvesa
-
 	mov byte [savefonton], 1
 showfontvesa:		;;position in (dx,cx), color in bx, char in al
-
 	mov [posyvesa], cx
-
 	mov [posxvesa], dx
-
 	mov edi, [physbaseptr]
-
 	mov [colorfont], bx
-
 	mov ebx, 0
-
 	mov bx, dx
-
 	mov edx, ebx
-
 	mov ebx, 0
-
 	cmp cx, 0
-
 	je vesaposloopdn
-
 	mov bx, [resolutionx2]
-
 vesaposloop:
-
 	add edx, ebx
-
 	sub cx, 1
-
 	cmp cx, 0
-
 	jne vesaposloop
-
 vesaposloopdn:
-
 	add edi, edx
-
 	mov si, fonts
-
 findfontvesa:
-
 	mov ah, 0
 	shl ax, 4
 	add si, ax
 	shr ax, 4
 	cmp si, fontend
-
 	jae near donefontvesa
-
 	dec si
 foundfontvesa:
-
 	inc si
 	cmp byte [savefonton], 1
-
 	je near vesafontsaver
-
 	mov cl, 0
-
 	mov al, [si]
-
 	mov dx, [resolutionx2]
-
 	sub dx, [posxvesa]
-
 	cmp dx, 16
 	ja paintfontvesa
-
 	shr dl, 1
-
 	mov [charwidth], dl
-
 paintfontvesa:
-	
 	mov dl, 1
-
 	and dl, al
-
 	cmp byte [showcursorfonton], 1
-
 	je near nodelpaintedfont
-
 	cmp byte [showcursorfonton], 2
-
 	jne near noswitchcursorfonton
-
 	cmp dl, 0
-
 	je near nopixelset
-
 	mov bx, [colorfont]
-
 	mov [edi], bx
-
 	jmp nopixelset
-
 noswitchcursorfonton:
-
 	xor dl, [mouseselecton]
-
 	mov bx, [background]
-
 	mov [edi], bx
-
 nodelpaintedfont:
-
 	cmp dl, 0
-
 	je nopixelset
-
 	mov dx, [colorfont]
-
 	mov [edi], dx
-
 nopixelset:
-
 	add edi, 2
-
 	rol al, 1
-
 	inc cl
-
 	cmp cl, [charwidth]
-
 	jb paintfontvesa
-
 	inc ch
-
 	mov edx, 0
-
 	mov dx, [resolutionx2]
-
 	add edi, edx
-
 	mov edx, 0
-
 	mov dl, [charwidth]
-
 	add dl, dl
-
 	sub edi, edx
-
 	cmp ch, 16
-
 	jb foundfontvesa
-
 donefontvesa:
-
 	mov dl, 8
-
 	mov [charwidth], dl
-
 	mov dx, [posxvesa]
-
 	mov bl, [charwidth]
 	mov bh, 0
 	add dx, bx
@@ -1666,7 +1276,6 @@ donefontvesa:
 	mov cx, [posyvesa]
 	mov byte [savefonton], 0
 	ret
-
 charwidth db 8
 vesafontsaver:
 	mov al, 0
@@ -1691,7 +1300,6 @@ donecolormatch:
 	cmp ch, 16
 	jb vesafontsaver
 	jmp donefontvesa
-
 colorfontmatch:
 	add al, 1
 	jmp donecolormatch
