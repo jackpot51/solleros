@@ -1,6 +1,0 @@
-Congratulations, you found this file in SollerOS and used the showtxt
-command to view it. The disk command will list the contents of the disk.
-The showbmp and showtxt commands will show you bmp and txt files,
-respectively. Any file that is put into the 'included' folder will
-be included in the image file when SollerOS is built. However, only
-raw text files and 16 bit bmp files can currently be read.
