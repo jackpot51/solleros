@@ -1,0 +1,141 @@
+;;disk.asm - new - using lba
+loadfile:	;;loads a file with the name buffer's location in edi into location in esi
+	mov edx, edi
+	mov ebx, diskfileindex
+nextnamechar:
+	mov al, [edi]
+	mov ah, [ebx]
+	inc edi
+	inc ebx
+	or al, ah
+	cmp al, 0
+	je equalfilenames
+	cmp ah, 0
+	je nextfilename
+	cmp al, ah
+	je nextnamechar
+getebxzero:
+	mov ah, [ebx]
+	inc ebx
+	cmp ah, 0
+	jne getebxzero
+nextfilename:
+	add ebx, 8		;;next descriptor
+	mov edi, edx
+	cmp ebx, enddiskfileindex
+	jb nextnamechar
+	mov edx, 404	;;indicate not found error
+	ret
+equalfilenames:
+	mov eax, [ebx + 4] 	;;put file size in eax
+	mov ebx, [ebx]		;;put file beginning in ebx
+	add ebx, [lbaad]	;;add offset to solleros
+	mov ecx, 0
+	mov cl, al			;;get excess number of sectors
+	shl cl, 1
+	shr cl, 1			;;cut off at 128
+	sub eax, ecx		;;get rid of excess sectors
+	mov ch, 0			;;drive 0
+	shr eax, 7			;;get number of 128 sector tracks
+loaddiskfile:		;;tracks in eax, excess sectors in cl, drive in ch, buffer in esi, address in ebx
+	mov [filetracks], eax
+	mov edi, esi		;;just in case cl is 0
+	mov edx, ebx
+	cmp cl, 0
+	je copytracksforfile
+	call diskr		;;take care of excess sectors
+copytracksforfile:
+	mov eax, [filetracks]
+	cmp eax, 0
+	je donecopyfile
+	dec eax
+	mov [filetracks], eax
+	mov ebx, edx	;;get end lba
+	mov cx, 0x80
+	mov esi, edi	;;reset buffer
+	call diskr
+	jmp copytracksforfile
+donecopyfile:
+	mov edx, 0	;;no error
+	ret
+	
+filetracks dd 0
+	
+	
+loadextrafiles:
+	mov esi, 0x100000	;;skip over vmem
+	mov ebx, [lbaad]
+loadextra2:
+	add ebx, 0x80
+	add esi, 0x10000
+	mov cx, 0x80
+	call diskr
+	mov ax, [segments]
+	dec ax
+	mov [segments], ax
+	cmp ax, 0
+	jne loadextra2
+	ret
+	
+segments dw 100
+
+diskr:		;;sector count in cl, disk number in ch, 28 bit address in first 28 bits of ebx, buffer in esi, puts end buffer in edi and end lba in edx
+	mov [bufferstartesi], esi
+	mov [lbaadstartebx], ebx
+	mov edx, 0
+	mov dl, cl
+	add edx, ebx
+	mov [lbaadend], edx
+	mov ax, 0
+	mov dx, 0x1F1
+	out dx, al	;;send null byte to port
+	inc dx	;;0x1F2
+	mov al, cl	;;get sector count
+	out dx, al	;;send sector count
+	inc dx	;;0x1F3
+	mov al, bl	;;get first 8 bits of address
+	out dx, al	;;send them
+	inc dx	;;0x1F4
+	ror ebx, 8	;;get next 8 bits
+	mov al, bl
+	out dx, al
+	inc dx	;;0x1F5
+	ror ebx, 8	;;again
+	mov al, bl
+	out dx, al
+	inc dx	;;0x1F6
+	ror ebx, 8
+	mov al, bl
+	and al, 00001111b	;;last 4 bits of address
+	or al, 0xE0			;;majic number
+	shl ch, 4
+	or al, ch
+	out dx, al			;;send drive indicator, magic bits, and highest 4 bits of address
+	inc dx	;;0x1F7
+	mov al, 0x20
+	out dx, al			;;execute read command
+diskrwait:
+	mov dx, 0x1F7
+	in al, dx
+	and al, 0x08
+	cmp al, 0x08
+	jne diskrwait
+	mov ch, cl	;;move sector data into ch, multiplying it by 256
+	mov cl, 0
+diskdataread:
+	mov dx, 0x1F0
+	in ax, dx
+	mov [esi], ax
+	add esi, 2
+	dec cx
+	cmp cx, 0
+	jne diskdataread		;;read all sectors
+	mov edi, esi
+	mov edx, [lbaadend]
+	mov esi, [bufferstartesi]
+	mov ebx, [lbaadstartebx]
+	ret
+	
+lbaadend dd 0
+lbaadstartebx dd 0
+bufferstartesi dd 0
