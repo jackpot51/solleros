@@ -36,8 +36,6 @@ int30hah0:	;shutdown application
 int30hah1:	;write string in esi to screen, endchar in al
 		;location on screen in (dl, dh)
 		;modifier in bl
-
-		;if (dl,dh) is unchanged, current position is used
 		shr dl, 1
 
 		shl dl, 1
@@ -445,10 +443,8 @@ int30hah4:	;print string and read input into esi
 	int30hah4lp:	mov esi, [esicache]
 		mov al, 0
 		mov bl, 0
-
 		mov byte [printbackspaces], 1
 		call int30hah2
-
 		mov byte [printbackspaces], 0
 		mov [esicache], esi
 		cmp al, [alcache]

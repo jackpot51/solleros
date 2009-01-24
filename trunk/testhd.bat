@@ -1,4 +1,5 @@
 @echo off
+nasm time.asm -f bin -o included\time
 java -jar "filecopy.jar"
 nasm source\sector.asm -f bin -o sector.bin
 nasm kernel.asm -f bin -o kernel.bin

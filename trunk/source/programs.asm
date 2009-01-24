@@ -63,6 +63,21 @@ datmsg: db "Internet has not been implemented yet.",10,13,0
 		mov al, 0
 		int 30h
 		jmp nwcmd
+		
+db 5,4,"time",0
+timeprog:
+		mov [cxbmpch], cx
+		mov [dxbmpch], dx
+	mov edi, timefile
+	mov esi, 0x100000
+	call loadfile
+		mov cx, [cxbmpch]
+		mov dx, [dxbmpch]
+	mov ebx, 0x100000
+	jmp ebx
+	
+timefile db "time",0
+
 
 db 5,4,"tely",0		
 	tely:
@@ -296,234 +311,185 @@ db 5,4,"echo",0
 		mov esi, line
 		call print
 		jmp nwcmd
-	
 db 5,4,"runbatch",0
 	runbatch2:
-		mov esi, buftxt
-		mov ebx, batch
-		mov edi, commandlst
-	findbatchrunloop:
-		mov cl, 6
-		mov ch, 4
-		cmp [ebx], cx
-		je foundabatchrun
-		inc ebx
-		cmp ebx, edi
-		jae nobatchfoundrun
-		jmp findbatchrunloop
-	foundabatchrun:
-		add ebx, 2
-		mov esi, buftxt
-		add esi, 9
-		call tester
-		cmp al, 1
-		je foundgoodbatchrun
-		jmp findbatchrunloop
-	foundgoodbatchrun:
+		mov esi, line
+		call print
+		mov [cxbmpch], cx
+		mov [dxbmpch], dx
+		mov edi, buftxt
+		add edi, 9
+		mov esi, 0x100000
+		call loadfile
+		mov esi, 0x100000
+		mov cx, [cxbmpch]
+		mov dx, [dxbmpch]
 		mov byte [BATCHISON], 1
-		jmp donebatch
+		mov bl, [IFON]
+		mov edi, esi
+		mov esi, buftxt
+	batchrunloop:
+		mov cl, 13
+		mov ch, 10
+		cmp [edi], cx
+		je nxtbatchrunline
+		rol cx, 8
+		cmp [edi], cx
+		je nxtbatchrunline
+		cmp byte [edi], 0
+		je nxtbatchrunline
+		mov al, [edi]
+		mov [esi], al
+		inc esi
+		inc edi
+		jmp batchrunloop
+	nxtbatchrunline:
+		add edi, 2
+		mov [edibatchcache], edi
+		mov byte [esi], 0
+		mov esi, buftxt
+		cmp byte [esi], 0
+		je near nobatchfoundrun
+		mov ebx, 0
+		mov bl, [IFON]
+		cmp bl, 1
+		jae near iftestbatch
+	doneiftest:
+		cmp byte [runnextline], 0
+		je noruniftest
+		call progtest
+	noruniftest:
+		mov byte [runnextline], 1
+		mov edi, [edibatchcache]
+		mov esi, buftxt
+		cmp byte [edi], 0
+		jne near batchrunloop
 	nobatchfoundrun:
+		mov byte [BATCHISON], 0
 		jmp nwcmd
-	
-db 5,4,"showbatch",0
-	showbatch:
+		
+	iftestbatch:
+		mov esi, IFTRUE
+		add esi, ebx
+		cmp byte [esi], 0
+		jne near doneiftest
+		mov [iffalsebuf], bl
+	fifindbatch:
+		mov cx, "if"
+		mov ax, "fi"
+		cmp [edi], ax
+		je near fifoundbatch
+		cmp [edi], cx
+		je near iffoundbatch
+		cmp byte [edi], 0
+		je near fifoundbatch
+		add edi, 2
+		jmp fifindbatch
+	fifoundbatch:
+		add edi, 2
+		mov al, 13
+		mov ah, 10
+		cmp [edi], ax
+		je goodfibatch
+		rol ax, 8
+		cmp [edi], ax
+		je goodfibatch
+		cmp byte [edi], 0
+		je near nobatchfoundrun
+		jmp fifindbatch
+	goodfibatch:
+		mov al, 1
+		sub [IFON], al
+		mov al, [IFON]
+		mov bl, [iffalsebuf]
+		cmp al, bl
+		ja fifindbatch
 		mov esi, buftxt
-	    testshowbatch:
-		mov al, [esi]
-		cmp al, ' '
-		je batchprogshow
-		cmp al, 0
-		je batchlistshow
-		inc esi
-		jmp testshowbatch
-	   batchlistshow:
-		mov esi, batch
-		mov bx, commandlst
-		mov cl, 6
-		mov ch, 4
-		call array
-		jmp nwcmd
-	   batchprogshow:
-		inc esi
-		mov ebx, batch
-	namefound2: mov al, 0
-		cmp [esi], al
-		je batchlistshow
-		mov cl, 6
-		mov ch, 4
-	findbatchname2:
-		cmp ebx, commandlst
-		je notfoundbatchname2
-		cmp [ebx],cx
-		je checkbatchname2
-		inc ebx
-		jmp findbatchname2
-	checkbatchname2:
-		add ebx, 2
-		mov edi, esi
-		call tester
-		mov esi, edi
-		cmp al, 1
-		je showfoundbatch
-		jmp findbatchname2
-	showfoundbatch:
-		mov esi, ebx
-		inc esi
-		mov bx, commandlst
-		mov cl, 3
-		mov ch, 4
-		call array
-		jmp nwcmd
-	    notfoundbatchnamemsg db "The batch specified was not found.",13,10,0
-	notfoundbatchname2:
-		mov esi, notfoundbatchnamemsg
-		call print
-		jmp nwcmd
-	
-db 5,4,"showword",0
-		mov esi, buftxt
-	    testshowword:
-		mov al, [esi]
-		cmp al, ' '
-		je wordprogshow
-		cmp al, 0
-		je wordlistshow
-		inc esi
-		jmp testshowword
-	   wordlistshow:
-		mov esi, wordst
-		mov bx, commandlst
-		mov cl, 7
-		mov ch, 4
-		call array
-		jmp nwcmd
-	   wordprogshow:
-		inc esi
-		mov ebx, wordst
-	namefound3: mov al, 0
-		cmp [esi], al
-		je wordlistshow
-		mov cl, 7
-		mov ch, 4
-	findwordname:
-		cmp ebx, commandlst
-		je notfoundwordname
-		cmp [ebx],cx
-		je checkwordname
-		inc ebx
-		jmp findwordname
-	checkwordname:
-		add ebx, 2
-		mov edi, esi
-		call tester
-		mov esi, edi
-		cmp al, 1
-		je showfoundword
-		jmp findwordname
-	showfoundword:
-		mov esi, ebx
-		inc esi
-		mov ebx, commandlst
-		mov cl, 3
-		mov ch, 4
-		call array
-		jmp nwcmd
-	    notfoundwordnamemsg db "The document specified was not found.",13,10,0
-	notfoundwordname:
-		mov esi, notfoundwordnamemsg
-		call print
-		jmp nwcmd
-	
-db 5,4,"batch",0
-	batchst: mov esi, buftxt
+		sub edi, 2
+		mov byte [runnextline], 0
+		jmp batchrunloop
+	iffoundbatch:
 		mov al, ' '
-		mov ebx, batch
-	batchname: cmp [esi], al
-		   je namefound
-		   cmp byte [esi], 0
-		   je nonamefound
-		   inc esi
-		   jmp batchname
+		add edi, 2
+		cmp [edi], al
+		jne near fifindbatch
+		mov al, 1
+		add [IFON], al
+		jmp fifindbatch
+		
+		
+runnextline db 1
+iffalsebuf db 0
+edibatchcache dd 0
+
+db 5,4,"batch",0
+	batchst: 
+		mov [cxbmpch], cx
+		mov [dxbmpch], dx
+		mov edi, buftxt
+		add edi, 6
+		cmp byte [edi], 0
+		je near nonamefound
+		mov esi, 0x100000
+		call loadfile
+		mov eax, edx
+		mov cx, [cxbmpch]
+		mov dx, [dxbmpch]
+		cmp eax, 404
+		je goodbatchname
+		mov esi, badbatchmsg
+		call print
+		jmp nwcmd
+		badbatchmsg db "This file already exists!",10,13,0
 		nobatchname db "You have to type a name after the command.",10,13,0
+		esicache3 dd 0
+		esicache2 dd 0
 	nonamefound:
 		mov esi, nobatchname
 		call print
 		jmp nwcmd
-	namefound: mov al, 0
-		inc esi
-		cmp [esi], al
-		je nonamefound
-		mov cl, 6
-		mov ch, 4
-	findbatchname:
-		cmp ebx, commandlst
-		jae goodbatchname
-		cmp [ebx],cx
-		je checkbatchname
-		inc ebx
-		jmp findbatchname
-	checkbatchname:
-		add ebx, 2
-		mov edi, esi
-		call tester
-		mov esi, edi
-		cmp al, 1
-		je badbatchname
-		jmp findbatchname
-		badbatchmsg db "This file already exists!",10,13,0
-	badbatchname:
-		mov esi, badbatchmsg
-		call print
-		jmp nwcmd
 	goodbatchname:
-		mov ebx, commandlst
-		mov al, 0
-	lastbatchfind:
-		dec ebx
-		cmp [ebx], al
-		je lastbatchfind
-		add ebx, 2
-	nameputbatch:
-		mov byte [ebx], 6
-		inc ebx
-		mov byte [ebx], 4
-		inc ebx
-	nameputbatchlp:
-		cmp byte [esi], 0
-		je nameputdone
-		mov al, [esi]
-		mov [ebx], al
-		inc esi
-		inc ebx
-		jmp nameputbatchlp
-	nameputdone:
-		inc ebx
-		mov byte [ebx], 0
-		inc ebx
-	batchfile:
-		push ebx
-		call input
+		mov esi, 0x100000
+	batchcreate:
+		mov [esicache3], esi
+		mov al, 13
+		mov bl, 7
+		call int30hah4
+		mov [esicache2], esi
+		mov cl, [esi]
+		mov esi, [esicache3]
+		mov ebx, exitword
+		call cndtest
+		cmp al, 1
+		je endbatchcreate
+		cmp al, 2
+		je endbatchcreate
 		mov esi, line
 		call print
-		mov esi, buftxt
-		mov ebx, exitmsg
-		call tester
-		cmp al, 1
-		je donebatch2
-		pop ebx
-		mov esi, buftxt
-		mov al, 3
-		mov [ebx], al
-		inc ebx
-		mov al, 4
-		mov [ebx], al
-		inc ebx
+		mov esi, [esicache2]
+		mov al, 13
+		mov ah, 10
+		mov [esi], ax
+		add esi, 2
+		jmp batchcreate
+	endbatchcreate:
+		mov esi, [esicache3]
+		mov eax, 0
+		mov [esi], al
+		mov esi, line
+		call print
+		mov esi, 0x100000
+		call print
+		jmp nwcmd
+	
+		
+	commandlst ;get rid of immediately	
 	startbatch: mov al, [esi]
 		mov [ebx], al
 		inc ebx
 		inc esi
 		cmp al, 0
-		je batchfile
+	;	je batchfile
 		jmp startbatch
 	donebatch2:
 		pop ebx
@@ -644,124 +610,13 @@ db 5,4,"batch",0
 	ifit3:	dec esi
 		jmp brun2
 		
-	batchran: 
-		call buftxtclear
-		mov ebx, [BATCHPOS]
-		jmp batchfind
+;	batchran: 
+;		call buftxtclear
+;		mov ebx, [BATCHPOS]
+;		jmp batchfind
 
 	exitword db "\x",0
 	wordmsg db "Type \x to exit.",10,13,0
-
-db 5,4,"word",0
-		mov esi, wordmsg
-		call print
-	        mov esi, buftxt
-		mov al, ' '
-		mov ebx, wordst
-	wordname: cmp [esi], al
-		   je namefound4
-		   cmp byte [esi], 0
-		   je nonamefound4
-		   inc esi
-		   jmp wordname
-		nowordname db "You have to type a name after the command.",10,13,0
-	nonamefound4:
-		mov esi, nowordname
-		call print
-		jmp nwcmd
-	namefound4: mov al, 0
-		inc esi
-		cmp [esi], al
-		je nonamefound4
-		mov cl, 7
-		mov ch, 4
-	findwordname3:
-		cmp ebx, commandlst
-		jae goodwordname
-		cmp [ebx],cx
-		je checkwordname3
-		inc ebx
-		jmp findwordname3
-	checkwordname3:
-		add ebx, 2
-		mov edi, esi
-		call tester
-		mov esi, edi
-		cmp al, 1
-		je badwordname
-		jmp findwordname3
-		badwordmsg db "This file already exists!",10,13,0
-	badwordname:
-		mov esi, badwordmsg
-		call print
-		jmp nwcmd
-	goodwordname:
-		mov ebx, commandlst
-		mov al, 0
-	lastwordfind:
-		dec ebx
-		cmp [ebx], al
-		je lastwordfind
-		add ebx, 2
-	nameputword:
-		mov byte [ebx], 7
-		inc ebx
-		mov byte [ebx], 4
-		inc ebx
-	nameputwordlp:
-		cmp byte [esi], 0
-		je nameputworddone
-		mov al, [esi]
-		mov [ebx], al
-		inc esi
-		inc ebx
-		jmp nameputwordlp
-	nameputworddone:
-		inc ebx
-		mov byte [ebx], 0
-		inc ebx
-		mov esi, ebx
-	wordlp: mov byte [esi], 3
-		inc esi
-		mov byte [esi], 4
-		inc esi
-		push esi
-		call input
-		mov esi, exitword
-		mov ebx, buftxt
-		call tester
-		cmp al, 1
-		je doneword2
-		mov esi, line
-		call print
-		mov edi, buftxt
-		pop esi
-	wordlp2: cmp esi, commandlst
-		jae doneword 
-		mov al, [edi]
-		mov [esi], al
-		inc esi
-		cmp al, 0
-		je wordlp
-		inc edi
-		jmp wordlp2
-	doneword2: 
-		mov esi, line
-		call print
-		pop esi
-		inc esi
-		mov cl, 4
-		mov ch, 3
-		mov [esi], cx
-		jmp nwcmd 
-		
-	doneword: sub esi, 3
-		mov cl, 4
-		mov ch, 3
-		mov [esi], cx
-		add esi, 2
-		mov byte [esi], 0 
-		jmp nwcmd
 		
 db 5,4,"showbmp",0
 		mov [cxbmpch], cx

@@ -87,6 +87,11 @@ do_pm:
 	mov [utss2_esp],esp
 ; shut off interrupts at the 8259 PIC, except for timer interrupt.
 ; The switch to user task will enable interrupts at the CPU.
+
+;!!!!jASDFJOIASDJIFJSDIFOJSDIF
+jmp gui
+;THIS DISABLES TASK SWITCHING FOR NOW!!!!
+
 	mov al,0xFE
 	out 0x21,al
 	mov al,0x20
@@ -106,8 +111,8 @@ out 0x20,al
 	; clear busy bit of user1 task
 mov [gdt7 + 5],byte 0x89
 
-cmp dword [user2codepoint], 0
-je sched
+;cmp dword [user2codepoint], 0
+;je sched
 jmp USER2_TSS:0
 	; timer interrupt returns us here. Reset 8259 PIC:
 out 0x20,al
@@ -123,10 +128,12 @@ mov [gdt8 + 5],byte 0x89
 user1:	call gui
 	jmp user1		; infinite loop (until timer interrupt)
 
-user2:  mov ebx, [user2codepoint]
-	cmp ebx, 0
-	je user2
-	call ebx
+user2:  
+
+;mov ebx, [user2codepoint]
+;	cmp ebx, 0
+;	je user2
+;	call ebx
 	jmp user2
 	; infinite loop (until timer interrupt)
 
@@ -143,6 +150,9 @@ unhand:	cli
 	mov ax, 1
 	mov bx, 0
 	call showstring
+	ret
+
+timekeeper:
 	ret
 
 hellnonum db "00000000"
@@ -296,6 +306,7 @@ idt:
 ; INT 8 is IRQ0 (timer interrupt). The 8259's can (and should) be
 ; reprogrammed to assign the IRQs to higher INTs, since the first
 ; 32 INTs are Intel-reserved. Didn't IBM or Microsoft RTFM?
+	;dw 0,SYS_TSS,0x8E00,0
 	dw 0
 	dw SYS_TSS
 	db 0
@@ -306,6 +317,10 @@ idt:
 
 ;;INT 30h for os use and 3rd party use:
 	dw int30h,SYS_CODE_SEL,0x8E00,0
+	
+;;	db 0
+;;	db 0x85			; Ring 0 task gate
+;;	dw 0
 
 idt_end:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -5,7 +5,6 @@
     %include 'source\solleros.asm'
     %include 'source\programs.asm'
     %include 'source\batchprogs.asm'
-    %include 'source\userprogs.asm'
     %include 'source\ps2mouse.asm'
     %include 'source\ints.asm'
     %include 'source\gui.asm'

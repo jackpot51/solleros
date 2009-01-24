@@ -17,14 +17,14 @@ pwdrgt:	call clear
 	mov cx, 200h
 	mov esi, buftxt
 	mov al, 0
-bufclr:	mov [si], al
+bufclr:	mov [esi], al
 	inc esi
 	loop bufclr
 	jmp nwcmd
 
 passenter:
 	mov al,0
-	mov [si], al
+	mov [esi], al
 	mov esi, line
 	call print
 	mov esi, buftxt
@@ -40,13 +40,13 @@ buftxtclear:
 	mov esi, buftxt
 clearbuftxt: cmp esi, buf2
 	jae retbufclr
-	mov [si], al
+	mov [esi], al
 	inc esi
 	jmp clearbuftxt
 
 clearitbuf: cmp esi, ebx
 	jae retbufclr
-	mov [si], al
+	mov [esi], al
 	inc esi
 	jmp clearitbuf
 retbufclr: ret
@@ -70,6 +70,9 @@ cancel:	mov al, 0
 gotcmd:	mov bx, buf2
 	mov esi, buftxt
 	jmp run
+	
+batchran:
+	ret
 
 input:	call buftxtclear
 	mov esi, buftxt		;puts input into buftxt AND onto screen
@@ -79,9 +82,7 @@ stdin:	mov al, 13
 	ret
 
 run:	mov esi, line
-	call print
-	jmp progtest
-
+		call print
 progtest:
 	mov esi, buftxt
 	mov ebx, fileindex
