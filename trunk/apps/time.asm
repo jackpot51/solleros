@@ -1,13 +1,3 @@
-[BITS 32]
-[ORG 0x100000]
-	call time
-	mov esi, timeshow
-	mov bx, 7
-	mov ah, 1
-	mov al, 0
-	int 30h
-	mov ah, 0
-	int 30h
 time:
 	call tstackput1
 	mov al,10			;Get RTC register A
@@ -57,7 +47,13 @@ time:
 	mov ch, [RTCtimeYear]
 	call tput1
 	call tstackget1
-	ret
+	mov esi, timeshow
+	mov bx, 7
+	mov ah, 1
+	mov al, 0
+	int 30h
+	mov ax, 0
+	int 30h
 	
 tstackput1:
 	mov [tstack + 20], esi

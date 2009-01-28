@@ -63,144 +63,6 @@ datmsg: db "Internet has not been implemented yet.",10,13,0
 		mov al, 0
 		int 30h
 		jmp nwcmd
-		
-db 5,4,"time",0
-timeprog:
-		mov [cxbmpch], cx
-		mov [dxbmpch], dx
-	mov edi, timefile
-	mov esi, 0x100000
-	call loadfile
-		mov cx, [cxbmpch]
-		mov dx, [dxbmpch]
-	mov ebx, 0x100000
-	jmp ebx
-	
-timefile db "time",0
-
-
-db 5,4,"tely",0		
-	tely:
-		mov esi, line
-		call print
-		mov [olddx], dx
-		mov ecx, 0
-		mov edx, 0
-		mov eax, 0
-	      	mov dx, [BASEADDRSERIAL]		;;initialize serial
-		mov al, 0
-		add dx, 1
-		out dx, al
-	      	mov dx, [BASEADDRSERIAL]
-		mov al, 80h
-		add dx, 3
-		out dx, al
-	      	mov dx, [BASEADDRSERIAL]
-		mov al, 3
-		out dx, al
-		add dx, 1
-		mov al, 0
-		out dx, al
-	      	mov dx, [BASEADDRSERIAL]
-		mov al, 3
-		add dx, 3
-		out dx, al
-	      	mov dx, [BASEADDRSERIAL]
-		mov al, 0c7h
-		add dx, 2
-		out dx, al
-	      	mov dx, [BASEADDRSERIAL]
-		mov al, 0Bh
-		add dx, 4
-		out dx, al
-		mov cx, 1000
-	telyreceive:
-		mov ax, 0
-		mov dx, [BASEADDRSERIAL]		;;wait until char received or keyboard pressed
-		add dx, 5
-		in al, dx
-		cmp al, 1
-		je telyreceive2
-		loop telyreceive
-		mov al, 23
-		call int30hah5
-		mov ah, [charcache]
-		mov al, 0
-		mov cx, 100
-		cmp ah, 13
-		jne telysend
-		mov ah, 10
-		jmp telysend
-	nullchar db 0,0
-
-	telyreceive2:
-		mov dx, [BASEADDRSERIAL]
-		in al, dx
-		mov [chartely], al
-		mov dx, [olddx]
-		mov esi, chartely
-		cmp byte [chartely], 10
-		je telyline
-		cmp byte [chartely], 13
-		je telyline
-		cmp byte [chartely], 0Eh
-		je novalidchartely
-		jmp notelyline
-	telyline:
-		mov esi, line
-	notelyline:
-		mov bx, 7
-		mov ax, 0
-		call int30hah1
-	novalidchartely:
-		mov [olddx], dx
-		mov cx, 1000
-		jmp telyreceive
-		
-		chartely db 0,0,0
-		chartely2 db 0,0,0
-
-	telysend:
-		mov dx, [BASEADDRSERIAL]		;;wait until transmit is empty
-		add dx, 5
-		in al, dx
-		cmp al, 20h
-		jne telysend2
-		loop telysend
-	telysend2:	
-		mov [chartely2], ah				;;send ASCII
-		mov al, ah
-		mov dx, [BASEADDRSERIAL]
-		out dx, al
-		mov cx, 1000
-		cmp al, 0
-		je telyreceive
-		mov dx, [olddx]
-		mov esi, chartely2
-		cmp byte [chartely2], 10
-		je telyline2
-		cmp byte [chartely2], 13
-		je telyline2
-		cmp byte [chartely2], 0Eh
-		je novalidchartely2
-		jmp notelyline2
-	telyline2:
-		mov esi, line
-	notelyline2:
-		mov ax, 0
-		mov bx, 0f8h
-		call int30hah1
-	novalidchartely2:
-		mov [olddx], dx
-		mov cx, 1000
-		jmp telyreceive
-	donetely:
-		mov dx, [olddx]
-		mov esi, line
-		call print
-		jmp nwcmd 
-
-BASEADDRSERIAL dw 03f8h
 
 db 5,4,"showindex",0
 	mov esi, fileindex
@@ -1030,3 +892,16 @@ ansfnd:	inc esi
 svdone:	mov al, 0
 	mov [ebx], al
 	jmp nwcmd
+
+	db 5,4,"./",0
+rundiskprog:
+		mov [cxbmpch], cx
+		mov [dxbmpch], dx
+	mov edi, buftxt
+	add edi, 2
+	mov esi, 0x100000
+	call loadfile
+		mov cx, [cxbmpch]
+		mov dx, [dxbmpch]
+	mov ebx, 0x100000
+	jmp ebx

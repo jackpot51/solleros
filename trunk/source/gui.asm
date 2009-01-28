@@ -95,6 +95,7 @@ guistart:
 	jmp guistart
 	guistartin:
 		mov eax, 0
+		mov [lastkey], ax
 		in al, 64h ; Status
 		test al, 1 ; output buffer full?
 		jz guistartin
@@ -104,6 +105,10 @@ guistart:
 		dec al
 		jz near guistartin
 		inc al
+		mov ah, al
+		mov al, 0
+		mov [lastkey], ax
+		mov al, ah
 		mov edi, scancode
 	guisearchscan: 
 		cmp al, 40h
@@ -118,21 +123,24 @@ guistart:
 		jmp guiscanfound
 guiupper db 0
 guiscanother:
-		cmp al, 4Dh
-		je near nextimage
-		cmp al, 2Ah
+		mov ah, al
+		mov al, 0
+		mov [lastkey], ax
+		;cmp ah, 4Dh
+		;je near nextimage
+		cmp ah, 2Ah
 		je near guishifton
-		cmp al, 36h
+		cmp ah, 36h
 		je near guishifton
-		cmp al, 1Ch
+		cmp ah, 1Ch
 		je near guientdown
-		cmp al, 0AAh
+		cmp ah, 0AAh
 		je near guishiftoff
-		cmp al, 0B6h
+		cmp ah, 0B6h
 		je near guishiftoff
-		cmp al, 3Ah
+		cmp ah, 3Ah
 		je near guishift
-		jmp guistartin
+		ret
 	guishift:
 		mov al, [guiupper]
 		cmp al, 1
@@ -144,7 +152,7 @@ guiscanother:
 		mov byte [guiupper], 0
 		jmp guistartin
 	guientdown:
-		jmp guistartin
+		ret
 	guiscanfound:
 		add edi, 1
 		cmp byte [guiupper], 1
@@ -152,11 +160,12 @@ guiscanother:
 		sub edi, 1
 uppercasegui:
 		mov al,[edi]
-		mov cx, 1
-		mov dx, 1
-		mov bx, 0xFFFF
-		call showfontvesa
-		jmp guistartin
+		mov [lastkey], al
+		;mov cx, 1
+		;mov dx, 1
+		;mov bx, 0xFFFF
+		;call showfontvesa
+		ret
 		
 nextimage:	
 	call guiclear
@@ -168,7 +177,6 @@ nextimage:
 	call showbmp
 	jmp guistartin
 		
-oldbx2 dw 0,0
 olddi dw 0,0
 oldax dw 0,0
 oldbx dw 0,0
@@ -1423,6 +1431,11 @@ endedbmp:
 		mov ax, 0
 		call showwindow
 		jmp internettest
+		
+	namemsg db "What is your name?",13,10,0
+	namebuffer times 50 db 0
+	lineit db 13,10,0
+
 
 	gotomenuboot:
 		mov esi, termwindow
