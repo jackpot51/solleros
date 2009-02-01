@@ -1,20 +1,13 @@
 	exitmsg db	"exit",0
 	notfound1 db "Program ",34,0
 	notfound2 db  34," not found.",13,10,0
-	universe1 db	"Only two things are infinite, the universe and human stupidity,",13,10,"and I'm not sure about the former.",13,10,0
 	pwdask	db	"Enter Password:",0
 	pwd	db	"password",0
 	cmd	db	"[user@SollerOS-v0.9.0$]",0
 	line	db	13,10,0
-	zeromsg db "0"
 	unamemsg db	"SollerOS-v0.9.0 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
 	helpmsg db	"This operating system is way too simple to warrant the creation of a help file.",10,13,0
     msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
-    menumsg:   db 13,10,"What do you want to do?",13,10,"GUI(g)",13,10,"Boot(b)",13,10,"Cold Reboot(c)",13,10,"Warm Reboot(w)",13,10,"Shutdown(s)",13,10,0
-    bootmsg:   db "Booting...",13,10,"If there was something to boot...",0
-    rebootmsg: db "Rebooting...",0
-    shutdownmsg: db "Shuting Down...",0
-    hangmsg:   db "Hanging...",0
     wrongmsg:  db "Please select one of the options above.",13,10,"You selected: ",0
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
 mcursor:
@@ -36,7 +29,7 @@ mcursor:
 	db	00001100b
 
 ;;; ZEROS-THESE DO NOT NEED TO BE COMPILED BUT ADDRESSES SHOULD BE USED
-;;;[section .bss] compile these
+;;[section .bss] compile these
 
 graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
 	times 200h db 0
@@ -54,19 +47,19 @@ fonts:	incbin 'source/precompiled/fonts.pak'
 fontend2:
 		times 16 db 0
 fontend:
-fileindex: times 500h db 0	;index format can be found in SollerOS programming guide
+fileindex: times 200h db 0	;index format can be found in SollerOS programming guide
 customprograms:			;put custom index items here. I promise I won't overwrite them
 				;although they may be written twice if they are in the filesystem
 ;;	db 5,4,"Hello World"
 ;;	dw 0,hello,0		;;example of a custom file descriptor
 	
 fileindexend:
-bufferhelper:	times 2 db 0
+bufferhelper:	db 0
 variables: 	times 500h db 0
 varend:
 buftxt: times 200h db 0
 buf2:	times 20 db 0	;;should be initialized as '0'
-numbuf:	times 2 db 0
+numbuf:  db 0
 videobuf2 	times 0x12C0 db 0
 videobufend:
 	times 200 db 0

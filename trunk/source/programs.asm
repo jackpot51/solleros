@@ -59,7 +59,7 @@ db 5,4,"internet",0
 		mov bx, 7
 		mov al, 0
 		int 30h
-	jmp packettest
+	;jmp packettest
 		jmp nwcmd
 datmsg: db "Internet has not been implemented yet.",10,13,0
 		
@@ -98,6 +98,9 @@ db 5,4,"disk",0
 		mov esi, diskfileindex
 	diskindexdir:
 		call print
+		mov ecx, [esi + 5]
+		mov byte [firsthexshown], 3
+		call showdec
 		push esi
 		mov esi, line
 		call print

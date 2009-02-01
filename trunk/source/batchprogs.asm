@@ -5,16 +5,16 @@ notbatch: jmp nwcmd
 	db 5,4,"while",0
 while:  mov al, 0
 	cmp [BATCHISON], al
-	je notbatch
+	je near notbatch
 	MOV esi, [BATCHPOS]
 whilefnd: dec esi
 	mov al, [esi]
 	cmp al, 5
-	jne whilefnd
+	jne near whilefnd
 	mov [LOOPPOS], esi
 	mov BYTE [LOOPON], 1
 	add [IFON], al
-	 mov esi, buftxt
+	mov esi, buftxt
 	mov ebx, buftxt
 	add ebx, 6
 	jmp chkeqsn
@@ -102,7 +102,7 @@ else2:	mov al, 0
 
 	db 5,4,"loop",0
 	cmp [LOOPON], al
-	je filoop
+	je near filoop
 	jmp nwcmd
 filoop: mov esi, [LOOPPOS]
 	mov [BATCHPOS], esi
