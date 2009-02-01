@@ -48,13 +48,10 @@ indexloop2done:
 		add esi, 1
 		jmp indexloop
 indexloopdone: 	ret
-com dw 0
 
-;db 5,4,"internet",0
-datmsg: db "Internet has not been implemented yet.",10,13,0
+db 5,4,"internet",0
 	internettest: 			;;initialize network card, lets hope this is right
-					;;^^used to^^, now tests int30h functions
-;		jmp packettest
+					;;^^used to^^, now tests int 30h functions		
 		mov ah, 3
 		int 30h
 		mov ah, 1
@@ -62,7 +59,14 @@ datmsg: db "Internet has not been implemented yet.",10,13,0
 		mov bx, 7
 		mov al, 0
 		int 30h
+	jmp packettest
 		jmp nwcmd
+datmsg: db "Internet has not been implemented yet.",10,13,0
+		
+db 5,4,"pci",0
+	pcishow:
+	call pcidump
+	jmp nwcmd
 
 db 5,4,"showindex",0
 	mov esi, fileindex
@@ -94,10 +98,10 @@ db 5,4,"disk",0
 		mov esi, diskfileindex
 	diskindexdir:
 		call print
-		mov edi, esi
+		push esi
 		mov esi, line
 		call print
-		mov esi, edi
+		pop esi
 		add esi, 9
 		cmp esi, enddiskfileindex
 		jb diskindexdir
@@ -112,9 +116,6 @@ db 5,4,"help",0
 	help:	mov esi, helpmsg
 		call print
 		jmp nwcmd
-
-db 5,4,"logout",0
-	logout:	jmp os
 
 db 5,4,"clear",0
 	cls:	call clear
@@ -316,7 +317,8 @@ db 5,4,"batch",0
 		mov [esicache3], esi
 		mov al, 13
 		mov bl, 7
-		call int30hah4
+		mov ah, 4
+		int 30h
 		mov [esicache2], esi
 		mov cl, [esi]
 		mov esi, [esicache3]
@@ -345,7 +347,7 @@ db 5,4,"batch",0
 		jmp nwcmd
 	
 		
-	commandlst ;get rid of immediately	
+	commandlst: ;get rid of immediately	
 	startbatch: mov al, [esi]
 		mov [ebx], al
 		inc ebx
@@ -481,8 +483,6 @@ db 5,4,"batch",0
 	wordmsg db "Type \x to exit.",10,13,0
 		
 db 5,4,"showbmp",0
-		mov [cxbmpch], cx
-		mov [dxbmpch], dx
 		mov edi, buftxt
 		add edi, 8
 		mov esi, 0x100000
@@ -493,10 +493,9 @@ db 5,4,"showbmp",0
 		mov eax, 0
 		mov ebx, 0
 		call showbmp
-		mov cx, [cxbmpch]
-		mov dx, [dxbmpch]
 		mov al, 0
-		call int30hah5
+		mov ah, 5
+		int 30h
 		mov esi, buftxt
 		add esi, 8
 		call print
@@ -895,13 +894,133 @@ svdone:	mov al, 0
 
 	db 5,4,"./",0
 rundiskprog:
-		mov [cxbmpch], cx
-		mov [dxbmpch], dx
 	mov edi, buftxt
 	add edi, 2
 	mov esi, 0x100000
 	call loadfile
-		mov cx, [cxbmpch]
-		mov dx, [dxbmpch]
+	cmp edx, 404
+	je noprogfound
 	mov ebx, 0x100000
+	cmp word [ebx], "EX"
+	jne noprogfound
+	add ebx, 2
 	jmp ebx
+noprogfound:
+	jmp nwcmd
+
+db 5,4,"fps",0
+	mov ecx, 0
+	mov cl, [fps]
+	call showhex
+	jmp nwcmd
+
+db 5,4,"time",0
+	call time
+	jmp nwcmd
+time:
+	call tstackput1
+	mov al,10			;Get RTC register A
+	call tget1
+	test al,0x80			;Is update in progress?
+	jne time				; yes, wait
+
+	mov al,0			;Get seconds (00 to 59)
+	call tget1
+	mov [RTCtimeSecond],al
+
+	mov al,0x02			;Get minutes (00 to 59)
+	call tget1
+	mov [RTCtimeMinute],al
+
+	mov al,0x04			;Get hours (see notes)
+	call tget1
+	mov [RTCtimeHour],al
+
+	mov al,0x07			;Get day of month (01 to 31)
+	call tget1
+	mov [RTCtimeDay],al
+
+	mov al,0x08			;Get month (01 to 12)
+	call tget1
+	mov [RTCtimeMonth],al
+
+	mov al,0x09			;Get year (00 to 99)
+	call tget1
+	mov [RTCtimeYear],al
+	
+	mov esi, timeshow
+	mov ch, [RTCtimeHour]
+	call tput1
+	mov ch, [RTCtimeMinute]
+	call tput1
+	mov ch, [RTCtimeSecond]
+	call tput1
+	mov esi, dateshow
+	mov ch, [RTCtimeMonth]
+	call tput1
+	mov ch, [RTCtimeDay]
+	call tput1
+	mov ch, 0x20
+	call tput1
+	dec esi
+	mov ch, [RTCtimeYear]
+	call tput1
+	call tstackget1
+	mov esi, timeshow
+	mov bx, 7
+	mov ah, 1
+	mov al, 0
+	int 30h
+	mov ax, 0
+	int 30h
+	
+tstackput1:
+	mov [tstack + 20], esi
+	mov esi, tstack
+	mov [esi], eax
+	mov [esi + 4], ebx
+	mov [esi + 8], ecx
+	mov [esi + 12], edx
+	mov [esi + 16], edi
+	ret
+	
+tstackget1:
+	mov esi, tstack
+	mov eax, [esi]
+	mov ebx, [esi + 4]
+	mov ecx, [esi + 8]
+	mov edx, [esi + 12]
+	mov edi, [esi + 16]
+	mov esi, [esi + 20]
+	ret
+	
+tget1:
+	mov dx, 0x70
+	out dx, al
+	inc dx
+	in al, dx
+	dec dx
+	ret
+	
+tput1:
+	shr cx, 4
+	mov al, 48
+	add al, ch
+	mov [esi], al
+	inc esi
+	mov al, 48
+	shr cl, 4
+	add al, cl
+	mov [esi], al
+	add esi, 2
+	ret
+		
+	tstack dd 0,0,0,0,0,0
+	RTCtimeSecond db 0
+	RTCtimeMinute db 0
+	RTCtimeHour db 0
+	RTCtimeDay db 0
+	RTCtimeMonth db 0
+	RTCtimeYear db 0
+	timeshow db "00:00:00",13,10
+	dateshow db "00-00-0000",13,10,0

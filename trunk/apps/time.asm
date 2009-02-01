@@ -1,3 +1,6 @@
+	[BITS 32]
+	[ORG 0x100000]
+	db "EX"
 time:
 	call tstackput1
 	mov al,10			;Get RTC register A

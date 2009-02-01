@@ -1,6 +1,7 @@
 #!/bin/bash
-java -jar "filecopy.jar"
-nasm 'source/sector.asm' -f bin -o sector.bin
+javac filecopy.java
+java filecopy
+nasm source/sector.asm -f bin -o sector.bin
 nasm kernel.asm -f bin -o kernel.bin
 rm SollerOS.bin
 dd if=sector.bin of=SollerOS.bin bs=512
@@ -11,3 +12,4 @@ cd qemu
 qemu -L . -boot c -std-vga -soundhw sb16 -usb -net nic,model=rtl8139,vlan=1,macaddr=52:54:00:12:34:56 -net user,vlan=1 -hda '../SollerOS.bin'
 echo "Press Enter."
 read doneit
+

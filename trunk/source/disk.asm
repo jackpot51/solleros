@@ -61,22 +61,6 @@ donecopyfile:
 	
 filetracks dd 0
 	
-	
-loadextrafiles:
-	mov esi, 0x100000	;;skip over vmem
-	mov ebx, [lbaad]
-loadextra2:
-	add ebx, 0x80
-	add esi, 0x10000
-	mov cx, 0x80
-	call diskr
-	mov ax, [segments]
-	dec ax
-	mov [segments], ax
-	cmp ax, 0
-	jne loadextra2
-	ret
-	
 segments dw 100
 
 diskr:		;;sector count in cl, disk number in ch, 28 bit address in first 28 bits of ebx, buffer in esi, puts end buffer in edi and end lba in edx

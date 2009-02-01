@@ -5,7 +5,7 @@ prog:
 	    db "JRS",0	;;this gives the bootloader a key to look for
 mainindex:
 	    jmp mainindexdn	;;this gives the size of the index
-	    dw 0405h,progstart,batchprogend,fileindex,fileindexend,variables,varend,nwcmd,int30h,physbaseptr,0
+	    ;not needed;dw 0405h,progstart,batchprogend,fileindex,fileindexend,variables,varend,nwcmd,int30h,physbaseptr,0
 mainindexdn:
 	mov ds, ax
 	mov es, ax
@@ -34,75 +34,11 @@ cursorcopyinit:
 	add si, 2
 	cmp di, fontend
 	jb cursorcopyinit
-	call fontload
-	jmp guiload ;;strait to gui
-
+	jmp guiload
 
 DriveNumber db 0
 lbaad dd 0
-currentfont db 0
-
-fontload:
-	mov ah, 09h
-	mov bx, 7
-	mov cx, 1
-	mov al, [currentfont] 
-	int 10h
-	mov al, [currentfont]
-	inc al
-	mov [currentfont], al
-	mov ah, 0
-	dec al
-	mov si, fonts
-	shl ax, 4
-	add si, ax
-	shr ax, 4
-	mov bx, 0
-	mov cx, 0
-	mov dx, 0
-pixelload:
-	cmp cx, 7
-	ja nextrow
-	cmp dx, 14
-	ja doneloadpixels
-	mov ah, 0dh
-	mov bh, 0
-	int 10h
-	cmp al, 0
-	je pixeloff
-	cmp al, 1
-	jae pixelon
-	jmp pixelload
-doneloadpixels:
-	inc si
-	cmp si, fontend2
-	jae donefontload
-	jmp fontload
-donefontload:
-	ret
 	
-nextrow: mov cx, 0
-	add dx, 1
-	inc si
-	jmp pixelload
-pixeloff:
-	inc cx
-	jmp pixelload
-cxcache2 db 0,0
-pixelon:
-	mov al, 1
-	mov [cxcache2], cx
-pixelloop:
-	cmp cx, 0
-	je nopixelloop
-	ror al, 1
-	loop pixelloop
-nopixelloop:
-	add [si], al
-	mov cx, [cxcache2]
-	inc cx
-	jmp pixelload
-
 vesamode dw 0
 videomodecache dw 0
 

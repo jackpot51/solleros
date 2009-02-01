@@ -1,98 +1,69 @@
-sysmac	db 0x11,0x22,0x33,0x44,0x55,0x66		;;my mac address
-sysip	db 192,168,0,5
-data	db "Hello",0
-data2	db "hELLO",0
-data3:
-
-ethernetoutputcache:	times 1500 db 0
-ethernetinputcache:	db 0x11,0x22,0x33,0x44,0x55,0x66
-			db 0x00,0x11,0x22,0x33,0x44,0x55
-			db 0x08,0x06
-
-			db 0x00,0x01
-			db 0x08,0x00
-			db 0x06,0x04
-			db 0x00,0x02
-			db 0x00,0x11,0x22,0x33,0x44,0x55
-			db 192,168,0,8
-			db 0x11,0x22,0x33,0x44,0x55,0x66
-			db 192,168,0,5
-ethernetcacheend:
-
-arptablegateway db 192,168,0,1,0x12,0x34,0x56,0x78,0x90,0xAB	;;gateway address
-		db 192,168,0,5,0x11,0x22,0x33,0x44,0x55,0x66	;;my address
-		db 192,168,0,8,0x00,0x11,0x22,0x33,0x44,0x55	;;server address
-
-arptable	db 192,168,0,5,0x11,0x22,0x33,0x44,0x55,0x66	;;my address
-		db 192,168,0,1,0x12,0x34,0x56,0x78,0x90,0xAB	;;gateway address
-		db 0,0,0,0,0x00,0x00,0x00,0x00,0x00,0x00	;;server mac and ip?
-arptableend	db 0
-	
 packettest: 		;;test the ARP protocol and TCP/IP protocol
 			;;http wants to send "Hello" to "http://www.webserver.com", DNS changes this to 192.168.0.8:80
-getmac:	call clear
-	popa
-	mov ecx, 0
+getmac:	mov ecx, 0
 	mov edx, 0
 	mov esi, 0
 	mov edi, 0
 	mov eax, 0
 	mov ebx, 0
-	pusha
 	mov al, 0
 	mov ah, 8
 	shl eax, 16
-	mov al, 192	;;IP is 192.168.0.8
+	mov al, 192		;;IP is 192.168.0.8
 	mov ah, 168
-
 	mov bh, 0x00 	;;port is 80
 	mov bl, 0x50
-
-	mov si, data
-	mov di, data2
-	call senddata	;;returns with response in memory at bx with length in cx
-	cmp bx, data2
+	mov esi, data
+	mov edi, data2
+	call senddata	;;returns with response in memory at ebx with length in cx
+	cmp ebx, data2
 	jne near packettestfail
-	add bx, cx
-	cmp bx, data3
+	add ebx, ecx
+	cmp ebx, data3
 	jne near packettestfail
-	popa
-	mov si, data2
+	mov esi, data2
 	call print
-		jmp nwcmd
+	jmp nwcmd
 
 failpackettest db "FAIL",0
 
 packettestfail:
-	popa
-	mov si, failpackettest
+	mov esi, failpackettest
 	call print
-	jmp $
+	jmp nwcmd
 
-dataoffseti db 0,0
-dataoffsetf db 0,0
+dataoffseti dw 0,0
+dataoffsetf dw 0,0
 targetip db 0,0,0,0
 targetport db 0,0
 
 senddata:
 		mov [targetip], eax
 		mov [targetport], bx
-		mov [dataoffseti], si
-		mov [dataoffsetf], di
-		mov di, arptable
+		mov [dataoffseti], esi
+		mov [dataoffsetf], edi
+		mov edi, arptable
 	checkarp:
-		cmp [di], eax
+		cmp [edi], eax
 		je near foundmac
-		add di, 10
-		cmp di, arptableend
-		jae sendarprequest
+		add edi, 10
+		cmp edi, arptableend
+		jae near sendarprequest
 		jmp checkarp
 	foundmac:
-		add di, 4
-		mov si, sysmac
+		add edi, 4
+		mov ecx, [edi]
+		call showhex
+		add edi, 4
+		mov ecx, [edi]
+		call showhex
+		add edi, 4
+		mov ecx, [edi]
+		call showhex
+		mov esi, sysmac
 		mov bx, [targetport]
-		mov si, [dataoffseti]
-		mov di, [dataoffsetf]
+		mov esi, [dataoffseti]
+		mov edi, [dataoffsetf]
 		mov eax, [targetip]
 		call sendpacket
 		call receivepacket
@@ -103,149 +74,146 @@ receivepacket:
 		ret
 
 sendarprequest:
-	mov byte [arpoperation + 1], 1
-	mov di, arpsenderinfo
-	mov si, sysmac
+	mov dl, 1
+	mov [arpoperation + 1], dl
+	mov edi, arpsenderinfo
+	mov esi, sysmac
 copyarpsenderinfo:
-	mov edx, [si]
-	mov [di], edx
-	add si, 4
-	add di, 4
-	mov edx, [si]
-	mov [di], edx
-	add si, 4
-	add di, 4
-	mov dx, [si]
-	mov [di], dx
+	mov edx, [esi]
+	mov [edi], edx
+	add esi, 4
+	add edi, 4
+	mov edx, [esi]
+	mov [edi], edx
+	add esi, 4
+	add edi, 4
+	mov dx, [esi]
+	mov [edi], dx
 copytargetipinfo:
-	add di, 8
-	mov si, targetip
-	mov eax, [si]
-	mov [di], eax
-	add di, 4
-
-	mov bx, arppacket
-	sub di, bx
-	mov cx, di
-	mov di, broadcastmac
+	add edi, 8
+	mov esi, targetip
+	mov eax, [esi]
+	mov [edi], eax
+	add edi, 4
+	mov ecx, edi
+	sub ecx, arppacket
+	mov edi, broadcastmac
+	mov ebx, arppacket
 	mov ah, 0x06
 	mov al, 0x08
-	mov si, retarpsend
-	mov [retpack], si
-	mov si, sysmac
-	jmp sendframe
+	mov esi, sysmac
+	call sendframe
 retarpsend:
-
-	mov si, 0
-	mov di, sysmac
-	mov bx, arppacket
+	mov edi, sysmac
+	mov ebx, arppacket
 	mov cx, 40
 	mov ah, 0x06
 	mov al, 0x08
+	mov esi, 0
 	call receiveframe
-
-	mov si, arpsenderinfo
-	mov di, arptable
-findemptyarpspot:		;;duh
-	mov edx, [di]
-        mov eax, [di + 4]
+retarprec:
+	mov esi, arpsenderinfo
+	mov edi, arptable
 	mov ebx, 0
-	mov bx, [di + 8]
+findemptyarpspot:		;;duh
+	mov edx, [edi]
+    mov eax, [edi + 4]
+	mov bx, [edi + 8]
 	or edx, eax
 	or edx, ebx
 	cmp edx, 0
 	je near emptyarpspot
-	add di, 10
-	cmp di, arptableend
+	add edi, 10
+	cmp edi, arptableend
 	jae noemptyarpspots
 	jmp findemptyarpspot
 noarps db "AHHHH!!! NO MORE ARP SPACE!!!!",0
 noemptyarpspots:
-	popa
-	mov si, noarps
+	mov esi, noarps
 	call print
 	jmp $
 emptyarpspot:
 	mov eax, [targetip]
 	mov bx, [targetport]
-	mov [di], eax
-	add di, 4
-	mov edx, [si]
-	mov [di], edx
-	add di, 4
-	add si, 4
-	mov dx, [si]
-	mov [di], dx
-	mov di, [dataoffsetf]
-	mov si, [dataoffseti]
-	jmp senddata
+	mov [edi], eax
+	add edi, 4
+	mov edx, [esi]
+	mov [edi], edx
+	add edi, 4
+	add esi, 4
+	mov dx, [esi]
+	mov [edi], dx
+	sub edi, 8
+	jmp foundmac
 
-dstmac db 0,0
-srcmac db 0,0
+dstmac dw 0,0
+srcmac dw 0,0
 
-receiveframe:	;;ETHERTYPE IN AX, DATACACHE IN BX WITH MAXLENGTH IN CX, DESTINATION MAC IN DI, EXPECTED SOURCE IN SI, DX  			;;IS EMPTY
-		;;IF SI IS 0, SOURCE MAC DOES NOT MATTER
+receiveframe:	;;ETHERTYPE IN AX, DATACACHE IN EBX WITH MAXLENGTH IN CX, DESTINATION MAC IN EDI, EXPECTED SOURCE IN ESI, DX  			;;IS EMPTY
+		;;IF ESI IS 0, SOURCE MAC DOES NOT MATTER
 		;;RETURNS DATA IN DATACACHE
-	mov edx, [di]
+	mov edx, [edi]
 	cmp edx, [ethernetinputcache]
 	jne near notexpecteddstmac
-	add di, 4
-	mov dx, [di]
+	add edi, 4
+	mov dx, [edi]
 	cmp dx, [ethernetinputcache + 4]
 	jne near notexpecteddstmac
-	mov [dstmac], di
-	mov di, ethernetinputcache
-	add di, 10
-	cmp si, 0
+	sub edi, 4
+	mov [dstmac], edi
+	mov edi, ethernetinputcache
+	add edi, 10
+	cmp esi, 0
 	je near noneedtochecksource
-	sub di, 4
-	mov edx, [si]
-	cmp edx, [di]
+	sub edi, 4
+	mov edx, [esi]
+	cmp edx, [edi]
 	jne near notexpectedsrcmac
-	add si, 4
-	add di, 4
-	mov dx, [si]
-	cmp dx, [di]
+	add esi, 4
+	add edi, 4
+	mov dx, [esi]
+	cmp dx, [edi]
 	jne near notexpectedsrcmac
 noneedtochecksource:
-	add di, 2
-	cmp ax, [di]
+	add edi, 2
+	cmp ax, [edi]
 	jne near notexpectedethertype
-	mov [srcmac], si
-	add di, 2
-	mov si, ethernetcacheend
+	mov [srcmac], esi
+	add edi, 2
+	mov esi, ethernetcacheend
+	cmp cx, 0
+	je donecopyreceivedpacket
 copyreceivedpacket:
-	mov dl, [di]
-	mov [bx], dl
-	inc bx
-	inc di
-	cmp di, si
+	mov dl, [edi]
+	mov [ebx], dl
+	inc ebx
+	inc edi
+	cmp edi, esi
 	jae donecopyreceivedpacket
-	loop copyreceivedpacket
+	dec cx
+	cmp cx, 0
+	jne copyreceivedpacket
 donecopyreceivedpacket:
-	mov si, [srcmac]
-	mov di, [dstmac]
-	ret	
+	mov esi, [srcmac]
+	mov edi, [dstmac]
+	ret
 
 notexpectedsrcmac:
-	popa
-	mov si, nexpsrcmac
+	mov esi, nexpsrcmac
 	call print
-	mov si, line
+	mov esi, line
 	call print
 	jmp $
 notexpecteddstmac:
-	popa
-	mov si, nexpdstmac
+	mov esi, nexpdstmac
 	call print
-	mov si, line
+	mov esi, line
 	call print
 	jmp $
 notexpectedethertype:
-	popa
-	mov si, nexpethtyp
+	mov esi, nexpethtyp
 	call print
-	mov si, line
+	mov esi, line
 	call print
 	jmp $
 
@@ -253,73 +221,79 @@ nexpsrcmac db "Not expected source MAC address.",0
 nexpdstmac db "Not expected destination MAC address.",0
 nexpethtyp db "Not expected EtherType.",0
 
-sendframe:	;;ETHERTYPE IN AX, DATA IN BX WITH LENGTH IN CX, SOURCE MAC IN SI, DESTINATION MAC IN DI, DX IS EMPTY
-	mov edx, [di]
+sendframe:	;;ETHERTYPE IN AX, DATA IN EBX WITH LENGTH IN CX, SOURCE MAC IN ESI, DESTINATION MAC IN EDI, DX IS EMPTY
+	mov edx, [edi]
 	mov [ethernetoutputcache], edx
-	mov dx, [di + 4]
+	mov dx, [edi + 4]
 	mov [ethernetoutputcache + 4], dx
-	mov [dstmac], di
-	mov di, ethernetoutputcache
-	add di, 6
-	mov edx, [si]
-	mov [di], edx
-	add di, 4
-	mov dx, [si + 4]
-	mov [di], dx
-	add di, 2
-	mov [di], ax
-	add di, 2
-	mov [srcmac], si
-	mov si, ethernetinputcache
-	mov dx, 0
+	mov [dstmac], edi
+	mov edi, ethernetoutputcache
+	add edi, 6
+	mov edx, [esi]
+	mov [edi], edx
+	add edi, 4
+	mov dx, [esi + 4]
+	mov [edi], dx
+	add edi, 2
+	mov [edi], ax
+	add edi, 2
+	mov [srcmac], esi
+	mov ax, 0
 ethernetdatacacheloop:
-	mov dl, [bx]
-	mov [di], dl
-	cmp di, si
-	jae doneethernetcacheloop
-	add di, 1
-	add bx, 1
-	add dx, 1
-	loop ethernetdatacacheloop
+	mov dl, [ebx]
+	mov [edi], dl
+	cmp edi, ethernetinputcache
+	jae near doneethernetcacheloop
+	inc edi
+	inc ebx
+	inc ax
+	dec cx
+	cmp cx, 0
+	ja near ethernetdatacacheloop
 doneethernetcacheloop:
-	cmp dx, 64
-	jae nopadframe
+	cmp ax, 64
+	jae near nopadframe
 padframe:
 	mov dl, 0
-	mov [di], dl
-	add di, 1
-	add dx, 1
-	cmp dx, 64
-	jb padframe
+	mov [edi], dl
+	inc edi
+	inc ax
+	cmp ax, 64
+	jb near padframe
 nopadframe:
-	jmp addfcs
 
-addfcs:			;;return arp packet is already in buffer for now, tehehe
-			;;simply appends FCS and sends frame, or at least tries to
-	mov si, ethernetoutputcache
-	mov cx, di
-	sub cx, si
-	call crcget
-	mov [di], eax
-	add di, 4
-	mov si, ethernetoutputcache
-	mov [ethernetend], di
-	jmp nic2
-
-ethernetend db 0,0
-nonicfoundmsg db "NO NIC",0
-basenicaddr	db 0,0,0,0
-pcibus		db 0
-pcidevice	db 0
-pcifunction	db 0
-pciregister	db 0
-initnicmsg	db "Initiating NIC",0
+addfcs:			;;return arp packet is already in buffer for now, tehehe	
+				;;simply appends FCS and sends frame, or at least tries to
+	mov esi, ethernetoutputcache
+crcget:			;;beginning of block in esi, end in edi, puts result in eax
+			;;uses x32 + x26 + x23 + x22 + x16 + x12 + x11 + x10 + x8 + x7 + x5 + x4 + x2 + x + 1 algorithm
+			;;length in cx, base in esi, puts CRC in eax
+	mov ebx, 0	; CRC-table
+	mov eax, 0xFFFFFFFF	; initialize
+	mov edx, 0
+calcbyte:		; process a single byte:		; crc = table[(unsigned char)crc ^ byte] ^ (crc >> 8)
+	mov dl, al
+	xor dl, [esi]
+	shr eax, 8
+	add bx, dx
+	add bx, dx
+	add bx, dx
+	add bx, dx
+	xor eax, [crctable + bx]
+	mov bx, 0
+	mov dx, 0
+	inc esi
+	cmp esi, edi
+	jb near calcbyte
+	mov [edi], eax
+	add edi, 4
+	mov esi, ethernetoutputcache
+	mov [ethernetend], edi
+	
 nic2:		;;here come the low level drivers :(
-			;;frame begins at si, ends at di 			;;0x0200 is the class code for ethernet cards
+			;;frame begins at esi, ends at edi 			;;0x0200 is the class code for ethernet cards
 	cmp byte [nicconfig], 1
 	je near sendcachedata
-	mov ebx, nicdump
-	jmp pcidump
 nicdump:
 	mov eax, 0
 	mov [pcifunction], al
@@ -327,22 +301,21 @@ nicdump:
 	mov [pcidevice], al
 	mov al, 0x02 ;;type code
 	mov [pcitype], al
-	mov ebx, initnic
-	jmp getpciport
-
+	call getpciport
 initnic:		;;;;Here i tried the rtl8139 interface, fuck it
 	mov [basenicaddr], edx
 	mov ecx, edx
 	mov byte [firsthexshown], 3
 	call showhex
-	mov si, rbuffstart
-	mov ecx, 0
-	mov cx, 8212
+	mov esi, rbuffstart
+	mov ecx, 8000
 	mov eax, 0
 clearrbuff:		;;clear receive buffer which starts at rbuffstart
-	mov [si], al
-	inc si
-	loop clearrbuff
+	mov [esi], al
+	inc esi
+	dec cx
+	cmp cx, 0
+	jne clearrbuff
 	mov edx, [basenicaddr]
 	add edx, 0x52
 	mov al, 0
@@ -368,8 +341,8 @@ resetnicwait:
 	out dx, ax	;;set TOK and ROK
 	mov edx, [basenicaddr]
 	add edx, 0x44
-	mov al, 0xf
-	out dx, al	;;recieve packets from all matches
+	mov eax, 0xf
+	out dx, eax	;;recieve packets from all matches
 	mov edx, [basenicaddr]
 	add edx, 0x37
 	mov al, 0x0C
@@ -380,65 +353,47 @@ sendcachedata:
 	add edx, 0x23
 	mov eax, ethernetoutputcache
 	out dx, eax	;;here's Johnny!
-	mov si, ethernetoutputcache
-	mov di, [ethernetend]
-	mov cx, di
-	sub cx, si
+	mov esi, ethernetoutputcache
+	mov edi, [ethernetend]
+	sub edi, esi
 	mov eax, 0
-	mov ax, cx
+	mov eax, edi
 	mov edx, [basenicaddr]
 	add edx, 0x13
-	out dx, ax
-
-	mov al, 0
-	mov si, buftxt
-	call int30hah2
-	jmp os
-
+	out dx, eax
+checknicstatus1:
+	mov edx, [basenicaddr]
+	add edx, 0x13
+	in eax, dx
+	and eax, 0x2000
+	cmp eax, 0x2000
+	jne checknicstatus1
 checknicstatus:
 	mov edx, [basenicaddr]
 	add edx, 0x13
 	in eax, dx
 	and eax, 0x8000
 	cmp eax, 0x8000
-	jne near checknicstatus
-	mov di, [dstmac]
-	mov si, [srcmac]
-	mov bx, [retpack]
-	jmp bx
-
-nicconfig db 0
-retpack db 0,0
-
-crcget:			;;beginning of block in si, end in di, puts result in eax
-			;;uses x32 + x26 + x23 + x22 + x16 + x12 + x11 + x10 + x8 + x7 + x5 + x4 + x2 + x + 1 algorithm
-			;;length in cx, base in si, puts CRC in eax
-	mov ebx, 0
-	mov bx, crctable	; CRC-table
-	mov eax, 0xFFFFFFFF	; initialize
-	xor edx, edx
-calcbyte:
-	; process a single byte:
-	; crc = table[(unsigned char)crc ^ byte] ^ (crc >> 8)
-	mov dl, al
-	xor dl, [si]
-	shr eax, 8
-	add bx, dx
-	add bx, dx
-	add bx, dx
-	add bx, dx
-	xor eax, [bx]
-	mov bx, crctable
-	inc si
-	loop calcbyte
+	jne checknicstatus
+	mov edi, [dstmac]
+	mov esi, [srcmac]
 	ret
 
+	
+ethernetend dw 0,0
+nicconfig db 0
+nonicfoundmsg db "NO NIC",0
+initnicmsg	db "Initiating NIC",0
+basenicaddr	db 0,0,0,0
+pcibus		db 0
+pcidevice	db 0
+pcifunction	db 0
+pciregister	db 0
 pcireqtype db 0
-pcireturn db 0,0,0,0
+
 getpciport:
 	mov al, 1
 	mov [pcireqtype], al
-	mov [pcireturn], ebx
 	jmp searchpci
 pcidump:
 	mov eax, 0
@@ -446,7 +401,6 @@ pcidump:
 	mov [pcibus], al
 	mov [pcidevice], al
 	mov [pcireqtype], al
-	mov [pcireturn], ebx
 	jmp searchpci
 searchpci:		;;return in ebx, start X in pciX
 	mov al, 0
@@ -517,25 +471,6 @@ dumppcidn:
 	mov byte [firsthexshown],2
 	call showhex
 	jmp searchpciret
-getpciaddr:		;;puts it in eax and ebx
-	mov eax, 0
-	mov ebx, 0x80000000
-	mov al, [pcibus]
-	shl eax, 16
-	add ebx, eax
-	mov eax, 0
-	mov al, [pcidevice]
-	shl eax, 11
-	add ebx, eax
-	mov eax, 0
-	mov al, [pcifunction]
-	shl eax, 8
-	add ebx, eax
-	mov eax, 0
-	mov al, [pciregister]
-	add ebx, eax
-	mov eax, ebx
-	ret
 nextpcibus:
 	mov al, 0
 	mov [pcidevice], al
@@ -547,8 +482,7 @@ nextpcibus:
 	jmp searchpci
 donesearchpci:
 	mov edx, 0
-	mov ebx, [pcireturn]
-	jmp ebx
+	ret
 foundpciaddr:
 	mov al, 0x10
 	mov [pciregister], al
@@ -564,8 +498,7 @@ findpciioaddr:
 	je near notpciioaddr
 	sub eax, 1
 	mov edx, eax
-	mov ebx, [pcireturn]
-	jmp ebx
+	ret
 notpciioaddr:
 	mov al, [pciregister]
 	add al, 4
@@ -573,8 +506,26 @@ notpciioaddr:
 	ja near searchpciret
 	mov [pciregister], al
 	jmp findpciioaddr
-	
-
+getpciaddr:		;;puts it in eax and ebx
+			mov eax, 0
+			mov ebx, 0x80000000
+			mov al, [pcibus]
+			shl eax, 16
+			add ebx, eax
+			mov eax, 0
+			mov al, [pcidevice]
+			shl eax, 11
+			add ebx, eax
+			mov eax, 0
+			mov al, [pcifunction]
+			shl eax, 8
+			add ebx, eax
+			mov eax, 0
+			mov al, [pciregister]
+			add ebx, eax
+			mov eax, ebx
+			ret
+			
 broadcastmac db 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
 
 arppacket: 	db 0x00,0x01
@@ -585,6 +536,38 @@ arpsenderinfo:	db 0x00,0x00,0x00,0x00,0x00,0x00
 		db 0,0,0,0
 arptargetinfo:	db 0x00,0x00,0x00,0x00,0x00,0x00
 		db 0,0,0,0
+		
+sysmac	db 0x11,0x22,0x33,0x44,0x55,0x66		;;my mac address
+sysip	db 192,168,0,5
+data	db "Hello",0
+data2	db "hELLO",0
+data3:
+
+ethernetoutputcache:	times 1500 db 0
+ethernetinputcache:	db 0x11,0x22,0x33,0x44,0x55,0x66
+			db 0x00,0x11,0x22,0x33,0x44,0x55
+			db 0x08,0x06
+
+			db 0x00,0x01
+			db 0x08,0x00
+			db 0x06,0x04
+			db 0x00,0x02
+			db 0x00,0x11,0x22,0x33,0x44,0x55
+			db 192,168,0,8
+			db 0x11,0x22,0x33,0x44,0x55,0x66
+			db 192,168,0,5
+ethernetcacheend:
+
+arptablegateway db 192,168,0,1,0x12,0x34,0x56,0x78,0x90,0xAB	;;gateway address
+		db 192,168,0,5,0x11,0x22,0x33,0x44,0x55,0x66	;;my address
+		db 192,168,0,8,0x00,0x11,0x22,0x33,0x44,0x55	;;server address
+		db 0,0,0,0,0x00,0x00,0x00,0x00,0x00,0x00
+
+arptable	db 192,168,0,5,0x11,0x22,0x33,0x44,0x55,0x66	;;my address
+		db 192,168,0,1,0x12,0x34,0x56,0x78,0x90,0xAB	;;gateway address
+		db 0,0,0,0,0x00,0x00,0x00,0x00,0x00,0x00	;;server mac and ip?
+		db 0,0,0,0,0x00,0x00,0x00,0x00,0x00,0x00
+arptableend	db 0
 
 
 crctable:
@@ -652,3 +635,6 @@ dd 0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6
 dd 0xBAD03605, 0xCDD70693, 0x54DE5729, 0x23D967BF
 dd 0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94 
 dd 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
+
+rbuffstart: ;for use with networking
+times 8212 db 0

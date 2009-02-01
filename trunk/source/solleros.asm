@@ -11,7 +11,8 @@ passcheck:
 	mov bl, 7
 
 	mov cx, 200h
-	call int30hah2
+	mov ah, 2
+	int 30h
 	jmp passenter
 pwdrgt:	call clear
 	mov cx, 200h
@@ -66,7 +67,8 @@ cancel:	mov al, 0
 	mov esi, buftxt
 	mov al, 13
 	mov bl, 7
-	call int30hah4
+	mov ah, 4
+	int 30h
 gotcmd:	mov bx, buf2
 	mov esi, buftxt
 	jmp run
@@ -78,7 +80,8 @@ input:	call buftxtclear
 	mov esi, buftxt		;puts input into buftxt AND onto screen
 stdin:	mov al, 13
 	mov bl, 7
-	call int30hah4
+	mov ah, 4
+	int 30h
 	ret
 
 run:	mov esi, line
@@ -217,14 +220,15 @@ dir:	mov esi, fileindex
 		jmp dirnxt
 	dirfnd2: add esi, 1
 		call print
-		mov edi, esi
+		mov [esidir], esi
 		mov esi, line
 		call print
-		mov esi, edi
+		mov esi, [esidir]
 		cmp esi,  fileindexend
 		jae dirdn
 		jmp dirnxt
 	dirdn:	jmp nwcmd
+esidir dd 0
 
 array:				;arraystart in si, arrayend in bx, arrayseperator in cx
 		                ;ends if array seperator is found backwards after 0
@@ -482,7 +486,7 @@ sdcdi dw 0,0
 
 decnumber db "00000000000000"
 decnumberend: db " ",0
-shownumberstack db 0
+shownumberstack db 1
 
 showdec: ;;same as showhex, just uses decimal conversion
 	mov [sdceax], eax

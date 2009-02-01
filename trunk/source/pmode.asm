@@ -62,9 +62,10 @@ pmode:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [BITS 32]
 do_pm:
-	mov ax,SYS_DATA_SEL
+	mov ax, SYS_DATA_SEL
 	mov ds,ax
 	mov ss,ax
+	mov esp, 0x0
 	nop
 	mov es,ax
 	mov fs,ax
@@ -88,9 +89,7 @@ do_pm:
 ; shut off interrupts at the 8259 PIC, except for timer interrupt.
 ; The switch to user task will enable interrupts at the CPU.
 
-;!!!!jASDFJOIASDJIFJSDIFOJSDIF
 jmp gui
-;THIS DISABLES TASK SWITCHING FOR NOW!!!!
 
 	mov al,0xFE
 	out 0x21,al
@@ -98,6 +97,7 @@ jmp gui
 sched:
 jmp USER1_TSS:0
 	; timer interrupt returns us here. Reset 8259 PIC:
+mov al, 0x20
 out 0x20,al
 	; clear busy bit of user1 task
 mov [gdt7 + 5],byte 0x89
@@ -128,8 +128,7 @@ mov [gdt8 + 5],byte 0x89
 user1:	call gui
 	jmp user1		; infinite loop (until timer interrupt)
 
-user2:  
-
+user2: 
 ;mov ebx, [user2codepoint]
 ;	cmp ebx, 0
 ;	je user2
@@ -140,11 +139,14 @@ user2:
 user2codepoint dw 0,0
 
 unhand:	cli
+	mov al,20h
+	out 20h,al
+	jmp (0xdeadc0de - 0x60000)
 	mov ecx, eax
-	mov si, hellnonum
-	mov di, hellno
+	mov esi, hellnonum
+	mov edi, hellno
 	call converthex
-	mov si, hellnonum
+	mov esi, hellnonum
 	mov cx, 1
 	mov dx, 1
 	mov ax, 1
@@ -153,49 +155,22 @@ unhand:	cli
 	ret
 
 timekeeper:
+	cmp byte [guion], 1
+	jne notimekeep
+	push ax
+	mov al, [framesdone]
+	mov [fps], al
+	mov al, 0
+	mov [framesdone], al
+	pop ax
+notimekeep:
 	ret
 
+framesdone db 0
+fps db 0
 hellnonum db "00000000"
 hellno db "INT ERROR",0
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;	16-bit protected mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [BITS 16]
-; switch to 16-bit stack and data
-do_16:	mov ax,REAL_DATA_SEL
-	mov ds,ax
-	mov ss,ax
-	nop
-; push real-mode CS:IP
-	lea bx,[do_rm]
-	push bp
-	push bx
-; clear PE [protected mode enable] bit and return to real mode
-		mov eax,cr0
-		and al,0xFE
-		mov cr0,eax
-		retf		; jumps to do_rm
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;	16-bit real mode again
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; restore real-mode segment register values
-do_rm:	mov ax,cs
-	mov ds,ax
-	mov ss,ax
-	nop
-	mov es,ax
-	mov fs,ax
-	mov gs,ax
-; point to real-mode IDTR
-	lidt [ridtr]
-; re-enable interrupts (at CPU and at 8259).
-; XXX - read old irq mask from port 0x21, save it, restore it here
-	sti
-	mov al,0xB8
-	out 0x21,al
-; exit to DOS with errorlevel 0
-	mov ax,0x4C00
-	int 0x21
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	data
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -296,7 +271,13 @@ gdt_end:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 32 reserved interrupts:
 idt:	
-	times 8 dw unhand,SYS_CODE_SEL,0x8E00,0
+	dw 0
+	dw SYS_TSS
+	db 0
+	db 0x85
+	dw 0
+
+	times 7 dw unhand,SYS_CODE_SEL,0x8E00,0
 
 ;	dw unhand
 ;	dw SYS_CODE_SEL
@@ -306,7 +287,6 @@ idt:
 ; INT 8 is IRQ0 (timer interrupt). The 8259's can (and should) be
 ; reprogrammed to assign the IRQs to higher INTs, since the first
 ; 32 INTs are Intel-reserved. Didn't IBM or Microsoft RTFM?
-	;dw 0,SYS_TSS,0x8E00,0
 	dw 0
 	dw SYS_TSS
 	db 0
@@ -316,7 +296,7 @@ idt:
 	times 39 dw unhand,SYS_CODE_SEL,0x8E00,0
 
 ;;INT 30h for os use and 3rd party use:
-	dw int30h,SYS_CODE_SEL,0x8E00,0
+	dw newints,SYS_CODE_SEL,0x8E00,0
 	
 ;;	db 0
 ;;	db 0x85			; Ring 0 task gate

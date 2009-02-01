@@ -50,7 +50,7 @@ BATCHPOS times 4 db 0
 BATCHISON times 1 db 0
 LOOPON times 1 db 0
 LOOPPOS	times 4 db 0
-fonts:	times 2048 db 0
+fonts:	incbin 'source/precompiled/fonts.pak'
 fontend2:
 		times 16 db 0
 fontend:
@@ -62,14 +62,14 @@ customprograms:			;put custom index items here. I promise I won't overwrite them
 	
 fileindexend:
 bufferhelper:	times 2 db 0
-variables: times 500h db 0
+variables: 	times 500h db 0
 varend:
 buftxt: times 200h db 0
 buf2:	times 20 db 0	;;should be initialized as '0'
 numbuf:	times 2 db 0
-videobuf2 times 0x12C0 db 0
+videobuf2 	times 0x12C0 db 0
 videobufend:
-times 200 db 0
+	times 200 db 0
 
 VBEMODEBLOCK:
 vbesignature 	times 4 db 0	;VBE Signature
@@ -127,4 +127,3 @@ physbaseptr times 4 db 0        ;Physical address for flat frame buffer
 offscreenmemoffset times 4 db 0 ;Pointer to start of off screen memory
 offscreenmemsize times 2 db 0     ;Amount of off screen memory in 1Kb units
 reserved2 times 206 db 0  ;Remainder of ModeInfoBlock
-rbuffstart: ;for use with networking

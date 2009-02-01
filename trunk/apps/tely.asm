@@ -1,7 +1,7 @@
+	[BITS 32]
+	[ORG 0x100000]
+	db "EX"
 	tely:
-		mov ecx, [BASEADDRSERIAL]
-		mov ebx, 0xAAAAAAAA
-		jmp ebx
 		mov esi, line
 		mov bx, 7
 		mov al, 0
@@ -49,7 +49,9 @@
 		mov al, 23
 		mov ah, 5
 		int 30h
-		mov ah, [charcache]
+		cmp ah, 0x1
+		je near donetely
+		mov ah, al
 		mov al, 0
 		mov cx, 100
 		cmp ah, 13
@@ -131,5 +133,7 @@
 		mov ax, 0
 		int 30h
 
+line db 10,13,0
 BASEADDRSERIAL dw 03f8h
 telydx dw 0
+com dw 0
