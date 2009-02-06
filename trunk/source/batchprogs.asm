@@ -1,4 +1,3 @@
-progend:		;programs end here	
 	
 notbatch: jmp nwcmd
 
@@ -23,15 +22,15 @@ whilefnd: dec esi
 	db 5,4,"if",0
 if:	mov al, 0
 	cmp [BATCHISON], al
-	je notbatch
+	je near notbatch
 	mov esi, buftxt
 	mov ebx, buftxt
 	add ebx, 3
 chkeqsn: mov al, [esi]
 	cmp al, 0
-	je notbatch
+	je near notbatch
 	cmp al, '='
-	je chkeqdn
+	je near chkeqdn
 	inc esi
 	jmp chkeqsn
 chkeqdn: mov al, 0 
@@ -39,13 +38,13 @@ chkeqdn: mov al, 0
 	inc esi
 	mov al, [esi]
 	cmp al, '$'
-	je ifvar1
+	je near ifvar1
 ifvar2: mov al, [ebx]
 	cmp al, '$'
-	je ifvar3
+	je near ifvar3
 ifvar4:	call tester
 	cmp al, 1
-	je trueif
+	je near trueif
 	jmp falseif
 trueif:	mov eax, 0
 	mov al, [IFON]
@@ -75,13 +74,15 @@ ifvar1: mov edi, esi
 	mov ebx, buftxt
 	add ebx, 3
 	jmp ifvar2
-ifvar3: push esi
+ifvar3: mov [esiif], esi
 	mov edi, 4
 	mov ebx, variables
 	call nxtvrech
-	pop esi
+	mov esi, [esiif]
 	jmp ifvar4
 
+esiif dd 0
+	
 	db 5,4,"else",0
 else:	mov eax, 0
 	mov al, [IFON]
@@ -125,4 +126,5 @@ stop:	mov al, 0
 	mov [LOOPON], al
 	jmp nwcmd
 
+progend:		;programs end here	
 batchprogend:

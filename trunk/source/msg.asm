@@ -10,6 +10,9 @@
     msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
     wrongmsg:  db "Please select one of the options above.",13,10,"You selected: ",0
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
+	
+fonts:	incbin 'source/precompiled/fonts.pak'
+fontend2:
 mcursor:
 	db	00000001b
 	db	10000001b
@@ -27,7 +30,26 @@ mcursor:
 	db	00001110b
 	db	00001110b
 	db	00001100b
+fontend:
 
+cursorbmp:
+	db	1,0,0,0,0,0,0,0
+	db	1,1,0,0,0,0,0,0
+	db	1,1,1,0,0,0,0,0
+	db	1,1,1,1,0,0,0,0
+	db	1,1,1,1,1,0,0,0
+	db	1,1,1,1,1,1,0,0
+	db	1,1,1,1,1,1,1,0
+	db	1,1,1,1,1,1,1,1
+	db	1,1,1,1,1,1,0,0
+	db	1,1,0,1,1,1,0,0
+	db	1,0,0,1,1,1,0,0
+	db	0,0,0,0,1,1,1,0
+	db	0,0,0,0,1,1,1,0
+	db	0,0,0,0,0,1,1,1
+	db	0,0,0,0,0,1,1,1
+	db	0,0,0,0,0,1,1,0
+cursorbmpend:
 ;;; ZEROS-THESE DO NOT NEED TO BE COMPILED BUT ADDRESSES SHOULD BE USED
 ;;[section .bss] compile these
 
@@ -43,16 +65,7 @@ BATCHPOS times 4 db 0
 BATCHISON times 1 db 0
 LOOPON times 1 db 0
 LOOPPOS	times 4 db 0
-fonts:	incbin 'source/precompiled/fonts.pak'
-fontend2:
-		times 16 db 0
-fontend:
-fileindex: times 200h db 0	;index format can be found in SollerOS programming guide
-customprograms:			;put custom index items here. I promise I won't overwrite them
-				;although they may be written twice if they are in the filesystem
-;;	db 5,4,"Hello World"
-;;	dw 0,hello,0		;;example of a custom file descriptor
-	
+fileindex: times 200h db 0	
 fileindexend:
 bufferhelper:	db 0
 variables: 	times 500h db 0

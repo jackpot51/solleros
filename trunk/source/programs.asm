@@ -40,10 +40,10 @@ indexloop2done:
 		add ebx, 2
 		inc esi
 		mov [ebx], esi
-		add ebx, 2
+		add ebx, 4
 		mov word [ebx], 0
 		add ebx, 2
-		cmp ebx, customprograms
+		cmp ebx, fileindexend
 		jae indexloopdone
 		add esi, 1
 		jmp indexloop
@@ -134,12 +134,12 @@ db 5,4,"echo",0
 		mov esi, line
 		call print
 		jmp nwcmd
-	echovr:	mov bx, variables
+	echovr:	mov ebx, variables
 		mov edi, 6
 		call nxtvrech
 		jmp prntvr2
 	echvar:	mov cl, '='
-		inc bx
+		inc ebx
 		mov al, [ebx]
 		cmp al, 0
 		je nxtvrech
@@ -181,37 +181,33 @@ db 5,4,"runbatch",0
 	runbatch2:
 		mov esi, line
 		call print
-		mov [cxbmpch], cx
-		mov [dxbmpch], dx
 		mov edi, buftxt
 		add edi, 9
 		mov esi, 0x100000
 		call loadfile
-		mov esi, 0x100000
-		mov cx, [cxbmpch]
-		mov dx, [dxbmpch]
+		mov edi, 0x100000
 		mov byte [BATCHISON], 1
-		mov bl, [IFON]
-		mov edi, esi
-		mov esi, buftxt
 	batchrunloop:
+		call buftxtclear
+		mov esi, buftxt
+	batchrunloop2:
 		mov cl, 13
 		mov ch, 10
 		cmp [edi], cx
-		je nxtbatchrunline
+		je near nxtbatchrunline
 		rol cx, 8
 		cmp [edi], cx
-		je nxtbatchrunline
+		je near nxtbatchrunline
 		cmp byte [edi], 0
-		je nxtbatchrunline
+		je near nxtbatchrunline
 		mov al, [edi]
 		mov [esi], al
 		inc esi
 		inc edi
-		jmp batchrunloop
+		jmp batchrunloop2
 	nxtbatchrunline:
 		add edi, 2
-		mov [edibatchcache], edi
+		mov [batchedi], edi
 		mov byte [esi], 0
 		mov esi, buftxt
 		cmp byte [esi], 0
@@ -222,18 +218,19 @@ db 5,4,"runbatch",0
 		jae near iftestbatch
 	doneiftest:
 		cmp byte [runnextline], 0
-		je noruniftest
+		je near noruniftest
 		call progtest
 	noruniftest:
 		mov byte [runnextline], 1
-		mov edi, [edibatchcache]
-		mov esi, buftxt
+		mov edi, [batchedi]
 		cmp byte [edi], 0
 		jne near batchrunloop
 	nobatchfoundrun:
 		mov byte [BATCHISON], 0
 		jmp nwcmd
-		
+	
+batchedi dd 0	
+	
 	iftestbatch:
 		mov esi, IFTRUE
 		add esi, ebx
@@ -265,7 +262,7 @@ db 5,4,"runbatch",0
 		jmp fifindbatch
 	goodfibatch:
 		mov al, 1
-		sub [IFON], al
+		sub [IFON], al 
 		mov al, [IFON]
 		mov bl, [iffalsebuf]
 		cmp al, bl
@@ -286,12 +283,9 @@ db 5,4,"runbatch",0
 		
 runnextline db 1
 iffalsebuf db 0
-edibatchcache dd 0
 
 db 5,4,"batch",0
 	batchst: 
-		mov [cxbmpch], cx
-		mov [dxbmpch], dx
 		mov edi, buftxt
 		add edi, 6
 		cmp byte [edi], 0
@@ -299,8 +293,6 @@ db 5,4,"batch",0
 		mov esi, 0x100000
 		call loadfile
 		mov eax, edx
-		mov cx, [cxbmpch]
-		mov dx, [dxbmpch]
 		cmp eax, 404
 		je goodbatchname
 		mov esi, badbatchmsg
@@ -350,7 +342,6 @@ db 5,4,"batch",0
 		jmp nwcmd
 	
 		
-	commandlst: ;get rid of immediately	
 	startbatch: mov al, [esi]
 		mov [ebx], al
 		inc ebx
@@ -376,7 +367,7 @@ db 5,4,"batch",0
 		je batchnext
 		cmp al, 4
 		je batchendtest
-		cmp ebx, commandlst
+;;cmp ebx, commandlst
 		jae backtonwcmd
 		inc ebx
 		jmp batchfind
@@ -399,7 +390,7 @@ db 5,4,"batch",0
 		mov al, [ebx]
 		cmp al, 4
 		je batchfound
-		cmp ebx, commandlst
+;;		cmp ebx, commandlst
 		jae backtonwcmd
 		jmp batchfind
 	batchfound:
@@ -409,7 +400,7 @@ db 5,4,"batch",0
 		inc esi
 		cmp al, 0
 		je runbatch
-		cmp ebx, commandlst
+;;		cmp ebx, commandlst
 		jae backtonwcmd
 		jmp batchfound
 	backtonwcmd:
@@ -507,27 +498,21 @@ db 5,4,"showbmp",0
 		jmp nwcmd
 
 db 5,4,"showtxt",0
-		mov [cxbmpch], cx
-		mov [dxbmpch], dx
 		mov edi, buftxt
 		add edi, 8
 		mov esi, 0x100000
 		call loadfile
-		mov cx, [cxbmpch]
-		mov dx, [dxbmpch]
 		mov esi, 0x100000
 		call print
 		mov esi, line
 		call print
 		jmp nwcmd
 		
-cxbmpch dw 0
-dxbmpch dw 0
 loadedbmpmsg db " loaded.",13,10,0
 
 db 5,4,"#",0
 	num:	
-		mov [edxnumbuf], edx
+		push edx
 		call clearbuffer
 		mov byte [decimal], 0
 		mov byte [decimal2], 0
@@ -550,7 +535,7 @@ db 5,4,"#",0
 		cmp al, 0
 		je near nwcmd
 		jmp num2
-	operatorfound: mov [eaxcachenum], eax
+	operatorfound: push eax
 		mov ah, 0
 		mov [esi], ah
 		inc esi
@@ -560,14 +545,12 @@ db 5,4,"#",0
 		cmp al, '%'
 		je near resultnum1
 		jmp varnum2
-	ebxcachenum dw 0,0
-	eaxcachenum dw 0,0
 	varnum2: 
 		call checkdecimal
 		call cnvrttxt
 	vrnm2:
 		mov ebx, ecx
-		mov [ebxcachenum], ebx
+		push ebx
 		call clearbuffer
 		mov esi, buftxt
 		inc esi
@@ -580,8 +563,8 @@ db 5,4,"#",0
 		call checkdecimal2
 		call cnvrttxt
 	vrnm4:
-		mov ebx, [ebxcachenum]
-		mov eax, [eaxcachenum]
+		pop ebx
+		pop eax
 		cmp al, '+'
 		je near plusnum
 		cmp al, '-'
@@ -687,7 +670,7 @@ db 5,4,"#",0
 	noexpnum:
 		mov ecx, 1
 	retnum: 
-		mov edx, [edxnumbuf]
+		pop edx
 		mov esi, numbuf
 		mov [result], ecx
 		call convert
@@ -793,42 +776,37 @@ eqfnd:	inc esi
 	mov esi, buftxt
 	mov ebx, variables
 	jmp seek
-readvar: call stdin
+readvar: 
+	mov al, 13
+	mov ah, 4
+	mov bl, 7
+	call intx4
 	mov esi, line
 	call print
 	jmp var
-seek:	mov al, [ebx]
-	cmp al, 0
-	je save1
-	cmp al, 5
+seek:	mov ax, [ebx]
+	mov cl, 5
+	mov ch, 4
+	cmp ax, 0
+	je near save
+	cmp ax, cx
 	je skfnd
 	inc ebx
 	jmp seek
-skfnd:	inc ebx
-	mov al, [ebx]
-	cmp al, 0
-	je save1
-	cmp al, 4
-	je skfnd2
-	inc ebx
-	jmp skfnd
-skfnd2:	mov esi, buftxt
+skfnd:	mov esi, buftxt
 	inc esi
-	inc ebx
+	add ebx, 2
+	mov edi, ebx
 	mov cl, '='
 	call cndtest
 	cmp al, 1	
 	je varfnd
+	mov ebx, edi
 	mov esi, buftxt
+	mov ax, [ebx]
+	cmp ax, 0
+	je near save
 	inc ebx
-	mov al, [ebx]
-	cmp al, 0
-	je save
-	jmp seek
-save1:	inc ebx
-	mov al, [ebx]
-	cmp al, 0
-	je save
 	jmp seek
 varfnd:	mov al, [ebx]
 	cmp al, 4
@@ -850,20 +828,19 @@ remove: mov al, [ebx]
 	inc ebx
 	jmp remove	;do not need for now-need defragmentation
 save:	mov esi, buftxt
-	mov al, 5
-	mov [ebx], al
 	inc ebx
-	mov al, 4
-	mov [ebx], al
-	jmp svhere
+	mov al, 5
+	mov ah, 4
+	mov [ebx], ax
+	inc ebx
 svhere:	inc ebx
 	inc esi
 	mov al, [esi]
 	cmp al, 0
-	je svdone
+	je near svdone
 	cmp al, '%'
 	je ans2
-	 mov [ebx], al	
+	mov [ebx], al	
 	jmp svhere
 ans2:	push esi
 	mov esi, buf2
@@ -895,6 +872,16 @@ svdone:	mov al, 0
 	mov [ebx], al
 	jmp nwcmd
 
+	
+	db 5,4,"exp",0
+	mov eax, 0x12345678
+	mov ebx, 0x90ABCDEF
+	mov ecx, "EXCE"
+	mov edx, "PTIO"
+	mov esi, "N 13"
+	mov edi, nwcmd
+exception1:	int 13
+	
 	db 5,4,"./",0
 rundiskprog:
 	mov edi, buftxt

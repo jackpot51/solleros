@@ -25,15 +25,6 @@ mainindexdn:
 ;	add si, 4
 ;	cmp si, di
 ;	jbe initmemory
-	mov si, mcursor
-	mov di, fontend2
-cursorcopyinit:
-	mov ax, [si]
-	mov [di], ax
-	add di, 2
-	add si, 2
-	cmp di, fontend
-	jb cursorcopyinit
 	jmp guiload
 
 DriveNumber db 0

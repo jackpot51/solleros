@@ -69,8 +69,7 @@ cancel:	mov al, 0
 	mov bl, 7
 	mov ah, 4
 	int 30h
-gotcmd:	mov bx, buf2
-	mov esi, buftxt
+gotcmd:	
 	jmp run
 	
 batchran:
@@ -89,34 +88,29 @@ run:	mov esi, line
 progtest:
 	mov esi, buftxt
 	mov ebx, fileindex
-prgnxt:	mov al, [ebx]
-	cmp al, 5
+prgnxt:	mov ax, [ebx]
+	mov cl, 5
+	mov ch, 4
+	cmp ax, cx
 	je fndprg
 	inc ebx
 	cmp ebx, fileindexend
 	jae prgnf
 	jmp prgnxt
-fndprg:	inc bx
-	mov al, [ebx]
-	cmp al, 4
-	je fndprg2
-	inc ebx
-	cmp ebx, fileindexend
-	jae prgnf
-	jmp prgnxt
-fndprg2: add ebx, 1
+fndprg: add ebx, 2
 	mov esi, buftxt
-	mov cl, 0
+	mov cx, 0
 	call cndtest
 	cmp al, 1
-	je prggood
-	cmp al, 2
-	je prggood
+	jae prggood
 	jmp prgnxt
 prggood: cmp ebx, fileindexend
 	jae prgdn
 	add ebx, 3
-	jmp word [ebx]
+	mov edi, [ebx]
+	nop
+	nop
+	jmp edi
 prgnf:	mov esi, notfound1
 	call print
 	mov esi, buftxt
@@ -411,27 +405,12 @@ zerohx:	mov al, '0'
 	inc ecx
 	jmp cnvrtlphx
 
-shxeax db 0,0,0,0
-shxebx db 0,0,0,0
-shxecx db 0,0,0,0
-shxedx db 0,0,0,0
-shxsi dw 0,0
-shxdi dw 0,0
 firsthexshown db 1
 showhex:
-	mov [shxeax], eax
-	mov [shxebx], ebx
-	mov [shxecx], ecx
-	mov [shxedx], edx
-	mov [shxsi], esi
-	mov [shxdi], edi
+	pusha
 	mov esi, hexnumber
 	mov edi, hexnumberend
 	call converthex
-	cmp byte [shownumberstack], 0
-	jne nopopahex
-	popa
-nopopahex:
 	cmp byte [firsthexshown], 1
 	jne showthathex
 	mov dx, 0
@@ -465,36 +444,15 @@ notabfixhex:
 	call print
 hexshown:
 	mov byte [firsthexshown], 0
-	cmp byte [shownumberstack], 0
-	jne nopushahex
-	pusha
-	mov edx, [shxedx]
-nopushahex:
-	mov eax, [shxeax]
-	mov ebx, [shxebx]
-	mov ecx, [shxecx]
-	mov esi, [shxsi]
-	mov edi, [shxdi]
+	popa
 	ret
 
-sdceax db 0,0,0,0
-sdcebx db 0,0,0,0
-sdcecx db 0,0,0,0
-sdcedx db 0,0,0,0
-sdcsi dw 0,0
-sdcdi dw 0,0
 
 decnumber db "00000000000000"
 decnumberend: db " ",0
-shownumberstack db 1
 
 showdec: ;;same as showhex, just uses decimal conversion
-	mov [sdceax], eax
-	mov [sdcebx], ebx
-	mov [sdcecx], ecx
-	mov [sdcedx], edx
-	mov [sdcsi], esi
-	mov [sdcdi], edi
+	pusha
 	mov edi, decnumber
 	mov esi, decnumberend
 cleardecbuf:
@@ -504,10 +462,6 @@ cleardecbuf:
 	jb cleardecbuf
 	mov edi, decnumber
 	call convert
-	cmp byte [shownumberstack], 0
-	jne nopopadec
-	popa
-nopopadec:
 	cmp byte [firsthexshown], 1
 	jne showthatdec
 	mov dx, 0
@@ -546,21 +500,10 @@ sifind:
 	call print
 decshown:
 	mov byte [firsthexshown], 0
-	cmp byte [shownumberstack], 0
-	jne nopushadec
-	pusha
-	mov edx, [sdcedx]
-nopushadec:
-	mov eax, [sdceax]
-	mov ebx, [sdcebx]
-	mov ecx, [sdcecx]
-	mov esi, [sdcsi]
-	mov edi, [sdcdi]
+	popa
 	ret
-
-edxcachecnvrt dw 0,0
+	
 cnvrttxt: 
-	mov [edxcachecnvrt], edx
 	mov ecx, 0
 	mov eax, 0
 	mov edx, 0
@@ -599,7 +542,7 @@ noexp:	sub al, 48
 exp:	cmp ecx, 0
 	je noexp
 	sub al, 48
-	mov [ecxbufnum], ecx
+	push ecx
 expmul:	mov ebx, eax
 	add eax, ebx
 	add eax, ebx
@@ -614,11 +557,9 @@ expmul:	mov ebx, eax
 	cmp ecx, 0
 	ja expmul
 	add edx, eax
-	mov ecx, [ecxbufnum]
+	pop ecx
 	dec esi
 	inc ecx
 	jmp txtlp
 donecnvrt: mov ecx, edx
-	mov edx, [edxcachecnvrt]
 	ret
-ecxbufnum dw 0,0

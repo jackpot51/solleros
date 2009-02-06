@@ -14,12 +14,12 @@ guiclearloop:
 	cmp cx, 0
 	ja guiclearloop
 	ret
+
 background dw 0111101111001111b
 
 gui:	;Let's see what I can do
 	;I am going to try to make this as freestanding as possible
 	call indexfiles
-	mov byte [guion], 1
 	mov edi, [physbaseptr]
 	mov dx, [resolutionx]
 	mov cx, [resolutiony]
@@ -34,6 +34,12 @@ guiclearloop2:
 	mov dx, [resolutionx]
 	cmp cx, 0
 	ja guiclearloop2
+;	mov esi, [physbaseptr]
+;	mov [offscreenmemoffset], esi
+;	mov esi, 0xA00000
+;	mov [physbaseptr], esi
+;	call guiclear
+	mov byte [guion], 1
 	mov eax, 0
 	mov ebx, 0
 	mov ecx, 0
@@ -89,85 +95,87 @@ guiclearloop2:
 	mov al, 00010000b
 	mov ebx, winblows
 	call showstring
-
+	
 	call cursorgui
 guistart:
 	call guistartin
-	inc byte [framesdone]
+	mov byte [copygui], 0
 	jmp guistart
-	guistartin:
-		mov eax, 0
-		mov [lastkey], ax
-		in al, 64h ; Status
-		test al, 1 ; output buffer full?
-		jz guistartin
-		test al, 20h ; PS2-Mouse?
-		jnz near maincall2
-		in al, 60h
-		;dec al
-		;jz near guistartin	;;must have ESC
-		;inc al
-		mov ah, al
-		mov al, 0
-		mov [lastkey], ax
-		mov al, ah
-		mov edi, scancode
-	guisearchscan: 
-		cmp al, 40h
-		jae guiscanother
-		mov ah, 0
-		shl al, 1
-		add edi, eax
-		shr al, 1
-		mov ah, [edi]
-		cmp ah, 0
-		je guiscanother
-		jmp guiscanfound
-guiupper db 0
-guiscanother:
-		mov ah, al
-		mov al, 0
-		mov [lastkey], ax
-		;cmp ah, 4Dh
-		;je near nextimage
-		cmp ah, 2Ah
-		je near guishifton
-		cmp ah, 36h
-		je near guishifton
-		cmp ah, 1Ch
-		je near guientdown
-		cmp ah, 0AAh
-		je near guishiftoff
-		cmp ah, 0B6h
-		je near guishiftoff
-		cmp ah, 3Ah
-		je near guishift
-		ret
-	guishift:
-		mov al, [guiupper]
-		cmp al, 1
-		jae guishiftoff
-	guishifton:
-		mov byte [guiupper], 1
-		jmp guistartin
-	guishiftoff:
-		mov byte [guiupper], 0
-		jmp guistartin
-	guientdown:
-		ret
-	guiscanfound:
-		add edi, 1
-		cmp byte [guiupper], 1
-		jae uppercasegui
-		sub edi, 1
-uppercasegui:
-		mov al,[edi]
-		mov [lastkey], al
-		;mov cx, 1
-		;mov dx, 1
-		;mov bx, 0xFFFF
-		;call showfontvesa
-		ret
+	
+guicopy:	;;for double buffering
+	mov byte [copygui], 1
+	mov edi, [offscreenmemoffset]
+	mov edx, 0
+	mov ecx, 0
+	mov dx, [mousecursorposition]
+	mov cx, [mousecursorposition + 2]
+	add edi, edx
+	mov dx, [resolutionx2]
+	inc cx
+guicp2:
+	add edi, edx
+	dec cx
+	cmp cx, 0
+	jne guicp2
+	sub edi, edx
+	mov [cursorloc], edi
+	mov ebx, cursorbmp
+	mov cx, [resolutiony]
+	rol ecx, 16
+	mov cx, [resolutionx]
+	mov esi, [physbaseptr]
+	mov edi, [offscreenmemoffset]
+guicp1:
+	mov ax, [esi]
+	mov [edi], ax
+	add esi, 2
+	add edi, 2
+	cmp edi, [cursorloc]
+	je copycursor
+dncopycursor:
+	dec cx
+	cmp cx, 0
+	jne guicp1
+	mov cx, [resolutionx]
+	rol ecx, 16
+	dec cx
+	cmp cx, 0
+	rol ecx, 16
+	jne guicp1
+	mov byte [copygui], 0
+	ret
+copycursor:
+	cmp ebx, cursorbmpend
+	jae dncopycursor
+	mov dx, [resolutionx2]
+	add edi, edx
+	mov [cursorloc], edi
+	sub edi, edx
+	dec ebx
+	sub edi, 2
+	sub esi, 2
+	mov dx, 9
+curscplp:
+	inc ebx
+	add esi, 2
+	add edi, 2
+	mov ax, [esi]
+	mov [edi], ax
+	mov al, [ebx]
+	cmp al, 0
+	je curscplp2
+	mov word [edi], 1110011110011100b
+curscplp2:
+	dec cx
+	cmp cx, 0
+	je dncopycursor
+	dec dx
+	cmp dx, 0
+	jne curscplp
+	jmp dncopycursor
+	
+	
+cursorloc: dd 0
 		
 nextimage:	
 	call guiclear
@@ -179,162 +187,14 @@ nextimage:
 	call showbmp
 	jmp guistartin
 		
-olddi dw 0,0
-oldax dw 0,0
-oldbx dw 0,0
-oldcx dw 0,0
-olddx dw 0,0
-oldsi dw 0,0
-videobuf2copy:
-	mov [oldax], eax
-	mov [oldbx], ebx
-	mov [oldcx], ecx
-	mov [olddx], edx
-	mov [oldsi], esi
-	mov [olddi], edi
-	mov byte [mouseselecton], 0
-	mov byte [termcopyon], 1
-	cmp byte [termguion], 1
-	je near windowvideocopy
-	mov eax, [oldax]
-	mov ebx, [oldbx]
-	mov ecx, [oldcx]
-	mov edx, [olddx]
-	mov esi, [oldsi]
-	mov edi, [olddi]
-	ret
-termguion db 0
-termcopyon db 0
+copygui db 0
 graphicsset db 0
 graphicspos db 0,0
 showcursorfonton db 0
 savefonton db 0
 mouseselecton db 0
-
-guichar db 0
-mousecursorposition dw 132,132	
 guion db 0
-lastmouseposition dw 132,132
 
-	cursorgui:
-		cmp byte [mouseon], 1
-		je near maincall2
-
-	initmouse:
-		call switchmousepos2
-	  	call PS2SET
-		call ACTMOUS
-		call GETB 	;;Get the responce byte of the mouse (like: Hey i am active)
-				;;If the bytes are mixed up,
-				;;remove this line or add another of this line.
-		call GETB
-		mov byte [mouseon],1
-
-	maincall2:  
-		  in   al, 0x60		; read ps/2 controller output port (mousebyte)
-		  mov  bl, al
-		  and  bl, 1
-		  mov  BYTE [LBUTTON], bl
-		  mov  bl, al
-		  and  bl, 2
-	      	  shr  bl, 1
-		  mov  BYTE [RBUTTON], bl
-		  mov  bl, al
-		  and  bl, 4
-		  shr  bl, 2
-		  mov  BYTE [MBUTTON], bl
-		  in   al, 0x60		; read ps/2 controller output port (mousebyte)
-		  mov  BYTE [XCOORD], al
-		  in   al, 0x60		; read ps/2 controller output port (mousebyte)
-		  mov  BYTE [YCOORD], al
-
-	showpixelcursor:
-		mov dx, [mousecursorposition]
-		mov cx, [mousecursorposition + 2]
-		mov [lastmouseposition], dx
-		mov [lastmouseposition + 2], cx
-		mov al, [XCOORD]
-		cmp al, 128
-		jae subxcoord
-		add al, al
-		mov ah, 0
-		add dx, ax
-		jmp subxcoorddn
-	subxcoord:
-		add al, al
-		mov bl, 0
-		sub bl, al
-		mov bh, 0
-		sub dx, bx
-	subxcoorddn:
-		mov bl, [YCOORD]
-		mov al, 0
-		sub al, bl
-		cmp al, 128
-		jae subycoord
-		mov ah, 0
-		add cx, ax
-		jmp subycoorddn
-	subycoord:
-		mov bl, 0
-		sub bl, al
-		mov bh, 0
-		sub cx, bx
-	subycoorddn:
-		cmp dx, 20000
-		jbe nooriginx2
-		mov dx, 0
-	nooriginx2:
-		cmp cx, 20000
-		jbe nooriginy2
-		mov cx, 0
-	nooriginy2:
-		cmp dx, 0
-		je nofixxcolumn2
-		cmp dx, [resolutionx2]
-		jb nofixxcolumn2
-		mov dx, [resolutionx2]
-		sub dx, 2
-	nofixxcolumn2:
-		cmp cx, 0
-		je nofixyrow2
-		cmp cx, [resolutiony]
-		jb nofixyrow2
-		mov cx, [resolutiony]
-		sub cx, 1
-	nofixyrow2:
-		mov [mousecursorposition], dx
-		mov [mousecursorposition + 2], cx
-		call switchmousepos ;;use dragging code to ensure proper icon drag
-		cmp byte [LBUTTON], 1
-		je near clickicon
-		cmp byte [RBUTTON], 1
-		je near clickicon
-		mov al, [pbutton]
-		mov dword [dragging], 0
-		cmp al, 0
-		je nopreviousbutton
-		call clearmousecursor
-		call reloadallgraphics
-		call switchmousepos2
-	nopreviousbutton:
-		mov al, 0
-		mov [pbutton], al
-		mov al, [LBUTTON]
-		mov [pLBUTTON], al
-		mov al, [RBUTTON]
-		mov [pRBUTTON], al
-		mov ecx, 0
-		mov edx, 0
-		mov dx, [mousecursorposition]
-		mov cx, [mousecursorposition + 2]
-		mov bx, 1110011110011100b
-		mov ah, 0
-		mov al, 128
-		mov byte [showcursorfonton], 1
-		call showfontvesa
-		mov byte [showcursorfonton], 0
-		ret
 		
 clearmousecursor:
 		mov esi, background
@@ -676,6 +536,7 @@ windowselect:
 		jmp doneiconsel
 	killwin:
 		mov word [esi], 0
+		mov dword [user2codepoint], 0
 		mov byte [termguion], 0
 		call guiclear
 		jmp doneiconsel2
@@ -1136,12 +997,7 @@ fixwindowcopy:
 donewincopynow:
 		cmp byte [termcopyon], 1
 		jne forgetresetstuff
-		mov eax, [oldax]
-		mov ebx, [oldbx]
-		mov ecx, [oldcx]
-		mov edx, [olddx]
-		mov esi, [oldsi]
-		mov edi, [olddi]
+		popa
 forgetresetstuff:
 		mov byte [termcopyon], 0
 		ret
@@ -1425,17 +1281,13 @@ endedbmp:
 		mov esi, termwindow
 		mov dx, 0
 		mov cx, 0
-;;		mov ebx, internettest
 		mov ebx, nwcmd
+;;		mov ebx, internettest
 		mov [user2codepoint], ebx
-		mov ebx, 0
-;;		mov ebx, internettest
-		mov ebx, nwcmd
 		mov ax, 0
-		call showwindow
+		jmp showwindow
 ;;		jmp internettest
-		jmp nwcmd
-
+		ret
 
 	gotomenuboot:
 		mov esi, termwindow
@@ -1443,11 +1295,9 @@ endedbmp:
 		mov cx, 0
 		mov ebx, os
 		mov [user2codepoint], ebx
-		mov ebx, 0
-		mov ebx, os
 		mov ax, 0
-		call showwindow
-	jmp os
+		jmp showwindow
+		ret
 
 	winblows:
 		mov esi, winmsg
@@ -1466,16 +1316,11 @@ endedbmp:
 		mov al, 00010000b
 		mov ebx, gotomenuboot
 		jmp showstring
-	
+
 	termwindow:	dw 640,480	;;window size
 	termmsg:	db "TERMINAL",0	;;window title
-
 interneticon: 	incbin 'source/precompiled/interneticon.pak'
-
 wordicon: 	incbin 'source/precompiled/wordicon.pak'
-
 pacmanpellet: incbin 'source/precompiled/pacmanpellet.pak'
-
 ghostie	incbin 'source/precompiled/ghostie.pak'
-
 pacman	incbin 'source/precompiled/pacman.pak'

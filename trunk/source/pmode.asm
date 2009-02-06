@@ -40,6 +40,11 @@ pmode:
 	shr eax,16
 	mov [gdt8 + 4],al
 	mov [gdt8 + 7],ah
+;	lea eax,[ebx + utss3]	; EAX=linear address of utss2
+;	mov [gdt9 + 2],ax
+;	shr eax,16
+;	mov [gdt9 + 4],al
+;	mov [gdt9 + 7],ah
 ; point gdtr to the gdt, idtr to the idt
 	lea eax,[ebx + gdt]	; EAX=linear address of gdt
 	mov [gdtr + 2],eax
@@ -65,7 +70,7 @@ do_pm:
 	mov ax, SYS_DATA_SEL
 	mov ds,ax
 	mov ss,ax
-	mov esp, 0x0
+	mov esp, 0
 	nop
 	mov es,ax
 	mov fs,ax
@@ -86,73 +91,155 @@ do_pm:
 	mov [utss2_eip],eax
 	lea eax,[esp - 1024]	; task2 stack 1K bytes below system
 	mov [utss2_esp],esp
+;	lea eax,[user3]
+;	mov [utss3_eip],eax
+;	lea eax,[esp - 1536]	; task3 stack 1.5K bytes below system
+;	mov [utss3_esp],esp
+
 ; shut off interrupts at the 8259 PIC, except for timer interrupt.
 ; The switch to user task will enable interrupts at the CPU.
 
-jmp gui
-
 	mov al,0xFE
 	out 0x21,al
-	mov al,0x20
 sched:
 jmp USER1_TSS:0
 	; timer interrupt returns us here. Reset 8259 PIC:
-mov al, 0x20
+mov al,0x20
 out 0x20,al
 	; clear busy bit of user1 task
 mov [gdt7 + 5],byte 0x89
-;;;
-jmp sched
-;;;
+;jmp sched2
+;sched1:
+;jmp USER3_TSS:0
+;mov al,0x20
+;out 0x20,al
+;mov [gdt9 + 5],byte 0x89
+;cmp byte [copygui], 1
+;je sched1
 
-jmp USER1_TSS:0
-	; timer interrupt returns us here. Reset 8259 PIC:
-out 0x20,al
-	; clear busy bit of user1 task
-mov [gdt7 + 5],byte 0x89
+sched2:
+cmp dword [user2codepoint], 0
+je sched
 
-;cmp dword [user2codepoint], 0
-;je sched
 jmp USER2_TSS:0
-	; timer interrupt returns us here. Reset 8259 PIC:
+mov al,0x20
 out 0x20,al
-	; clear busy bit of user2 task
 mov [gdt8 + 5],byte 0x89
 
-	jmp sched
+jmp sched
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	user tasks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-user1:	call gui
-	jmp user1		; infinite loop (until timer interrupt)
+user1: 	jmp gui
+	jmp user1
 
 user2: 
-;mov ebx, [user2codepoint]
-;	cmp ebx, 0
-;	je user2
-;	call ebx
+	mov ebx, [user2codepoint]
+	cmp ebx, 0
+	je user2
+	call ebx
 	jmp user2
-	; infinite loop (until timer interrupt)
-
+	
+user3:
+	cmp byte [guion], 0
+	je user3
+	cmp byte [copygui], 2
+	je user3
+	call guicopy
+	mov byte [copygui], 2
+	jmp user3
+	
 user2codepoint dw 0,0
-
-unhand:	cli
-	mov al,20h
-	out 20h,al
-	jmp (0xdeadc0de - 0x60000)
-	mov ecx, eax
-	mov esi, hellnonum
-	mov edi, hellno
+db "UNHAND"
+unhand:	
+	;mov al,20h
+	;out 20h,al
+	%assign i 0
+	%rep 40
+	cli
+	mov byte [intprob], i
+	jmp unhand2
+	%assign i i+1
+	%endrep
+unhand2:
+	;pusha
+	;mov al, 20h
+	;out 20h, al
+	;popa
+	pushad
+	mov dword [user2codepoint], 0
+	mov [esploc], esp
+	mov esi, unhandmsg
+	mov [esiloc], esi
+	mov ecx, 0
+	mov cl, [intprob]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 36]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 32]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 28]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 16]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 24]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 20]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 4]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 8]
+	call expdump
+	mov esi, [esploc]
+	mov ecx, [esi + 12]
+	call expdump
+	mov esi, [esploc]
+	mov edi, [esp + 32]
+	mov ecx, [edi - 4]
+	call expdump
+	mov esi, [esploc]
+	mov edi, [esp + 32]
+	mov ecx, [edi]
+	call expdump
+	mov esi, [esploc]
+	mov edi, [esp + 32]
+	mov ecx, [edi + 4]
+	call expdump
+	jmp $
+expdump:
+	mov esi, [esiloc]
+	mov edi, esi
+	add edi, 13
+	add esi, 4
+	mov [esiloc], edi
+	dec edi
 	call converthex
-	mov esi, hellnonum
-	mov cx, 1
-	mov dx, 1
+	sub esi, 4
+	mov cx, [locunhand]
+	add word [locunhand], 16
+	mov dx, 2
 	mov ax, 1
 	mov bx, 0
 	call showstring
 	ret
+
+esploc dd 0
+esiloc dd 0
+locunhand dw 1
+intprob db 0
 
 timekeeper:
 	cmp byte [guion], 1
@@ -165,18 +252,27 @@ timekeeper:
 	pop ax
 notimekeep:
 	ret
+	
+handled: iret
 
 framesdone db 0
 fps db 0
-hellnonum db "00000000"
-hellno db "INT ERROR",0
+unhandmsg	db "INT 00000000",0
+			db "CS:=00000000",0
+			db "EIP=00000000",0
+			db "EAX=00000000",0
+			db "EBX=00000000",0
+			db "ECX=00000000",0
+			db "EDX=00000000",0
+			db "ESI=00000000",0
+			db "EDI=00000000",0
+			db "EBP=00000000",0
+			db "ESP=00000000",0
+			db "CMD=00000000",0
+			db "CMD=00000000",0
+			db "CMD=00000000",0
+unhandmsgend:
 [BITS 16]
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;	data
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CsrX:	db 0
-CsrY:	db 0
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	16-bit limit/32-bit linear base address of GDT and IDT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -265,19 +361,27 @@ gdt8:	dw 103
 	db 0x89			; present, ring 0, 32-bit available TSS
 	db 0
 	db 0
+; user TSS 3
+;USER3_TSS	equ	$-gdt
+;gdt9:	dw 103
+;	dw 0			; set to utss3
+;	db 0
+;	db 0x89			; present, ring 0, 32-bit available TSS
+;	db 0
+;	db 0
 gdt_end:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	interrupt descriptor table (IDT)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 32 reserved interrupts:
+db "IDT"
+dw unhand
 idt:	
-	dw 0
-	dw SYS_TSS
-	db 0
-	db 0x85
-	dw 0
-
-	times 7 dw unhand,SYS_CODE_SEL,0x8E00,0
+%assign i 0 
+%rep    8
+        dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+%assign i i+1 
+%endrep
 
 ;	dw unhand
 ;	dw SYS_CODE_SEL
@@ -293,7 +397,11 @@ idt:
 	db 0x85			; Ring 0 task gate
 	dw 0
 
-	times 39 dw unhand,SYS_CODE_SEL,0x8E00,0
+%assign i 9
+%rep    39
+        dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+%assign i i+1 
+%endrep
 
 ;;INT 30h for os use and 3rd party use:
 	dw newints,SYS_CODE_SEL,0x8E00,0
@@ -368,4 +476,26 @@ utss2_esp:
 	dw SYS_DATA_SEL, 0	; GS, reserved
 	dw 0, 0			; LDT, reserved
 	dw 0, 0			; debug, IO perm. bitmap
+	
+;utss3:	dw 0, 0			; back link
+;	dd 0			; ESP0
+;	dw 0, 0			; SS0, reserved
+;	dd 0			; ESP1
+;	dw 0, 0			; SS1, reserved
+;	dd 0			; ESP2
+;	dw 0, 0			; SS2, reserved
+;	dd 0			; CR3
+;utss3_eip:
+;	dd 0, 0x200		; EIP, EFLAGS (EFLAGS=0x200 for ints)
+;	dd 0, 0, 0, 0		; EAX, ECX, EDX, EBX
+;utss3_esp:
+;	dd 0, 0, 0, 0		; ESP, EBP, ESI, EDI
+;	dw SYS_DATA_SEL, 0	; ES, reserved
+;	dw SYS_CODE_SEL, 0	; CS, reserved
+;	dw SYS_DATA_SEL, 0	; SS, reserved
+;	dw SYS_DATA_SEL, 0	; DS, reserved
+;	dw SYS_DATA_SEL, 0	; FS, reserved
+;	dw SYS_DATA_SEL, 0	; GS, reserved
+;	dw 0, 0			; LDT, reserved
+;	dw 0, 0			; debug, IO perm. bitmap
 end:

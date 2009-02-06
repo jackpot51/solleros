@@ -9,7 +9,7 @@ dd if=kernel.bin of=SollerOS.bin bs=512 seek=1
 rm sector.bin
 rm kernel.bin
 cd qemu
-qemu -L . -boot c -std-vga -soundhw sb16 -usb -net nic,model=rtl8139,vlan=1,macaddr=52:54:00:12:34:56 -net user,vlan=1 -hda '../SollerOS.bin'
+qemu -s -L . -boot c -std-vga -soundhw sb16 -usb -net nic,model=rtl8139,vlan=1,macaddr=52:54:00:12:34:56 -net user,vlan=1 -hda '../SollerOS.bin'
 echo "Press Enter."
 read doneit
 
