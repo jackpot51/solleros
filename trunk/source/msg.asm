@@ -103,7 +103,7 @@ bytesperscanline resb 2  ;Bytes per scan line
 
 ;Mandatory information for VBE 1.2 and above
 xresolution     resb 2	    ;Horizontal resolution in pixel or chars
-yresolution	resb 2        ;Vertical resolution in pixel or chars
+yresolution	    resb 2        ;Vertical resolution in pixel or chars
 xcharsize       resb 1	    ;Character cell width in pixel
 ycharsize       resb 1	    ;Character cell height in pixel
 numberofplanes  resb 1	    ;Number of memory planes

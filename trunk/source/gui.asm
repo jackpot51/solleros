@@ -17,8 +17,7 @@ guiclearloop:
 
 background dw 0111101111001111b
 
-gui:	;Let's see what I can do
-	;I am going to try to make this as freestanding as possible
+gui:	;Let's see what I can do, I am going to try to make this as freestanding as possible
 	call indexfiles
 	mov edi, [physbaseptr]
 	mov dx, [resolutionx]
@@ -29,11 +28,11 @@ guiclearloop2:
 	add edi, 2
 	dec dx
 	cmp dx, 0
-	ja guiclearloop2
+	jne near guiclearloop2
 	dec cx
 	mov dx, [resolutionx]
 	cmp cx, 0
-	ja guiclearloop2
+	jne near guiclearloop2
 	mov byte [guion], 1
 	mov eax, 0
 	mov ebx, 0

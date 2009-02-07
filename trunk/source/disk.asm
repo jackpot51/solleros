@@ -15,6 +15,8 @@ nextnamechar:
 	je equalfilenames
 	cmp cl, ' '
 	je equalfilenames
+	cmp al, '*'
+	je equalfilenames2
 	cmp ah, 0
 	je nextfilename
 	cmp al, 0
@@ -34,6 +36,16 @@ nextfilename:
 nofileload:
 	mov edx, 404	;;indicate not found error
 	ret
+equalfilenames2:
+	sub ebx, 2
+eqfilefind:
+	inc ebx
+	cmp ebx, enddiskfileindex
+	jae near nofileload
+	mov al, [ebx]
+	cmp al, 0
+	jne eqfilefind
+	inc ebx
 equalfilenames:
 	mov eax, [ebx + 4] 	;;put file size in eax
 	mov ebx, [ebx]		;;put file beginning in ebx

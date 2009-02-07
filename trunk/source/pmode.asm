@@ -18,6 +18,7 @@ pmode:
 	mov [gdt3 + 4],al
 	mov [gdt2 + 7],ah
 	mov [gdt3 + 7],ah
+; fix up gdt and idt
 	lea eax,[ebx + gdt]	; EAX=linear address of gdt
 	mov [gdtr + 2],eax
 	lea eax,[ebx + idt]	; EAX=linear address of idt
@@ -25,6 +26,8 @@ pmode:
 	cli
 	lgdt [gdtr]
 	lidt [idtr]
+	mov ax, ds
+	mov [cscache], ax
 	mov eax,cr0
 	or al,1
 	mov cr0,eax
@@ -34,19 +37,27 @@ do_pm:
 	mov ax, SYS_DATA_SEL
 	mov ds,ax
 	mov ss,ax
-	mov esp, 0
 	nop
 	mov es,ax
 	mov fs,ax
 	mov gs,ax
-	cmp byte [guinodo], 1
-	jne user1b
-	call indexfiles
-	jmp os
-user1b:
-	jmp gui
+
+	mov edi, [physbaseptr]
+	mov eax, 0
+	mov ax, [cscache]
+	shl eax, 4
+	sub edi, eax
+	mov [physbaseptr], edi
 	
-user2codepoint dw 0
+	cmp byte [guinodo], 0
+	je near gui
+	jmp os
+	
+user2codepoint dw 0,0
+cscache dw 0
+
+handled:
+	ret
 
 unhand:	
 	%assign i 0
@@ -183,11 +194,13 @@ db "IDT"
 dw unhand
 idt:	
 %assign i 0 
-%rep    9	;;change to 8
+%rep    8
         dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
 %assign i i+1 
 %endrep
-;;FILL IN 8th
+
+	dw handled, SYS_CODE_SEL, 0x8E00, 0
+
 %assign i 9
 %rep    39
         dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
@@ -197,3 +210,4 @@ idt:
 ;;INT 30h for os use and 3rd party use:
 	dw newints,SYS_CODE_SEL,0x8E00,0
 idt_end:
+[BITS 32]

@@ -54,7 +54,7 @@ nextvmode:
 	jb near guiload2
 	mov cx, [si]
 	cmp cx, 0xFFFF
-	je near guiload2
+	je near nextvmode
 	add cx, 0x4000 		;;Linear Frame Buffer
 	mov ax, 04F01h
 	mov di, VBEMODEINFOBLOCK
@@ -85,7 +85,7 @@ setvesamode:
 	int 16h
 	mov si, [videomodecache]
 	cmp al, "y"
-	jne nextvmode
+	jne near nextvmode
 	mov dx, [xresolution]
 	mov cx, [yresolution]
 	mov [resolutionx], dx
@@ -97,12 +97,7 @@ setvesamode:
 	mov ax, 04F02h
 	mov bx, [vesamode]
 	int 10h		;;enter VESA mode
-	mov edi, [physbaseptr]
-	mov eax, 0
-	mov ax, ds
-	shl eax, 4
-	sub edi, eax
-	mov [physbaseptr], edi	;;fix lfb base, is over by 0x20000 or 0x2000:0 where OS starts
+	mov byte [guinodo], 0
 	xor eax, eax
 	xor ebx, ebx
 	xor ecx, ecx

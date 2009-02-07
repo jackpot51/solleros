@@ -17,12 +17,12 @@ db 5,4,"pci",0
 	pcishow:
 	call pcidump
 	jmp nwcmd
-db 5,4,"runbatch",0
+db 5,4,"runbat",0
 	runbatch2:
 		mov esi, line
 		call print
 		mov edi, buftxt
-		add edi, 9
+		add edi, 7
 		mov esi, 0x100000
 		call loadfile
 		mov edi, 0x100000

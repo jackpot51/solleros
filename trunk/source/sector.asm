@@ -89,7 +89,7 @@ ReadHardDisk:
 	jc ReadHardDisk
 	mov ecx, [lbaad]
 	call printnum
-	mov ax, 0x2000
+	mov ax, [segm]
 	mov gs, ax
 	mov bx, 4
 	mov ecx, [gs:bx]
@@ -119,7 +119,7 @@ dumpconts2:
 	int 0x16
 	mov cl, [DriveNumber]
 	mov edx, [lbaad]
-    jmp 0x2000:0
+    jmp 0x6000:0
 
 printnum:
 	mov si, number
@@ -209,7 +209,7 @@ len:	db 0x10 ;;size of packet
 	db 0
 readlen:	dw 0x7F	;;blocks to read
 address:	dw 0x0	;;address 0
-segm:	dw 0x2000	;;segment
+segm:	dw 0x6000	;;segment
 lbaad:	dd 0	;;lba address
 	dd 0
 

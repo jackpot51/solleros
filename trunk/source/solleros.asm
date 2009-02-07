@@ -1,5 +1,6 @@
 	;SOLLEROS.ASM
 os:
+	call indexfiles
 	mov ah, 3
 	int 30h
 	mov esi, pwdask
