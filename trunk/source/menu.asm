@@ -45,16 +45,16 @@ findvideomodes:
 	cmp cx, 0xFFFF
 	je near nextvmode
 	cmp si, oemdata
-	jae near guiload	;;kill if no valid list is found
+	jae near guiload2	;;kill if no valid list is found
 	jmp findvideomodes 	
 ;;debug,shows vmodes available
 nextvmode:
 	sub si, 2
 	cmp si, reserved
-	jb near guiload
+	jb near guiload2
 	mov cx, [si]
 	cmp cx, 0xFFFF
-	je near guiload
+	je near guiload2
 	add cx, 0x4000 		;;Linear Frame Buffer
 	mov ax, 04F01h
 	mov di, VBEMODEINFOBLOCK
@@ -109,10 +109,21 @@ setvesamode:
 	xor edx, edx
 	xor esi, esi
 	xor edi, edi	;;reset registers
-jmp pmode
-
+	jmp pmode
+guiload2:
+	mov ax, 12h
+	mov bx, 0
+	int 10h
+	mov byte [guinodo], 1
+	xor ebx, ebx
+	xor ecx, ecx
+	xor edx, edx
+	xor esi, esi
+	xor edi, edi
+	jmp pmode
 ;;	jmp gui ;;test vesa
 
+guinodo db 0
 
     printrm:			; 'si' comes in with string address
 	    mov bx,07		; write to display

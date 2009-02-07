@@ -34,11 +34,6 @@ guiclearloop2:
 	mov dx, [resolutionx]
 	cmp cx, 0
 	ja guiclearloop2
-;	mov esi, [physbaseptr]
-;	mov [offscreenmemoffset], esi
-;	mov esi, 0xA00000
-;	mov [physbaseptr], esi
-;	call guiclear
 	mov byte [guion], 1
 	mov eax, 0
 	mov ebx, 0
@@ -1285,8 +1280,9 @@ endedbmp:
 ;;		mov ebx, internettest
 		mov [user2codepoint], ebx
 		mov ax, 0
-		jmp showwindow
+		call showwindow
 ;;		jmp internettest
+		jmp nwcmd
 		ret
 
 	gotomenuboot:
@@ -1296,7 +1292,8 @@ endedbmp:
 		mov ebx, os
 		mov [user2codepoint], ebx
 		mov ax, 0
-		jmp showwindow
+		call showwindow
+jmp os
 		ret
 
 	winblows:

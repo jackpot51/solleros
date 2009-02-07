@@ -80,7 +80,7 @@ dumppcidevicelp:
 	mov byte [firsthexshown],0
 	call showhex
 	jmp dumppcidevicelp
-dumppcidn:	
+dumppcidn:
 	mov byte [firsthexshown],2
 	call showhex
 	jmp searchpciret

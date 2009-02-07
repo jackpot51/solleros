@@ -5,8 +5,6 @@
 	pwd	db	"password",0
 	cmd	db	"[user@SollerOS-v0.9.0$]",0
 	line	db	13,10,0
-	unamemsg db	"SollerOS-v0.9.0 x86 Made from scratch with assembly by Jeremy Soller",10,13,0
-	helpmsg db	"This operating system is way too simple to warrant the creation of a help file.",10,13,0
     msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
     wrongmsg:  db "Please select one of the options above.",13,10,"You selected: ",0
 	batchmsg db "To run this batch type runbatch and press enter.",10,13,0

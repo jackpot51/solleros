@@ -174,11 +174,11 @@ uppercasegui:
 		call GETB 	;;Get the responce byte of the mouse (like: Hey i am active)
 				;;If the bytes are mixed up,
 				;;remove this line or add another of this line.
-		call GETB
+		;call GETB
 		mov byte [mouseon],1
 
 	maincall2:  
-		  in   al, 0x60		; read ps/2 controller output port (mousebyte)
+		  call GETB
 		  mov  bl, al
 		  and  bl, 1
 		  mov  BYTE [LBUTTON], bl
@@ -190,9 +190,9 @@ uppercasegui:
 		  and  bl, 4
 		  shr  bl, 2
 		  mov  BYTE [MBUTTON], bl
-		  in   al, 0x60		; read ps/2 controller output port (mousebyte)
+		  call GETB
 		  mov  BYTE [XCOORD], al
-		  in   al, 0x60		; read ps/2 controller output port (mousebyte)
+		  call GETB
 		  mov  BYTE [YCOORD], al
 
 	showpixelcursor:

@@ -14,7 +14,9 @@ newints:	;;for great justice
 	cmp ah, 6		;;originally 6
 	je near intx6	;;1=print char
 	cmp ah, 7
-	je near intx7 ;;read file
+	je near intx7	;;read file
+	cmp ah, 10
+	je near intx10	;;create thread
 	ret
 	
 intx0:
@@ -40,6 +42,9 @@ intx6:
 intx7:
 	call loadfile
 	ret
+intx10:
+;	call thread
+	ret
 	
 linebeginpos dw 0
 videobufpos: dw 0
@@ -49,13 +54,7 @@ charbuf dw 0
 
 int301:	;;print char, char in al, modifier in bl, will run videobuf2copy if called as is
 	call int301prnt
-	pusha
-	mov byte [mouseselecton], 0
-	mov byte [termcopyon], 1
-	cmp byte [termguion], 1
-	je near windowvideocopy
-	popa
-	ret
+	jmp termcopy
 termguion db 0
 termcopyon db 0
 int301prnt:
@@ -107,9 +106,7 @@ donescr:
 	int301nobmr:
 		sub dl, 2
 		mov ax, 0
-		mov [edi], ax
 		sub edi, 2
-		mov [edi], ax
 		jmp donecrnl
 	int301backline:
 		mov dl, cl
@@ -211,13 +208,7 @@ endkey303 db 0
 		inc esi
 		jmp int303b
 	doneint303:
-		pusha
-		mov byte [mouseselecton], 0
-		mov byte [termcopyon], 1
-		cmp byte [termguion], 1
-		je near windowvideocopy
-		popa
-		ret
+		jmp termcopy
 	
 endkey304 db 0
 	int304:	;;get line, al=last key, esi = buffer
@@ -268,6 +259,11 @@ firstesi305 dd 0
 	goodbscheck:
 		dec esi
 		mov byte [esi], 0
+		mov bl, [modkey305]
+		call int301
+		mov al, " "
+		call int301
+		mov al, 8
 		jmp bscheckequal
 		
 	clear:		
@@ -290,4 +286,65 @@ firstesi305 dd 0
 		dec ch
 		cmp ch, 0
 		jne int306b
-		ret
+	
+termcopy:	
+	pusha
+	mov byte [mouseselecton], 0
+	mov byte [termcopyon], 1
+	cmp byte [guion], 0
+	je near nowincopy
+	cmp byte [termguion], 1
+	je near windowvideocopy
+nowincopy:
+	mov esi, 0xA0000
+	sub esi, 0x20000
+	mov edi, videobuf2
+	mov ecx, 0
+	mov cx, [charxy]
+nowincopy2:
+	mov ebx, fonts
+	mov eax, 0
+	mov al, [edi]
+	shl eax, 4
+	add ebx, eax
+	inc edi
+	mov ah, [edi]
+	mov edx, 0
+	mov dl, [charxy]
+	shr edx, 1
+	rol ecx, 16
+	mov cl, 16
+nowinfont
+	mov al, [ebx]
+	ror al, 1
+	cmp ah, 7
+	jbe notnotfont
+	not al
+notnotfont:
+	mov [esi], al
+	add esi, edx
+	inc ebx
+	dec cl
+	cmp cl, 0
+	jne nowinfont
+	shl edx, 4
+	sub esi, edx
+	rol ecx, 16
+nopresentwinfont:
+	inc edi
+	inc esi
+	sub cl, 2
+	cmp cl, 0
+	jne nowincopy2
+	mov cl, [charxy]
+	mov edx, 0
+	mov dl, cl
+	shr edx, 1
+	sub esi, edx
+	shl edx, 4
+	add esi, edx
+	dec ch
+	cmp ch, 0
+	jne nowincopy2
+	popa
+	ret

@@ -1,5 +1,7 @@
 ;;disk.asm - new - using lba
 loadfile:	;;loads a file with the name buffer's location in edi into location in esi
+	cmp byte [edi], 0
+	je near nofileload
 	mov edx, edi
 	mov ebx, diskfileindex
 nextnamechar:
@@ -7,10 +9,15 @@ nextnamechar:
 	mov ah, [ebx]
 	inc edi
 	inc ebx
-	or al, ah
-	cmp al, 0
+	mov cl, al
+	or cl, ah
+	cmp cl, 0
+	je equalfilenames
+	cmp cl, ' '
 	je equalfilenames
 	cmp ah, 0
+	je nextfilename
+	cmp al, 0
 	je nextfilename
 	cmp al, ah
 	je nextnamechar
@@ -24,6 +31,7 @@ nextfilename:
 	mov edi, edx
 	cmp ebx, enddiskfileindex
 	jb nextnamechar
+nofileload:
 	mov edx, 404	;;indicate not found error
 	ret
 equalfilenames:
@@ -51,7 +59,8 @@ copytracksforfile:
 	dec eax
 	mov [filetracks], eax
 	mov ebx, edx	;;get end lba
-	mov cx, 0x80
+	mov cl, 0x80
+	mov ch, [DriveNumber]
 	mov esi, edi	;;reset buffer
 	call diskr
 	jmp copytracksforfile

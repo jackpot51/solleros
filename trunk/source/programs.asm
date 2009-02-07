@@ -95,6 +95,12 @@ db 5,4,"ls",0
 		jmp dir
 
 db 5,4,"disk",0
+		mov ecx, 0
+		mov cl, [DriveNumber]
+		mov byte [firsthexshown], 0
+		call showhex
+		mov esi, line
+		call print
 		mov esi, diskfileindex
 	diskindexdir:
 		call print
@@ -108,16 +114,6 @@ db 5,4,"disk",0
 		add esi, 9
 		cmp esi, enddiskfileindex
 		jb diskindexdir
-		jmp nwcmd
-		
-db 5,4,"uname",0
-	uname:	mov esi, unamemsg
-		call print
-		jmp nwcmd
-
-db 5,4,"help",0
-	help:	mov esi, helpmsg
-		call print
 		jmp nwcmd
 
 db 5,4,"clear",0
@@ -477,6 +473,8 @@ db 5,4,"batch",0
 	wordmsg db "Type \x to exit.",10,13,0
 		
 db 5,4,"showbmp",0
+		cmp byte [guion], 0
+		je near noguibmp
 		mov edi, buftxt
 		add edi, 8
 		mov esi, 0x100000
@@ -496,17 +494,36 @@ db 5,4,"showbmp",0
 		mov esi, loadedbmpmsg
 		call print
 		jmp nwcmd
+noguibmp:
+		mov esi, warnguibmp
+		call print
+		jmp nwcmd
+warnguibmp db "This can not be done without the gui.",10,13,0
 
 db 5,4,"showtxt",0
 		mov edi, buftxt
 		add edi, 8
 		mov esi, 0x100000
 		call loadfile
+		cmp edx, 404
+		je near filenotfound
 		mov esi, 0x100000
 		call print
 		mov esi, line
 		call print
 		jmp nwcmd
+		
+filenotfound:
+		mov esi, filenf
+		call print
+		mov esi, buftxt
+		add esi, 8
+		call print
+		mov esi, filenf2
+		call print
+		jmp nwcmd
+filenf db "The file ",34,0
+filenf2 db 34," could not be found.",13,10,0
 		
 loadedbmpmsg db " loaded.",13,10,0
 
@@ -872,6 +889,22 @@ svdone:	mov al, 0
 	mov [ebx], al
 	jmp nwcmd
 
+	db 5,4,"dump",0
+	mov esi, buftxt
+	add esi, 5
+	mov ecx, 0
+	call cnvrttxt
+	mov edi, ecx
+	mov esi, edi
+	add esi, 896
+	mov byte [firsthexshown],0
+dumphexloop:
+	mov ecx, [edi]
+	call showhex
+	add edi, 4
+	cmp edi, esi
+	jb dumphexloop
+	jmp nwcmd
 	
 	db 5,4,"exp",0
 	mov eax, 0x12345678
@@ -896,12 +929,13 @@ rundiskprog:
 	add ebx, 2
 	jmp ebx
 noprogfound:
-	jmp nwcmd
-
-db 5,4,"fps",0
-	mov ecx, 0
-	mov cl, [fps]
-	call showhex
+	mov esi, notfound1
+	call print
+	mov esi, buftxt
+	add esi, 2
+	call print
+	mov esi, notfound2
+	call print
 	jmp nwcmd
 
 db 5,4,"time",0

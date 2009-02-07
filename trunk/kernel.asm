@@ -10,6 +10,7 @@
     %include 'source/gui.asm'
     ;%include 'source/network.asm'
 	%include 'source/pci.asm'
+	;%include 'source/process.asm'
     %include 'source/disk.asm'
     %include 'source/msg.asm'
     %include 'files.asm'

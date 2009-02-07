@@ -7,23 +7,35 @@ os:
 
 passcheck:
 	mov esi, buftxt
-	mov al, 13
-	mov bl, 7
-
-	mov cx, 200h
-	mov ah, 2
-	int 30h
-	jmp passenter
-pwdrgt:	call clear
-	mov cx, 200h
-	mov esi, buftxt
+passcheck2:
 	mov al, 0
-bufclr:	mov [esi], al
+	mov ah, 5
+	int 30h
+	cmp al, 13
+	je near gotpass
+	cmp al, 8
+	je near backpass
+	mov [esi], al
 	inc esi
-	loop bufclr
-	jmp nwcmd
-
-passenter:
+	mov al, '*'
+	mov ah, 6
+	int 30h
+	jmp passcheck2
+backpass:
+	cmp esi, buftxt
+	je near passcheck2
+	dec esi
+	mov al, 8
+	mov ah, 6
+	int 30h
+	mov al, " "
+	mov ah, 6
+	int 30h
+	mov al, 8
+	mov ah, 6
+	int 30h
+	jmp passcheck2
+gotpass:
 	mov al,0
 	mov [esi], al
 	mov esi, line
@@ -34,7 +46,14 @@ passenter:
 	cmp al, 1
 	je pwdrgt
 	jmp os
-fullpass: jmp passenter
+pwdrgt:	call clear
+	mov cx, 200h
+	mov esi, buftxt
+	mov al, 0
+bufclr:	mov [esi], al
+	inc esi
+	loop bufclr
+	jmp nwcmd
 
 buftxtclear:
 	mov al, 0
