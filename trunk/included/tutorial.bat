@@ -10,8 +10,9 @@ stop
 fi
 if $a=yes
 clear
-dir
-$b=
+ls
+echo Press any key to continue.
+wait
 clear
 echo ls and dir-these show all available programs
 echo menu-this returns to the boot menu

@@ -4,7 +4,7 @@ os:
 	int 30h
 	mov esi, pwdask
 	call print
-
+	call cursorgui
 passcheck:
 	mov esi, buftxt
 passcheck2:
@@ -536,9 +536,8 @@ cnvrtlptxt:
 	dec esi
 	mov al, [esi]
 	cmp al, '0'
-	je zerotest
-	jmp txtlp
-zerotest: cmp esi, buftxt
+	jne txtlp
+zerotest: cmp esi, edi
 	je donecnvrt
 txtlp:	
 	mov eax, 0
@@ -549,7 +548,7 @@ txtlp:
 	jb donecnvrt
 	cmp al, '#'
 	je donecnvrt
-	cmp esi, buftxt
+	cmp esi, edi
 	jb donecnvrt
 	cmp ecx, 0
 	ja exp

@@ -37,8 +37,10 @@ public class filecopy {
         };
         File dir = new File("included");
         String[] files = dir.list(filter);
-        File indexlist = new File("files.asm");
+        File indexlist = new File("fileindex.asm");
+        File filelist = new File("files.asm");
         BufferedWriter br = new BufferedWriter(new FileWriter(indexlist));
+        BufferedWriter br2 = new BufferedWriter(new FileWriter(filelist));
         br.write("diskfileindex:\n");
         for(int i=0; i<files.length; i++)
         {
@@ -47,15 +49,16 @@ public class filecopy {
             br.write("dd (f" + (i + 1) + "-f" + i + ")/512\n");
         }
         br.write("enddiskfileindex:\n\n");
-        br.write("align 512,db 0\n");
+		br.close();
+		br2.write("align 512,db 0\n");
         for(int i=0; i<files.length; i++)
         {
-            br.write("f" + i + ":\n");
-            br.write("incbin " + "\"included/" + files[i] + "\"\n");
-            br.write("align 512,db 0\n");
+            br2.write("f" + i + ":\n");
+            br2.write("incbin " + "\"included/" + files[i] + "\"\n");
+			br2.write("align 512,db 0\n");
         }
-        br.write("f" + files.length + ":\n");
-        br.close();
+        br2.write("f" + files.length + ":\n");
+        br2.close();
     }
 
 }

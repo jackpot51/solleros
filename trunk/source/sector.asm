@@ -61,11 +61,11 @@ ORG 7c00h
 	mov fs,		ax
 	mov gs,		ax
 
-Resetdrive:
-	mov ax,		0x00		; Select Floppy Reset BIOS Function
-        mov dl,		[DriveNumber]	; Select the floppy booted from
-        int 13h				; Reset the floppy drive
-        jc Resetdrive		; If there was a error, try again.
+;Resetdrive:
+;	mov ax,		0x00		; Select Floppy Reset BIOS Function
+;        mov dl,		[DriveNumber]	; Select the floppy booted from
+;        int 13h				; Reset the floppy drive
+;        jc Resetdrive		; If there was a error, try again.
 
 	mov si, sectormsg2
 	call print2
@@ -207,7 +207,7 @@ db '  ',0
 diskaddresspacket:
 len:	db 0x10 ;;size of packet
 	db 0
-readlen:	dw 0x80	;;blocks to read
+readlen:	dw 0x7F	;;blocks to read
 address:	dw 0x0	;;address 0
 segm:	dw 0x2000	;;segment
 lbaad:	dd 0	;;lba address

@@ -17,14 +17,14 @@ mainindexdn:
 	mov ax, 12h
 	mov bx, 0
 	int 10h
-;	mov si, graphicstable
-;	mov di, rbuffstart
-;	mov eax, 0
-;initmemory:		;;no longer necessary
-;	mov [si], eax
-;	add si, 4
-;	cmp si, di
-;	jbe initmemory
+	mov si, graphicstable
+	mov di, endbss
+	mov eax, 0
+initmemory:
+	mov [si], eax
+	add si, 4
+	cmp si, di
+	jbe initmemory
 	jmp guiload
 
 DriveNumber db 0
@@ -111,6 +111,12 @@ setvesamode:
 	xor edi, edi	;;reset registers
 	jmp pmode
 guiload2:
+	mov cx, 480
+	mov dx, 640
+	mov [resolutionx], dx
+	add dx, dx
+	mov [resolutionx2], dx
+	mov [resolutiony], cx
 	mov ax, 12h
 	mov bx, 0
 	int 10h

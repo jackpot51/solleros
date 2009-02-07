@@ -168,16 +168,21 @@ uppercasegui:
 		je near maincall2
 
 	initmouse:
+		cmp byte [guion], 0
+		je initmouseterm
 		call switchmousepos2
+	initmouseterm:
 	  	call PS2SET
 		call ACTMOUS
+		mov byte [mouseon],1
 		call GETB 	;;Get the responce byte of the mouse (like: Hey i am active)
 				;;If the bytes are mixed up,
 				;;remove this line or add another of this line.
 		;call GETB
-		mov byte [mouseon],1
-
-	maincall2:  
+	ret
+	maincall2:
+		  cmp byte [mouseon], 1
+		  jne initmouse
 		  call GETB
 		  mov  bl, al
 		  and  bl, 1
@@ -252,6 +257,8 @@ uppercasegui:
 	nofixyrow2:
 		mov [mousecursorposition], dx
 		mov [mousecursorposition + 2], cx
+		cmp byte [guion], 0
+		je near termmouse
 		call switchmousepos ;;use dragging code to ensure proper icon drag
 		cmp byte [LBUTTON], 1
 		je near clickicon
@@ -286,8 +293,53 @@ uppercasegui:
 lastmouseposition dw 132,132
 mousecursorposition dw 132,132	
 
-		
-		
+termmouse:
+	ret	;;lets try this later
+		mov esi, videobuf2
+		mov edx, 0
+		mov dx, [lastmouseposition]
+		mov cx, [lastmouseposition + 2]
+		mov ax, [cursorcache]
+		cmp ax, 0
+		je nocopycursorcache
+		shl cx, 4
+		shl dx, 3
+		add esi, edx
+		mov dx, 0
+		mov dl, [charxy]
+		inc cx
+termmousecplp1:
+		add esi, edx
+		dec cx
+		cmp cx, 0
+		jne termmousecplp1
+		sub esi, edx
+		mov [esi], ax
+nocopycursorcache:
+		mov esi, videobuf2
+		mov edx, 0
+		mov dx, [mousecursorposition]
+		mov cx, [mousecursorposition + 2]
+		shl cx, 4
+		shl dx, 3
+		add esi, edx
+		mov dx, 0
+		mov dl, [charxy]
+		inc cx
+termmousecplp2:
+		add esi, edx
+		dec cx
+		cmp cx, 0
+		jne termmousecplp2
+		sub esi, edx
+		mov ax, [esi]
+		mov [cursorcache], ax
+		mov al, 128
+		mov ah, 7
+		mov [esi], ax
+		call termcopy
+		ret
+cursorcache db 0,0
 	
 scancode:
 	db 0,0		;,0h
