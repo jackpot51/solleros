@@ -26,8 +26,8 @@ pmode:
 	cli
 	lgdt [gdtr]
 	lidt [idtr]
-	mov ax, ds
-	mov [cscache], ax
+	mov bx, ds
+	mov [cscache], bx
 	mov eax,cr0
 	or al,1
 	mov cr0,eax
@@ -40,18 +40,13 @@ do_pm:
 	nop
 	mov es,ax
 	mov fs,ax
-	mov gs,ax
-
-	mov edi, [physbaseptr]
-	mov eax, 0
-	mov ax, [cscache]
-	shl eax, 4
-	sub edi, eax
-	mov [physbaseptr], edi
-	
+	mov gs,ax	
 	cmp byte [guinodo], 0
-	je near gui
+	je near guido
 	jmp os
+	
+guido:
+	jmp gui
 	
 user2codepoint dw 0,0
 cscache dw 0

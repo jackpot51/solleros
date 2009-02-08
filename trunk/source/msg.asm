@@ -49,86 +49,85 @@ cursorbmp:
 	db	0,0,0,0,0,1,1,0
 cursorbmpend:
 ;;; ZEROS-THESE DO NOT NEED TO BE COMPILED BUT ADDRESSES SHOULD BE USED
-[section .bss]
+;;[section .bss] ;nevermind
 
 graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
-	resb 200h
+	times 200h db 0
 	graphicstableend:
 mousecolorbuf: ;where the gui under the mouse is stored
-	resb 256
+	times 256 db 0
 mcolorend:
-IFON resb 1
-IFTRUE resb 100
-BATCHPOS resb 4
-BATCHISON resb 1
-LOOPON resb 1
-LOOPPOS	resb 4
-fileindex: resb 200h
+IFON times 1 db 0
+IFTRUE times 100 db 0
+BATCHPOS times 4 db 0
+BATCHISON times 1 db 0
+LOOPON times 1 db 0
+LOOPPOS	times 4 db 0
+fileindex: times 200h db 0
 fileindexend:
-variables: 	resb 500h
-varend: resb 1
-buftxt: resb 200h
-buf2:	resb 20
-numbuf: resb 1
-videobuf2 	resb 0x12C0
-videobufend:
-	resb 200
+variables: 	times 500h db 0
+varend: times 1 db 0
+buftxt: times 200h db 0
+buf2:	times 20 db 0
+numbuf: times 1 db 0
+videobuf2 		times 0x12C0 db 0
+videobufend		times 200 db 0
 
 VBEMODEBLOCK:
-vbesignature 	resb 4 	;VBE Signature
-vbeversion  		resb 2    ;VBE Version
-oemstringptr  		resb 4  ;Pointer to OEM String
-capabilities 	resb 4   	;Capabilities of graphics cont.
-videomodeptr 		resb 4 	;Pointer to Video Mode List
-totalmemory   		resb 2     ;number of 64Kb memory blocks
-oemsoftwarerev  	resb 2		;VBE implementation Software revision
-oemvendornameptr 	resb 4 	;Pointer to Vendor Name String
-oemproductnameptr 	resb 4 	;Pointer to Product Name String
-oemproductrevptr 	resb 4  	;Pointer to Product Revision String
-reserved	resb 222 	;Reserved for VBE implementation scratch area
-oemdata 	resb 256 	;Data Area for OEM Strings
+vbesignature 		times 4 db 0	;VBE Signature
+vbeversion  		times 2 db 0	;VBE Version
+oemstringptr  		times 4 db 0	;Pointer to OEM String
+capabilities 		times 4 db 0	;Capabilities of graphics cont.
+videomodeptr 		times 4 db 0	;Pointer to Video Mode List
+totalmemory   		times 2 db 0	;number of 64Kb memory blocks
+oemsoftwarerev  	times 2 db 0	;VBE implementation Software revision
+oemvendornameptr 	times 4 db 0	;Pointer to Vendor Name String
+oemproductnameptr 	times 4 db 0	;Pointer to Product Name String
+oemproductrevptr 	times 4 db 0	;Pointer to Product Revision String
+reserved			times 222 db 0	;Reserved for VBE implementation scratch area
+oemdata 			times 256 db 0	;Data Area for OEM Strings
 
 
 VBEMODEINFOBLOCK:
 ;Mandatory information for all VBE revision
-modeattributes   resb 2  ;Mode attributes
-winaattributes   resb 1  ;Window A attributes
-winbattributes   resb 1  ;Window B attributes
-wingranularity   resb 2  ;Window granularity
-winsize          resb 2  ;Window size
-winasegment      resb 2  ;Window A start segment
-winbsegment      resb 2  ;Window B start segment
-winfuncptr       resb 4  ;pointer to window function
-bytesperscanline resb 2  ;Bytes per scan line
+modeattributes   	times 2 db 0	;Mode attributes
+winaattributes   	times 1 db 0	;Window A attributes
+winbattributes   	times 1 db 0	;Window B attributes
+wingranularity   	times 2 db 0	;Window granularity
+winsize          	times 2 db 0	;Window size
+winasegment      	times 2 db 0	;Window A start segment
+winbsegment      	times 2 db 0	;Window B start segment
+winfuncptr       	times 4 db 0	;pointer to window function
+bytesperscanline 	times 2 db 0	;Bytes per scan line
 
 ;Mandatory information for VBE 1.2 and above
-xresolution     resb 2	    ;Horizontal resolution in pixel or chars
-yresolution	    resb 2        ;Vertical resolution in pixel or chars
-xcharsize       resb 1	    ;Character cell width in pixel
-ycharsize       resb 1	    ;Character cell height in pixel
-numberofplanes  resb 1	    ;Number of memory planes
-bitsperpixel    resb 1	    ;Bits per pixel
-numberofbanks   resb 1	    ;Number of banks
-memorymodel     resb 1	    ;Memory model type
-banksize        resb 1 	    ;Bank size in KB
-numberofimagepages    resb 1  ;Number of images
-reserved1       resb 1	    ;Reserved for page function
+xresolution     	times 2 db 0	;Horizontal resolution in pixel or chars
+yresolution	    	times 2 db 0	;Vertical resolution in pixel or chars
+xcharsize       	times 1 db 0	;Character cell width in pixel
+ycharsize       	times 1 db 0	;Character cell height in pixel
+numberofplanes  	times 1 db 0	;Number of memory planes
+bitsperpixel    	times 1 db 0	;Bits per pixel
+numberofbanks   	times 1 db 0	;Number of banks
+memorymodel     	times 1 db 0	;Memory model type
+banksize        	times 1 db 0	;Bank size in KB
+numberofimagepages	times 1 db 0	;Number of images
+reserved1       	times 1 db 0	;Reserved for page function
 
 ;Direct Color fields (required for direct/6 and YUV/7 memory models)
-redmasksize		resb 1        ;Size of direct color red mask in bits
-redfieldposition	resb 1	    ;Bit position of lsb of red bask
-greenmasksize   	resb 1	    ;Size of direct color green mask in bits
-greenfieldposition	resb 1	    ;Bit position of lsb of green bask
-bluemasksize		resb 1      ;Size of direct color blue mask in bits
-bluefieldposition	resb 1	    ;Bit position of lsb of blue bask
-rsvdmasksize        resb 1	    ;Size of direct color reserved mask in bits
-rsvdfieldposition	resb 1	    ;Bit position of lsb of reserved bask
-directcolormodeinfo	resb 1	    ;Direct color mode attributes
+redmasksize			times 1 db 0	;Size of direct color red mask in bits
+redfieldposition	times 1 db 0	;Bit position of lsb of red bask
+greenmasksize   	times 1 db 0	;Size of direct color green mask in bits
+greenfieldposition	times 1 db 0	;Bit position of lsb of green bask
+bluemasksize		times 1 db 0	;Size of direct color blue mask in bits
+bluefieldposition	times 1 db 0	;Bit position of lsb of blue bask
+rsvdmasksize        times 1	db 0	;Size of direct color reserved mask in bits
+rsvdfieldposition	times 1	db 0	;Bit position of lsb of reserved bask
+directcolormodeinfo	times 1 db 0	;Direct color mode attributes
 
 ;Mandatory information for VBE 2.0 and above
-physbaseptr resb 4         ;Physical address for flat frame buffer
-offscreenmemoffset resb 4  ;Pointer to start of off screen memory
-offscreenmemsize resb 2      ;Amount of off screen memory in 1Kb units
-reserved2 resb 206   ;Remainder of ModeInfoBlock
+physbaseptr 		times 4 db 0	;Physical address for flat frame buffer
+offscreenmemoffset 	times 4 db 0	;Pointer to start of off screen memory
+offscreenmemsize 	times 2 db 0    ;Amount of off screen memory in 1Kb units
+reserved2 			times 206 db 0  ;Remainder of ModeInfoBlock
 endbss:
-[section .text]
+;;[section .text]

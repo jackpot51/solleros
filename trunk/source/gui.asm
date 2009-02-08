@@ -19,6 +19,10 @@ background dw 0111101111001111b
 
 gui:	;Let's see what I can do, I am going to try to make this as freestanding as possible
 	call indexfiles
+	mov eax, 0
+	mov ebx, 0
+	mov ecx, 0
+	mov edx, 0
 	mov edi, [physbaseptr]
 	mov dx, [resolutionx]
 	mov cx, [resolutiony]
@@ -34,6 +38,7 @@ guiclearloop2:
 	cmp cx, 0
 	jne near guiclearloop2
 	mov byte [guion], 1
+	mov byte [mouseselecton], 0
 	mov eax, 0
 	mov ebx, 0
 	mov ecx, 0
@@ -1072,12 +1077,14 @@ colorfont dw 0xFFFF
 savefontvesa:		;;same rules as showfontvesa
 	mov byte [savefonton], 1
 showfontvesa:		;;position in (dx,cx), color in bx, char in al
-	and eax, 0xFF
 	mov [posyvesa], cx
 	mov [posxvesa], dx
 	mov edi, [physbaseptr]
 	mov [colorfont], bx
 	mov ebx, 0
+	mov bl, al
+	mov eax, 0
+	mov al, bl
 	mov bx, dx
 	mov edx, ebx
 	mov ebx, 0

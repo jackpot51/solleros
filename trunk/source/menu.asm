@@ -17,14 +17,14 @@ mainindexdn:
 	mov ax, 12h
 	mov bx, 0
 	int 10h
-	mov si, graphicstable
-	mov di, endbss
-	mov eax, 0
-initmemory:
-	mov [si], eax
-	add si, 4
-	cmp si, di
-	jbe initmemory
+;	mov si, graphicstable
+;	mov di, endbss
+;	mov eax, 0
+;initmemory:
+;	mov [si], eax
+;	add si, 4
+;	cmp si, di
+;	jb initmemory
 	jmp guiload
 
 DriveNumber db 0
@@ -97,6 +97,14 @@ setvesamode:
 	mov ax, 04F02h
 	mov bx, [vesamode]
 	int 10h		;;enter VESA mode
+	mov edi, [physbaseptr]
+	mov eax, 0
+	mov ax, ds
+	shl eax, 4
+	sub edi, eax
+	nop
+	nop
+	mov [physbaseptr], edi
 	mov byte [guinodo], 0
 	xor eax, eax
 	xor ebx, ebx

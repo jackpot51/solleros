@@ -166,12 +166,10 @@ uppercasegui:
 	cursorgui:
 		cmp byte [mouseon], 1
 		je near maincall2
-
-	initmouse:
 		cmp byte [guion], 0
-		je initmouseterm
+		je near guientdown
+	initmouse:
 		call switchmousepos2
-	initmouseterm:
 	  	call PS2SET
 		call ACTMOUS
 		mov byte [mouseon],1
@@ -179,7 +177,7 @@ uppercasegui:
 				;;If the bytes are mixed up,
 				;;remove this line or add another of this line.
 		;call GETB
-	ret
+		ret
 	maincall2:
 		  cmp byte [mouseon], 1
 		  jne initmouse
@@ -257,8 +255,6 @@ uppercasegui:
 	nofixyrow2:
 		mov [mousecursorposition], dx
 		mov [mousecursorposition + 2], cx
-		cmp byte [guion], 0
-		je near termmouse
 		call switchmousepos ;;use dragging code to ensure proper icon drag
 		cmp byte [LBUTTON], 1
 		je near clickicon
