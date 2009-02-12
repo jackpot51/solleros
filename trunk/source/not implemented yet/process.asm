@@ -48,7 +48,3 @@ thread:
 	shl ebx, 9
 	add edi, ebx
 	ret
-
-processcache:	;;512 byte stack is all that is needed now
-times 5 times 512 db 0
-processcacheend:

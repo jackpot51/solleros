@@ -1,13 +1,18 @@
 	exitmsg db	"exit",0
 	notfound1 db "Program ",34,0
 	notfound2 db  34," not found.",13,10,0
-	pwdask	db	"Enter Password:",0
-	pwd	db	"password",0
-	cmd	db	"[user@SollerOS-v0.9.0$]",0
+	userask db "username:",0
+	pwdask	db	"password:",0
+	location	db	"@SollerOS ",0
+	cmd		db "$]",0
 	line	db	13,10,0
-    msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
-    wrongmsg:  db "Please select one of the options above.",13,10,"You selected: ",0
-	batchmsg db "To run this batch type runbatch and press enter.",10,13,0
+    ;msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
+	userlst:
+			db "user",0
+			db "password",0
+			db "root",0
+			db "awesomepower",0
+	userlstend:
 	
 fonts:	incbin 'source/precompiled/fonts.pak'
 fontend2:
@@ -30,48 +35,25 @@ mcursor:
 	db	00001100b
 fontend:
 
-cursorbmp:
-	db	1,0,0,0,0,0,0,0
-	db	1,1,0,0,0,0,0,0
-	db	1,1,1,0,0,0,0,0
-	db	1,1,1,1,0,0,0,0
-	db	1,1,1,1,1,0,0,0
-	db	1,1,1,1,1,1,0,0
-	db	1,1,1,1,1,1,1,0
-	db	1,1,1,1,1,1,1,1
-	db	1,1,1,1,1,1,0,0
-	db	1,1,0,1,1,1,0,0
-	db	1,0,0,1,1,1,0,0
-	db	0,0,0,0,1,1,1,0
-	db	0,0,0,0,1,1,1,0
-	db	0,0,0,0,0,1,1,1
-	db	0,0,0,0,0,1,1,1
-	db	0,0,0,0,0,1,1,0
-cursorbmpend:
-;;; ZEROS-THESE DO NOT NEED TO BE COMPILED BUT ADDRESSES SHOULD BE USED
-;;[section .bss] ;nevermind
+;cursorbmp:
+;	db	1,0,0,0,0,0,0,0
+;	db	1,1,0,0,0,0,0,0
+;	db	1,1,1,0,0,0,0,0
+;	db	1,1,1,1,0,0,0,0
+;	db	1,1,1,1,1,0,0,0
+;	db	1,1,1,1,1,1,0,0
+;	db	1,1,1,1,1,1,1,0
+;	db	1,1,1,1,1,1,1,1
+;	db	1,1,1,1,1,1,0,0
+;	db	1,1,0,1,1,1,0,0
+;	db	1,0,0,1,1,1,0,0
+;	db	0,0,0,0,1,1,1,0
+;	db	0,0,0,0,1,1,1,0
+;	db	0,0,0,0,0,1,1,1
+;	db	0,0,0,0,0,1,1,1
+;	db	0,0,0,0,0,1,1,0
+;cursorbmpend:
 
-graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
-	times 200h db 0
-	graphicstableend:
-mousecolorbuf: ;where the gui under the mouse is stored
-	times 256 db 0
-mcolorend:
-IFON times 1 db 0
-IFTRUE times 100 db 0
-BATCHPOS times 4 db 0
-BATCHISON times 1 db 0
-LOOPON times 1 db 0
-LOOPPOS	times 4 db 0
-fileindex: times 200h db 0
-fileindexend:
-variables: 	times 500h db 0
-varend: times 1 db 0
-buftxt: times 200h db 0
-buf2:	times 20 db 0
-numbuf: times 1 db 0
-videobuf2 		times 0x12C0 db 0
-videobufend		times 200 db 0
 
 VBEMODEBLOCK:
 vbesignature 		times 4 db 0	;VBE Signature
@@ -129,5 +111,3 @@ physbaseptr 		times 4 db 0	;Physical address for flat frame buffer
 offscreenmemoffset 	times 4 db 0	;Pointer to start of off screen memory
 offscreenmemsize 	times 2 db 0    ;Amount of off screen memory in 1Kb units
 reserved2 			times 206 db 0  ;Remainder of ModeInfoBlock
-endbss:
-;;[section .text]

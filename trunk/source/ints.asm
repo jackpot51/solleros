@@ -297,8 +297,7 @@ termcopy:
 	je near windowvideocopy
 nowincopy:
 	mov esi, 0xA0000
-	mov eax, 0
-	mov ax, [cscache]
+	mov eax, [basecache]
 	shl eax, 4
 	sub esi, eax
 	mov edi, videobuf2

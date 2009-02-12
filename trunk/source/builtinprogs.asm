@@ -1,8 +1,8 @@
 filetypes db 5,4,6,4,7,4
 progstart:		;programs start here
-db 5,4,"index",0
-	call indexfiles
-	jmp nwcmd
+;db 5,4,"index",0
+;	call indexfiles
+;	jmp nwcmd
 indexfiles:
 	mov esi, progstart
 	mov ebx, fileindex
@@ -50,23 +50,23 @@ indexloop2done:
 indexloopdone: 	ret
 
 
-db 5,4,"showindex",0
-	mov esi, fileindex
-	mov ebx, fileindexend
-	mov cl, 5
-	mov ch, 4
-	call array
-	mov esi, fileindex
-	mov ebx, fileindexend
-	mov cl, 6
-	mov ch, 4
-	call array
-	mov esi, fileindex
-	mov ebx, fileindexend
-	mov cl, 7
-	mov ch, 4
-	call array
-	jmp nwcmd
+;db 5,4,"showindex",0
+;	mov esi, fileindex
+;	mov ebx, fileindexend
+;	mov cl, 5
+;	mov ch, 4
+;	call array
+;	mov esi, fileindex
+;	mov ebx, fileindexend
+;	mov cl, 6
+;	mov ch, 4
+;	call array
+;	mov esi, fileindex
+;	mov ebx, fileindexend
+;	mov cl, 7
+;	mov ch, 4
+;	call array
+;	jmp nwcmd
 
 db 5,4,"ls",0
 	lscmd:	mov esi, progstart
@@ -539,7 +539,7 @@ rundiskprog:
 	je noprogfound
 	mov ebx, 0x100000
 	cmp word [ebx], "EX"
-	jne noprogfound
+	jne progbatchfound
 	add ebx, 2
 	jmp ebx
 noprogfound:
@@ -551,6 +551,109 @@ noprogfound:
 	mov esi, notfound2
 	call print
 	jmp nwcmd
+progbatchfound:
+		mov edi, 0x100000
+		mov byte [BATCHISON], 1
+	batchrunloop:
+		call buftxtclear
+		mov esi, buftxt
+	batchrunloop2:
+		mov cl, 13
+		mov ch, 10
+		cmp [edi], cx
+		je near nxtbatchrunline
+		rol cx, 8
+		cmp [edi], cx
+		je near nxtbatchrunline
+		cmp byte [edi], 0
+		je near nxtbatchrunline
+		mov al, [edi]
+		mov [esi], al
+		inc esi
+		inc edi
+		jmp batchrunloop2
+	nxtbatchrunline:
+		add edi, 2
+		mov [batchedi], edi
+		mov byte [esi], 0
+		mov esi, buftxt
+		cmp byte [esi], 0
+		je near nobatchfoundrun
+		mov ebx, 0
+		mov bl, [IFON]
+		cmp bl, 1
+		jae near iftestbatch
+	doneiftest:
+		cmp byte [runnextline], 0
+		je near noruniftest
+		call progtest
+	noruniftest:
+		mov byte [runnextline], 1
+		mov edi, [batchedi]
+		cmp byte [edi], 0
+		jne near batchrunloop
+	nobatchfoundrun:
+		mov byte [BATCHISON], 0
+		jmp nwcmd
+	
+batchedi dd 0	
+	
+	iftestbatch:
+		mov esi, IFTRUE
+		add esi, ebx
+		cmp byte [esi], 0
+		jne near doneiftest
+		mov [iffalsebuf], bl
+		cmp byte [LOOPON], 1
+		jne fifindbatch
+		mov edi, [LOOPPOS]
+		jmp batchrunloop
+	fifindbatch:
+		mov cx, "if"
+		mov ax, "fi"
+		cmp [edi], ax
+		je near fifoundbatch
+		cmp [edi], cx
+		je near iffoundbatch
+		cmp byte [edi], 0
+		je near fifoundbatch
+		add edi, 2
+		jmp fifindbatch
+	fifoundbatch:
+		add edi, 2
+		mov al, 13
+		mov ah, 10
+		cmp [edi], ax
+		je goodfibatch
+		rol ax, 8
+		cmp [edi], ax
+		je goodfibatch
+		cmp byte [edi], 0
+		je near nobatchfoundrun
+		jmp fifindbatch
+	goodfibatch:
+		mov al, 1
+		sub [IFON], al 
+		mov al, [IFON]
+		mov bl, [iffalsebuf]
+		cmp al, bl
+		ja fifindbatch
+		mov esi, buftxt
+		sub edi, 2
+		mov byte [runnextline], 0
+		jmp batchrunloop
+	iffoundbatch:
+		mov al, ' '
+		add edi, 2
+		cmp [edi], al
+		jne near fifindbatch
+		mov al, 1
+		add [IFON], al
+		jmp fifindbatch
+		
+		
+runnextline db 1
+iffalsebuf db 0
 
 notbatch: jmp nwcmd
 

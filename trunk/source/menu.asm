@@ -1,5 +1,5 @@
     ; MENU.ASM
-prog:	
+menustart:	
 	    mov ax, cs
 	    jmp mainindex	;;this command gives the solleros user the location of mainindex
 	    db "JRS",0	;;this gives the bootloader a key to look for
@@ -17,14 +17,6 @@ mainindexdn:
 	mov ax, 12h
 	mov bx, 0
 	int 10h
-;	mov si, graphicstable
-;	mov di, endbss
-;	mov eax, 0
-;initmemory:
-;	mov [si], eax
-;	add si, 4
-;	cmp si, di
-;	jb initmemory
 	jmp guiload
 
 DriveNumber db 0
@@ -97,14 +89,6 @@ setvesamode:
 	mov ax, 04F02h
 	mov bx, [vesamode]
 	int 10h		;;enter VESA mode
-	mov edi, [physbaseptr]
-	mov eax, 0
-	mov ax, ds
-	shl eax, 4
-	sub edi, eax
-	nop
-	nop
-	mov [physbaseptr], edi
 	mov byte [guinodo], 0
 	xor eax, eax
 	xor ebx, ebx

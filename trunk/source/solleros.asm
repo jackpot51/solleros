@@ -1,14 +1,22 @@
 	;SOLLEROS.ASM
 os:
-	call indexfiles
-	mov ah, 3
+	call clear
+	mov esi, userask
+	call print
+usercheck:
+	mov esi, buftxt
+	mov al, 13
+	mov ah, 4
 	int 30h
+	push esi
+	mov esi, line
+	call print
 	mov esi, pwdask
 	call print
-	call cursorgui
+	pop esi
+	inc esi
+	mov [esipass], esi
 passcheck:
-	mov esi, buftxt
-passcheck2:
 	mov al, 0
 	mov ah, 5
 	int 30h
@@ -21,10 +29,10 @@ passcheck2:
 	mov al, '*'
 	mov ah, 6
 	int 30h
-	jmp passcheck2
+	jmp passcheck
 backpass:
-	cmp esi, buftxt
-	je near passcheck2
+	cmp esi, [esipass]
+	je near passcheck
 	dec esi
 	mov al, 8
 	mov ah, 6
@@ -35,18 +43,37 @@ backpass:
 	mov al, 8
 	mov ah, 6
 	int 30h
-	jmp passcheck2
+	jmp passcheck
 gotpass:
 	mov al,0
 	mov [esi], al
 	mov esi, line
 	call print
+	mov ebx, userlst
+userfind:
 	mov esi, buftxt
-	mov ebx, pwd
+	mov al, [esi]
+	cmp al, 0
+	je near os
+	mov [usercache], ebx
+	call tester
+	cmp al, 1
+	je pwdtest
+nxtuser:
+	inc ebx
+	mov al, [ebx]
+	cmp al, 0
+	je userfind
+	cmp ebx, userlstend
+	jae near os
+	jmp userfind
+pwdtest:
+	inc esi
+	inc ebx
 	call tester
 	cmp al, 1
 	je pwdrgt
-	jmp os
+	jmp nxtuser
 pwdrgt:	call clear
 	mov cx, 200h
 	mov esi, buftxt
@@ -54,8 +81,12 @@ pwdrgt:	call clear
 bufclr:	mov [esi], al
 	inc esi
 	loop bufclr
+;;;;;;;;;;;;;;;;
 	jmp nwcmd
 
+esipass dd 0
+usercache dd userlst
+	
 buftxtclear:
 	mov al, 0
 	mov esi, buftxt
@@ -81,6 +112,17 @@ nwcmd:	mov al, 1
 cancel:	mov al, 0
 	mov [IFON], al
 	mov [BATCHISON], al
+	mov al, '['
+	mov ah, 6
+	mov bx, 7
+	call int301prnt
+	mov esi, [usercache]
+	call print
+	mov esi, location
+	call print
+	call time
+	mov esi, timeshow
+	call print
 	mov esi, cmd
 	call print
 	call buftxtclear
@@ -131,7 +173,11 @@ prggood: cmp ebx, fileindexend
 	nop
 	nop
 	jmp edi
-prgnf:	mov esi, notfound1
+prgnf:	
+	mov al, [buftxt]
+	cmp al, 0
+	je prgdn
+	mov esi, notfound1
 	call print
 	mov esi, buftxt
 	call print

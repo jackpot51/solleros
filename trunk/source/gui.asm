@@ -18,7 +18,6 @@ guiclearloop:
 background dw 0111101111001111b
 
 gui:	;Let's see what I can do, I am going to try to make this as freestanding as possible
-	call indexfiles
 	mov eax, 0
 	mov ebx, 0
 	mov ecx, 0
@@ -101,90 +100,90 @@ guistart:
 	mov byte [copygui], 0
 	jmp guistart
 	
-guicopy:	;;for double buffering
-	mov byte [copygui], 1
-	mov edi, [offscreenmemoffset]
-	mov edx, 0
-	mov ecx, 0
-	mov dx, [mousecursorposition]
-	mov cx, [mousecursorposition + 2]
-	add edi, edx
-	mov dx, [resolutionx2]
-	inc cx
-guicp2:
-	add edi, edx
-	dec cx
-	cmp cx, 0
-	jne guicp2
-	sub edi, edx
-	mov [cursorloc], edi
-	mov ebx, cursorbmp
-	mov cx, [resolutiony]
-	rol ecx, 16
-	mov cx, [resolutionx]
-	mov esi, [physbaseptr]
-	mov edi, [offscreenmemoffset]
-guicp1:
-	mov ax, [esi]
-	mov [edi], ax
-	add esi, 2
-	add edi, 2
-	cmp edi, [cursorloc]
-	je copycursor
-dncopycursor:
-	dec cx
-	cmp cx, 0
-	jne guicp1
-	mov cx, [resolutionx]
-	rol ecx, 16
-	dec cx
-	cmp cx, 0
-	rol ecx, 16
-	jne guicp1
-	mov byte [copygui], 0
-	ret
-copycursor:
-	cmp ebx, cursorbmpend
-	jae dncopycursor
-	mov dx, [resolutionx2]
-	add edi, edx
-	mov [cursorloc], edi
-	sub edi, edx
-	dec ebx
-	sub edi, 2
-	sub esi, 2
-	mov dx, 9
-curscplp:
-	inc ebx
-	add esi, 2
-	add edi, 2
-	mov ax, [esi]
-	mov [edi], ax
-	mov al, [ebx]
-	cmp al, 0
-	je curscplp2
-	mov word [edi], 1110011110011100b
-curscplp2:
-	dec cx
-	cmp cx, 0
-	je dncopycursor
-	dec dx
-	cmp dx, 0
-	jne curscplp
-	jmp dncopycursor
+;guicopy:	;;for double buffering
+;	mov byte [copygui], 1
+;	mov edi, [offscreenmemoffset]
+;	mov edx, 0
+;	mov ecx, 0
+;	mov dx, [mousecursorposition]
+;	mov cx, [mousecursorposition + 2]
+;	add edi, edx
+;	mov dx, [resolutionx2]
+;	inc cx
+;guicp2:
+;	add edi, edx
+;	dec cx
+;	cmp cx, 0
+;	jne guicp2
+;	sub edi, edx
+;	mov [cursorloc], edi
+;	mov ebx, cursorbmp
+;	mov cx, [resolutiony]
+;	rol ecx, 16
+;	mov cx, [resolutionx]
+;	mov esi, [physbaseptr]
+;	mov edi, [offscreenmemoffset]
+;guicp1:
+;	mov ax, [esi]
+;	mov [edi], ax
+;	add esi, 2
+;	add edi, 2
+;	cmp edi, [cursorloc]
+;	je copycursor
+;dncopycursor:
+;	dec cx
+;	cmp cx, 0
+;	jne guicp1
+;	mov cx, [resolutionx]
+;	rol ecx, 16
+;	dec cx
+;	cmp cx, 0
+;	rol ecx, 16
+;	jne guicp1
+;	mov byte [copygui], 0
+;	ret
+;copycursor:
+;	cmp ebx, cursorbmpend
+;	jae dncopycursor
+;	mov dx, [resolutionx2]
+;	add edi, edx
+;	mov [cursorloc], edi
+;	sub edi, edx
+;	dec ebx
+;	sub edi, 2
+;	sub esi, 2
+;	mov dx, 9
+;curscplp:
+;	inc ebx
+;	add esi, 2
+;	add edi, 2
+;	mov ax, [esi]
+;	mov [edi], ax
+;	mov al, [ebx]
+;	cmp al, 0
+;	je curscplp2
+;	mov word [edi], 1110011110011100b
+;curscplp2:
+;	dec cx
+;	cmp cx, 0
+;	je dncopycursor
+;	dec dx
+;	cmp dx, 0
+;	jne curscplp
+;	jmp dncopycursor
 	
 	
-cursorloc: dd 0
+;cursorloc: dd 0
 		
-nextimage:	
-	call guiclear
-	mov esi, [bmpend]
-	mov eax, 0
-	mov ebx, 0
-	mov ecx, 0
-	mov edx, 0
-	call showbmp
-	jmp guistartin
+;nextimage:	
+;	call guiclear
+;	mov esi, [bmpend]
+;	mov eax, 0
+;	mov ebx, 0
+;	mov ecx, 0
+;	mov edx, 0
+;	call showbmp
+;	jmp guistartin
 		
 copygui db 0
 graphicsset db 0
@@ -1322,6 +1321,7 @@ jmp os
 
 	termwindow:	dw 640,480	;;window size
 	termmsg:	db "TERMINAL",0	;;window title
+	
 interneticon: 	incbin 'source/precompiled/interneticon.pak'
 wordicon: 	incbin 'source/precompiled/wordicon.pak'
 pacmanpellet: incbin 'source/precompiled/pacmanpellet.pak'

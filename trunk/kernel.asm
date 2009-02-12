@@ -13,5 +13,7 @@
 	;%include 'source/process.asm'
     %include 'source/disk.asm'
     %include 'fileindex.asm'
-    %include 'source/msg.asm'
+	%include 'source/msg.asm'
+	;%include 'source/memory.asm'
+	%include 'source/buf.asm'
     %include 'files.asm'
