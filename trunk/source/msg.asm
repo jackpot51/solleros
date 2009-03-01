@@ -3,8 +3,7 @@
 	notfound2 db  34," not found.",13,10,0
 	userask db "username:",0
 	pwdask	db	"password:",0
-	location	db	"@SollerOS ",0
-	cmd		db "$]",0
+	location	db	"@SollerOS]#",0
 	line	db	13,10,0
     ;msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
 	userlst:

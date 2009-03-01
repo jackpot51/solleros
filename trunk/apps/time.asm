@@ -55,6 +55,28 @@ time:
 	mov ah, 1
 	mov al, 0
 	int 30h
+	mov eax, 0
+	mov al, [RTCtimeYear]
+	shr al, 2
+	add eax, 6
+	mov ebx, 0
+	mov bl, [RTCtimeMonth]
+	add ebx, month
+	mov ecx, 0
+	mov cl, [ebx]
+	add eax, ecx
+	mov cl, [RTCtimeDay]
+	add eax, ecx
+	mov bx, 7
+	mov edx, 0
+	div bx
+	shl edx, 2
+	add edx, day
+	mov esi, [edx]
+	mov bx, 7
+	mov ah, 1
+	mov al, 0
+	int 30h
 	mov ax, 0
 	int 30h
 	
@@ -108,3 +130,32 @@ tput1:
 	RTCtimeYear db 0
 	timeshow db "00:00:00",13,10
 	dateshow db "00-00-0000",13,10,0
+	oldcentury:	;;from 1700 to 1900
+	db 4,2,0
+	century:	;;from 2000 to 2500
+	db 6,4,2,0,6,4
+	month:
+	db 0,3,3,6,1,4,6,2,5,0,3,5
+	day:
+	dd sunday
+	dd monday
+	dd tuesday
+	dd wednesday
+	dd thursday
+	dd friday
+	dd saturday
+sunday:
+	db "Sunday",0
+monday:
+	db "Monday"
+tuesday:
+	db "Tuesday",0
+wednesday:
+	db "Wednesday",0
+thursday:
+	db "Thursday",0
+friday:
+	db "Friday",0
+saturday:
+	db "Saturday",0
+

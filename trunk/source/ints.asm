@@ -64,6 +64,9 @@ int301prnt:
 	mov bx, [videobufpos]
 	mov edi, videobuf2
 	add edi, ebx
+	mov ax, [removedvideo]
+	mov [edi], ax
+	mov ax, [charbuf]
 	mov edx, 0
 	mov dx, [charpos]
 	mov ecx, 0
@@ -85,6 +88,8 @@ doneeol:
 	jae near int301scr	
 donescr:
 	mov ebx, edi
+	mov ax, [edi]
+	mov [removedvideo], ax
 	sub ebx, videobuf2
 	mov [videobufpos], bx
 	mov [charpos], dx
@@ -229,6 +234,7 @@ endkey304 db 0
 endkey305 db 0
 modkey305 db 0
 firstesi305 dd 0
+backcursor db 8," ",0
 	int305:	;;print and get line, al=last key, bl=modifier, esi=buffer
 		mov [endkey305], al
 		mov [modkey305], bl
@@ -260,9 +266,10 @@ firstesi305 dd 0
 		dec esi
 		mov byte [esi], 0
 		mov bl, [modkey305]
-		call int301
-		mov al, " "
-		call int301
+		push esi
+		mov esi, backcursor
+		call print		
+		pop esi
 		mov al, 8
 		jmp bscheckequal
 		
@@ -287,8 +294,17 @@ firstesi305 dd 0
 		cmp ch, 0
 		jne int306b
 	
+	removedvideo dw 0
+	
 termcopy:	
 	pusha
+	mov edi, videobuf2
+	mov ebx, 0
+	mov bx, [videobufpos]
+	add edi, ebx
+	mov al, "_"
+	mov ah, 7
+	mov [edi], ax
 	mov byte [mouseselecton], 0
 	mov byte [termcopyon], 1
 	cmp byte [guion], 0
@@ -316,7 +332,7 @@ nowincopy2:
 	shr edx, 1
 	rol ecx, 16
 	mov cl, 16
-nowinfont
+nowinfont:
 	mov al, [ebx]
 	ror al, 1
 	cmp ah, 7

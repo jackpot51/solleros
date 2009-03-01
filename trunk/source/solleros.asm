@@ -30,19 +30,16 @@ passcheck:
 	mov ah, 6
 	int 30h
 	jmp passcheck
+backcursor2 db 8," ",8,0
 backpass:
 	cmp esi, [esipass]
 	je near passcheck
 	dec esi
-	mov al, 8
-	mov ah, 6
-	int 30h
-	mov al, " "
-	mov ah, 6
-	int 30h
-	mov al, 8
-	mov ah, 6
-	int 30h
+	mov byte [esi], 0
+	push esi
+	mov esi, backcursor2
+	call print
+	pop esi
 	jmp passcheck
 gotpass:
 	mov al,0
@@ -120,11 +117,11 @@ cancel:	mov al, 0
 	call print
 	mov esi, location
 	call print
-	call time
-	mov esi, timeshow
-	call print
-	mov esi, cmd
-	call print
+	;call time
+	;mov esi, timeshow
+	;call print
+	;mov esi, cmd
+	;call print
 	call buftxtclear
 	mov esi, buftxt
 	mov al, 13

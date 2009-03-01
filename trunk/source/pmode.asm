@@ -145,7 +145,7 @@ esploc dd 0
 esiloc dd 0
 locunhand dw 1
 intprob db 0
-	unhandmsg	
+	unhandmsg:	
 			db "INT 00000000",0
 unhndrg:
 			db "EFL=00000000",0
