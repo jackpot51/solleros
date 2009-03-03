@@ -29,32 +29,32 @@
     29                              <1> 
     30                              <1> guiload:
     31 00000034 B8004F              <1> 	mov ax, 04F00h
-    32 00000037 BF[FD47]            <1> 	mov di, VBEMODEBLOCK
+    32 00000037 BF[4948]            <1> 	mov di, VBEMODEBLOCK
     33 0000003A CD10                <1> 	int 10h
-    34 0000003C BE[1F48]            <1> 	mov si, reserved
+    34 0000003C BE[6B48]            <1> 	mov si, reserved
     35 0000003F 81EE0200            <1> 	sub si, 2
     36                              <1> findvideomodes:
     37 00000043 81C60200            <1> 	add si, 2
     38 00000047 8B0C                <1> 	mov cx, [si]
     39 00000049 81F9FFFF            <1> 	cmp cx, 0xFFFF
     40 0000004D 0F840A00            <1> 	je near nextvmode
-    41 00000051 81FE[FD48]          <1> 	cmp si, oemdata
+    41 00000051 81FE[4949]          <1> 	cmp si, oemdata
     42 00000055 0F83CF00            <1> 	jae near guiload2	;;kill if no valid list is found
     43 00000059 EBE8                <1> 	jmp findvideomodes 	
     44                              <1> ;;debug,shows vmodes available
     45                              <1> nextvmode:
     46 0000005B 81EE0200            <1> 	sub si, 2
-    47 0000005F 81FE[1F48]          <1> 	cmp si, reserved
+    47 0000005F 81FE[6B48]          <1> 	cmp si, reserved
     48 00000063 0F82C100            <1> 	jb near guiload2
     49 00000067 8B0C                <1> 	mov cx, [si]
     50 00000069 81F9FFFF            <1> 	cmp cx, 0xFFFF
     51 0000006D 0F84EAFF            <1> 	je near nextvmode
     52 00000071 81C10040            <1> 	add cx, 0x4000 		;;Linear Frame Buffer
     53 00000075 B8014F              <1> 	mov ax, 04F01h
-    54 00000078 BF[FD49]            <1> 	mov di, VBEMODEINFOBLOCK
+    54 00000078 BF[494A]            <1> 	mov di, VBEMODEINFOBLOCK
     55 0000007B 890E[3000]          <1> 	mov [vesamode], cx
     56 0000007F CD10                <1> 	int 10h
-    57 00000081 A0[164A]            <1> 	mov al, [bitsperpixel]
+    57 00000081 A0[624A]            <1> 	mov al, [bitsperpixel]
     58 00000084 3C10                <1> 	cmp al, 16
     59 00000086 75D3                <1> 	jne nextvmode
     60 00000088 8936[3200]          <1> 	mov [videomodecache], si
@@ -66,15 +66,15 @@
     66 000000A7 6465204F4B3F28792F- <1>
     67 000000B0 6E290D0A00          <1>
     68                              <1> setvesamode:
-    69 000000B5 8B0E[0F4A]          <1> 	mov cx, [xresolution]
+    69 000000B5 8B0E[5B4A]          <1> 	mov cx, [xresolution]
     70 000000B9 E8B800              <1> 	call decshow
     71 000000BC B078                <1> 	mov al, "x"
     72 000000BE E82001              <1> 	call char
-    73 000000C1 8B0E[114A]          <1> 	mov cx, [yresolution]
+    73 000000C1 8B0E[5D4A]          <1> 	mov cx, [yresolution]
     74 000000C5 E8AC00              <1> 	call decshow
     75 000000C8 B040                <1> 	mov al, "@"
     76 000000CA E81401              <1> 	call char
-    77 000000CD 8A0E[164A]          <1> 	mov cl, [bitsperpixel]
+    77 000000CD 8A0E[624A]          <1> 	mov cl, [bitsperpixel]
     78 000000D1 E8A000              <1> 	call decshow
     79 000000D4 BE[9500]            <1> 	mov si, isthisvideook
     80 000000D7 E88200              <1> 	call printrm
@@ -83,8 +83,8 @@
     83 000000DF 8B36[3200]          <1> 	mov si, [videomodecache]
     84 000000E3 3C79                <1> 	cmp al, "y"
     85 000000E5 0F8572FF            <1> 	jne near nextvmode
-    86 000000E9 8B16[0F4A]          <1> 	mov dx, [xresolution]
-    87 000000ED 8B0E[114A]          <1> 	mov cx, [yresolution]
+    86 000000E9 8B16[5B4A]          <1> 	mov dx, [xresolution]
+    87 000000ED 8B0E[5D4A]          <1> 	mov cx, [yresolution]
     88 000000F1 8916[D835]          <1> 	mov [resolutionx], dx
     89 000000F5 890E[D635]          <1> 	mov [resolutiony], cx
     90 000000F9 01D2                <1> 	add dx, dx
@@ -309,11 +309,11 @@
    309 000002F3 81FE[0D300000]      <1> 	cmp esi, bssend
    310 000002F9 72F0                <1> 	jb clearkernelbuffers
    311                              <1> user1:
-   312 000002FB 8B3D[254A0000]      <1> 	mov edi, [physbaseptr]
+   312 000002FB 8B3D[714A0000]      <1> 	mov edi, [physbaseptr]
    313 00000301 A1[31030000]        <1> 	mov eax, [basecache]
    314 00000306 C1E004              <1> 	shl eax, 4
    315 00000309 29C7                <1> 	sub edi, eax
-   316 0000030B 893D[254A0000]      <1> 	mov [physbaseptr], edi
+   316 0000030B 893D[714A0000]      <1> 	mov [physbaseptr], edi
    317 00000311 E879100000          <1> 	call indexfiles
    318 00000316 803D[5B010000]00    <1> 	cmp byte [guinodo], 0
    319 0000031D 0F8405000000        <1> 	je near guido
@@ -549,7 +549,7 @@
    549 0000061F C3                  <1> 	ret
    550                              <1> expdumptext:
    551 00000620 E8FC040000          <1> 	call print
-   552 00000625 BE[BA3F0000]        <1> 	mov esi, line
+   552 00000625 BE[06400000]        <1> 	mov esi, line
    553 0000062A E8F2040000          <1> 	call print
    554 0000062F C3                  <1> 	ret
    555 00000630 00000000            <1> esploc dd 0
@@ -1076,7 +1076,7 @@
   1076 00000C6D B900000000          <1> 	mov ecx, 0
   1077 00000C72 668B0D[47090000]    <1> 	mov cx, [charxy]
   1078                              <1> nowincopy2:
-  1079 00000C79 BB[DD3F0000]        <1> 	mov ebx, fonts
+  1079 00000C79 BB[29400000]        <1> 	mov ebx, fonts
   1080 00000C7E B800000000          <1> 	mov eax, 0
   1081 00000C83 8A07                <1> 	mov al, [edi]
   1082 00000C85 C1E004              <1> 	shl eax, 4
@@ -1126,7 +1126,7 @@
   1126                              <1> 	;SOLLEROS.ASM
   1127                              <1> os:
   1128 00000CE7 E8E4FEFFFF          <1> 	call clear
-  1129 00000CEC BE[9A3F0000]        <1> 	mov esi, userask
+  1129 00000CEC BE[E63F0000]        <1> 	mov esi, userask
   1130 00000CF1 E82BFEFFFF          <1> 	call print
   1131                              <1> usercheck:
   1132 00000CF6 BE[701A0000]        <1> 	mov esi, buftxt
@@ -1134,9 +1134,9 @@
   1134 00000CFD B404                <1> 	mov ah, 4
   1135 00000CFF CD30                <1> 	int 30h
   1136 00000D01 56                  <1> 	push esi
-  1137 00000D02 BE[BA3F0000]        <1> 	mov esi, line
+  1137 00000D02 BE[06400000]        <1> 	mov esi, line
   1138 00000D07 E815FEFFFF          <1> 	call print
-  1139 00000D0C BE[A43F0000]        <1> 	mov esi, pwdask
+  1139 00000D0C BE[F03F0000]        <1> 	mov esi, pwdask
   1140 00000D11 E80BFEFFFF          <1> 	call print
   1141 00000D16 5E                  <1> 	pop esi
   1142 00000D17 46                  <1> 	inc esi
@@ -1169,9 +1169,9 @@
   1169                              <1> gotpass:
   1170 00000D61 B000                <1> 	mov al,0
   1171 00000D63 8806                <1> 	mov [esi], al
-  1172 00000D65 BE[BA3F0000]        <1> 	mov esi, line
+  1172 00000D65 BE[06400000]        <1> 	mov esi, line
   1173 00000D6A E8B2FDFFFF          <1> 	call print
-  1174 00000D6F BB[BD3F0000]        <1> 	mov ebx, userlst
+  1174 00000D6F BB[09400000]        <1> 	mov ebx, userlst
   1175                              <1> userfind:
   1176 00000D74 BE[701A0000]        <1> 	mov esi, buftxt
   1177 00000D79 8A06                <1> 	mov al, [esi]
@@ -1186,7 +1186,7 @@
   1186 00000D93 8A03                <1> 	mov al, [ebx]
   1187 00000D95 3C00                <1> 	cmp al, 0
   1188 00000D97 74DB                <1> 	je userfind
-  1189 00000D99 81FB[DD3F0000]      <1> 	cmp ebx, userlstend
+  1189 00000D99 81FB[29400000]      <1> 	cmp ebx, userlstend
   1190 00000D9F 0F8342FFFFFF        <1> 	jae near os
   1191 00000DA5 EBCD                <1> 	jmp userfind
   1192                              <1> pwdtest:
@@ -1207,7 +1207,7 @@
   1207 00000DC9 E92B000000          <1> 	jmp nwcmd
   1208                              <1> 
   1209 00000DCE 00000000            <1> esipass dd 0
-  1210 00000DD2 [BD3F0000]          <1> usercache dd userlst
+  1210 00000DD2 [09400000]          <1> usercache dd userlst
   1211                              <1> 	
   1212                              <1> buftxtclear:
   1213 00000DD6 B000                <1> 	mov al, 0
@@ -1240,7 +1240,7 @@
   1240 00000E1B E837FBFFFF          <1> 	call int301prnt
   1241 00000E20 8B35[D20D0000]      <1> 	mov esi, [usercache]
   1242 00000E26 E8F6FCFFFF          <1> 	call print
-  1243 00000E2B BE[AE3F0000]        <1> 	mov esi, location
+  1243 00000E2B BE[FA3F0000]        <1> 	mov esi, location
   1244 00000E30 E8ECFCFFFF          <1> 	call print
   1245                              <1> 	;call time
   1246                              <1> 	;mov esi, timeshow
@@ -1267,7 +1267,7 @@
   1267 00000E5D CD30                <1> 	int 30h
   1268 00000E5F C3                  <1> 	ret
   1269                              <1> 
-  1270 00000E60 BE[BA3F0000]        <1> run:	mov esi, line
+  1270 00000E60 BE[06400000]        <1> run:	mov esi, line
   1271 00000E65 E8B7FCFFFF          <1> 		call print
   1272                              <1> progtest:
   1273 00000E6A BE[701A0000]        <1> 	mov esi, buftxt
@@ -1299,11 +1299,11 @@
   1299 00000EB9 A0[701A0000]        <1> 	mov al, [buftxt]
   1300 00000EBE 3C00                <1> 	cmp al, 0
   1301 00000EC0 741E                <1> 	je prgdn
-  1302 00000EC2 BE[813F0000]        <1> 	mov esi, notfound1
+  1302 00000EC2 BE[CD3F0000]        <1> 	mov esi, notfound1
   1303 00000EC7 E855FCFFFF          <1> 	call print
   1304 00000ECC BE[701A0000]        <1> 	mov esi, buftxt
   1305 00000ED1 E84BFCFFFF          <1> 	call print
-  1306 00000ED6 BE[8B3F0000]        <1> 	mov esi, notfound2
+  1306 00000ED6 BE[D73F0000]        <1> 	mov esi, notfound2
   1307 00000EDB E841FCFFFF          <1> 	call print
   1308 00000EE0 E914FFFFFF          <1> prgdn:	jmp nwcmd
   1309                              <1> 
@@ -1407,7 +1407,7 @@
   1407 00000FAA 81C601000000        <1> 	dirfnd2: add esi, 1
   1408 00000FB0 E86CFBFFFF          <1> 		call print
   1409 00000FB5 8935[DD0F0000]      <1> 		mov [esidir], esi
-  1410 00000FBB BE[BA3F0000]        <1> 		mov esi, line
+  1410 00000FBB BE[06400000]        <1> 		mov esi, line
   1411 00000FC0 E85CFBFFFF          <1> 		call print
   1412 00000FC5 8B35[DD0F0000]      <1> 		mov esi, [esidir]
   1413 00000FCB 81FE[6F150000]      <1> 		cmp esi,  fileindexend
@@ -1434,7 +1434,7 @@
   1434 00001002 890D[3C100000]      <1> 		mov [arcx], ecx
   1435 00001008 E814FBFFFF          <1> 		call print
   1436 0000100D 8935[3E100000]      <1> 		mov [arsi], esi
-  1437 00001013 BE[BA3F0000]        <1> 		mov esi, line
+  1437 00001013 BE[06400000]        <1> 		mov esi, line
   1438 00001018 E804FBFFFF          <1> 		call print
   1439 0000101D 8B1D[38100000]      <1> 		mov ebx, [arbx]
   1440 00001023 668B0D[3C100000]    <1> 		mov cx, [arcx]
@@ -1609,7 +1609,7 @@
   1609                              <1> showthathex:
   1610 000011F1 803D[D3110000]03    <1> 	cmp byte [firsthexshown], 3
   1611 000011F8 750A                <1> 	jne nonewhexline
-  1612 000011FA BE[BA3F0000]        <1> 	mov esi, line
+  1612 000011FA BE[06400000]        <1> 	mov esi, line
   1613 000011FF E81DF9FFFF          <1> 	call print
   1614                              <1> nonewhexline:
   1615 00001204 803D[D3110000]04    <1> 	cmp byte [firsthexshown], 4
@@ -1620,7 +1620,7 @@
   1620 00001214 C0E105              <1> 	shl cl, 5
   1621 00001217 80F900              <1> 	cmp cl, 0
   1622 0000121A 750F                <1> 	jne nonewlinetabfixhex
-  1623 0000121C BE[BA3F0000]        <1> 	mov esi, line
+  1623 0000121C BE[06400000]        <1> 	mov esi, line
   1624 00001221 E8FBF8FFFF          <1> 	call print
   1625 00001226 E909000000          <1> 	jmp notabfixhex
   1626                              <1> nonewlinetabfixhex:
@@ -1632,7 +1632,7 @@
   1632 00001239 E8E3F8FFFF          <1> 	call print
   1633 0000123E 803D[D3110000]02    <1> 	cmp byte [firsthexshown], 2
   1634 00001245 750A                <1> 	jne hexshown
-  1635 00001247 BE[BA3F0000]        <1> 	mov esi, line
+  1635 00001247 BE[06400000]        <1> 	mov esi, line
   1636 0000124C E8D0F8FFFF          <1> 	call print
   1637                              <1> hexshown:
   1638 00001251 C605[D3110000]00    <1> 	mov byte [firsthexshown], 0
@@ -1661,7 +1661,7 @@
   1661                              <1> showthatdec:
   1662 00001294 803D[D3110000]03    <1> 	cmp byte [firsthexshown], 3
   1663 0000129B 750A                <1> 	jne nonewdecline
-  1664 0000129D BE[BA3F0000]        <1> 	mov esi, line
+  1664 0000129D BE[06400000]        <1> 	mov esi, line
   1665 000012A2 E87AF8FFFF          <1> 	call print
   1666                              <1> nonewdecline:
   1667 000012A7 803D[D3110000]04    <1> 	cmp byte [firsthexshown], 4
@@ -1672,7 +1672,7 @@
   1672 000012B7 C0E105              <1> 	shl cl, 5
   1673 000012BA 80F900              <1> 	cmp cl, 0
   1674 000012BD 750F                <1> 	jne nonewlinetabfixdec
-  1675 000012BF BE[BA3F0000]        <1> 	mov esi, line
+  1675 000012BF BE[06400000]        <1> 	mov esi, line
   1676 000012C4 E858F8FFFF          <1> 	call print
   1677 000012C9 E909000000          <1> 	jmp notabfixdec
   1678                              <1> nonewlinetabfixdec:
@@ -1689,7 +1689,7 @@
   1689 000012E3 E839F8FFFF          <1> 	call print
   1690 000012E8 803D[D3110000]02    <1> 	cmp byte [firsthexshown], 2
   1691 000012EF 750A                <1> 	jne decshown
-  1692 000012F1 BE[BA3F0000]        <1> 	mov esi, line
+  1692 000012F1 BE[06400000]        <1> 	mov esi, line
   1693 000012F6 E826F8FFFF          <1> 	call print
   1694                              <1> decshown:
   1695 000012FB C605[D3110000]00    <1> 	mov byte [firsthexshown], 0
@@ -1836,20 +1836,20 @@
   1836 0000143D 8A0D[2B000000]      <1> 		mov cl, [DriveNumber]
   1837 00001443 C605[D3110000]00    <1> 		mov byte [firsthexshown], 0
   1838 0000144A E885FDFFFF          <1> 		call showhex
-  1839 0000144F BE[BA3F0000]        <1> 		mov esi, line
+  1839 0000144F BE[06400000]        <1> 		mov esi, line
   1840 00001454 E8C8F6FFFF          <1> 		call print
-  1841 00001459 BE[173F0000]        <1> 		mov esi, diskfileindex
+  1841 00001459 BE[633F0000]        <1> 		mov esi, diskfileindex
   1842                              <1> 	diskindexdir:
   1843 0000145E E8BEF6FFFF          <1> 		call print
   1844 00001463 8B4E05              <1> 		mov ecx, [esi + 5]
   1845 00001466 C605[D3110000]03    <1> 		mov byte [firsthexshown], 3
   1846 0000146D E8F8FDFFFF          <1> 		call showdec
   1847 00001472 56                  <1> 		push esi
-  1848 00001473 BE[BA3F0000]        <1> 		mov esi, line
+  1848 00001473 BE[06400000]        <1> 		mov esi, line
   1849 00001478 E8A4F6FFFF          <1> 		call print
   1850 0000147D 5E                  <1> 		pop esi
   1851 0000147E 81C609000000        <1> 		add esi, 9
-  1852 00001484 81FE[7C3F0000]      <1> 		cmp esi, enddiskfileindex
+  1852 00001484 81FE[C83F0000]      <1> 		cmp esi, enddiskfileindex
   1853 0000148A 72D2                <1> 		jb diskindexdir
   1854 0000148C E968F9FFFF          <1> 		jmp nwcmd
   1855                              <1> 
@@ -1869,7 +1869,7 @@
   1869 000014CA 3C24                <1> 		cmp al, '$'
   1870 000014CC 7414                <1> 		je echovr
   1871 000014CE E84EF6FFFF          <1> 		call print
-  1872 000014D3 BE[BA3F0000]        <1> 		mov esi, line
+  1872 000014D3 BE[06400000]        <1> 		mov esi, line
   1873 000014D8 E844F6FFFF          <1> 		call print
   1874 000014DD E917F9FFFF          <1> 		jmp nwcmd
   1875 000014E2 BB[6F150000]        <1> 	echovr:	mov ebx, variables
@@ -1912,7 +1912,7 @@
   1912 0000154A 89DE                <1> 		mov esi, ebx
   1913 0000154C C3                  <1> 		ret
   1914 0000154D E8CFF5FFFF          <1> 	prntvr2: call print
-  1915 00001552 BE[BA3F0000]        <1> 		mov esi, line
+  1915 00001552 BE[06400000]        <1> 		mov esi, line
   1916 00001557 E8C5F5FFFF          <1> 		call print
   1917 0000155C E998F8FFFF          <1> 		jmp nwcmd
   1918                              <1> 		
@@ -2121,7 +2121,7 @@
   2121 000017CC EBEF                <1> 		jmp chkadd
   2122 000017CE 4E                  <1> 	dnaddm1: dec esi
   2123 000017CF E84DF3FFFF          <1> 	dnadd:	call print
-  2124 000017D4 BE[BA3F0000]        <1> 		mov esi, line
+  2124 000017D4 BE[06400000]        <1> 		mov esi, line
   2125 000017D9 E843F3FFFF          <1> 		call print
   2126 000017DE C3                  <1> 		ret
   2127                              <1> 		
@@ -2195,7 +2195,7 @@
   2195 0000189A B404                <1> 	mov ah, 4
   2196 0000189C B307                <1> 	mov bl, 7
   2197 0000189E E885F0FFFF          <1> 	call intx4
-  2198 000018A3 BE[BA3F0000]        <1> 	mov esi, line
+  2198 000018A3 BE[06400000]        <1> 	mov esi, line
   2199 000018A8 E874F2FFFF          <1> 	call print
   2200 000018AD EBA4                <1> 	jmp var
   2201 000018AF 668B03              <1> seek:	mov ax, [ebx]
@@ -2301,12 +2301,12 @@
   2301 000019AC 81C302000000        <1> 	add ebx, 2
   2302 000019B2 FFE3                <1> 	jmp ebx
   2303                              <1> noprogfound:
-  2304 000019B4 BE[813F0000]        <1> 	mov esi, notfound1
+  2304 000019B4 BE[CD3F0000]        <1> 	mov esi, notfound1
   2305 000019B9 E863F1FFFF          <1> 	call print
   2306 000019BE BE[701A0000]        <1> 	mov esi, buftxt
   2307 000019C3 81C602000000        <1> 	add esi, 2
   2308 000019C9 E853F1FFFF          <1> 	call print
-  2309 000019CE BE[8B3F0000]        <1> 	mov esi, notfound2
+  2309 000019CE BE[D73F0000]        <1> 	mov esi, notfound2
   2310 000019D3 E849F1FFFF          <1> 	call print
   2311 000019D8 E91CF4FFFF          <1> 	jmp nwcmd
   2312                              <1> progbatchfound:
@@ -2625,7 +2625,7 @@
   2625 00001E62 7423                <1> 		je endbatchcreate
   2626 00001E64 3C02                <1> 		cmp al, 2
   2627 00001E66 741F                <1> 		je endbatchcreate
-  2628 00001E68 BE[BA3F0000]        <1> 		mov esi, line
+  2628 00001E68 BE[06400000]        <1> 		mov esi, line
   2629 00001E6D E8AFECFFFF          <1> 		call print
   2630 00001E72 8B35[221E0000]      <1> 		mov esi, [esicache2]
   2631 00001E78 B00D                <1> 		mov al, 13
@@ -2637,7 +2637,7 @@
   2637 00001E87 8B35[1E1E0000]      <1> 		mov esi, [esicache3]
   2638 00001E8D B800000000          <1> 		mov eax, 0
   2639 00001E92 8806                <1> 		mov [esi], al
-  2640 00001E94 BE[BA3F0000]        <1> 		mov esi, line
+  2640 00001E94 BE[06400000]        <1> 		mov esi, line
   2641 00001E99 E883ECFFFF          <1> 		call print
   2642 00001E9E BE00001000          <1> 		mov esi, 0x100000
   2643 00001EA3 E879ECFFFF          <1> 		call print
@@ -2657,7 +2657,7 @@
   2657 00001EE4 66813E424D          <1> 		cmp word [esi], "BM"
   2658 00001EE9 7414                <1> 		je bmpfound
   2659 00001EEB E831ECFFFF          <1> 		call print
-  2660 00001EF0 BE[BA3F0000]        <1> 		mov esi, line
+  2660 00001EF0 BE[06400000]        <1> 		mov esi, line
   2661 00001EF5 E827ECFFFF          <1> 		call print
   2662 00001EFA E9FAEEFFFF          <1> 		jmp nwcmd
   2663                              <1> bmpfound:
@@ -2728,7 +2728,7 @@
   2728 00002027 E823000000          <1> 	call time
   2729 0000202C BE[76210000]        <1> 	mov esi, timeshow
   2730 00002031 E8EBEAFFFF          <1> 	call print
-  2731 00002036 BE[BA3F0000]        <1> 	mov esi, line
+  2731 00002036 BE[06400000]        <1> 	mov esi, line
   2732 0000203B E8E1EAFFFF          <1> 	call print
   2733 00002040 BE[80210000]        <1> 	mov esi, dateshow
   2734 00002045 E8D7EAFFFF          <1> 	call print
@@ -2847,7 +2847,7 @@
   2847 000021A8 890D[F9210000]      <1> 	mov [cpuidbuf + 8], ecx
   2848 000021AE BE[F1210000]        <1> 	mov esi, cpuidbuf
   2849 000021B3 E869E9FFFF          <1> 	call print
-  2850 000021B8 BE[BA3F0000]        <1> 	mov esi, line
+  2850 000021B8 BE[06400000]        <1> 	mov esi, line
   2851 000021BD E85FE9FFFF          <1> 	call print
   2852 000021C2 B801000000          <1> 	mov eax, 1
   2853 000021C7 0FA2                <1> 	cpuid
@@ -3268,7 +3268,7 @@
   3268                              <1> noscan:
   3269                                      %include 'source/gui.asm'
   3270                              <1> guiclear:
-  3271 00002621 8B3D[254A0000]      <1> 	mov edi, [physbaseptr]
+  3271 00002621 8B3D[714A0000]      <1> 	mov edi, [physbaseptr]
   3272 00002627 668B15[D8350000]    <1> 	mov dx, [resolutionx]
   3273 0000262E 668B0D[D6350000]    <1> 	mov cx, [resolutiony]
   3274 00002635 66A1[5E260000]      <1> 	mov ax, [background]
@@ -3291,7 +3291,7 @@
   3291 00002665 BB00000000          <1> 	mov ebx, 0
   3292 0000266A B900000000          <1> 	mov ecx, 0
   3293 0000266F BA00000000          <1> 	mov edx, 0
-  3294 00002674 8B3D[254A0000]      <1> 	mov edi, [physbaseptr]
+  3294 00002674 8B3D[714A0000]      <1> 	mov edi, [physbaseptr]
   3295 0000267A 668B15[D8350000]    <1> 	mov dx, [resolutionx]
   3296 00002681 668B0D[D6350000]    <1> 	mov cx, [resolutiony]
   3297 00002688 668B1D[5E260000]    <1> 	mov bx, [background]
@@ -3465,7 +3465,7 @@
   3465                              <1> 		
   3466                              <1> clearmousecursor:
   3467 000027BB BE[5E260000]        <1> 		mov esi, background
-  3468 000027C0 8B3D[254A0000]      <1> 		mov edi, [physbaseptr]
+  3468 000027C0 8B3D[714A0000]      <1> 		mov edi, [physbaseptr]
   3469 000027C6 BA00000000          <1> 		mov edx, 0
   3470 000027CB B900000000          <1> 		mov ecx, 0
   3471 000027D0 668B15[07250000]    <1> 		mov dx, [lastmouseposition]
@@ -3494,7 +3494,7 @@
   3494                              <1> 
   3495                              <1> switchmousepos:		;;switch were the mouse is located
   3496 0000281E BE[00120000]        <1> 		mov esi, mousecolorbuf
-  3497 00002823 8B3D[254A0000]      <1> 		mov edi, [physbaseptr]
+  3497 00002823 8B3D[714A0000]      <1> 		mov edi, [physbaseptr]
   3498 00002829 BA00000000          <1> 		mov edx, 0
   3499 0000282E B900000000          <1> 		mov ecx, 0
   3500 00002833 668B15[07250000]    <1> 		mov dx, [lastmouseposition]
@@ -3523,7 +3523,7 @@
   3523                              <1> 		
   3524                              <1> switchmousepos2:
   3525 00002887 BE[00120000]        <1> 		mov esi, mousecolorbuf
-  3526 0000288C 8B3D[254A0000]      <1> 		mov edi, [physbaseptr]
+  3526 0000288C 8B3D[714A0000]      <1> 		mov edi, [physbaseptr]
   3527 00002892 BA00000000          <1> 		mov edx, 0
   3528 00002897 B900000000          <1> 		mov ecx, 0
   3529 0000289C 668B15[0B250000]    <1> 		mov dx, [mousecursorposition]
@@ -4123,7 +4123,7 @@
   4123 00003266 29D7                <1> 		sub edi, edx
   4124 00003268 803D[56090000]00    <1> 		cmp byte [termcopyon], 0
   4125 0000326F 753E                <1> 		jne nocleartitlebarpos
-  4126 00003271 8B3D[254A0000]      <1> 		mov edi, [physbaseptr]
+  4126 00003271 8B3D[714A0000]      <1> 		mov edi, [physbaseptr]
   4127 00003277 BA00000000          <1> 		mov edx, 0
   4128 0000327C 668B15[C3310000]    <1> 		mov dx, [winvcopystx]
   4129 00003283 01D7                <1> 		add edi, edx
@@ -4188,13 +4188,13 @@
   4188                              <1> 
   4189                              <1> 	windowvideocopy:
   4190 00003391 8B3D[CF310000]      <1> 		mov edi, [windowbufloc]
-  4191 00003397 3B3D[254A0000]      <1> 		cmp edi, [physbaseptr]
+  4191 00003397 3B3D[714A0000]      <1> 		cmp edi, [physbaseptr]
   4192 0000339D 0F8345000000        <1> 		jae near windowvideocopyset
   4193 000033A3 B900000000          <1> 		mov ecx, 0
   4194 000033A8 BA00000000          <1> 		mov edx, 0
   4195 000033AD 668B15[C3310000]    <1> 		mov dx, [winvcopystx]
   4196 000033B4 668B0D[C5310000]    <1> 		mov cx, [winvcopysty]
-  4197 000033BB 8B3D[254A0000]      <1> 		mov edi, [physbaseptr]
+  4197 000033BB 8B3D[714A0000]      <1> 		mov edi, [physbaseptr]
   4198 000033C1 01D7                <1> 		add edi, edx
   4199 000033C3 81F900000000        <1> 		cmp ecx, 0
   4200 000033C9 741D                <1> 		je windowvideocopyset
@@ -4214,7 +4214,7 @@
   4214 000033FE 8A1E                <1> 		mov bl, [esi]
   4215 00003400 B700                <1> 		mov bh, 0
   4216 00003402 66C1E304            <1> 		shl bx, 4
-  4217 00003406 678AB7[DD3F]        <1> 		mov dh, [fonts + bx]
+  4217 00003406 678AB7[2940]        <1> 		mov dh, [fonts + bx]
   4218 0000340B D0CE                <1> 		ror dh, 1
   4219 0000340D 89FE                <1> 		mov esi, edi
   4220                              <1> 	copywindow:
@@ -4238,7 +4238,7 @@
   4238 00003442 668B15[DA350000]    <1> 		mov dx, [resolutionx2]
   4239 00003449 01D6                <1> 		add esi, edx
   4240 0000344B 89F7                <1> 		mov edi, esi
-  4241 0000344D 678AB7[DD3F]        <1> 		mov dh, [fonts + bx]
+  4241 0000344D 678AB7[2940]        <1> 		mov dh, [fonts + bx]
   4242 00003452 D0CE                <1> 		ror dh, 1
   4243 00003454 FEC5                <1> 		inc ch
   4244 00003456 80FD10              <1> 		cmp ch, 16
@@ -4264,7 +4264,7 @@
   4264 000034A8 7317                <1> 		jae fixwindowcopy
   4265 000034AA 66890D[F5340000]    <1> 		mov [charposline], cx
   4266 000034B1 66B90000            <1> 		mov cx, 0
-  4267 000034B5 678AB7[DD3F]        <1> 		mov dh, [fonts + bx]
+  4267 000034B5 678AB7[2940]        <1> 		mov dh, [fonts + bx]
   4268 000034BA D0CE                <1> 		ror dh, 1
   4269 000034BC E94EFFFFFF          <1> 		jmp copywindow
   4270                              <1> fixwindowcopy:
@@ -4273,7 +4273,7 @@
   4273 000034CC 662B15[C7310000]    <1> 		sub dx, [winvcopydx]
   4274 000034D3 01D6                <1> 		add esi, edx
   4275 000034D5 89F7                <1> 		mov edi, esi
-  4276 000034D7 678AB7[DD3F]        <1> 		mov dh, [fonts + bx]
+  4276 000034D7 678AB7[2940]        <1> 		mov dh, [fonts + bx]
   4277 000034DC D0CE                <1> 		ror dh, 1
   4278 000034DE E92CFFFFFF          <1> 		jmp copywindow
   4279                              <1> donewincopynow:
@@ -4293,7 +4293,7 @@
   4293 00003509 B401                <1> 		mov ah, 1
   4294 0000350B E802FAFFFF          <1> 		call graphicsadd
   4295                              <1> 	showicon2:
-  4296 00003510 8B3D[254A0000]      <1> 		mov edi, [physbaseptr]
+  4296 00003510 8B3D[714A0000]      <1> 		mov edi, [physbaseptr]
   4297 00003516 6601D2              <1> 		add dx, dx
   4298 00003519 663B15[DA350000]    <1> 		cmp dx, [resolutionx2]
   4299 00003520 720C                <1> 		jb screenxgood
@@ -4362,7 +4362,7 @@
   4362                              <1> showfontvesa:		;;position in (dx,cx), color in bx, char in al
   4363 000035EA 66890D[DF350000]    <1> 	mov [posyvesa], cx
   4364 000035F1 668915[DD350000]    <1> 	mov [posxvesa], dx
-  4365 000035F8 8B3D[254A0000]      <1> 	mov edi, [physbaseptr]
+  4365 000035F8 8B3D[714A0000]      <1> 	mov edi, [physbaseptr]
   4366 000035FE 66891D[E1350000]    <1> 	mov [colorfont], bx
   4367 00003605 BB00000000          <1> 	mov ebx, 0
   4368 0000360A 88C3                <1> 	mov bl, al
@@ -4381,13 +4381,13 @@
   4381 00003637 75F2                <1> 	jne vesaposloop
   4382                              <1> vesaposloopdn:
   4383 00003639 01D7                <1> 	add edi, edx
-  4384 0000363B BE[DD3F0000]        <1> 	mov esi, fonts
+  4384 0000363B BE[29400000]        <1> 	mov esi, fonts
   4385                              <1> findfontvesa:
   4386 00003640 B400                <1> 	mov ah, 0
   4387 00003642 C1E004              <1> 	shl eax, 4
   4388 00003645 01C6                <1> 	add esi, eax
   4389 00003647 C1E804              <1> 	shr eax, 4
-  4390 0000364A 81FE[FD470000]      <1> 	cmp esi, fontend
+  4390 0000364A 81FE[49480000]      <1> 	cmp esi, fontend
   4391 00003650 0F83BF000000        <1> 	jae near donefontvesa
   4392 00003656 4E                  <1> 	dec esi
   4393                              <1> foundfontvesa:
@@ -4482,7 +4482,7 @@
   4482 00003789 668B06              <1> 	mov ax, [esi]
   4483 0000378C 663D424D            <1> 	cmp ax, "BM"
   4484 00003790 0F858E000000        <1> 	jne near endedbmp
-  4485 00003796 8B3D[254A0000]      <1> 	mov edi, [physbaseptr]
+  4485 00003796 8B3D[714A0000]      <1> 	mov edi, [physbaseptr]
   4486 0000379C 6689D0              <1> 	mov ax, dx
   4487 0000379F 6689CB              <1> 	mov bx, cx
   4488 000037A2 B900000000          <1> 	mov ecx, 0
@@ -4764,7 +4764,7 @@
   4764 00003DAD 803F00              <1> 	cmp byte [edi], 0
   4765 00003DB0 0F8444000000        <1> 	je near nofileload
   4766 00003DB6 89FA                <1> 	mov edx, edi
-  4767 00003DB8 BB[173F0000]        <1> 	mov ebx, diskfileindex
+  4767 00003DB8 BB[633F0000]        <1> 	mov ebx, diskfileindex
   4768                              <1> nextnamechar:
   4769 00003DBD 8A07                <1> 	mov al, [edi]
   4770 00003DBF 8A23                <1> 	mov ah, [ebx]
@@ -4792,7 +4792,7 @@
   4792                              <1> nextfilename:
   4793 00003DEA 81C308000000        <1> 	add ebx, 8		;;next descriptor
   4794 00003DF0 89D7                <1> 	mov edi, edx
-  4795 00003DF2 81FB[7C3F0000]      <1> 	cmp ebx, enddiskfileindex
+  4795 00003DF2 81FB[C83F0000]      <1> 	cmp ebx, enddiskfileindex
   4796 00003DF8 72C3                <1> 	jb nextnamechar
   4797                              <1> nofileload:
   4798 00003DFA BA94010000          <1> 	mov edx, 404	;;indicate not found error
@@ -4801,7 +4801,7 @@
   4801 00003E00 81EB02000000        <1> 	sub ebx, 2
   4802                              <1> eqfilefind:
   4803 00003E06 43                  <1> 	inc ebx
-  4804 00003E07 81FB[7C3F0000]      <1> 	cmp ebx, enddiskfileindex
+  4804 00003E07 81FB[C83F0000]      <1> 	cmp ebx, enddiskfileindex
   4805 00003E0D 0F83E7FFFFFF        <1> 	jae near nofileload
   4806 00003E13 8A03                <1> 	mov al, [ebx]
   4807 00003E15 3C00                <1> 	cmp al, 0
@@ -4845,266 +4845,301 @@
   4845                              <1> 	
   4846 00003E79 6400                <1> segments dw 100
   4847                              <1> 
-  4848                              <1> diskr:		;;sector count in cl, disk number in ch, 28 bit address in first 28 bits of ebx, buffer in esi, puts end buffer in edi and end lba in edx
-  4849 00003E7B 8935[133F0000]      <1> 	mov [bufferstartesi], esi
-  4850 00003E81 891D[0F3F0000]      <1> 	mov [lbaadstartebx], ebx
+  4848                              <1> diskr:		;;sector count in cl, disk number in ch, 48 bit address with first 32 bits in ebx, buffer in esi, puts end buffer in edi and end lba in edx
+  4849 00003E7B 8935[5F3F0000]      <1> 	mov [bufferstartesi], esi
+  4850 00003E81 891D[5B3F0000]      <1> 	mov [lbaadstartebx], ebx
   4851 00003E87 BA00000000          <1> 	mov edx, 0
   4852 00003E8C 88CA                <1> 	mov dl, cl
   4853 00003E8E 01DA                <1> 	add edx, ebx
-  4854 00003E90 8915[0B3F0000]      <1> 	mov [lbaadend], edx
+  4854 00003E90 8915[573F0000]      <1> 	mov [lbaadend], edx
   4855 00003E96 66B80000            <1> 	mov ax, 0
   4856 00003E9A 66BAF101            <1> 	mov dx, 0x1F1
-  4857 00003E9E EE                  <1> 	out dx, al	;;send null byte to port
-  4858 00003E9F 6642                <1> 	inc dx	;;0x1F2
-  4859 00003EA1 88C8                <1> 	mov al, cl	;;get sector count
-  4860 00003EA3 EE                  <1> 	out dx, al	;;send sector count
-  4861 00003EA4 6642                <1> 	inc dx	;;0x1F3
-  4862 00003EA6 88D8                <1> 	mov al, bl	;;get first 8 bits of address
-  4863 00003EA8 EE                  <1> 	out dx, al	;;send them
-  4864 00003EA9 6642                <1> 	inc dx	;;0x1F4
-  4865 00003EAB C1CB08              <1> 	ror ebx, 8	;;get next 8 bits
-  4866 00003EAE 88D8                <1> 	mov al, bl
-  4867 00003EB0 EE                  <1> 	out dx, al
-  4868 00003EB1 6642                <1> 	inc dx	;;0x1F5
-  4869 00003EB3 C1CB08              <1> 	ror ebx, 8	;;again
-  4870 00003EB6 88D8                <1> 	mov al, bl
-  4871 00003EB8 EE                  <1> 	out dx, al
-  4872 00003EB9 6642                <1> 	inc dx	;;0x1F6
-  4873 00003EBB C1CB08              <1> 	ror ebx, 8
-  4874 00003EBE 88D8                <1> 	mov al, bl
-  4875 00003EC0 240F                <1> 	and al, 00001111b	;;last 4 bits of address
-  4876 00003EC2 0CE0                <1> 	or al, 0xE0			;;majic number
-  4877 00003EC4 C0E504              <1> 	shl ch, 4
-  4878 00003EC7 08E8                <1> 	or al, ch
-  4879 00003EC9 EE                  <1> 	out dx, al			;;send drive indicator, magic bits, and highest 4 bits of address
-  4880 00003ECA 6642                <1> 	inc dx	;;0x1F7
-  4881 00003ECC B020                <1> 	mov al, 0x20
-  4882 00003ECE EE                  <1> 	out dx, al			;;execute read command
-  4883                              <1> diskrwait:
-  4884 00003ECF 66BAF701            <1> 	mov dx, 0x1F7
-  4885 00003ED3 EC                  <1> 	in al, dx
-  4886 00003ED4 2408                <1> 	and al, 0x08
-  4887 00003ED6 3C08                <1> 	cmp al, 0x08
-  4888 00003ED8 75F5                <1> 	jne diskrwait
-  4889 00003EDA 88CD                <1> 	mov ch, cl	;;move sector data into ch, multiplying it by 256
-  4890 00003EDC B100                <1> 	mov cl, 0
-  4891                              <1> diskdataread:
-  4892 00003EDE 66BAF001            <1> 	mov dx, 0x1F0
-  4893 00003EE2 66ED                <1> 	in ax, dx
-  4894 00003EE4 668906              <1> 	mov [esi], ax
-  4895 00003EE7 81C602000000        <1> 	add esi, 2
-  4896 00003EED 6649                <1> 	dec cx
-  4897 00003EEF 6681F90000          <1> 	cmp cx, 0
-  4898 00003EF4 75E8                <1> 	jne diskdataread		;;read all sectors
-  4899 00003EF6 89F7                <1> 	mov edi, esi
-  4900 00003EF8 8B15[0B3F0000]      <1> 	mov edx, [lbaadend]
-  4901 00003EFE 8B35[133F0000]      <1> 	mov esi, [bufferstartesi]
-  4902 00003F04 8B1D[0F3F0000]      <1> 	mov ebx, [lbaadstartebx]
-  4903 00003F0A C3                  <1> 	ret
-  4904                              <1> 	
-  4905 00003F0B 00000000            <1> lbaadend dd 0
-  4906 00003F0F 00000000            <1> lbaadstartebx dd 0
-  4907 00003F13 00000000            <1> bufferstartesi dd 0
-  4908                                      %include 'fileindex.asm'
-  4909                              <1> diskfileindex:
-  4910 00003F17 65787000            <1> db "exp",0
-  4911 00003F1B 26000000            <1> dd (f0-$$)/512
-  4912 00003F1F 01000000            <1> dd (f1-f0)/512
-  4913 00003F23 736F6C6C65726F732E- <1> db "solleros.bmp",0
-  4914 00003F2C 626D7000            <1>
-  4915 00003F30 27000000            <1> dd (f1-$$)/512
-  4916 00003F34 B0020000            <1> dd (f2-f1)/512
-  4917 00003F38 736F6C6C65726F732E- <1> db "solleros.txt",0
-  4918 00003F41 74787400            <1>
-  4919 00003F45 D7020000            <1> dd (f2-$$)/512
-  4920 00003F49 01000000            <1> dd (f3-f2)/512
-  4921 00003F4D 74656C7900          <1> db "tely",0
-  4922 00003F52 D8020000            <1> dd (f3-$$)/512
-  4923 00003F56 01000000            <1> dd (f4-f3)/512
-  4924 00003F5A 74696D6500          <1> db "time",0
-  4925 00003F5F D9020000            <1> dd (f4-$$)/512
-  4926 00003F63 02000000            <1> dd (f5-f4)/512
-  4927 00003F67 7475746F7269616C2E- <1> db "tutorial.bat",0
-  4928 00003F70 62617400            <1>
-  4929 00003F74 DB020000            <1> dd (f5-$$)/512
-  4930 00003F78 02000000            <1> dd (f6-f5)/512
-  4931                              <1> enddiskfileindex:
-  4932                              <1> 
-  4933                                  	%include 'source/msg.asm'
-  4934 00003F7C 6578697400          <1> 	exitmsg db	"exit",0
-  4935 00003F81 50726F6772616D2022- <1> 	notfound1 db "Program ",34,0
-  4936 00003F8A 00                  <1>
-  4937 00003F8B 22206E6F7420666F75- <1> 	notfound2 db  34," not found.",13,10,0
-  4938 00003F94 6E642E0D0A00        <1>
-  4939 00003F9A 757365726E616D653A- <1> 	userask db "username:",0
-  4940 00003FA3 00                  <1>
-  4941 00003FA4 70617373776F72643A- <1> 	pwdask	db	"password:",0
-  4942 00003FAD 00                  <1>
-  4943 00003FAE 40536F6C6C65724F53- <1> 	location	db	"@SollerOS]#",0
-  4944 00003FB7 5D2300              <1>
-  4945 00003FBA 0D0A00              <1> 	line	db	13,10,0
-  4946                              <1>     ;msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
-  4947                              <1> 	userlst:
-  4948 00003FBD 7573657200          <1> 			db "user",0
-  4949 00003FC2 70617373776F726400  <1> 			db "password",0
-  4950 00003FCB 726F6F7400          <1> 			db "root",0
-  4951 00003FD0 617765736F6D65706F- <1> 			db "awesomepower",0
-  4952 00003FD9 77657200            <1>
-  4953                              <1> 	userlstend:
-  4954                              <1> 	
-  4955 00003FD9 <incbin>            <1> fonts:	incbin 'source/precompiled/fonts.pak'
-  4956                              <1> fontend2:
-  4957                              <1> mcursor:
-  4958 000047ED 01                  <1> 	db	00000001b
-  4959 000047EE 81                  <1> 	db	10000001b
-  4960 000047EF C1                  <1> 	db	11000001b
-  4961 000047F0 E1                  <1> 	db	11100001b
-  4962 000047F1 F1                  <1> 	db	11110001b
-  4963 000047F2 F9                  <1> 	db	11111001b
-  4964 000047F3 FD                  <1> 	db	11111101b
-  4965 000047F4 FF                  <1> 	db	11111111b
-  4966 000047F5 F9                  <1> 	db	11111001b
-  4967 000047F6 B9                  <1> 	db	10111001b
-  4968 000047F7 39                  <1> 	db	00111001b
-  4969 000047F8 1C                  <1> 	db	00011100b
-  4970 000047F9 1C                  <1> 	db	00011100b
-  4971 000047FA 0E                  <1> 	db	00001110b
-  4972 000047FB 0E                  <1> 	db	00001110b
-  4973 000047FC 0C                  <1> 	db	00001100b
-  4974                              <1> fontend:
-  4975                              <1> 
-  4976                              <1> ;cursorbmp:
-  4977                              <1> ;	db	1,0,0,0,0,0,0,0
-  4978                              <1> ;	db	1,1,0,0,0,0,0,0
-  4979                              <1> ;	db	1,1,1,0,0,0,0,0
-  4980                              <1> ;	db	1,1,1,1,0,0,0,0
-  4981                              <1> ;	db	1,1,1,1,1,0,0,0
-  4982                              <1> ;	db	1,1,1,1,1,1,0,0
-  4983                              <1> ;	db	1,1,1,1,1,1,1,0
-  4984                              <1> ;	db	1,1,1,1,1,1,1,1
-  4985                              <1> ;	db	1,1,1,1,1,1,0,0
-  4986                              <1> ;	db	1,1,0,1,1,1,0,0
-  4987                              <1> ;	db	1,0,0,1,1,1,0,0
-  4988                              <1> ;	db	0,0,0,0,1,1,1,0
-  4989                              <1> ;	db	0,0,0,0,1,1,1,0
-  4990                              <1> ;	db	0,0,0,0,0,1,1,1
-  4991                              <1> ;	db	0,0,0,0,0,1,1,1
-  4992                              <1> ;	db	0,0,0,0,0,1,1,0
-  4993                              <1> ;cursorbmpend:
-  4994                              <1> 
-  4995                              <1> 
-  4996                              <1> VBEMODEBLOCK:
-  4997 000047FD 00<rept>            <1> vbesignature 		times 4 db 0	;VBE Signature
-  4998 00004801 00<rept>            <1> vbeversion  		times 2 db 0	;VBE Version
-  4999 00004803 00<rept>            <1> oemstringptr  		times 4 db 0	;Pointer to OEM String
-  5000 00004807 00<rept>            <1> capabilities 		times 4 db 0	;Capabilities of graphics cont.
-  5001 0000480B 00<rept>            <1> videomodeptr 		times 4 db 0	;Pointer to Video Mode List
-  5002 0000480F 00<rept>            <1> totalmemory   		times 2 db 0	;number of 64Kb memory blocks
-  5003 00004811 00<rept>            <1> oemsoftwarerev  	times 2 db 0	;VBE implementation Software revision
-  5004 00004813 00<rept>            <1> oemvendornameptr 	times 4 db 0	;Pointer to Vendor Name String
-  5005 00004817 00<rept>            <1> oemproductnameptr 	times 4 db 0	;Pointer to Product Name String
-  5006 0000481B 00<rept>            <1> oemproductrevptr 	times 4 db 0	;Pointer to Product Revision String
-  5007 0000481F 00<rept>            <1> reserved			times 222 db 0	;Reserved for VBE implementation scratch area
-  5008 000048FD 00<rept>            <1> oemdata 			times 256 db 0	;Data Area for OEM Strings
-  5009                              <1> 
+  4857 00003E9E EE                  <1> 	out dx, al	;;2 null bytes
+  4858 00003E9F EE                  <1> 	out dx, al
+  4859 00003EA0 B000                <1> 	mov al, 0
+  4860 00003EA2 66BAF201            <1> 	mov dx, 0x1F2
+  4861 00003EA6 EE                  <1> 	out dx, al	;;16 bit sector count-last byte now 0
+  4862 00003EA7 88C8                <1> 	mov al, cl
+  4863 00003EA9 EE                  <1> 	out dx, al
+  4864 00003EAA 66BAF301            <1> 	mov dx, 0x1F3
+  4865 00003EAE 89D8                <1> 	mov eax, ebx
+  4866 00003EB0 C1C818              <1> 	ror eax, 24
+  4867 00003EB3 EE                  <1> 	out dx, al	;;4th byte of address
+  4868 00003EB4 C1C018              <1> 	rol eax, 24
+  4869 00003EB7 EE                  <1> 	out dx, al	;;1st byte of address
+  4870 00003EB8 66BAF401            <1> 	mov dx, 0x1F4
+  4871 00003EBC B000                <1> 	mov al, 0
+  4872 00003EBE EE                  <1> 	out dx, al	;;5th byte of address-always 0 for now
+  4873 00003EBF C1C808              <1> 	ror eax, 8
+  4874 00003EC2 EE                  <1> 	out dx, al	;;2nd byte of address
+  4875 00003EC3 66BAF501            <1> 	mov dx, 0x1F5
+  4876 00003EC7 C1C008              <1> 	rol eax, 8
+  4877 00003ECA B000                <1> 	mov al, 0
+  4878 00003ECC EE                  <1> 	out dx, al	;;6th byte
+  4879 00003ECD C1C810              <1> 	ror eax, 16
+  4880 00003ED0 EE                  <1> 	out dx, al	;;3rd byte
+  4881 00003ED1 B840000000          <1> 	mov eax, 0x40
+  4882 00003ED6 66BAF601            <1> 	mov dx, 0x1F6
+  4883 00003EDA EE                  <1> 	out dx, al	;;send magic bits-add drive indicator later
+  4884 00003EDB B024                <1> 	mov al, 0x24
+  4885 00003EDD 66BAF701            <1> 	mov dx, 0x1F7
+  4886 00003EE1 EE                  <1> 	out dx, al	;;READ!!!
+  4887                              <1> diskrwait:
+  4888 00003EE2 66BAF701            <1> 	mov dx, 0x1F7
+  4889 00003EE6 EC                  <1> 	in al, dx
+  4890 00003EE7 2408                <1> 	and al, 0x08
+  4891 00003EE9 3C08                <1> 	cmp al, 0x08
+  4892 00003EEB 75F5                <1> 	jne diskrwait
+  4893 00003EED 88CD                <1> 	mov ch, cl	;;move sector data into ch, multiplying it by 256
+  4894 00003EEF B100                <1> 	mov cl, 0
+  4895                              <1> diskdataread:
+  4896 00003EF1 66BAF001            <1> 	mov dx, 0x1F0
+  4897 00003EF5 66ED                <1> 	in ax, dx
+  4898 00003EF7 668906              <1> 	mov [esi], ax
+  4899 00003EFA 81C602000000        <1> 	add esi, 2
+  4900 00003F00 6649                <1> 	dec cx
+  4901 00003F02 6681F90000          <1> 	cmp cx, 0
+  4902 00003F07 75E8                <1> 	jne diskdataread		;;read all sectors
+  4903 00003F09 89F7                <1> 	mov edi, esi
+  4904 00003F0B 8B15[573F0000]      <1> 	mov edx, [lbaadend]
+  4905 00003F11 8B35[5F3F0000]      <1> 	mov esi, [bufferstartesi]
+  4906 00003F17 8B1D[5B3F0000]      <1> 	mov ebx, [lbaadstartebx]
+  4907 00003F1D C3                  <1> 	ret
+  4908                              <1> 	
+  4909                              <1> 	
+  4910                              <1> diskold: ;;28 bits
+  4911 00003F1E 66B80000            <1> 	mov ax, 0
+  4912 00003F22 66BAF101            <1> 	mov dx, 0x1F1
+  4913 00003F26 EE                  <1> 	out dx, al	;;send null byte to port
+  4914 00003F27 6642                <1> 	inc dx	;;0x1F2
+  4915 00003F29 88C8                <1> 	mov al, cl	;;get sector count
+  4916 00003F2B EE                  <1> 	out dx, al	;;send sector count
+  4917 00003F2C 6642                <1> 	inc dx	;;0x1F3
+  4918 00003F2E 88D8                <1> 	mov al, bl	;;get first 8 bits of address
+  4919 00003F30 EE                  <1> 	out dx, al	;;send them
+  4920 00003F31 6642                <1> 	inc dx	;;0x1F4
+  4921 00003F33 C1CB08              <1> 	ror ebx, 8	;;get next 8 bits
+  4922 00003F36 88D8                <1> 	mov al, bl
+  4923 00003F38 EE                  <1> 	out dx, al
+  4924 00003F39 6642                <1> 	inc dx	;;0x1F5
+  4925 00003F3B C1CB08              <1> 	ror ebx, 8	;;again
+  4926 00003F3E 88D8                <1> 	mov al, bl
+  4927 00003F40 EE                  <1> 	out dx, al
+  4928 00003F41 6642                <1> 	inc dx	;;0x1F6
+  4929 00003F43 C1CB08              <1> 	ror ebx, 8
+  4930 00003F46 88D8                <1> 	mov al, bl
+  4931 00003F48 240F                <1> 	and al, 00001111b	;;last 4 bits of address
+  4932 00003F4A 0CE0                <1> 	or al, 0xE0			;;majic number
+  4933 00003F4C C0E504              <1> 	shl ch, 4
+  4934 00003F4F 08E8                <1> 	or al, ch
+  4935 00003F51 EE                  <1> 	out dx, al			;;send drive indicator, magic bits, and highest 4 bits of address
+  4936 00003F52 6642                <1> 	inc dx	;;0x1F7
+  4937 00003F54 B020                <1> 	mov al, 0x20
+  4938 00003F56 EE                  <1> 	out dx, al			;;execute read command
+  4939                              <1> 	
+  4940 00003F57 00000000            <1> lbaadend dd 0
+  4941 00003F5B 00000000            <1> lbaadstartebx dd 0
+  4942 00003F5F 00000000            <1> bufferstartesi dd 0
+  4943                                      %include 'fileindex.asm'
+  4944                              <1> diskfileindex:
+  4945 00003F63 65787000            <1> db "exp",0
+  4946 00003F67 26000000            <1> dd (f0-$$)/512
+  4947 00003F6B 01000000            <1> dd (f1-f0)/512
+  4948 00003F6F 736F6C6C65726F732E- <1> db "solleros.bmp",0
+  4949 00003F78 626D7000            <1>
+  4950 00003F7C 27000000            <1> dd (f1-$$)/512
+  4951 00003F80 B0020000            <1> dd (f2-f1)/512
+  4952 00003F84 736F6C6C65726F732E- <1> db "solleros.txt",0
+  4953 00003F8D 74787400            <1>
+  4954 00003F91 D7020000            <1> dd (f2-$$)/512
+  4955 00003F95 01000000            <1> dd (f3-f2)/512
+  4956 00003F99 74656C7900          <1> db "tely",0
+  4957 00003F9E D8020000            <1> dd (f3-$$)/512
+  4958 00003FA2 01000000            <1> dd (f4-f3)/512
+  4959 00003FA6 74696D6500          <1> db "time",0
+  4960 00003FAB D9020000            <1> dd (f4-$$)/512
+  4961 00003FAF 02000000            <1> dd (f5-f4)/512
+  4962 00003FB3 7475746F7269616C2E- <1> db "tutorial.bat",0
+  4963 00003FBC 62617400            <1>
+  4964 00003FC0 DB020000            <1> dd (f5-$$)/512
+  4965 00003FC4 02000000            <1> dd (f6-f5)/512
+  4966                              <1> enddiskfileindex:
+  4967                              <1> 
+  4968                                  	%include 'source/msg.asm'
+  4969 00003FC8 6578697400          <1> 	exitmsg db	"exit",0
+  4970 00003FCD 50726F6772616D2022- <1> 	notfound1 db "Program ",34,0
+  4971 00003FD6 00                  <1>
+  4972 00003FD7 22206E6F7420666F75- <1> 	notfound2 db  34," not found.",13,10,0
+  4973 00003FE0 6E642E0D0A00        <1>
+  4974 00003FE6 757365726E616D653A- <1> 	userask db "username:",0
+  4975 00003FEF 00                  <1>
+  4976 00003FF0 70617373776F72643A- <1> 	pwdask	db	"password:",0
+  4977 00003FF9 00                  <1>
+  4978 00003FFA 40536F6C6C65724F53- <1> 	location	db	"@SollerOS]#",0
+  4979 00004003 5D2300              <1>
+  4980 00004006 0D0A00              <1> 	line	db	13,10,0
+  4981                              <1>     ;msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
+  4982                              <1> 	userlst:
+  4983 00004009 7573657200          <1> 			db "user",0
+  4984 0000400E 70617373776F726400  <1> 			db "password",0
+  4985 00004017 726F6F7400          <1> 			db "root",0
+  4986 0000401C 617765736F6D65706F- <1> 			db "awesomepower",0
+  4987 00004025 77657200            <1>
+  4988                              <1> 	userlstend:
+  4989                              <1> 	
+  4990 00004025 <incbin>            <1> fonts:	incbin 'source/precompiled/fonts.pak'
+  4991                              <1> fontend2:
+  4992                              <1> mcursor:
+  4993 00004839 01                  <1> 	db	00000001b
+  4994 0000483A 81                  <1> 	db	10000001b
+  4995 0000483B C1                  <1> 	db	11000001b
+  4996 0000483C E1                  <1> 	db	11100001b
+  4997 0000483D F1                  <1> 	db	11110001b
+  4998 0000483E F9                  <1> 	db	11111001b
+  4999 0000483F FD                  <1> 	db	11111101b
+  5000 00004840 FF                  <1> 	db	11111111b
+  5001 00004841 F9                  <1> 	db	11111001b
+  5002 00004842 B9                  <1> 	db	10111001b
+  5003 00004843 39                  <1> 	db	00111001b
+  5004 00004844 1C                  <1> 	db	00011100b
+  5005 00004845 1C                  <1> 	db	00011100b
+  5006 00004846 0E                  <1> 	db	00001110b
+  5007 00004847 0E                  <1> 	db	00001110b
+  5008 00004848 0C                  <1> 	db	00001100b
+  5009                              <1> fontend:
   5010                              <1> 
-  5011                              <1> VBEMODEINFOBLOCK:
-  5012                              <1> ;Mandatory information for all VBE revision
-  5013 000049FD 00<rept>            <1> modeattributes   	times 2 db 0	;Mode attributes
-  5014 000049FF 00                  <1> winaattributes   	times 1 db 0	;Window A attributes
-  5015 00004A00 00                  <1> winbattributes   	times 1 db 0	;Window B attributes
-  5016 00004A01 00<rept>            <1> wingranularity   	times 2 db 0	;Window granularity
-  5017 00004A03 00<rept>            <1> winsize          	times 2 db 0	;Window size
-  5018 00004A05 00<rept>            <1> winasegment      	times 2 db 0	;Window A start segment
-  5019 00004A07 00<rept>            <1> winbsegment      	times 2 db 0	;Window B start segment
-  5020 00004A09 00<rept>            <1> winfuncptr       	times 4 db 0	;pointer to window function
-  5021 00004A0D 00<rept>            <1> bytesperscanline 	times 2 db 0	;Bytes per scan line
-  5022                              <1> 
-  5023                              <1> ;Mandatory information for VBE 1.2 and above
-  5024 00004A0F 00<rept>            <1> xresolution     	times 2 db 0	;Horizontal resolution in pixel or chars
-  5025 00004A11 00<rept>            <1> yresolution	    	times 2 db 0	;Vertical resolution in pixel or chars
-  5026 00004A13 00                  <1> xcharsize       	times 1 db 0	;Character cell width in pixel
-  5027 00004A14 00                  <1> ycharsize       	times 1 db 0	;Character cell height in pixel
-  5028 00004A15 00                  <1> numberofplanes  	times 1 db 0	;Number of memory planes
-  5029 00004A16 00                  <1> bitsperpixel    	times 1 db 0	;Bits per pixel
-  5030 00004A17 00                  <1> numberofbanks   	times 1 db 0	;Number of banks
-  5031 00004A18 00                  <1> memorymodel     	times 1 db 0	;Memory model type
-  5032 00004A19 00                  <1> banksize        	times 1 db 0	;Bank size in KB
-  5033 00004A1A 00                  <1> numberofimagepages	times 1 db 0	;Number of images
-  5034 00004A1B 00                  <1> reserved1       	times 1 db 0	;Reserved for page function
-  5035                              <1> 
-  5036                              <1> ;Direct Color fields (required for direct/6 and YUV/7 memory models)
-  5037 00004A1C 00                  <1> redmasksize			times 1 db 0	;Size of direct color red mask in bits
-  5038 00004A1D 00                  <1> redfieldposition	times 1 db 0	;Bit position of lsb of red bask
-  5039 00004A1E 00                  <1> greenmasksize   	times 1 db 0	;Size of direct color green mask in bits
-  5040 00004A1F 00                  <1> greenfieldposition	times 1 db 0	;Bit position of lsb of green bask
-  5041 00004A20 00                  <1> bluemasksize		times 1 db 0	;Size of direct color blue mask in bits
-  5042 00004A21 00                  <1> bluefieldposition	times 1 db 0	;Bit position of lsb of blue bask
-  5043 00004A22 00                  <1> rsvdmasksize        times 1	db 0	;Size of direct color reserved mask in bits
-  5044 00004A23 00                  <1> rsvdfieldposition	times 1	db 0	;Bit position of lsb of reserved bask
-  5045 00004A24 00                  <1> directcolormodeinfo	times 1 db 0	;Direct color mode attributes
-  5046                              <1> 
-  5047                              <1> ;Mandatory information for VBE 2.0 and above
-  5048 00004A25 00<rept>            <1> physbaseptr 		times 4 db 0	;Physical address for flat frame buffer
-  5049 00004A29 00<rept>            <1> offscreenmemoffset 	times 4 db 0	;Pointer to start of off screen memory
-  5050 00004A2D 00<rept>            <1> offscreenmemsize 	times 2 db 0    ;Amount of off screen memory in 1Kb units
-  5051 00004A2F 00<rept>            <1> reserved2 			times 206 db 0  ;Remainder of ModeInfoBlock
-  5052                                  	;%include 'source/memory.asm'
-  5053                                  	%include 'source/buf.asm'
-  5054                              <1> [section .bss]
-  5055                              <1> bssstart:
-  5056                              <1> stack:
-  5057 00000000 <res 00001000>      <1> 	resb 4096
-  5058                              <1> stackend:
-  5059                              <1> graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
-  5060 00001000 <res 00000200>      <1> 	resb 200h 
-  5061                              <1> 	graphicstableend:
-  5062                              <1> mousecolorbuf: ;where the gui under the mouse is stored
-  5063 00001200 <res 00000100>      <1> 	resb 256 
-  5064                              <1> mcolorend:
-  5065 00001300 <res 00000001>      <1> IFON resb 1 
-  5066 00001301 <res 00000064>      <1> IFTRUE resb 100 
-  5067 00001365 <res 00000004>      <1> BATCHPOS resb 4 
-  5068 00001369 <res 00000001>      <1> BATCHISON resb 1 
-  5069 0000136A <res 00000001>      <1> LOOPON resb 1 
-  5070 0000136B <res 00000004>      <1> LOOPPOS	resb 4 
-  5071 0000136F <res 00000200>      <1> fileindex: resb 200h 
-  5072                              <1> fileindexend:
-  5073 0000156F <res 00000500>      <1> variables: 	resb 500h 
-  5074 00001A6F <res 00000001>      <1> varend: resb 1 
-  5075 00001A70 <res 00000200>      <1> buftxt: resb 200h 
-  5076 00001C70 <res 00000014>      <1> buf2:	resb 20 
-  5077 00001C84 <res 00000001>      <1> numbuf: resb 1 
-  5078 00001C85 <res 000012C0>      <1> videobuf2 		resb 0x12C0 
-  5079 00002F45 <res 000000C8>      <1> videobufend		resb 200 
-  5080                              <1> ;processcache:	;;eip, eax, ebx, ecx, edx, edi, esi, esp, ebp-9*4=36 bytes each
-  5081                              <1> ;processcacheend:
-  5082                              <1> ;alignb 4096		;;align 4 kbytes
-  5083                              <1> ;ospagedir:
-  5084                              <1> ;	resb 4096
-  5085                              <1> ;ospagedirend:
-  5086                              <1> ;pagetables:
-  5087                              <1> ;	resb 4096
-  5088                              <1> bssend:
-  5089                              <1> [section .text]
-  5090                                      %include 'files.asm'
-  5091 00004AFD 00<rept>            <1> align 512,db 0
-  5092                              <1> f0:
-  5093 00004AFD <incbin>            <1> incbin "included/exp"
-  5094 00004C22 00<rept>            <1> align 512,db 0
-  5095                              <1> f1:
-  5096 00004C22 <incbin>            <1> incbin "included/solleros.bmp"
-  5097 0005ADE6 00<rept>            <1> align 512,db 0
-  5098                              <1> f2:
-  5099 0005ADE6 <incbin>            <1> incbin "included/solleros.txt"
-  5100 0005AF76 00<rept>            <1> align 512,db 0
-  5101                              <1> f3:
-  5102 0005AF76 <incbin>            <1> incbin "included/tely"
-  5103 0005B1BD 00<rept>            <1> align 512,db 0
-  5104                              <1> f4:
-  5105 0005B1BD <incbin>            <1> incbin "included/time"
-  5106 0005B412 00<rept>            <1> align 512,db 0
-  5107                              <1> f5:
-  5108 0005B412 <incbin>            <1> incbin "included/tutorial.bat"
-  5109 0005B978 00<rept>            <1> align 512,db 0
-  5110                              <1> f6:
+  5011                              <1> ;cursorbmp:
+  5012                              <1> ;	db	1,0,0,0,0,0,0,0
+  5013                              <1> ;	db	1,1,0,0,0,0,0,0
+  5014                              <1> ;	db	1,1,1,0,0,0,0,0
+  5015                              <1> ;	db	1,1,1,1,0,0,0,0
+  5016                              <1> ;	db	1,1,1,1,1,0,0,0
+  5017                              <1> ;	db	1,1,1,1,1,1,0,0
+  5018                              <1> ;	db	1,1,1,1,1,1,1,0
+  5019                              <1> ;	db	1,1,1,1,1,1,1,1
+  5020                              <1> ;	db	1,1,1,1,1,1,0,0
+  5021                              <1> ;	db	1,1,0,1,1,1,0,0
+  5022                              <1> ;	db	1,0,0,1,1,1,0,0
+  5023                              <1> ;	db	0,0,0,0,1,1,1,0
+  5024                              <1> ;	db	0,0,0,0,1,1,1,0
+  5025                              <1> ;	db	0,0,0,0,0,1,1,1
+  5026                              <1> ;	db	0,0,0,0,0,1,1,1
+  5027                              <1> ;	db	0,0,0,0,0,1,1,0
+  5028                              <1> ;cursorbmpend:
+  5029                              <1> 
+  5030                              <1> 
+  5031                              <1> VBEMODEBLOCK:
+  5032 00004849 00<rept>            <1> vbesignature 		times 4 db 0	;VBE Signature
+  5033 0000484D 00<rept>            <1> vbeversion  		times 2 db 0	;VBE Version
+  5034 0000484F 00<rept>            <1> oemstringptr  		times 4 db 0	;Pointer to OEM String
+  5035 00004853 00<rept>            <1> capabilities 		times 4 db 0	;Capabilities of graphics cont.
+  5036 00004857 00<rept>            <1> videomodeptr 		times 4 db 0	;Pointer to Video Mode List
+  5037 0000485B 00<rept>            <1> totalmemory   		times 2 db 0	;number of 64Kb memory blocks
+  5038 0000485D 00<rept>            <1> oemsoftwarerev  	times 2 db 0	;VBE implementation Software revision
+  5039 0000485F 00<rept>            <1> oemvendornameptr 	times 4 db 0	;Pointer to Vendor Name String
+  5040 00004863 00<rept>            <1> oemproductnameptr 	times 4 db 0	;Pointer to Product Name String
+  5041 00004867 00<rept>            <1> oemproductrevptr 	times 4 db 0	;Pointer to Product Revision String
+  5042 0000486B 00<rept>            <1> reserved			times 222 db 0	;Reserved for VBE implementation scratch area
+  5043 00004949 00<rept>            <1> oemdata 			times 256 db 0	;Data Area for OEM Strings
+  5044                              <1> 
+  5045                              <1> 
+  5046                              <1> VBEMODEINFOBLOCK:
+  5047                              <1> ;Mandatory information for all VBE revision
+  5048 00004A49 00<rept>            <1> modeattributes   	times 2 db 0	;Mode attributes
+  5049 00004A4B 00                  <1> winaattributes   	times 1 db 0	;Window A attributes
+  5050 00004A4C 00                  <1> winbattributes   	times 1 db 0	;Window B attributes
+  5051 00004A4D 00<rept>            <1> wingranularity   	times 2 db 0	;Window granularity
+  5052 00004A4F 00<rept>            <1> winsize          	times 2 db 0	;Window size
+  5053 00004A51 00<rept>            <1> winasegment      	times 2 db 0	;Window A start segment
+  5054 00004A53 00<rept>            <1> winbsegment      	times 2 db 0	;Window B start segment
+  5055 00004A55 00<rept>            <1> winfuncptr       	times 4 db 0	;pointer to window function
+  5056 00004A59 00<rept>            <1> bytesperscanline 	times 2 db 0	;Bytes per scan line
+  5057                              <1> 
+  5058                              <1> ;Mandatory information for VBE 1.2 and above
+  5059 00004A5B 00<rept>            <1> xresolution     	times 2 db 0	;Horizontal resolution in pixel or chars
+  5060 00004A5D 00<rept>            <1> yresolution	    	times 2 db 0	;Vertical resolution in pixel or chars
+  5061 00004A5F 00                  <1> xcharsize       	times 1 db 0	;Character cell width in pixel
+  5062 00004A60 00                  <1> ycharsize       	times 1 db 0	;Character cell height in pixel
+  5063 00004A61 00                  <1> numberofplanes  	times 1 db 0	;Number of memory planes
+  5064 00004A62 00                  <1> bitsperpixel    	times 1 db 0	;Bits per pixel
+  5065 00004A63 00                  <1> numberofbanks   	times 1 db 0	;Number of banks
+  5066 00004A64 00                  <1> memorymodel     	times 1 db 0	;Memory model type
+  5067 00004A65 00                  <1> banksize        	times 1 db 0	;Bank size in KB
+  5068 00004A66 00                  <1> numberofimagepages	times 1 db 0	;Number of images
+  5069 00004A67 00                  <1> reserved1       	times 1 db 0	;Reserved for page function
+  5070                              <1> 
+  5071                              <1> ;Direct Color fields (required for direct/6 and YUV/7 memory models)
+  5072 00004A68 00                  <1> redmasksize			times 1 db 0	;Size of direct color red mask in bits
+  5073 00004A69 00                  <1> redfieldposition	times 1 db 0	;Bit position of lsb of red bask
+  5074 00004A6A 00                  <1> greenmasksize   	times 1 db 0	;Size of direct color green mask in bits
+  5075 00004A6B 00                  <1> greenfieldposition	times 1 db 0	;Bit position of lsb of green bask
+  5076 00004A6C 00                  <1> bluemasksize		times 1 db 0	;Size of direct color blue mask in bits
+  5077 00004A6D 00                  <1> bluefieldposition	times 1 db 0	;Bit position of lsb of blue bask
+  5078 00004A6E 00                  <1> rsvdmasksize        times 1	db 0	;Size of direct color reserved mask in bits
+  5079 00004A6F 00                  <1> rsvdfieldposition	times 1	db 0	;Bit position of lsb of reserved bask
+  5080 00004A70 00                  <1> directcolormodeinfo	times 1 db 0	;Direct color mode attributes
+  5081                              <1> 
+  5082                              <1> ;Mandatory information for VBE 2.0 and above
+  5083 00004A71 00<rept>            <1> physbaseptr 		times 4 db 0	;Physical address for flat frame buffer
+  5084 00004A75 00<rept>            <1> offscreenmemoffset 	times 4 db 0	;Pointer to start of off screen memory
+  5085 00004A79 00<rept>            <1> offscreenmemsize 	times 2 db 0    ;Amount of off screen memory in 1Kb units
+  5086 00004A7B 00<rept>            <1> reserved2 			times 206 db 0  ;Remainder of ModeInfoBlock
+  5087                                  	;%include 'source/memory.asm'
+  5088                                  	%include 'source/buf.asm'
+  5089                              <1> [section .bss]
+  5090                              <1> bssstart:
+  5091                              <1> stack:
+  5092 00000000 <res 00001000>      <1> 	resb 4096
+  5093                              <1> stackend:
+  5094                              <1> graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
+  5095 00001000 <res 00000200>      <1> 	resb 200h 
+  5096                              <1> 	graphicstableend:
+  5097                              <1> mousecolorbuf: ;where the gui under the mouse is stored
+  5098 00001200 <res 00000100>      <1> 	resb 256 
+  5099                              <1> mcolorend:
+  5100 00001300 <res 00000001>      <1> IFON resb 1 
+  5101 00001301 <res 00000064>      <1> IFTRUE resb 100 
+  5102 00001365 <res 00000004>      <1> BATCHPOS resb 4 
+  5103 00001369 <res 00000001>      <1> BATCHISON resb 1 
+  5104 0000136A <res 00000001>      <1> LOOPON resb 1 
+  5105 0000136B <res 00000004>      <1> LOOPPOS	resb 4 
+  5106 0000136F <res 00000200>      <1> fileindex: resb 200h 
+  5107                              <1> fileindexend:
+  5108 0000156F <res 00000500>      <1> variables: 	resb 500h 
+  5109 00001A6F <res 00000001>      <1> varend: resb 1 
+  5110 00001A70 <res 00000200>      <1> buftxt: resb 200h 
+  5111 00001C70 <res 00000014>      <1> buf2:	resb 20 
+  5112 00001C84 <res 00000001>      <1> numbuf: resb 1 
+  5113 00001C85 <res 000012C0>      <1> videobuf2 		resb 0x12C0 
+  5114 00002F45 <res 000000C8>      <1> videobufend		resb 200 
+  5115                              <1> ;processcache:	;;eip, eax, ebx, ecx, edx, edi, esi, esp, ebp-9*4=36 bytes each
+  5116                              <1> ;processcacheend:
+  5117                              <1> ;alignb 4096		;;align 4 kbytes
+  5118                              <1> ;ospagedir:
+  5119                              <1> ;	resb 4096
+  5120                              <1> ;ospagedirend:
+  5121                              <1> ;pagetables:
+  5122                              <1> ;	resb 4096
+  5123                              <1> bssend:
+  5124                              <1> [section .text]
+  5125                                      %include 'files.asm'
+  5126 00004B49 00<rept>            <1> align 512,db 0
+  5127                              <1> f0:
+  5128 00004B49 <incbin>            <1> incbin "included/exp"
+  5129 00004C22 00<rept>            <1> align 512,db 0
+  5130                              <1> f1:
+  5131 00004C22 <incbin>            <1> incbin "included/solleros.bmp"
+  5132 0005ADE6 00<rept>            <1> align 512,db 0
+  5133                              <1> f2:
+  5134 0005ADE6 <incbin>            <1> incbin "included/solleros.txt"
+  5135 0005AF76 00<rept>            <1> align 512,db 0
+  5136                              <1> f3:
+  5137 0005AF76 <incbin>            <1> incbin "included/tely"
+  5138 0005B1BD 00<rept>            <1> align 512,db 0
+  5139                              <1> f4:
+  5140 0005B1BD <incbin>            <1> incbin "included/time"
+  5141 0005B421 00<rept>            <1> align 512,db 0
+  5142                              <1> f5:
+  5143 0005B421 <incbin>            <1> incbin "included/tutorial.bat"
+  5144 0005B978 00<rept>            <1> align 512,db 0
+  5145                              <1> f6:

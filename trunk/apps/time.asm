@@ -145,17 +145,17 @@ tput1:
 	dd friday
 	dd saturday
 sunday:
-	db "Sunday",0
+	db "Sunday",13,10,0
 monday:
-	db "Monday"
+	db "Monday",13,10,0
 tuesday:
-	db "Tuesday",0
+	db "Tuesday",13,10,0
 wednesday:
-	db "Wednesday",0
+	db "Wednesday",13,10,0
 thursday:
-	db "Thursday",0
+	db "Thursday",13,10,0
 friday:
-	db "Friday",0
+	db "Friday",13,10,0
 saturday:
-	db "Saturday",0
+	db "Saturday",13,10,0
 

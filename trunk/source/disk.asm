@@ -84,13 +84,69 @@ filetracks dd 0
 	
 segments dw 100
 
-diskr:		;;sector count in cl, disk number in ch, 28 bit address in first 28 bits of ebx, buffer in esi, puts end buffer in edi and end lba in edx
+diskr:		;;sector count in cl, disk number in ch, 48 bit address with first 32 bits in ebx, buffer in esi, puts end buffer in edi and end lba in edx
 	mov [bufferstartesi], esi
 	mov [lbaadstartebx], ebx
 	mov edx, 0
 	mov dl, cl
 	add edx, ebx
 	mov [lbaadend], edx
+	mov ax, 0
+	mov dx, 0x1F1
+	out dx, al	;;2 null bytes
+	out dx, al
+	mov al, 0
+	mov dx, 0x1F2
+	out dx, al	;;16 bit sector count-last byte now 0
+	mov al, cl
+	out dx, al
+	mov dx, 0x1F3
+	mov eax, ebx
+	ror eax, 24
+	out dx, al	;;4th byte of address
+	rol eax, 24
+	out dx, al	;;1st byte of address
+	mov dx, 0x1F4
+	mov al, 0
+	out dx, al	;;5th byte of address-always 0 for now
+	ror eax, 8
+	out dx, al	;;2nd byte of address
+	mov dx, 0x1F5
+	rol eax, 8
+	mov al, 0
+	out dx, al	;;6th byte
+	ror eax, 16
+	out dx, al	;;3rd byte
+	mov eax, 0x40
+	mov dx, 0x1F6
+	out dx, al	;;send magic bits-add drive indicator later
+	mov al, 0x24
+	mov dx, 0x1F7
+	out dx, al	;;READ!!!
+diskrwait:
+	mov dx, 0x1F7
+	in al, dx
+	and al, 0x08
+	cmp al, 0x08
+	jne diskrwait
+	mov ch, cl	;;move sector data into ch, multiplying it by 256
+	mov cl, 0
+diskdataread:
+	mov dx, 0x1F0
+	in ax, dx
+	mov [esi], ax
+	add esi, 2
+	dec cx
+	cmp cx, 0
+	jne diskdataread		;;read all sectors
+	mov edi, esi
+	mov edx, [lbaadend]
+	mov esi, [bufferstartesi]
+	mov ebx, [lbaadstartebx]
+	ret
+	
+	
+diskold: ;;28 bits
 	mov ax, 0
 	mov dx, 0x1F1
 	out dx, al	;;send null byte to port
@@ -119,27 +175,6 @@ diskr:		;;sector count in cl, disk number in ch, 28 bit address in first 28 bits
 	inc dx	;;0x1F7
 	mov al, 0x20
 	out dx, al			;;execute read command
-diskrwait:
-	mov dx, 0x1F7
-	in al, dx
-	and al, 0x08
-	cmp al, 0x08
-	jne diskrwait
-	mov ch, cl	;;move sector data into ch, multiplying it by 256
-	mov cl, 0
-diskdataread:
-	mov dx, 0x1F0
-	in ax, dx
-	mov [esi], ax
-	add esi, 2
-	dec cx
-	cmp cx, 0
-	jne diskdataread		;;read all sectors
-	mov edi, esi
-	mov edx, [lbaadend]
-	mov esi, [bufferstartesi]
-	mov ebx, [lbaadstartebx]
-	ret
 	
 lbaadend dd 0
 lbaadstartebx dd 0

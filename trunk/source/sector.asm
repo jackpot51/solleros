@@ -210,7 +210,10 @@ len:	db 0x10 ;;size of packet
 readlen:	dw 0x7F	;;blocks to read
 address:	dw 0x0	;;address 0
 segm:	dw 0x2000	;;segment
-lbaad:	dd 0	;;lba address
+;;start with known value for hd
+lbaad:	
+	;dd 0x0F224800	;;use only for hd on laptop
+dd 0	;;lba address
 	dd 0
 
     	times 510-($-$$) db 0
