@@ -15,6 +15,8 @@ newints:	;;for great justice
 	je near intx6	;;1=print char
 	cmp ah, 7
 	je near intx7	;;read file
+	cmp ah, 9
+	je near intx9	;;convert number
 	cmp ah, 10
 	je near intx10	;;create thread
 	ret
@@ -41,6 +43,14 @@ intx6:
 	ret
 intx7:
 	call loadfile
+	ret
+intx9:
+	cmp al, 0
+	jne intx9B
+	call showdec
+	ret
+intx9B:
+	call showhex
 	ret
 intx10:
 ;	call thread

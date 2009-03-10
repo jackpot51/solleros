@@ -26,6 +26,13 @@ vesamode dw 0
 videomodecache dw 0
 
 guiload:
+	mov si, bootmsg
+	call printrm
+	mov ax, 0
+	int 16h
+	cmp al, "y"
+	jne near guiload2
+guiloadagain:
 	mov ax, 04F00h
 	mov di, VBEMODEBLOCK
 	int 10h
@@ -43,7 +50,7 @@ findvideomodes:
 nextvmode:
 	sub si, 2
 	cmp si, reserved
-	jb near guiload2
+	jb near guiloadagain
 	mov cx, [si]
 	cmp cx, 0xFFFF
 	je near nextvmode
@@ -241,3 +248,5 @@ realmode:
 
    mov eax, 0
    ret
+   
+bootmsg:	db "Boot into the GUI?(y/n)",10,13,0

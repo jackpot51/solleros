@@ -528,6 +528,10 @@ svdone:	mov al, 0
 	mov [ebx], al
 	jmp nwcmd
 	
+	db 5,4,"logout",0
+logout
+	jmp os
+	
 	
 	db 5,4,"./",0
 rundiskprog:

@@ -5,13 +5,13 @@
 		mov ah, 3
 		int 30h
 		mov ah, 1
-		mov esi, datmsg
+;		mov esi, datmsg
 		mov bx, 7
 		mov al, 0
 		int 30h
-	;jmp packettest
+;	    jmp packettest
 		jmp nwcmd
-datmsg: db "Internet has not been implemented yet.",10,13,0
+;datmsg: db "Internet has not been implemented yet.",10,13,0
 		
 db 5,4,"pci",0
 	pcishow:
@@ -111,8 +111,10 @@ bmpfound:
 		mov al, 0
 		mov ah, 5
 		int 30h
+		call guiclear
+		call reloadallgraphics
 		mov esi, buftxt
-		add esi, 8
+		add esi, 5
 		call print
 		mov esi, loadedbmpmsg
 		call print
@@ -164,7 +166,7 @@ db 5,4,"time",0
 	mov esi, dateshow
 	call print
 	jmp nwcmd
-time:
+	time:
 	call tstackput1
 	mov al,10			;Get RTC register A
 	call tget1
@@ -185,6 +187,19 @@ time:
 
 	mov al,0x07			;Get day of month (01 to 31)
 	call tget1
+;	mov ah, 0			;;fix day
+;	mov ah, al
+;	shr ah, 4
+;	shl al, 4
+;	shr al, 4
+;	cmp al, 0
+;	jne nodecahday
+;	mov al, 10
+;	dec ah
+;nodecahday:
+;	dec al
+;	shl ah, 4
+;	or al, ah
 	mov [RTCtimeDay],al
 
 	mov al,0x08			;Get month (01 to 12)
@@ -213,6 +228,72 @@ time:
 	mov ch, [RTCtimeYear]
 	call tput1
 	call tstackget1
+	mov esi, timeshow
+	mov bx, 7
+	mov ah, 1
+	mov al, 0
+	int 30h
+;;get day of week
+;;add these:
+;;century value
+;;last 2 digits of year
+;;last 2 digits of year right shifted twice
+;;month table value
+;;day of the month
+;;divide these by 7
+;;the remainder is the day
+	mov eax, 0
+;;first convert the values from BCD to hex
+	mov al, [RTCtimeDay]
+	call converttohex
+	mov [dayhex], ah
+	mov al, [RTCtimeMonth]
+	call converttohex
+	mov [monthhex], ah
+	mov al, [RTCtimeYear]
+	call converttohex
+	mov [yearhex], ah
+	mov eax, 0
+	mov al, [yearhex]
+	shr al, 2
+	add al, [yearhex]
+	add eax, 6
+	mov ebx, 0
+	mov bl, [monthhex]
+	dec bl
+	add ebx, month
+	mov ecx, 0
+	mov cl, [ebx]
+	add eax, ecx
+	mov cl, [dayhex]
+	add eax, ecx
+	mov bx, 7
+	mov edx, 0
+	div bx
+	shl edx, 2
+	add edx, day
+	mov esi, [edx]
+	mov bx, 7
+	mov ah, 1
+	mov al, 0
+	int 30h
+	mov ax, 0
+	int 30h
+	hlt
+	
+converttohex:
+	mov ah, al
+	shr al, 4
+	shl ah, 4
+	shr ah, 4
+	cmp al, 0
+	je noconverttohex
+converttohexlp:
+	add ah, 10
+	dec al
+	cmp al, 0
+	jne converttohexlp
+noconverttohex:
 	ret
 	
 tstackput1:
@@ -263,8 +344,39 @@ tput1:
 	RTCtimeDay db 0
 	RTCtimeMonth db 0
 	RTCtimeYear db 0
-	timeshow db "00:00:00",0,0
+	dayhex db 0
+	monthhex db 0
+	yearhex db 0
+	timeshow db "00:00:00",13,10
 	dateshow db "00-00-0000",13,10,0
+	oldcentury:	;;from 1700 to 1900
+	db 4,2,0
+	century:	;;from 2000 to 2500
+	db 6,4,2,0,6,4
+	month:
+	db 0,3,3,6,1,4,6,2,5,0,3,5
+	day:
+	dd sunday
+	dd monday
+	dd tuesday
+	dd wednesday
+	dd thursday
+	dd friday
+	dd saturday
+sunday:
+	db "Sunday",13,10,0
+monday:
+	db "Monday",13,10,0
+tuesday:
+	db "Tuesday",13,10,0
+wednesday:
+	db "Wednesday",13,10,0
+thursday:
+	db "Thursday",13,10,0
+friday:
+	db "Friday",13,10,0
+saturday:
+	db "Saturday",13,10,0
 
 db 5,4,"cpuid",0
 	mov eax, 0

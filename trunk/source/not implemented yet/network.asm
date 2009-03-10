@@ -25,7 +25,7 @@ getmac:	mov ecx, 0
 	call print
 	jmp nwcmd
 
-failpackettest db "FAIL",0
+failpackettest db "FAIL",10,13,0
 
 packettestfail:
 	mov esi, failpackettest

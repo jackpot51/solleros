@@ -1281,13 +1281,13 @@ endedbmp:
 		mov esi, termwindow
 		mov dx, 0
 		mov cx, 0
-		mov ebx, nwcmd
+		mov ebx, os
 ;;		mov ebx, internettest
 		mov [user2codepoint], ebx
 		mov ax, 0
 		call showwindow
 ;;		jmp internettest
-		jmp nwcmd
+		jmp os
 		ret
 
 	gotomenuboot:

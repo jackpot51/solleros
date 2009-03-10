@@ -22,6 +22,19 @@ time:
 
 	mov al,0x07			;Get day of month (01 to 31)
 	call tget1
+;	mov ah, 0			;;fix day
+;	mov ah, al
+;	shr ah, 4
+;	shl al, 4
+;	shr al, 4
+;	cmp al, 0
+;	jne nodecahday
+;	mov al, 10
+;	dec ah
+;nodecahday:
+;	dec al
+;	shl ah, 4
+;	or al, ah
 	mov [RTCtimeDay],al
 
 	mov al,0x08			;Get month (01 to 12)
@@ -55,17 +68,39 @@ time:
 	mov ah, 1
 	mov al, 0
 	int 30h
+;;get day of week
+;;add these:
+;;century value
+;;last 2 digits of year
+;;last 2 digits of year right shifted twice
+;;month table value
+;;day of the month
+;;divide these by 7
+;;the remainder is the day
 	mov eax, 0
+;;first convert the values from BCD to hex
+	mov al, [RTCtimeDay]
+	call converttohex
+	mov [dayhex], ah
+	mov al, [RTCtimeMonth]
+	call converttohex
+	mov [monthhex], ah
 	mov al, [RTCtimeYear]
+	call converttohex
+	mov [yearhex], ah
+	mov eax, 0
+	mov al, [yearhex]
 	shr al, 2
+	add al, [yearhex]
 	add eax, 6
 	mov ebx, 0
-	mov bl, [RTCtimeMonth]
+	mov bl, [monthhex]
+	dec bl
 	add ebx, month
 	mov ecx, 0
 	mov cl, [ebx]
 	add eax, ecx
-	mov cl, [RTCtimeDay]
+	mov cl, [dayhex]
 	add eax, ecx
 	mov bx, 7
 	mov edx, 0
@@ -79,6 +114,22 @@ time:
 	int 30h
 	mov ax, 0
 	int 30h
+	hlt
+	
+converttohex:
+	mov ah, al
+	shr al, 4
+	shl ah, 4
+	shr ah, 4
+	cmp al, 0
+	je noconverttohex
+converttohexlp:
+	add ah, 10
+	dec al
+	cmp al, 0
+	jne converttohexlp
+noconverttohex:
+	ret
 	
 tstackput1:
 	mov [tstack + 20], esi
@@ -128,6 +179,9 @@ tput1:
 	RTCtimeDay db 0
 	RTCtimeMonth db 0
 	RTCtimeYear db 0
+	dayhex db 0
+	monthhex db 0
+	yearhex db 0
 	timeshow db "00:00:00",13,10
 	dateshow db "00-00-0000",13,10,0
 	oldcentury:	;;from 1700 to 1900
@@ -158,4 +212,3 @@ friday:
 	db "Friday",13,10,0
 saturday:
 	db "Saturday",13,10,0
-
