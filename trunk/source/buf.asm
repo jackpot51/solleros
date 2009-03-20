@@ -32,5 +32,8 @@ videobufend		resb 200
 ;ospagedirend:
 ;pagetables:
 ;	resb 4096
+
+rbuffstart: ;for use with networking
+resb 8212
 bssend:
 [section .text]

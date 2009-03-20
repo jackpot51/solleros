@@ -138,3 +138,4 @@ getpciaddr:		;;puts it in eax and ebx
 			add ebx, eax
 			mov eax, ebx
 			ret
+			

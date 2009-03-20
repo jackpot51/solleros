@@ -4,9 +4,6 @@ PS2SET:
   call CHKPRT		; check if command is progressed (demand!)
 ret
 
-;***********************************************************************
-;Check if command is accepted. (not got stuck in inputbuffer)
-;***********************************************************************
 CHKPRT:
   mov  cx, 100
  .again:
@@ -17,20 +14,12 @@ CHKPRT:
  .go:
 ret
 
-;***********************************************************************
-;Write to mouse
-;***********************************************************************
 WMOUS:
   mov  al, 0xd4		; write to mouse device instead of to keyboard
   out  0x64, al		; write to keyboardcontroller
   call CHKPRT		; check if command is progressed (demand!)
 ret
 
-
-
-;***********************************************************************
-;mouse output buffer full
-;***********************************************************************
 MBUFFUL:
   mov cx, 100
  .mn:
@@ -42,9 +31,6 @@ MBUFFUL:
 ret
 
 
-;***********************************************************************
-;Write activate Mouse HardWare
-;***********************************************************************
 ACTMOUS:
   call WMOUS
   mov  al, 0xf4 	; Command to activate mouse itselve (Stream mode)
@@ -53,9 +39,6 @@ ACTMOUS:
   call CHKMOUS		; check if a byte is available
 ret
 
-;***********************************************************************
-;Check if mouse has info for us
-;***********************************************************************
 CHKMOUS:
   mov  bl, 0
   mov cx, 100
@@ -68,9 +51,6 @@ CHKMOUS:
  .yy:
 ret
 
-;***********************************************************************
-;Get Mouse Byte
-;***********************************************************************
 GETB:
  .cagain:
   call CHKMOUS		; check if a byte is available

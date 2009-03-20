@@ -9,6 +9,8 @@
     %include 'source/input.asm'
     %include 'source/gui.asm'
     ;%include 'source/network.asm'
+	%include 'source/rtl8139.asm'
+	%include 'source/arp.asm'
 	%include 'source/pci.asm'
 	;%include 'source/process.asm'
     %include 'source/disk.asm'

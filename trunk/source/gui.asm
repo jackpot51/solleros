@@ -618,6 +618,7 @@ donereloadgraphics:
 		and bl, 1
 		mov [iconselected], bl
 		call showicon2
+notcorrectdrag:
 		ret
 
 	noticondragging:
@@ -626,8 +627,7 @@ donereloadgraphics:
 		and bl, 1
 		mov [mouseselecton], bl
 		call showstring2
-	notcorrectdrag:
-		ret
+		jmp notcorrectdrag
 
 grphbuf times 16 db 0
 	graphicsadd:

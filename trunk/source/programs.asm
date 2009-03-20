@@ -1,31 +1,25 @@
-
 ;db 5,4,"internet",0
 	internettest: 			;;initialize network card, lets hope this is right
 							;;^^used to^^, now tests int 30h functions		
 		mov ah, 3
 		int 30h
 		mov ah, 1
-;		mov esi, datmsg
+		;mov esi, datmsg
 		mov bx, 7
 		mov al, 0
 		int 30h
-;	    jmp packettest
+	    ;jmp packettest
 		jmp nwcmd
 ;datmsg: db "Internet has not been implemented yet.",10,13,0
 		
 db 5,4,"pci",0
 	pcishow:
 	call pcidump
-	jmp nwcmd
-;db 5,4,"runbat",0
-;	runbatch2:
-;		mov esi, line
-;		call print
-;		mov edi, buftxt
-;		add edi, 7
-;		mov esi, 0x100000
-;		call loadfile
-
+	jmp nwcmd
+	
+db 5,4,"arp",0
+	call arptest
+	jmp nwcmd
 
 db 5,4,"batch",0
 	batchst: 
