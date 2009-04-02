@@ -18,7 +18,8 @@ LOOPPOS	resb 4
 fileindex: resb 200h 
 fileindexend:
 variables: 	resb 500h 
-varend: resb 1 
+varend: resb 1
+buftxt2: resb 200h
 buftxt: resb 200h 
 buf2:	resb 20 
 numbuf: resb 1 
@@ -32,7 +33,11 @@ videobufend		resb 200
 ;ospagedirend:
 ;pagetables:
 ;	resb 4096
-
+lastcommandpos: resb 4
+currentcommandpos: resb 4
+commandbuf:
+resb 1024
+commandbufend:
 rbuffstart: ;for use with networking
 resb 8212
 bssend:

@@ -151,7 +151,6 @@ donescr:
 		add bx, [linebeginpos]
 		mov [linebeginpos], bx
 		jmp doneeol
-		
 	int301scr:
 		dec dh
 		mov edi, videobuf2
@@ -199,13 +198,17 @@ trans db 0
 		mov ax, [lastkey]
 		cmp ah, 1Ch
 		je int302enter
+		cmp al, 0xE0
+		jne nospecialtrans
+		mov bl, al
+		mov al, 0
+	nospecialtrans:
 		or bh, al
 		cmp bh, 0
 		je transcheck
 		jmp int302end
 	int302enter:
 		mov al, 13
-		jmp int302end
 	int302end:
 		ret
 	
@@ -244,6 +247,7 @@ endkey304 db 0
 endkey305 db 0
 modkey305 db 0
 firstesi305 dd 0
+commandedit db 0
 backcursor db 8," ",0
 	int305:	;;print and get line, al=last key, bl=modifier, esi=buffer
 		mov [endkey305], al
@@ -251,23 +255,209 @@ backcursor db 8," ",0
 		mov [firstesi305], esi
 	int305b:
 		push esi
-		mov al, 0
+		mov al, 1
 		call int302
 		pop esi
+		cmp ah, 0x48
+		je near int305up
+		cmp ah, 0x50
+		je near int305down
+		cmp ah, 0x4D
+		je near int305right
+		cmp ah, 0x4B
+		je near int305left
 		cmp al, 8
 		je near int305bscheck
+		cmp al, 0
+		je int305b
 		mov [esi], al
 		inc esi
 	bscheckequal:
 		mov bl, [modkey305]
 		call int301
+		push esi
+		mov [int305axcache], ax
+		mov ah, [endkey305]
+		cmp al, ah
+		je nobackprintbuftxt2
+		mov esi, buftxt2
+		call print
+		mov al, " "
+		call int301prnt
+		mov al, 8
+		cmp esi, buftxt2
+		je nobackprintbuftxt2
+	backprintbuftxt2:
+		call int301prnt
+		dec esi
+		cmp esi, buftxt2
+		ja backprintbuftxt2
+	nobackprintbuftxt2:
+		call int301
+		pop esi
+		mov ax, [int305axcache]
 		mov ah, [endkey305]
 		cmp al, ah
 		jne int305b
 		dec esi
+		mov edi, buftxt2
+	copylaterstuff:
+		mov al, [edi]
+		cmp al, 0
+		je nocopylaterstuff
+		mov [esi], al
+		inc edi
+		inc esi
+		jmp copylaterstuff
+	nocopylaterstuff:
 		mov byte [esi], 0
+		call clearbuftxt2
 		ret
 	
+	clearbuftxt2:
+		mov al, 0
+		mov edi, buftxt2
+	clearbuftxt2lp:
+		mov [edi], al
+		inc edi
+		cmp edi, buftxt
+		jne clearbuftxt2lp
+		ret
+		
+	int305axcache dw 0
+		
+	int305left:
+		mov edi, buftxt2
+		mov al, [edi]
+	shiftbuftxt2:
+		cmp al, 0
+		je noshiftbuftxt2
+		inc edi
+		mov ah, [edi]
+		mov [edi], al
+		mov al, ah
+		jmp shiftbuftxt2
+	noshiftbuftxt2:
+		mov edi, buftxt2
+		dec esi
+		mov al, [esi]
+		mov [edi], al
+		mov byte [esi], 0
+		mov al, 8
+		call int301
+		jmp int305b
+		
+	int305right:
+		mov edi, buftxt2
+		mov al, [edi]
+		cmp al, 0
+		je near int305b
+		mov [esi], al
+	shiftbuftxt2lft:
+		cmp al, 0
+		je noshiftbuftxt2lft
+		inc edi
+		mov al, [edi]
+		mov [edi - 1], al
+		jmp shiftbuftxt2lft
+	noshiftbuftxt2lft:
+		mov al, [esi]
+		inc esi
+		mov bl, [modkey305]
+		call int301
+		jmp int305b
+		
+	int305downbck:
+		dec ah
+		mov [commandedit], ah
+		call int305bckspc
+		jmp int305b
+	
+	int305down:
+		mov ah, [commandedit]
+		cmp ah, 1
+		jbe near int305b
+		cmp ah, 2
+		je int305downbck
+		sub ah, 2
+		mov [commandedit], ah
+		
+	int305up:
+		;cmp bl, 0xE0
+		;jne int305b
+		mov al, 0
+		cmp [commandedit], al
+		je near int305b
+		call int305bckspc
+		jmp getcurrentcommandstr
+	int305bckspc:
+		cmp esi, buftxt
+		je noint305upbck
+	int305upbckspclp:
+		mov al, 8
+		mov bl, [modkey305]
+		call int301prnt
+		mov al, " "
+		call int301prnt
+		mov al, 8
+		call int301
+		dec esi
+		cmp esi, buftxt
+		je noint305upbck
+		jmp int305upbckspclp
+	noint305upbck:
+		mov edi, [currentcommandpos]
+		add edi, commandbuf
+		dec edi
+		ret
+	getcurrentcommandstr:
+		mov ah, [commandedit]
+		inc byte [commandedit]
+	getccmdlp:
+		dec edi
+		mov al, [edi]
+		cmp edi, commandbuf
+		jb getcmdresetcommandbuf
+		sub edi, commandbuf
+		cmp edi, [currentcommandpos]
+		je near int305b
+		add edi, commandbuf
+		cmp al, 0
+		jne getccmdlp
+		dec ah
+		cmp ah, 0
+		ja getccmdlp
+		inc edi
+		cmp edi, commandbufend
+		ja fixcmdbufb4moreint305
+		jmp moreint305up
+	getcmdresetcommandbuf:
+		mov edi, commandbufend
+		inc edi
+		jmp getccmdlp
+	fixcmdbufb4moreint305:
+		dec edi
+		sub edi, commandbufend
+		add edi, commandbuf
+	moreint305up:
+		mov al, [edi]
+		inc edi
+		sub edi, commandbuf
+		cmp al, 0
+		je near int305b
+		cmp edi, [currentcommandpos]
+		jae near int305b
+		add edi, commandbuf
+		mov [esi], al
+		inc esi
+		push edi
+		mov bl, [modkey305]
+		call int301
+		pop edi
+		cmp edi, commandbufend
+		jbe moreint305up
+		mov edi, commandbuf
+		jmp moreint305up
 	int305bscheck:
 		cmp esi, [firstesi305]
 		ja goodbscheck
@@ -276,12 +466,9 @@ backcursor db 8," ",0
 		dec esi
 		mov byte [esi], 0
 		mov bl, [modkey305]
-		push esi
-		mov esi, backcursor
-		call print		
-		pop esi
 		mov al, 8
 		jmp bscheckequal
+	
 		
 	clear:		
 	
@@ -303,24 +490,25 @@ backcursor db 8," ",0
 		dec ch
 		cmp ch, 0
 		jne int306b
-	
+		jmp termcopy
+		
+	termcursorpos dd 0
 	removedvideo dw 0
-	
 termcopy:	
 	pusha
 	mov edi, videobuf2
 	mov ebx, 0
 	mov bx, [videobufpos]
 	add edi, ebx
-	mov al, "_"
-	mov ah, 7
-	mov [edi], ax
+	mov [termcursorpos], edi
+	call switchtermcursor
 	mov byte [mouseselecton], 0
 	mov byte [termcopyon], 1
 	cmp byte [guion], 0
 	je near nowincopy
 	cmp byte [termguion], 1
 	je near windowvideocopy
+	jmp nocopytermatall
 nowincopy:
 	mov esi, 0xA0000
 	mov eax, [basecache]
@@ -374,6 +562,27 @@ nopresentwinfont:
 	dec ch
 	cmp ch, 0
 	jne nowincopy2
+nocopytermatall:
+	call switchtermcursor
 	popa
+	ret
+	
+switchtermcursor:
+	mov edi, [termcursorpos]
+	mov al, [edi + 1]
+	mov ah, [edi]
+	cmp al, 7
+	jbe movlargecursorterm
+	mov al, 7
+	jmp movedcursorterm
+movlargecursorterm:
+	mov al, 0xF0
+movedcursorterm:
+	mov [edi + 1], al
+	cmp ah, 0
+	jne fixednocursorterm
+	mov ah, " "
+	mov [edi], ah
+fixednocursorterm:
 	ret
 	

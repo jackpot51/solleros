@@ -63,7 +63,7 @@ dumppcidevice:
 	mov [pciregister], al
 	call getpciaddr
 	mov ecx, eax
-	mov byte [firsthexshown],3
+	mov byte [firsthexshown],0
 	call showhex
 dumppcidevicelp:
 	mov [pciregister], al
@@ -75,13 +75,13 @@ dumppcidevicelp:
 	mov ecx, eax
 	mov al, [pciregister]
 	add al, 4
-	cmp al, 0x3C
+	cmp al, 0x1A
 	jae dumppcidn
 	mov byte [firsthexshown],0
 	call showhex
 	jmp dumppcidevicelp
 dumppcidn:
-	mov byte [firsthexshown],2
+	mov byte [firsthexshown],0
 	call showhex
 	jmp searchpciret
 nextpcibus:

@@ -26,6 +26,8 @@ arptest2:	;;try to reach 192.168.0.1
 	mov edi, frame
 	mov esi, framend
 	call sendframe
+	mov esi, line
+	call print
 	ret
 	
 ;;example frame

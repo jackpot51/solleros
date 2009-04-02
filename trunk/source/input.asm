@@ -74,15 +74,18 @@ MBUTTON db 0x00	;	Middle button status 1=PRESSED 0=RELEASED
 XCOORD  db 0x00	;	the moved distance  (horizontal)
 YCOORD  db 0x00	;	the moved distance  (vertical)
 
+specialkey db 0
 
 	guistartin:
 		mov eax, 0
+		mov [specialkey], al
 		mov [lastkey], ax
 		in al, 64h ; Status
 		test al, 1 ; output buffer full?
 		jz guistartin
 		test al, 20h ; PS2-Mouse?
 		jnz near maincall2
+	guigetkey:
 		in al, 60h
 		mov ah, al
 		mov al, 0
@@ -105,6 +108,14 @@ guiscanother:
 		mov ah, al
 		mov al, 0
 		mov [lastkey], ax
+		cmp ah, 0E0h
+		je near guigetkeyspecial
+		mov al, 0xE0
+		cmp [specialkey], al
+		jne nospecialkey
+		mov [lastkey], ax
+		ret
+nospecialkey:
 		;cmp ah, 4Dh
 		;je near nextimage
 		cmp ah, 2Ah
@@ -120,6 +131,10 @@ guiscanother:
 		cmp ah, 3Ah
 		je near guishift
 		ret
+	guigetkeyspecial:
+		mov al, 0xE0
+		mov [specialkey], al
+		jmp guigetkey
 	guishift:
 		mov al, [guiupper]
 		cmp al, 1

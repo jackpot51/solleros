@@ -93,13 +93,20 @@ ReadHardDisk:
 	mov gs, ax
 	mov bx, 4
 	mov ecx, [gs:bx]
+	cmp ecx, [signature + 4]	;;My initials, JS, followed by OS and by the version number
+	je dumpconts1
+nodumpconts:
 	mov bx, 0
-	cmp ecx, 0x53524A00	;;My initials, JRS, in ascii
-	je dumpconts
 	mov eax, [lbaad]
 	inc eax
 	mov [lbaad], eax
 	jmp ReadHardDisk
+dumpconts1:
+	mov bx, 0
+	mov ecx, [gs:bx]
+	cmp ecx, [signature]
+	je dumpconts
+	jmp nodumpconts
 dumpconts:
 	pusha
 	mov si, sectormsg3
@@ -119,7 +126,7 @@ dumpconts2:
 	int 0x16
 	mov cl, [DriveNumber]
 	mov edx, [lbaad]
-    jmp 0x2000:0
+    jmp 0x2000:8
 
 printnum:
 	mov si, number
@@ -212,10 +219,12 @@ address:	dw 0x0	;;address 0
 segm:	dw 0x2000	;;segment
 ;;start with known value for hd
 lbaad:	
-	;dd 0x0F226000	;;use only for hd on laptop
+	;dd 0xF225200	;;use only for hd on laptop
 	dd 0	;;lba address
 	dd 0
 
+signature db "JSOS"
+	  dd 	1
     	times 510-($-$$) db 0
     dw 0AA55h	;;magic byte
 

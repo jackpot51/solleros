@@ -11,7 +11,22 @@
 	    ;jmp packettest
 		jmp nwcmd
 ;datmsg: db "Internet has not been implemented yet.",10,13,0
-		
+db 5,4,"keycode",0
+keycode:
+	call guistartin
+	mov eax, 0
+	mov ax, [lastkey]
+	cmp ah, 1
+	je near killkeycode
+	mov ecx, 0
+	mov cl, ah
+	call showhexsmall
+	jmp keycode
+killkeycode:
+	mov esi, line
+	call print
+	jmp nwcmd
+
 db 5,4,"pci",0
 	pcishow:
 	call pcidump

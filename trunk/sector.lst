@@ -1,0 +1,252 @@
+     1                                      ; SECTOR.ASM
+     2                                      ; Load a program off the disk and jump to it
+     3                                  
+     4                                      ; Tell the compiler that this is offset 0.
+     5                                      ; It isn't offset 0, but it will be after the jump.
+     6                                  [BITS 16]
+     7                                  	; Boot record is loaded at 0000:7C00
+     8                                  ORG 7c00h
+     9                                  
+    10                                  ;;0x000: EB 58 90 6D 6B 64 6F 73 66 73 00 00 02 08 20 00 EXAMPLE
+    11                                  ;;0x010: 02 00 00 00 00 F8 00 00 3E 00 B9 00 00 00 00 00
+    12                                  ;;0x020: 26 DE B2 00 A2 2C 00 00 00 00 00 00 02 00 00 00
+    13                                  ;;0x030: 01 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00
+    14                                  ;;0x040: 00 00 29 52 D1 D2 48 20 20 20 20 20 20 20 20 20
+    15                                  ;;0x050: 20 20 46 41 54 33 32 20 20 20 0E 1F BE 77 7C AC
+    16                                  ;;0x060: 22 C0 74 0B 56 B4 0E BB 07 00 CD 10 5E EB F0 32
+    17                                  ;;0x070: E4 CD 16 CD 19 EB FE 54 68 69 73 20 69 73 20 6E
+    18                                  ;;0x080: 6F 74 20 61 20 62 6F 6F 74 61 62 6C 65 20 64 69
+    19                                  ;;0x090: 73 6B 2E 20 20 50 6C 65 61 73 65 20 69 6E 73 65
+    20                                  ;;0x0A0: 72 74 20 61 20 62 6F 6F 74 61 62 6C 65 20 66 6C
+    21                                  ;;0x0B0: 6F 70 70 79 20 61 6E 64 0D 0A 70 72 65 73 73 20
+    22                                  ;;0x0C0: 61 6E 79 20 6B 65 79 20 74 6F 20 74 72 79 20 61
+    23                                  ;;0x0D0: 67 61 69 6E 20 2E 2E 2E 20 0D 0A 00 00 00 00 00
+    24                                  ;;0x0E0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    25                                  
+    26                                  ;;fuck trying to set up FAT for now
+    27                                  ;FATDRIVETABLE:
+    28                                  ;	;jmp short 0x3C		;;0x00-0x02, jump over table
+    29                                  ;	db "SOLLEROS"		;;0x03-0x0A, os name
+    30                                  ;	db 0x02,0x08		;;0x0B-0x0C, number of bytes per sector
+    31                                  ;	db 0x20			;;0x0D, sectors per cluster
+    32                                  ;	db 0,0x02		;;0x0F-0x20, reserved sectors
+    33                                  ;	db 0x00			;;0x21, number of FAT tables
+    34                                  ;	db 0,0xB9		;;0x22-0x23, number of directory entries
+    35                                  ;	db 0,0			;;0x24-0x25, total sectors, if zero, > 0xFFFF
+    36                                  ;	db 0			;;0x26, media descriptor
+    37                                  ;	db 0x26,0xDE		;;0x27-0x28, sectors per FAT table
+    38                                  ;	db 0xB2,0		;;0x29-0x2A, sectors per track
+    39                                  ;	db 0xA2,0x2C		;;0x2B-0x2C, heads on storage media
+    40                                  ;	db 0x0,0x0,0x0,0x0	;;0x2D-0x31, LBA
+    41                                  ;FAT32EXTENDEDTABLE:
+    42                                  ;	db 0xA2,0x2C,0,0	;;4 bytes, size of FAT table in bytes
+    43                                  ;	db 0,0			;;2 bytes, flags
+    44                                  
+    45                                  
+    46                                  
+    47                                  
+    48 00000000 E94300                  	jmp start
+    49                                  
+    50 00000003 00                      	DriveNumber db 0
+    51 00000004 4C6F6164696E67204F-     	sectormsg2 db "Loading OS...",10,13,0
+    52 0000000D 532E2E2E0A0D00     
+    53 00000014 0D0A536F6C6C65724F-     	sectormsg3 db 13,10,"SollerOS loaded.",10,13,0
+    54 0000001D 53206C6F616465642E-
+    55 00000026 0A0D00             
+    56 00000029 50726573732022414E-     	continuemsg db "Press ", 0x22, "ANY", 0x22, " key to continue.",0
+    57 00000032 5922206B657920746F-
+    58 0000003B 20636F6E74696E7565-
+    59 00000044 2E00               
+    60                                  	
+    61                                      start:                ; Update the segment registers
+    62 00000046 8816[0300]              	mov [DriveNumber], dl
+    63 0000004A 31C0                    	xor ax,		ax		; XOR ax
+    64 0000004C 8ED8                    	mov ds,		ax		; Mov AX into DS
+    65 0000004E 8EC0                    	mov es, 	ax
+    66 00000050 8ED0                    	mov ss,		ax
+    67 00000052 8EE0                    	mov fs,		ax
+    68 00000054 8EE8                    	mov gs,		ax
+    69                                  
+    70                                  ;Resetdrive:
+    71                                  ;	mov ax,		0x00		; Select Floppy Reset BIOS Function
+    72                                  ;        mov dl,		[DriveNumber]	; Select the floppy booted from
+    73                                  ;        int 13h				; Reset the floppy drive
+    74                                  ;        jc Resetdrive		; If there was a error, try again.
+    75                                  
+    76 00000056 BE[0400]                	mov si, sectormsg2
+    77 00000059 E80300                  	call print2
+    78 0000005C E91100                  	jmp ReadHardDisk
+    79                                      print2:			; 'si' comes in with string address
+    80 0000005F BB0700                  	    mov bx,7		; write to display
+    81 00000062 B40E                    	    mov ah,0Eh		; screen function
+    82 00000064 8A04                        prs2:    mov al,[si]         ; get next character
+    83 00000066 3C00                    	    cmp al,0		; look for terminator 
+    84 00000068 7405                                je finpr2		; zero byte at end of string
+    85 0000006A CD10                    	    int 10h		; write character to screen.    
+    86 0000006C 46                           	    inc si	     	; move to next character
+    87 0000006D EBF5                    	    jmp prs2		; loop
+    88 0000006F C3                          finpr2: ret
+    89                                  ReadHardDisk:
+    90 00000070 BE[A501]                	mov si, diskaddresspacket
+    91 00000073 B80000                  	mov ax, 0
+    92 00000076 B442                    	mov ah, 0x42
+    93 00000078 8A16[0300]              	mov dl, [DriveNumber]
+    94 0000007C CD13                    	int 0x13
+    95 0000007E 72F0                    	jc ReadHardDisk
+    96 00000080 668B0E[AD01]            	mov ecx, [lbaad]
+    97 00000085 E86600                  	call printnum
+    98 00000088 A1[AB01]                	mov ax, [segm]
+    99 0000008B 8EE8                    	mov gs, ax
+   100 0000008D BB0400                  	mov bx, 4
+   101 00000090 65668B0F                	mov ecx, [gs:bx]
+   102 00000094 663B0E[B901]            	cmp ecx, [signature + 4]	;;My initials, JS, followed by OS and by the version number
+   103 00000099 740F                    	je dumpconts1
+   104                                  nodumpconts:
+   105 0000009B BB0000                  	mov bx, 0
+   106 0000009E 66A1[AD01]              	mov eax, [lbaad]
+   107 000000A2 6640                    	inc eax
+   108 000000A4 66A3[AD01]              	mov [lbaad], eax
+   109 000000A8 EBC6                    	jmp ReadHardDisk
+   110                                  dumpconts1:
+   111 000000AA BB0000                  	mov bx, 0
+   112 000000AD 65668B0F                	mov ecx, [gs:bx]
+   113 000000B1 663B0E[B501]            	cmp ecx, [signature]
+   114 000000B6 7402                    	je dumpconts
+   115 000000B8 EBE1                    	jmp nodumpconts
+   116                                  dumpconts:
+   117 000000BA 60                      	pusha
+   118 000000BB BE[1400]                	mov si, sectormsg3
+   119 000000BE E89EFF                  	call print2
+   120 000000C1 61                      	popa
+   121                                  dumpconts2:
+   122 000000C2 65668B0F                	mov ecx, [gs:bx]
+   123 000000C6 53                      	push bx
+   124 000000C7 E82400                  	call printnum
+   125 000000CA 5B                      	pop bx
+   126 000000CB 81C30400                	add bx, 4
+   127 000000CF 81FBBC02                	cmp bx, 700
+   128 000000D3 76ED                    	jbe dumpconts2
+   129 000000D5 BE[2900]                	mov si, continuemsg
+   130 000000D8 E884FF                  	call print2
+   131 000000DB B80000                  	mov ax, 0
+   132 000000DE CD16                    	int 0x16
+   133 000000E0 8A0E[0300]              	mov cl, [DriveNumber]
+   134 000000E4 668B16[AD01]            	mov edx, [lbaad]
+   135 000000E9 EA08000020                  jmp 0x2000:8
+   136                                  
+   137                                  printnum:
+   138 000000EE BE[9901]                	mov si, number
+   139 000000F1 BF[A201]                	mov di, numberend
+   140 000000F4 BB0000                  	mov bx, 0
+   141 000000F7 B80000                  	mov ax, 0
+   142 000000FA E81300                  	call converthex
+   143                                  chkzero:
+   144 000000FD 8A04                    	mov al, [si]
+   145 000000FF 3C30                    	cmp al, '0'
+   146 00000101 7505                    	jne donechkzero
+   147 00000103 46                      	inc si
+   148 00000104 39FE                    	cmp si, di
+   149 00000106 7200                    	jb donechkzero
+   150                                  donechkzero:
+   151 00000108 E854FF                  	call print2
+   152 0000010B C3                      	ret
+   153                                  	
+   154 0000010C 0000                    sibuf db 0,0
+   155 0000010E 0000                    dibuf db 0,0
+   156                                  
+   157                                  converthex: 
+   158                                  clearbuffer:
+   159 00000110 B030                    	mov al, '0'
+   160 00000112 8936[0C01]              	mov [sibuf], si
+   161 00000116 893E[0E01]              	mov [dibuf], di
+   162 0000011A 39FE                    clearbuf: cmp si, di
+   163 0000011C 7305                    	jae doneclearbuff
+   164 0000011E 8804                    	mov [si], al
+   165 00000120 46                      	inc si
+   166 00000121 EBF7                    	jmp clearbuf
+   167                                  doneclearbuff:
+   168 00000123 8B36[0E01]              	mov si, [dibuf]
+   169 00000127 6689CA                  	mov edx, ecx
+   170                                  nxtexphx:			;0x10^x
+   171 0000012A 4E                      	dec si
+   172 0000012B 89F7                    	mov di, si		;;location of 0x10^x
+   173 0000012D 6689D1                  	mov ecx, edx
+   174 00000130 6681E10F000000          	and ecx, 0xF		;;just this digit
+   175 00000137 E81A00                  	call cnvrtexphx		;;get this digit
+   176 0000013A 89FE                    	mov si, di
+   177 0000013C 66C1EA04                	shr edx, 4		;;next digit
+   178 00000140 6681FA00000000          	cmp edx, 0
+   179 00000147 7402                    	je donenxtephx
+   180 00000149 EBDF                    	jmp nxtexphx 
+   181                                  donenxtephx:
+   182 0000014B 8B36[0C01]              	mov si, [sibuf]
+   183 0000014F 8B3E[0E01]              	mov di, [dibuf]
+   184 00000153 C3                      	ret
+   185                                  cnvrtexphx:			;;convert this number
+   186 00000154 89F3                    	mov bx, si		;place to convert to must be in si, number to convert must be in cx
+   187 00000156 6681F900000000          	cmp ecx, 0
+   188 0000015D 742B                    	je zerohx
+   189 0000015F 8A04                    cnvrthx:  mov al, [si]
+   190 00000161 3C39                    	cmp al, '9'
+   191 00000163 741D                    	je lettershx
+   192 00000165 3C46                    lttrhxdn: cmp al, 'F'
+   193 00000167 7421                    	je zerohx
+   194 00000169 8A04                    	mov al, [si]
+   195 0000016B FEC0                    	inc al
+   196 0000016D 8804                    	mov [si], al
+   197 0000016F 89DE                    	mov si, bx
+   198 00000171 6681E901000000          cnvrtlphx: sub ecx, 1
+   199 00000178 6681F900000000          	cmp ecx, 0
+   200 0000017F 75DE                    	jne cnvrthx
+   201 00000181 C3                      	ret
+   202                                  lettershx:
+   203 00000182 B041                    	mov al, 'A'
+   204 00000184 2C01                    	sub al, 1
+   205 00000186 8804                    	mov [si], al
+   206 00000188 EBDB                    	jmp lttrhxdn
+   207 0000018A B030                    zerohx:	mov al, '0'
+   208 0000018C 8804                    	mov [si], al
+   209 0000018E 4E                      	dec si
+   210 0000018F 8A04                    	mov al, [si]
+   211 00000191 3C46                    	cmp al, 'F'
+   212 00000193 74F5                    	je zerohx
+   213 00000195 6641                    	inc ecx
+   214 00000197 EBD8                    	jmp cnvrtlphx
+   215                                  
+   216 00000199 00<rept>                number times 9 db 0
+   217                                  numberend:
+   218 000001A2 202000                  db '  ',0
+   219                                  
+   220                                  diskaddresspacket:
+   221 000001A5 10                      len:	db 0x10 ;;size of packet
+   222 000001A6 00                      	db 0
+   223 000001A7 7F00                    readlen:	dw 0x7F	;;blocks to read
+   224 000001A9 0000                    address:	dw 0x0	;;address 0
+   225 000001AB 0020                    segm:	dw 0x2000	;;segment
+   226                                  ;;start with known value for hd
+   227                                  lbaad:	
+   228                                  	;dd 0xF225200	;;use only for hd on laptop
+   229 000001AD 00000000                	dd 0	;;lba address
+   230 000001B1 00000000                	dd 0
+   231                                  
+   232 000001B5 4A534F53                signature db "JSOS"
+   233 000001B9 01000000                	  dd 	1
+   234 000001BD 00<rept>                    	times 510-($-$$) db 0
+   235 000001FE 55AA                        dw 0AA55h	;;magic byte
+   236                                  
+   237                                  ;;partition table-does not matter
+   238                                  ;;    times 446-($-$$) db 0	;;skip to partition table
+   239                                  ;;ptable:
+   240                                  ;;  	db 0x80			;;bootable
+   241                                  ;;    	db 0x1			;;start head
+   242                                  ;;    	db 0x1,0x0		;;start sector,cylinder
+   243                                  ;;    	db 0x0B			;;system id, 0B = FAT 32
+   244                                  ;;	db 0xB8			;;end head
+   245                                  ;;	db 0xFE,0xFD		;;end sector,cylinder
+   246                                  ;;	db 0x3E,0,0,0		;;relative sector
+   247                                  ;;	db 0x26,0xDE,0xB2,0	;;total sectors
+   248                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 01
+   249                                  ;;;01 00 0B B8 FE FD 3E 00 00 00 26 DE B2 00 00 00
+   250                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   251                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   252                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 AA

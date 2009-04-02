@@ -79,8 +79,10 @@ bufclr:	mov [esi], al
 	inc esi
 	loop bufclr
 ;;;;;;;;;;;;;;;;
+	mov byte [nwcmdon], 1
 	jmp nwcmd
 
+nwcmdon db 0
 esipass dd 0
 usercache dd userlst
 	
@@ -106,6 +108,9 @@ full:	jmp nwcmd
 nwcmd:	mov al, 1
 	cmp [BATCHISON], al
 	jae near batchran
+	cmp [nwcmdon], al
+	je cancel
+	ret	;;return from terminal
 cancel:	mov al, 0
 	mov [IFON], al
 	mov [BATCHISON], al
@@ -124,11 +129,33 @@ cancel:	mov al, 0
 	;call print
 	call buftxtclear
 	mov esi, buftxt
+	mov byte [commandedit], 1
 	mov al, 13
 	mov bl, 7
 	mov ah, 4
 	int 30h
-gotcmd:	
+	mov byte [commandedit], 0
+gotcmd:	mov esi, [currentcommandpos]
+	mov [lastcommandpos], esi
+	mov edi, buftxt
+	add esi, commandbuf
+	cmp esi, commandbufend
+	jbe copycommand
+	mov esi, commandbuf
+copycommand:
+	mov al, [edi]
+	mov [esi], al
+	inc edi
+	inc esi
+	cmp al, 0
+	je donecopy
+	cmp esi, commandbufend
+	jbe copycommand
+	mov esi, commandbuf
+	jmp copycommand
+donecopy:
+	sub esi, commandbuf
+	mov [currentcommandpos], esi
 	jmp run
 	
 batchran:
@@ -143,7 +170,7 @@ stdin:	mov al, 13
 	ret
 
 run:	mov esi, line
-		call print
+	call print
 progtest:
 	mov esi, buftxt
 	mov ebx, fileindex
@@ -467,8 +494,13 @@ zerohx:	mov al, '0'
 	je zerohx
 	inc ecx
 	jmp cnvrtlphx
-
+smallhex db 0
 firsthexshown db 1
+showhexsmall:
+	mov byte [smallhex], 1
+	call showhex
+	mov byte [smallhex], 0
+	ret
 showhex:
 	pusha
 	mov esi, hexnumber
@@ -500,6 +532,10 @@ nonewlinetabfixhex:
 	shl dl, 4
 notabfixhex:
 	mov esi, hexnumber
+	cmp byte [smallhex],1
+	jne printnosmallhex
+	add esi, 6
+printnosmallhex:
 	call print
 	cmp byte [firsthexshown], 2
 	jne hexshown

@@ -529,8 +529,16 @@ svdone:	mov al, 0
 	jmp nwcmd
 	
 	db 5,4,"logout",0
-logout
+logout:
 	jmp os
+	
+	db 5,4,"reboot",0
+rebootcomp:
+	jmp coldboot
+
+	db 5,4,"shutdown",0
+shutdowncomp:
+	jmp shutdown
 	
 	
 	db 5,4,"./",0

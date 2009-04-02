@@ -1,12 +1,8 @@
     ; MENU.ASM
+db "JSOS"
+dd 1
 menustart:	
-	    mov ax, cs
-	    jmp mainindex	;;this command gives the solleros user the location of mainindex
-	    db "JRS",0	;;this gives the bootloader a key to look for
-mainindex:
-	    jmp mainindexdn	;;this gives the size of the index
-	    ;not needed;dw 0405h,progstart,batchprogend,fileindex,fileindexend,variables,varend,nwcmd,int30h,physbaseptr,0
-mainindexdn:
+	mov ax, cs
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
@@ -207,7 +203,10 @@ tendnrm:
 	    ret
 
 		shutdown:
-			call realmode	
+			   mov eax, cr0
+			   and al,0xFE     ; back to realmode
+			   mov  cr0, eax   ; by toggling bit again
+			   sti
 			MOV AX, 5300h	; Shuts down APM-Machines.
 			XOR BX, BX	; Newer machines automatically
 			INT 15h		; shut down
@@ -224,7 +223,10 @@ tendnrm:
 			IRET
 
 	coldboot:
-			call realmode
+			   mov eax, cr0
+			   and al,0xFE     ; back to realmode
+			   mov  cr0, eax   ; by toggling bit again
+			   sti
 			MOV AX, 0040h
 			MOV ES, AX
 			MOV WORD [ES:00072h], 0h
@@ -245,7 +247,6 @@ realmode:
    and al,0xFE     ; back to realmode
    mov  cr0, eax   ; by toggling bit again
    sti
-
    mov eax, 0
    ret
    

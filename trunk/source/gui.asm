@@ -536,6 +536,7 @@ windowselect:
 		mov word [esi], 0
 		mov dword [user2codepoint], 0
 		mov byte [termguion], 0
+		mov byte [nwcmdon], 0
 		call guiclear
 		jmp doneiconsel2
 	nexticonsel:
@@ -550,7 +551,8 @@ windowselect:
 		cmp dword [codepointer], 0
 		je doneiconsel2
 		mov ebx, [codepointer]
-		jmp ebx 
+		call ebx 
+		ret
 	doneiconsel2:
 		mov al, [LBUTTON]
 		mov [pLBUTTON], al
@@ -993,6 +995,7 @@ fixwindowcopy:
 		ror dh, 1
 		jmp copywindow
 donewincopynow:
+		call switchtermcursor
 		cmp byte [termcopyon], 1
 		jne forgetresetstuff
 		popa
@@ -1298,7 +1301,7 @@ endedbmp:
 		mov [user2codepoint], ebx
 		mov ax, 0
 		call showwindow
-jmp os
+		jmp os
 		ret
 
 	winblows:
