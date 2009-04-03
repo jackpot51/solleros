@@ -5,12 +5,13 @@
 	pwdask	db	"password:",0
 	location	db	"@SollerOS]#",0
 	line	db	13,10,0
-    ;msg:       db "SollerOS Beta version 0.9.0 - compiled by Jeremy Soller.",13,10,0
 	userlst:
 			db "user",0
 			db "password",0
 			db "root",0
 			db "awesomepower",0
+			db "n",0	;;use for quick entry-a quick double n followed by a double enter will get you in
+			db 0
 	userlstend:
 	
 fonts:	incbin 'source/precompiled/fonts.pak'

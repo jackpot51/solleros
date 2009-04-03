@@ -19,8 +19,9 @@ fileindex: resb 200h
 fileindexend:
 variables: 	resb 500h 
 varend: resb 1
-buftxt2: resb 200h
-buftxt: resb 200h 
+buftxt2: resb 100h
+resb 10
+buftxt: resb 100h 
 buf2:	resb 20 
 numbuf: resb 1 
 videobuf2 		resb 0x12C0 

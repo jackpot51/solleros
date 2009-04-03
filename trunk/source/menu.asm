@@ -1,6 +1,5 @@
     ; MENU.ASM
-db "JSOS"
-dd 1
+%include 'source/signature.asm'
 menustart:	
 	mov ax, cs
 	mov ds, ax

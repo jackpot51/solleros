@@ -126,7 +126,7 @@ dumpconts2:
 	int 0x16
 	mov cl, [DriveNumber]
 	mov edx, [lbaad]
-    jmp 0x2000:8
+    jmp 0x2000:(signatureend - signature)
 
 printnum:
 	mov si, number
@@ -223,8 +223,7 @@ lbaad:
 	dd 0	;;lba address
 	dd 0
 
-signature db "JSOS"
-	  dd 	1
+%include 'source/signature.asm'
     	times 510-($-$$) db 0
     dw 0AA55h	;;magic byte
 

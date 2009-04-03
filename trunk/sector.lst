@@ -132,7 +132,7 @@
    132 000000DE CD16                    	int 0x16
    133 000000E0 8A0E[0300]              	mov cl, [DriveNumber]
    134 000000E4 668B16[AD01]            	mov edx, [lbaad]
-   135 000000E9 EA08000020                  jmp 0x2000:8
+   135 000000E9 EA0C000020                  jmp 0x2000:(signatureend - signature)
    136                                  
    137                                  printnum:
    138 000000EE BE[9901]                	mov si, number
@@ -229,24 +229,27 @@
    229 000001AD 00000000                	dd 0	;;lba address
    230 000001B1 00000000                	dd 0
    231                                  
-   232 000001B5 4A534F53                signature db "JSOS"
-   233 000001B9 01000000                	  dd 	1
-   234 000001BD 00<rept>                    	times 510-($-$$) db 0
-   235 000001FE 55AA                        dw 0AA55h	;;magic byte
-   236                                  
-   237                                  ;;partition table-does not matter
-   238                                  ;;    times 446-($-$$) db 0	;;skip to partition table
-   239                                  ;;ptable:
-   240                                  ;;  	db 0x80			;;bootable
-   241                                  ;;    	db 0x1			;;start head
-   242                                  ;;    	db 0x1,0x0		;;start sector,cylinder
-   243                                  ;;    	db 0x0B			;;system id, 0B = FAT 32
-   244                                  ;;	db 0xB8			;;end head
-   245                                  ;;	db 0xFE,0xFD		;;end sector,cylinder
-   246                                  ;;	db 0x3E,0,0,0		;;relative sector
-   247                                  ;;	db 0x26,0xDE,0xB2,0	;;total sectors
-   248                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 01
-   249                                  ;;;01 00 0B B8 FE FD 3E 00 00 00 26 DE B2 00 00 00
-   250                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-   251                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-   252                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 AA
+   232                                  %include 'source/signature.asm'
+   233                              <1> signature:	;used by bootloader to find SollerOS
+   234 000001B5 02000000            <1> dd 2
+   235 000001B9 534F4C4C45524F53    <1> db "SOLLEROS"
+   236                              <1> signatureend:
+   237 000001C1 00<rept>                    	times 510-($-$$) db 0
+   238 000001FE 55AA                        dw 0AA55h	;;magic byte
+   239                                  
+   240                                  ;;partition table-does not matter
+   241                                  ;;    times 446-($-$$) db 0	;;skip to partition table
+   242                                  ;;ptable:
+   243                                  ;;  	db 0x80			;;bootable
+   244                                  ;;    	db 0x1			;;start head
+   245                                  ;;    	db 0x1,0x0		;;start sector,cylinder
+   246                                  ;;    	db 0x0B			;;system id, 0B = FAT 32
+   247                                  ;;	db 0xB8			;;end head
+   248                                  ;;	db 0xFE,0xFD		;;end sector,cylinder
+   249                                  ;;	db 0x3E,0,0,0		;;relative sector
+   250                                  ;;	db 0x26,0xDE,0xB2,0	;;total sectors
+   251                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 01
+   252                                  ;;;01 00 0B B8 FE FD 3E 00 00 00 26 DE B2 00 00 00
+   253                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   254                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   255                                  ;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 AA

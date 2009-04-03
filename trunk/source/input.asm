@@ -93,7 +93,7 @@ specialkey db 0
 		mov al, ah
 		mov edi, scancode
 	guisearchscan: 
-		cmp al, 40h
+		cmp al, 3Ah
 		jae guiscanother
 		mov ah, 0
 		shl al, 1
@@ -162,9 +162,12 @@ uppercasegui:
 		cmp byte [mouseon], 1
 		je near maincall2
 		cmp byte [guion], 0
-		je near guientdown
+		je guientdown
 	initmouse:
+		cmp byte [guion], 0
+		je noswmsposinit
 		call switchmousepos2
+	noswmsposinit:
 	  	call PS2SET
 		call ACTMOUS
 		mov byte [mouseon],1
@@ -250,6 +253,8 @@ uppercasegui:
 	nofixyrow2:
 		mov [mousecursorposition], dx
 		mov [mousecursorposition + 2], cx
+		cmp byte [guion], 0
+		je near termmouse
 		call switchmousepos ;;use dragging code to ensure proper icon drag
 		cmp byte [LBUTTON], 1
 		je near clickicon
@@ -285,7 +290,6 @@ lastmouseposition dw 132,132
 mousecursorposition dw 132,132	
 
 termmouse:
-	ret	;;lets try this later
 		mov esi, videobuf2
 		mov edx, 0
 		mov dx, [lastmouseposition]

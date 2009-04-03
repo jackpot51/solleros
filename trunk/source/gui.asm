@@ -46,7 +46,7 @@ guiclearloop2:
 	mov esi, pacmsg
 	mov ax, 0
 	mov ebx, 0
-	mov cx, 2
+	mov cx, 144
 	mov dx, 4
 	call showstring
 	
@@ -802,6 +802,7 @@ grphbuf times 16 db 0
 		ret
 
 colorfont2 dw 0xFFFF
+colorcache db 0
 winvcopystx dw 0
 winvcopysty dw 0
 winvcopydx dw 0
@@ -929,6 +930,8 @@ windowbufloc: dw 0,0
 		mov [charposline], cx
 		mov esi, videobuf2
 		mov [charposvbuf], esi
+		mov bl, [esi + 1]
+		mov [colorcache], bl
 		mov bl, [esi]
 		mov bh, 0
 		shl bx, 4
@@ -939,11 +942,21 @@ windowbufloc: dw 0,0
 		mov dl, 1
 		rol dh, 1
 		and dl, dh
+		cmp byte [colorcache], 0x10
+		jae switchwincolors
 		mov ax, [windowcolor + 2]
 		mov [edi], ax
 		cmp dl, 0
 		je nowritewin
 		mov ax, [windowcolor]
+		mov [edi], ax
+		jmp nowritewin
+	switchwincolors:
+		mov ax, [windowcolor]
+		mov [edi], ax
+		cmp dl, 0
+		je nowritewin
+		mov ax, [windowcolor + 2]
 		mov [edi], ax
 	nowritewin:
 		add edi, 2
@@ -966,6 +979,8 @@ windowbufloc: dw 0,0
 		add edi, 2
 		cmp edi, videobufend
 		jae donewincopynow
+		mov bl, [edi + 1]
+		mov [colorcache], bl
 		mov bl, [edi]
 		mov bh, 0
 		shl bx, 4

@@ -11,6 +11,26 @@
 	    ;jmp packettest
 		jmp nwcmd
 ;datmsg: db "Internet has not been implemented yet.",10,13,0
+db 5,4,"charmap",0
+	mov al, 0
+	mov bx, 7
+charmapcopy:
+	inc al
+	cmp al, 8
+	je charmapcopy
+	cmp al, 10
+	je charmapcopy
+	cmp al, 13
+	je charmapcopy
+	cmp al, 129
+	jae nomorecharmap
+	call int301prnt
+	jmp charmapcopy
+nomorecharmap:
+	mov esi, line
+	call print
+	jmp nwcmd
+	
 db 5,4,"keycode",0
 keycode:
 	call guistartin

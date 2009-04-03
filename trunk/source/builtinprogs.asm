@@ -410,7 +410,7 @@ db 5,4,"%",0
 		jmp nwcmd
 
 db 5,4,"$",0
-var:	mov esi, buftxt
+var: mov esi, buftxt
 	mov ebx, variables
 lkeq:	mov al, [esi]
 	cmp al, '='
@@ -432,11 +432,11 @@ eqfnd:	inc esi
 	mov esi, buftxt
 	mov ebx, variables
 	jmp seek
-readvar: 
+readvar:
 	mov al, 13
-	mov ah, 4
-	mov bl, 7
-	call intx4
+	mov bx, 7
+	mov byte [commandedit], 0
+	call int305
 	mov esi, line
 	call print
 	jmp var
@@ -670,7 +670,7 @@ iffalsebuf db 0
 notbatch: jmp nwcmd
 
 	db 5,4,"while",0
-while:  mov al, 0
+whilecmd:  mov al, 0
 	cmp [BATCHISON], al
 	je near notbatch
 	MOV esi, [BATCHPOS]
@@ -694,7 +694,7 @@ whilefnd2:
 
 
 	db 5,4,"if",0
-if:	mov al, 0
+ifcmd:	mov al, 0
 	cmp [BATCHISON], al
 	je near notbatch
 	mov esi, buftxt
@@ -758,7 +758,7 @@ ifvar3: mov [esiif], esi
 esiif dd 0
 	
 	db 5,4,"else",0
-else:	mov eax, 0
+elsecmd:	mov eax, 0
 	mov al, [IFON]
 	mov esi, IFTRUE
 	add esi, eax

@@ -213,11 +213,18 @@ trans db 0
 		ret
 	
 endkey303 db 0
+	printquiet:
+		mov ax, 0
+		mov bx, 7
+		call int303b
+		ret
     print:
 		mov ax, 0
 		mov bx, 7
 	int303:	;;print line, al=last key,bl=modifier, esi=buffer
 		mov [endkey303], al
+		call int303b
+		jmp termcopy
 	int303b:
 		mov al, [esi]
 		cmp al, [endkey303]
@@ -226,8 +233,8 @@ endkey303 db 0
 		inc esi
 		jmp int303b
 	doneint303:
-		jmp termcopy
-	
+		ret
+		
 endkey304 db 0
 	int304:	;;get line, al=last key, esi = buffer
 		mov [endkey304], al
@@ -248,8 +255,11 @@ endkey305 db 0
 modkey305 db 0
 firstesi305 dd 0
 commandedit db 0
+txtmask db 0
+buftxtloc dd 0
 backcursor db 8," ",0
 	int305:	;;print and get line, al=last key, bl=modifier, esi=buffer
+		mov [buftxtloc], esi
 		mov [endkey305], al
 		mov [modkey305], bl
 		mov [firstesi305], esi
@@ -274,6 +284,11 @@ backcursor db 8," ",0
 		inc esi
 	bscheckequal:
 		mov bl, [modkey305]
+		mov bh, [txtmask]
+		cmp bh, 0
+		je nomasktxt
+		mov al, bh
+	nomasktxt:
 		call int301
 		push esi
 		mov [int305axcache], ax
@@ -281,7 +296,7 @@ backcursor db 8," ",0
 		cmp al, ah
 		je nobackprintbuftxt2
 		mov esi, buftxt2
-		call print
+		call printquiet
 		mov al, " "
 		call int301prnt
 		mov al, 8
@@ -327,6 +342,8 @@ backcursor db 8," ",0
 	int305axcache dw 0
 		
 	int305left:
+		cmp esi, [buftxtloc]
+		je near int305b
 		mov edi, buftxt2
 		mov al, [edi]
 	shiftbuftxt2:
@@ -391,7 +408,7 @@ backcursor db 8," ",0
 		call int305bckspc
 		jmp getcurrentcommandstr
 	int305bckspc:
-		cmp esi, buftxt
+		cmp esi, [buftxtloc]
 		je noint305upbck
 	int305upbckspclp:
 		mov al, 8
@@ -402,7 +419,7 @@ backcursor db 8," ",0
 		mov al, 8
 		call int301
 		dec esi
-		cmp esi, buftxt
+		cmp esi, [buftxtloc]
 		je noint305upbck
 		jmp int305upbckspclp
 	noint305upbck:
