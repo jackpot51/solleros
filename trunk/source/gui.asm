@@ -536,8 +536,9 @@ windowselect:
 		mov word [esi], 0
 		mov dword [user2codepoint], 0
 		mov byte [termguion], 0
-		mov byte [nwcmdon], 0
 		call guiclear
+		call reloadallgraphics
+		jmp guistart
 		jmp doneiconsel2
 	nexticonsel:
 		and word [esi + 10], 0xFFFE
@@ -558,7 +559,6 @@ windowselect:
 		mov [pLBUTTON], al
 		mov al, [RBUTTON]
 		mov [pRBUTTON], al
-call clearmousecursor
 call reloadallgraphics
 		mov ecx, 0
 		mov edx, 0
@@ -1261,6 +1261,7 @@ ldxbmp:
 	cmp ecx, 0
 	ja ldxbmp
 endedbmp:
+	call switchmousepos2
 	ret
 	
 	bmpend dd 0
@@ -1338,7 +1339,7 @@ endedbmp:
 		jmp showstring
 
 	termwindow:	dw 640,480	;;window size
-	termmsg:	db "TERMINAL",0	;;window title
+	termmsg:	db "Terminal",0	;;window title
 	
 interneticon: 	incbin 'source/precompiled/interneticon.pak'
 wordicon: 	incbin 'source/precompiled/wordicon.pak'

@@ -14,6 +14,7 @@
 	%include 'source/pci.asm'
 	;%include 'source/process.asm'
     %include 'source/disk.asm'
+	%include 'source/threads.asm'
     %include 'fileindex.asm'
 	%include 'source/msg.asm'
 	;%include 'source/memory.asm'

@@ -24,6 +24,14 @@ pmode:
 	shr eax,16
 	mov [gdts + 4],al
 	mov [gdts + 7],ah
+	mov eax, 0x100000
+	mov [gdt4 + 2],ax
+	mov [gdt5 + 2],ax
+	shr eax,16
+	mov [gdt4 + 4],al
+	mov [gdt5 + 4],al
+	mov [gdt4 + 7],ah
+	mov [gdt5 + 7],ah
 ; fix up gdt and idt
 	lea eax,[ebx + gdt]	; EAX=linear address of gdt
 	mov [gdtr + 2],eax
@@ -43,29 +51,56 @@ pmode:
 do_pm:
 	mov ax, SYS_DATA_SEL
 	mov ds,ax
-	mov ax, STACK_SEL
-	mov ss, ax
-	mov esp, 4096
+	mov ss, ax	;;can switch back to STACK_SEL later
+	mov esp, stackend	;;can switch back to 4096 later
 	nop
 	nop
 	mov ax, SYS_DATA_SEL
 	mov es,ax
 	mov fs,ax
+	mov ax, NEW_DATA_SEL
 	mov gs,ax
-	mov eax, 0
+	mov esi, 0
+copykernel:
+	mov eax, [fs:esi]
+	mov [gs:esi], eax
+	add esi, 4
+	cmp esi, bssstart
+	jb copykernel
+	
 	mov esi, bssstart
+	mov eax, 0
 clearkernelbuffers:
-	mov [esi], eax
+	mov [gs:esi], eax
 	add esi, 4
 	cmp esi, bssend
 	jb clearkernelbuffers
-user1:
+	
+	jmp NEW_CODE_SEL:done_copy
+	
+done_copy:
+	mov ax, NEW_DATA_SEL
+	mov ds, ax
+	mov ss, ax
+	mov esp, stackend
+	nop
+	nop
+	mov ax, NEW_DATA_SEL
+	mov es, ax
+	mov fs, ax
+	mov ax, SYS_DATA_SEL
+	mov gs, ax
+	
+	mov eax, 0x100000
+	shr eax, 4
+	mov [basecache], eax
+	
 	mov edi, [physbaseptr]
 	mov eax, [basecache]
 	shl eax, 4
 	sub edi, eax
 	mov [physbaseptr], edi
-	call indexfiles
+	call indexfiles	
 	cmp byte [guinodo], 0
 	je near guido
 	jmp os
@@ -75,6 +110,7 @@ guido:
 	
 user2codepoint dw 0,0
 basecache dd 0
+	
 
 unhand:	
 	%assign i 0
@@ -117,7 +153,18 @@ donedump:
 	mov edi, [ss:esp + 32]
 	mov ecx, [edi + 4]
 	call expdump
-	jmp $
+	mov esi, backtoosmsg
+	call print
+	mov al, 0
+	call int302
+	cmp byte [guion], 0
+	jne returnunhandgui
+	jmp nwcmd
+returnunhandgui:
+	call guiclear
+	call reloadallgraphics
+	jmp guistart
+backtoosmsg db "Press any key to return to SollerOS",10,13,0
 expdump:
 	mov esi, [esiloc]
 	mov edi, esi
@@ -134,7 +181,7 @@ expdump:
 	mov dx, 2
 	mov ax, 1
 	mov bx, 0
-	call showstring
+	call showstring2
 	ret
 expdumptext:
 	call print
@@ -164,8 +211,13 @@ unhndrgend:	db "EDI=00000000",0
 			db "CMD=00000000",0
 unhandmsgend:
 
-[BITS 16]
+timerinterrupt:
+	jmp threadswitch
+	
+handled:
+	iret
 
+[BITS 16]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	16-bit limit/32-bit linear base address of GDT and IDT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -206,12 +258,27 @@ gdt3:	dw 0xFFFF
 	db 0x92			; present, ring 0, data, expand-up, writable
 	db 0xCF
 	db 0
-STACK_SEL	equ	$-gdt
+STACK_SEL	equ	$-gdt	;;this is no longer used for various reasons
 gdts:	dw 1
 	dw 0			; (base gets set above)
 	db 0
 	db 0x92			; present, ring 0, data, expand-up, writable
 	db 0xC0
+	db 0
+NEW_CODE_SEL	equ	$-gdt
+gdt4:	dw 0xFFFF
+	dw 0			; (base gets set above)
+	db 0
+	db 0x9A			; present, ring 0, code, non-conforming, readable
+	db 0xCF
+	db 0
+; data segment descriptor
+NEW_DATA_SEL	equ	$-gdt
+gdt5:	dw 0xFFFF
+	dw 0			; (base gets set above)
+	db 0
+	db 0x92			; present, ring 0, data, expand-up, writable
+	db 0xCF
 	db 0
 gdt_end:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -222,10 +289,23 @@ db "IDT"
 dw unhand
 idt:	
 %assign i 0
-%rep    48
+%rep    8
         dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
 %assign i i+1 
 %endrep
+		dw timerinterrupt,SYS_CODE_SEL,0x8E00,0
+%assign i 9
+%rep    5
+        dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+%assign i i+1 
+%endrep
+		dw handled,SYS_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
+%assign i 15
+%rep    33
+		dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+%assign i i+1
+%endrep
+		
 ;;INT 30h for os use and 3rd party use:
 	dw newints,SYS_CODE_SEL,0x8E00,0
 idt_end:

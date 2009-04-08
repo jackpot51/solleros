@@ -79,10 +79,8 @@ bufclr:	mov [esi], al
 	inc esi
 	loop bufclr
 ;;;;;;;;;;;;;;;;
-	mov byte [nwcmdon], 1
 	jmp nwcmd
 
-nwcmdon db 0
 esipass dd 0
 usercache dd userlst
 	
@@ -108,9 +106,6 @@ full:	jmp nwcmd
 nwcmd:	mov al, 1
 	cmp [BATCHISON], al
 	jae near batchran
-	cmp [nwcmdon], al
-	je cancel
-	ret	;;return from terminal
 cancel:	mov al, 0
 	mov [IFON], al
 	mov [BATCHISON], al
@@ -131,9 +126,8 @@ cancel:	mov al, 0
 	mov esi, buftxt
 	mov byte [commandedit], 1
 	mov al, 13
-	mov bl, 7
-	mov ah, 4
-	int 30h
+	mov bx, 7
+	call int305
 	mov byte [commandedit], 0
 gotcmd:	mov esi, [currentcommandpos]
 	mov [lastcommandpos], esi
@@ -194,8 +188,6 @@ prggood: cmp ebx, fileindexend
 	jae prgdn
 	add ebx, 3
 	mov edi, [ebx]
-	nop
-	nop
 	jmp edi
 prgnf:	
 	mov al, [buftxt]

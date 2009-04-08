@@ -132,7 +132,7 @@
    132 000000DE CD16                    	int 0x16
    133 000000E0 8A0E[0300]              	mov cl, [DriveNumber]
    134 000000E4 668B16[AD01]            	mov edx, [lbaad]
-   135 000000E9 EA0C000020                  jmp 0x2000:(signatureend - signature)
+   135 000000E9 EA0C000010                  jmp 0x1000:(signatureend - signature)
    136                                  
    137                                  printnum:
    138 000000EE BE[9901]                	mov si, number
@@ -222,16 +222,16 @@
    222 000001A6 00                      	db 0
    223 000001A7 7F00                    readlen:	dw 0x7F	;;blocks to read
    224 000001A9 0000                    address:	dw 0x0	;;address 0
-   225 000001AB 0020                    segm:	dw 0x2000	;;segment
+   225 000001AB 0010                    segm:	dw 0x1000	;;segment
    226                                  ;;start with known value for hd
    227                                  lbaad:	
-   228                                  	;dd 0xF225200	;;use only for hd on laptop
+   228                                  	;dd 0xF2252E5	;;use only for hd on laptop
    229 000001AD 00000000                	dd 0	;;lba address
    230 000001B1 00000000                	dd 0
    231                                  
    232                                  %include 'source/signature.asm'
    233                              <1> signature:	;used by bootloader to find SollerOS
-   234 000001B5 02000000            <1> dd 2
+   234 000001B5 03000000            <1> dd 3
    235 000001B9 534F4C4C45524F53    <1> db "SOLLEROS"
    236                              <1> signatureend:
    237 000001C1 00<rept>                    	times 510-($-$$) db 0

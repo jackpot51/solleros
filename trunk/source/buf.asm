@@ -1,3 +1,4 @@
+db "BUFSTART"
 [section .bss]
 bssstart:
 stack:
@@ -41,5 +42,17 @@ resb 1024
 commandbufend:
 rbuffstart: ;for use with networking
 resb 8212
+threadlist:	;;this buffer will hold the stack locations of all of the threads, up to 1024
+	resb 1024*4
+threadlistend:
+stacks:		;;the stacks will go on forever until end of memory
+	resb 1024
+stack1:
+	resb 1024
+stack2:
+	resb 1024
+stack3:
+	resb 1024
+stackdummy:
 bssend:
 [section .text]

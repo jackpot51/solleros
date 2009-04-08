@@ -129,7 +129,11 @@ nospecialkey:
 		cmp ah, 0B6h
 		je near guishiftoff
 		cmp ah, 3Ah
-		je near guishift
+		je near guicaps
+		cmp ah, 0x45
+		je near guinumlock
+		cmp ah, 0x46
+		je near guiscrolllock
 		ret
 	guigetkeyspecial:
 		mov al, 0xE0
@@ -157,7 +161,38 @@ uppercasegui:
 		mov [lastkey], al
 		ret
 		
+keyboardstatus db 0
+numlockstatus db 0
+scrolllockstatus db 0
+	guicaps:
+		xor byte [keyboardstatus], 00000100b
+		call updatekblights
+		jmp guishift
 		
+	guinumlock:
+		xor byte [keyboardstatus], 00000010b
+		xor byte [numlockstatus], 1
+		call updatekblights
+		jmp guistartin
+	
+	guiscrolllock:
+		xor byte [keyboardstatus], 00000001b
+		xor byte [scrolllockstatus], 1
+		call updatekblights
+		jmp guistartin
+		
+	updatekblights:
+		mov al, 0xED
+		mov dx, 0x60
+		out dx, al
+	chkkbdack:
+		in al, dx
+		cmp al, 0xFA
+		jne chkkbdack
+		mov al, [keyboardstatus]
+		out dx, al
+		ret
+	
 	cursorgui:
 		cmp byte [mouseon], 1
 		je near maincall2
@@ -266,6 +301,7 @@ uppercasegui:
 		je nopreviousbutton
 		call clearmousecursor
 		call reloadallgraphics
+	windowtermcopyend:
 		call switchmousepos2
 	nopreviousbutton:
 		mov al, 0
@@ -278,7 +314,7 @@ uppercasegui:
 		mov edx, 0
 		mov dx, [mousecursorposition]
 		mov cx, [mousecursorposition + 2]
-		mov bx, 1110011110011100b
+		mov bx, 1100011100011000b
 		mov ah, 0
 		mov al, 128
 		mov byte [showcursorfonton], 1

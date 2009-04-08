@@ -11,6 +11,13 @@
 	    ;jmp packettest
 		jmp nwcmd
 ;datmsg: db "Internet has not been implemented yet.",10,13,0
+	
+db 5,4,"threads",0
+	nop
+	nop
+	jmp threadstarttest
+	jmp nwcmd
+	
 db 5,4,"charmap",0
 	mov al, 0
 	mov bx, 7
@@ -62,7 +69,7 @@ db 5,4,"batch",0
 		add edi, 6
 		cmp byte [edi], 0
 		je near nonamefound
-		mov esi, 0x100000
+		mov esi, 0x400000
 		call loadfile
 		mov eax, edx
 		cmp eax, 404
@@ -79,7 +86,7 @@ db 5,4,"batch",0
 		call print
 		jmp nwcmd
 	goodbatchname:
-		mov esi, 0x100000
+		mov esi, 0x400000
 	batchcreate:
 		mov [esicache3], esi
 		mov al, 13
@@ -109,7 +116,7 @@ db 5,4,"batch",0
 		mov [esi], al
 		mov esi, line
 		call print
-		mov esi, 0x100000
+		mov esi, 0x400000
 		call print
 		jmp nwcmd
 	
@@ -119,9 +126,9 @@ db 5,4,"batch",0
 db 5,4,"show",0
 		mov edi, buftxt
 		add edi, 5
-		mov esi, 0x100000
+		mov esi, 0x200000
 		call loadfile
-		mov esi, 0x100000
+		mov esi, 0x200000
 		cmp word [esi], "BM"
 		je bmpfound
 		call print
@@ -131,7 +138,7 @@ db 5,4,"show",0
 bmpfound:
 		cmp byte [guion], 0
 		je near noguibmp
-		mov esi, 0x100000
+		mov esi, 0x200000
 		mov ecx, 0
 		mov edx, 0
 		mov eax, 0
@@ -141,6 +148,7 @@ bmpfound:
 		mov ah, 5
 		int 30h
 		call guiclear
+		call clearmousecursor
 		call reloadallgraphics
 		mov esi, buftxt
 		add esi, 5

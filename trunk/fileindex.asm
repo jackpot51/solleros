@@ -11,14 +11,11 @@ dd (f3-f2)/512
 db "tely",0
 dd (f3-$$)/512
 dd (f4-f3)/512
-db "Thumbs.db",0
+db "time",0
 dd (f4-$$)/512
 dd (f5-f4)/512
-db "time",0
+db "tutorial.bat",0
 dd (f5-$$)/512
 dd (f6-f5)/512
-db "tutorial.bat",0
-dd (f6-$$)/512
-dd (f7-f6)/512
 enddiskfileindex:
 

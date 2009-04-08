@@ -12,14 +12,7 @@ menustart:
 	mov ax, 12h
 	mov bx, 0
 	int 10h
-	jmp guiload
-
-DriveNumber db 0
-lbaad dd 0
 	
-vesamode dw 0
-videomodecache dw 0
-
 guiload:
 	mov si, bootmsg
 	call printrm
@@ -116,7 +109,12 @@ guiload2:
 	xor esi, esi
 	xor edi, edi
 	jmp pmode
-;;	jmp gui ;;test vesa
+
+DriveNumber db 0
+lbaad dd 0
+	
+vesamode dw 0
+videomodecache dw 0
 
 guinodo db 0
 
@@ -196,16 +194,16 @@ tendnrm:
 
 
     char: 		    ;char must be in al
-           mov bx, 07
+       mov bx, 07
 	   mov ah, 0Eh
 	   int 10h
-	    ret
+	   ret
 
 		shutdown:
-			   mov eax, cr0
-			   and al,0xFE     ; back to realmode
-			   mov  cr0, eax   ; by toggling bit again
-			   sti
+				mov eax, cr0
+				and al,0xFE     ; back to realmode
+				mov  cr0, eax   ; by toggling bit again
+				sti
 			MOV AX, 5300h	; Shuts down APM-Machines.
 			XOR BX, BX	; Newer machines automatically
 			INT 15h		; shut down

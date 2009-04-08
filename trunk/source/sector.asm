@@ -126,7 +126,7 @@ dumpconts2:
 	int 0x16
 	mov cl, [DriveNumber]
 	mov edx, [lbaad]
-    jmp 0x2000:(signatureend - signature)
+    jmp 0x1000:(signatureend - signature)
 
 printnum:
 	mov si, number
@@ -216,10 +216,10 @@ len:	db 0x10 ;;size of packet
 	db 0
 readlen:	dw 0x7F	;;blocks to read
 address:	dw 0x0	;;address 0
-segm:	dw 0x2000	;;segment
+segm:	dw 0x1000	;;segment
 ;;start with known value for hd
 lbaad:	
-	;dd 0xF225200	;;use only for hd on laptop
+	;dd 0xF2252E5	;;use only for hd on laptop
 	dd 0	;;lba address
 	dd 0
 
