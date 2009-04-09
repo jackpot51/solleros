@@ -126,9 +126,9 @@ db 5,4,"batch",0
 db 5,4,"show",0
 		mov edi, buftxt
 		add edi, 5
-		mov esi, 0x200000
+		mov esi, 0x400000
 		call loadfile
-		mov esi, 0x200000
+		mov esi, 0x400000
 		cmp word [esi], "BM"
 		je bmpfound
 		call print
@@ -138,7 +138,7 @@ db 5,4,"show",0
 bmpfound:
 		cmp byte [guion], 0
 		je near noguibmp
-		mov esi, 0x200000
+		mov esi, 0x400000
 		mov ecx, 0
 		mov edx, 0
 		mov eax, 0

@@ -1,5 +1,5 @@
 	[BITS 32]
-	[ORG 0x100000]
+	[ORG 0x400000]
 	db "EX"
 	tely:
 		mov esi, line

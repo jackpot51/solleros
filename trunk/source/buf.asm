@@ -26,15 +26,7 @@ buftxt: resb 100h
 buf2:	resb 20 
 numbuf: resb 1 
 videobuf2 		resb 0x12C0 
-videobufend		resb 200 
-;processcache:	;;eip, eax, ebx, ecx, edx, edi, esi, esp, ebp-9*4=36 bytes each
-;processcacheend:
-;alignb 4096		;;align 4 kbytes
-;ospagedir:
-;	resb 4096
-;ospagedirend:
-;pagetables:
-;	resb 4096
+videobufend		resb 200
 lastcommandpos: resb 4
 currentcommandpos: resb 4
 commandbuf:
@@ -42,17 +34,14 @@ resb 1024
 commandbufend:
 rbuffstart: ;for use with networking
 resb 8212
-threadlist:	;;this buffer will hold the stack locations of all of the threads, up to 1024
-	resb 1024*4
+threadlist:	;;this buffer will hold the stack locations of all of the threads, up to 2048
+	resb 2050*4
 threadlistend:
 stacks:		;;the stacks will go on forever until end of memory
 	resb 1024
-stack1:
-	resb 1024
-stack2:
-	resb 1024
-stack3:
-	resb 1024
 stackdummy:
-bssend:
+	resb 1024
+stack1:
+	resb 1024*2050	;;woah, thats a lot of space for stacks
+bssend:		;;from here on, it is not kernel space so apps can be loaded here.
 [section .text]

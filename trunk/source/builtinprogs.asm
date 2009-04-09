@@ -545,11 +545,11 @@ shutdowncomp:
 rundiskprog:
 	mov edi, buftxt
 	add edi, 2
-	mov esi, 0x100000
+	mov esi, 0x400000
 	call loadfile
 	cmp edx, 404
 	je noprogfound
-	mov ebx, 0x100000
+	mov ebx, 0x400000
 	cmp word [ebx], "EX"
 	jne progbatchfound
 	add ebx, 2
@@ -564,7 +564,7 @@ noprogfound:
 	call print
 	jmp nwcmd
 progbatchfound:
-		mov edi, 0x100000
+		mov edi, 0x400000
 		mov byte [BATCHISON], 1
 	batchrunloop:
 		call buftxtclear

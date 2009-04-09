@@ -59,11 +59,27 @@ nwcmdst:
 	
 thrd3 db "THREAD 3  ",0
 	
+modelthread:
+	mov ecx, 0
+	mov cx, [currentthread]
+	call showhex
+	hlt		;;wait for next time around
+	mov ecx, 0xDEAD0000
+	mov cx, [currentthread]
+	call showhex
+	hlt
+	mov ecx, 0xC0DE0000
+	mov cx, [currentthread]
+	call showhex
+	hlt
+	jmp nwcmdst
+	
 	
 thrdtst:
-	dd thread1
-	dd thread2
-	dd thread3
+	;dd thread1
+	;dd thread2
+	;dd thread3
+times 2048 dd modelthread
 thrdtstend:
 
 startthreads:
@@ -89,30 +105,26 @@ startthreads:
 	mov [threadlist], esp
 			;;that above setup the dummy thread which for some reason does not run
 			;;this below will setup the threads found in thrdtst
+	mov esi, thrdtst
 	mov esp, stack1
-	nop
+	mov edi, threadlist
+	add edi, 4
+nxtthreadld:
 	pushad
-	mov eax, thread1
+	mov eax, [esi]
 	mov [esp + 32], eax
 	mov [esp + 36], edx
 	mov [esp + 40], ecx
-	mov [threadlist + 4], esp
-	mov esp, stack2
-	nop
-	pushad
-	mov eax, thread2
-	mov [esp + 32], eax
-	mov [esp + 36], edx
-	mov [esp + 40], ecx
-	mov [threadlist + 8], esp
-	mov esp, stack3
-	nop
-	pushad
-	mov eax, thread3
-	mov [esp + 32], eax
-	mov [esp + 36], edx
-	mov [esp + 40], ecx
-	mov [threadlist + 12], esp
+	mov [edi], esp
+	add esp, 1024
+	add esi, 4
+	add edi, 4
+	cmp edi, threadlistend
+	jae near nomorethreadspace
+	cmp esp, bssend
+	jae near nomorestackspace
+	cmp esi, thrdtstend
+	jb nxtthreadld
 	mov esp, ebx
 	mov al, 0xFE
 	out 0x21, al
@@ -120,17 +132,29 @@ startthreads:
 	out 0x20, al
 	popad
 	sti
-	ret
+	jmp $	;;wait for the irq to hook
+	
+nomorethreadspace:
+	mov esi, nmts
+	call print
+	jmp $
+nmts	db "teh colonel no can haz moar treds",0
+
+nomorestackspace:
+	mov esi, nmss
+	call print
+	jmp $
+nmss	db "teh colonel no can haz moar staqz",0
 	
 threadswitch:
 	cli
 	pushad
 	mov edi, threadlist
 	mov eax, 0
-	mov al, [currentthread]
-	inc al
-	mov [currentthread], al
-	dec al
+	mov ax, [currentthread]
+	inc ax
+	mov [currentthread], ax
+	dec ax
 	shl eax, 2
 	add edi, eax
 	mov [edi], esp
@@ -142,8 +166,8 @@ threadswitch:
 	jne near okespthread
 nookespthread:
 	mov edi, threadlist
-	mov al, 0
-	mov [currentthread], al
+	mov ax, 0
+	mov [currentthread], ax
 	mov eax, [edi]
 okespthread:
 	mov esp, eax
@@ -153,4 +177,4 @@ okespthread:
 	sti
 	iretd
 	
-currentthread db 0
+currentthread dw 0
