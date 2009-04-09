@@ -7,4 +7,4 @@ db "EX"
 	mov edx, "PTIO"
 	mov esi, "N 13"
 	mov edi, 0xDEADC0DE
-exception1:	int 13
+exception1:	int 0x13

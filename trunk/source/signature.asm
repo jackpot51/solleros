@@ -1,4 +1,4 @@
 signature:	;used by bootloader to find SollerOS
-dd 4
+dd 5
 db "SOLLEROS"
 signatureend:

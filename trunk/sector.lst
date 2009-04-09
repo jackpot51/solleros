@@ -231,7 +231,7 @@
    231                                  
    232                                  %include 'source/signature.asm'
    233                              <1> signature:	;used by bootloader to find SollerOS
-   234 000001B5 03000000            <1> dd 3
+   234 000001B5 05000000            <1> dd 5
    235 000001B9 534F4C4C45524F53    <1> db "SOLLEROS"
    236                              <1> signatureend:
    237 000001C1 00<rept>                    	times 510-($-$$) db 0

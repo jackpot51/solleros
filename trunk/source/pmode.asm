@@ -295,13 +295,13 @@ idt:
 %endrep
 		dw timerinterrupt,SYS_CODE_SEL,0x8E00,0
 %assign i 9
-%rep    5
+%rep    6
         dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
 %assign i i+1 
 %endrep
 		dw handled,SYS_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
-%assign i 15
-%rep    33
+%assign i 16
+%rep    32
 		dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep

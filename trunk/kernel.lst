@@ -3,7 +3,7 @@
      3                              <1>     ; MENU.ASM
      4                              <1> %include 'source/signature.asm'
      5                              <2> signature:	;used by bootloader to find SollerOS
-     6 00000000 03000000            <2> dd 3
+     6 00000000 05000000            <2> dd 5
      7 00000004 534F4C4C45524F53    <2> db "SOLLEROS"
      8                              <2> signatureend:
      9                              <1> menustart:	
@@ -28,32 +28,32 @@
     28 00000037 0F85F400            <1> 	jne near guiload2
     29                              <1> guiloadagain:
     30 0000003B B8004F              <1> 	mov ax, 04F00h
-    31 0000003E BF[D474]            <1> 	mov di, VBEMODEBLOCK
+    31 0000003E BF[CE74]            <1> 	mov di, VBEMODEBLOCK
     32 00000041 CD10                <1> 	int 10h
-    33 00000043 BE[F674]            <1> 	mov si, reserved
+    33 00000043 BE[F074]            <1> 	mov si, reserved
     34 00000046 81EE0200            <1> 	sub si, 2
     35                              <1> findvideomodes:
     36 0000004A 81C60200            <1> 	add si, 2
     37 0000004E 8B0C                <1> 	mov cx, [si]
     38 00000050 81F9FFFF            <1> 	cmp cx, 0xFFFF
     39 00000054 0F840A00            <1> 	je near nextvmode
-    40 00000058 81FE[D475]          <1> 	cmp si, oemdata
+    40 00000058 81FE[CE75]          <1> 	cmp si, oemdata
     41 0000005C 0F83CF00            <1> 	jae near guiload2	;;kill if no valid list is found
     42 00000060 EBE8                <1> 	jmp findvideomodes 	
     43                              <1> ;;debug,shows vmodes available
     44                              <1> nextvmode:
     45 00000062 81EE0200            <1> 	sub si, 2
-    46 00000066 81FE[F674]          <1> 	cmp si, reserved
+    46 00000066 81FE[F074]          <1> 	cmp si, reserved
     47 0000006A 0F82CDFF            <1> 	jb near guiloadagain
     48 0000006E 8B0C                <1> 	mov cx, [si]
     49 00000070 81F9FFFF            <1> 	cmp cx, 0xFFFF
     50 00000074 0F84EAFF            <1> 	je near nextvmode
     51 00000078 81C10040            <1> 	add cx, 0x4000 		;;Linear Frame Buffer
     52 0000007C B8014F              <1> 	mov ax, 04F01h
-    53 0000007F BF[D476]            <1> 	mov di, VBEMODEINFOBLOCK
+    53 0000007F BF[CE76]            <1> 	mov di, VBEMODEINFOBLOCK
     54 00000082 890E[6701]          <1> 	mov [vesamode], cx
     55 00000086 CD10                <1> 	int 10h
-    56 00000088 A0[ED76]            <1> 	mov al, [bitsperpixel]
+    56 00000088 A0[E776]            <1> 	mov al, [bitsperpixel]
     57 0000008B 3C10                <1> 	cmp al, 16
     58 0000008D 75D3                <1> 	jne nextvmode
     59 0000008F 8936[6901]          <1> 	mov [videomodecache], si
@@ -65,15 +65,15 @@
     65 000000AE 6465204F4B3F28792F- <1>
     66 000000B7 6E290D0A00          <1>
     67                              <1> setvesamode:
-    68 000000BC 8B0E[E676]          <1> 	mov cx, [xresolution]
+    68 000000BC 8B0E[E076]          <1> 	mov cx, [xresolution]
     69 000000C0 E8C100              <1> 	call decshow
     70 000000C3 B078                <1> 	mov al, "x"
     71 000000C5 E82901              <1> 	call char
-    72 000000C8 8B0E[E876]          <1> 	mov cx, [yresolution]
+    72 000000C8 8B0E[E276]          <1> 	mov cx, [yresolution]
     73 000000CC E8B500              <1> 	call decshow
     74 000000CF B040                <1> 	mov al, "@"
     75 000000D1 E81D01              <1> 	call char
-    76 000000D4 8A0E[ED76]          <1> 	mov cl, [bitsperpixel]
+    76 000000D4 8A0E[E776]          <1> 	mov cl, [bitsperpixel]
     77 000000D8 E8A900              <1> 	call decshow
     78 000000DB BE[9C00]            <1> 	mov si, isthisvideook
     79 000000DE E88B00              <1> 	call printrm
@@ -82,8 +82,8 @@
     82 000000E6 8B36[6901]          <1> 	mov si, [videomodecache]
     83 000000EA 3C79                <1> 	cmp al, "y"
     84 000000EC 0F8572FF            <1> 	jne near nextvmode
-    85 000000F0 8B16[E676]          <1> 	mov dx, [xresolution]
-    86 000000F4 8B0E[E876]          <1> 	mov cx, [yresolution]
+    85 000000F0 8B16[E076]          <1> 	mov dx, [xresolution]
+    86 000000F4 8B0E[E276]          <1> 	mov cx, [yresolution]
     87 000000F8 8916[DA3C]          <1> 	mov [resolutionx], dx
     88 000000FC 890E[D83C]          <1> 	mov [resolutiony], cx
     89 00000100 01D2                <1> 	add dx, dx
@@ -357,11 +357,11 @@
    357 00000392 C1E804              <1> 	shr eax, 4
    358 00000395 A3[D0030000]        <1> 	mov [basecache], eax
    359                              <1> 	
-   360 0000039A 8B3D[FC760000]      <1> 	mov edi, [physbaseptr]
+   360 0000039A 8B3D[F6760000]      <1> 	mov edi, [physbaseptr]
    361 000003A0 A1[D0030000]        <1> 	mov eax, [basecache]
    362 000003A5 C1E004              <1> 	shl eax, 4
    363 000003A8 29C7                <1> 	sub edi, eax
-   364 000003AA 893D[FC760000]      <1> 	mov [physbaseptr], edi
+   364 000003AA 893D[F6760000]      <1> 	mov [physbaseptr], edi
    365 000003B0 E804140000          <1> 	call indexfiles	
    366 000003B5 803D[6B010000]00    <1> 	cmp byte [guinodo], 0
    367 000003BC 0F8405000000        <1> 	je near guido
@@ -613,7 +613,7 @@
    613 00000710 C3                  <1> 	ret
    614                              <1> expdumptext:
    615 00000711 E83C050000          <1> 	call print
-   616 00000716 BE[8E6C0000]        <1> 	mov esi, line
+   616 00000716 BE[886C0000]        <1> 	mov esi, line
    617 0000071B E832050000          <1> 	call print
    618 00000720 C3                  <1> 	ret
    619 00000721 00000000            <1> esploc dd 0
@@ -655,7 +655,7 @@
    655                              <1> unhandmsgend:
    656                              <1> 
    657                              <1> timerinterrupt:
-   658 000007EF E999630000          <1> 	jmp threadswitch
+   658 000007EF E993630000          <1> 	jmp threadswitch
    659                              <1> 	
    660                              <1> handled:
    661 000007F4 CF                  <1> 	iret
@@ -754,7 +754,7 @@
    754                              <2> %assign i i+1
    755 0000087E [EF07]1000008E0000  <1> 		dw timerinterrupt,SYS_CODE_SEL,0x8E00,0
    756                              <1> %assign i 9
-   757                              <1> %rep    5
+   757                              <1> %rep    6
    758                              <1>         dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
    759                              <1> %assign i i+1 
    760                              <1> %endrep
@@ -768,14 +768,14 @@
    768                              <2> %assign i i+1
    769 000008A6 [7D04]1000008E0000  <2>  dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
    770                              <2> %assign i i+1
-   771 000008AE [F407]1000008E0000  <1> 		dw handled,SYS_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
-   772                              <1> %assign i 15
-   773                              <1> %rep    33
-   774                              <1> 		dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
-   775                              <1> %assign i i+1
-   776                              <1> %endrep
-   777 000008B6 [9704]1000008E0000  <2>  dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
-   778                              <2> %assign i i+1
+   771 000008AE [8A04]1000008E0000  <2>  dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+   772                              <2> %assign i i+1
+   773 000008B6 [F407]1000008E0000  <1> 		dw handled,SYS_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
+   774                              <1> %assign i 16
+   775                              <1> %rep    32
+   776                              <1> 		dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+   777                              <1> %assign i i+1
+   778                              <1> %endrep
    779 000008BE [A404]1000008E0000  <2>  dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
    780                              <2> %assign i i+1
    781 000008C6 [B104]1000008E0000  <2>  dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
@@ -1384,7 +1384,7 @@
   1384 00000FF1 B900000000          <1> 	mov ecx, 0
   1385 00000FF6 668B0D[670A0000]    <1> 	mov cx, [charxy]
   1386                              <1> nowincopy2:
-  1387 00000FFD BB[B46C0000]        <1> 	mov ebx, fonts
+  1387 00000FFD BB[AE6C0000]        <1> 	mov ebx, fonts
   1388 00001002 B800000000          <1> 	mov eax, 0
   1389 00001007 8A07                <1> 	mov al, [edi]
   1390 00001009 C1E004              <1> 	shl eax, 4
@@ -1456,7 +1456,7 @@
   1456                              <1> 	;SOLLEROS.ASM
   1457                              <1> os:
   1458 00001095 E8A8FEFFFF          <1> 	call clear
-  1459 0000109A BE[6E6C0000]        <1> 	mov esi, userask
+  1459 0000109A BE[686C0000]        <1> 	mov esi, userask
   1460 0000109F E8AEFBFFFF          <1> 	call print
   1461                              <1> usercheck:
   1462 000010A4 BE[7A1B0000]        <1> 	mov esi, buftxt
@@ -1464,9 +1464,9 @@
   1464 000010AB B404                <1> 	mov ah, 4
   1465 000010AD CD30                <1> 	int 30h
   1466 000010AF 56                  <1> 	push esi
-  1467 000010B0 BE[8E6C0000]        <1> 	mov esi, line
+  1467 000010B0 BE[886C0000]        <1> 	mov esi, line
   1468 000010B5 E898FBFFFF          <1> 	call print
-  1469 000010BA BE[786C0000]        <1> 	mov esi, pwdask
+  1469 000010BA BE[726C0000]        <1> 	mov esi, pwdask
   1470 000010BF E88EFBFFFF          <1> 	call print
   1471 000010C4 5E                  <1> 	pop esi
   1472 000010C5 46                  <1> 	inc esi
@@ -1499,9 +1499,9 @@
   1499                              <1> gotpass:
   1500 0000110F B000                <1> 	mov al,0
   1501 00001111 8806                <1> 	mov [esi], al
-  1502 00001113 BE[8E6C0000]        <1> 	mov esi, line
+  1502 00001113 BE[886C0000]        <1> 	mov esi, line
   1503 00001118 E835FBFFFF          <1> 	call print
-  1504 0000111D BB[916C0000]        <1> 	mov ebx, userlst
+  1504 0000111D BB[8B6C0000]        <1> 	mov ebx, userlst
   1505                              <1> userfind:
   1506 00001122 BE[7A1B0000]        <1> 	mov esi, buftxt
   1507 00001127 8A06                <1> 	mov al, [esi]
@@ -1516,7 +1516,7 @@
   1516 00001141 8A03                <1> 	mov al, [ebx]
   1517 00001143 3C00                <1> 	cmp al, 0
   1518 00001145 74DB                <1> 	je userfind
-  1519 00001147 81FB[B46C0000]      <1> 	cmp ebx, userlstend
+  1519 00001147 81FB[AE6C0000]      <1> 	cmp ebx, userlstend
   1520 0000114D 0F8342FFFFFF        <1> 	jae near os
   1521 00001153 EBCD                <1> 	jmp userfind
   1522                              <1> pwdtest:
@@ -1537,7 +1537,7 @@
   1537 00001177 E92B000000          <1> 	jmp nwcmd
   1538                              <1> 
   1539 0000117C 00000000            <1> esipass dd 0
-  1540 00001180 [916C0000]          <1> usercache dd userlst
+  1540 00001180 [8B6C0000]          <1> usercache dd userlst
   1541                              <1> 	
   1542                              <1> buftxtclear:
   1543 00001184 B000                <1> 	mov al, 0
@@ -1570,7 +1570,7 @@
   1570 000011C9 E8A9F8FFFF          <1> 	call int301prnt
   1571 000011CE 8B35[80110000]      <1> 	mov esi, [usercache]
   1572 000011D4 E879FAFFFF          <1> 	call print
-  1573 000011D9 BE[826C0000]        <1> 	mov esi, location
+  1573 000011D9 BE[7C6C0000]        <1> 	mov esi, location
   1574 000011DE E86FFAFFFF          <1> 	call print
   1575                              <1> 	;call time
   1576                              <1> 	;mov esi, timeshow
@@ -1618,7 +1618,7 @@
   1618 00001265 CD30                <1> 	int 30h
   1619 00001267 C3                  <1> 	ret
   1620                              <1> 
-  1621 00001268 BE[8E6C0000]        <1> run:	mov esi, line
+  1621 00001268 BE[886C0000]        <1> run:	mov esi, line
   1622 0000126D E8E0F9FFFF          <1> 	call print
   1623                              <1> progtest:
   1624 00001272 BE[7A1B0000]        <1> 	mov esi, buftxt
@@ -1648,11 +1648,11 @@
   1648 000012BF A0[7A1B0000]        <1> 	mov al, [buftxt]
   1649 000012C4 3C00                <1> 	cmp al, 0
   1650 000012C6 741E                <1> 	je prgdn
-  1651 000012C8 BE[556C0000]        <1> 	mov esi, notfound1
+  1651 000012C8 BE[4F6C0000]        <1> 	mov esi, notfound1
   1652 000012CD E880F9FFFF          <1> 	call print
   1653 000012D2 BE[7A1B0000]        <1> 	mov esi, buftxt
   1654 000012D7 E876F9FFFF          <1> 	call print
-  1655 000012DC BE[5F6C0000]        <1> 	mov esi, notfound2
+  1655 000012DC BE[596C0000]        <1> 	mov esi, notfound2
   1656 000012E1 E86CF9FFFF          <1> 	call print
   1657 000012E6 E9BCFEFFFF          <1> prgdn:	jmp nwcmd
   1658                              <1> 
@@ -1756,7 +1756,7 @@
   1756 000013B0 81C601000000        <1> 	dirfnd2: add esi, 1
   1757 000013B6 E897F8FFFF          <1> 		call print
   1758 000013BB 8935[E3130000]      <1> 		mov [esidir], esi
-  1759 000013C1 BE[8E6C0000]        <1> 		mov esi, line
+  1759 000013C1 BE[886C0000]        <1> 		mov esi, line
   1760 000013C6 E887F8FFFF          <1> 		call print
   1761 000013CB 8B35[E3130000]      <1> 		mov esi, [esidir]
   1762 000013D1 81FE[6F150000]      <1> 		cmp esi,  fileindexend
@@ -1783,7 +1783,7 @@
   1783 00001408 890D[42140000]      <1> 		mov [arcx], ecx
   1784 0000140E E83FF8FFFF          <1> 		call print
   1785 00001413 8935[44140000]      <1> 		mov [arsi], esi
-  1786 00001419 BE[8E6C0000]        <1> 		mov esi, line
+  1786 00001419 BE[886C0000]        <1> 		mov esi, line
   1787 0000141E E82FF8FFFF          <1> 		call print
   1788 00001423 8B1D[3E140000]      <1> 		mov ebx, [arbx]
   1789 00001429 668B0D[42140000]    <1> 		mov cx, [arcx]
@@ -1963,7 +1963,7 @@
   1963                              <1> showthathex:
   1964 0000160C 803D[DA150000]03    <1> 	cmp byte [firsthexshown], 3
   1965 00001613 750A                <1> 	jne nonewhexline
-  1966 00001615 BE[8E6C0000]        <1> 	mov esi, line
+  1966 00001615 BE[886C0000]        <1> 	mov esi, line
   1967 0000161A E833F6FFFF          <1> 	call print
   1968                              <1> nonewhexline:
   1969 0000161F 803D[DA150000]04    <1> 	cmp byte [firsthexshown], 4
@@ -1974,7 +1974,7 @@
   1974 0000162F C0E105              <1> 	shl cl, 5
   1975 00001632 80F900              <1> 	cmp cl, 0
   1976 00001635 750F                <1> 	jne nonewlinetabfixhex
-  1977 00001637 BE[8E6C0000]        <1> 	mov esi, line
+  1977 00001637 BE[886C0000]        <1> 	mov esi, line
   1978 0000163C E811F6FFFF          <1> 	call print
   1979 00001641 E909000000          <1> 	jmp notabfixhex
   1980                              <1> nonewlinetabfixhex:
@@ -1990,7 +1990,7 @@
   1990 00001663 E8EAF5FFFF          <1> 	call print
   1991 00001668 803D[DA150000]02    <1> 	cmp byte [firsthexshown], 2
   1992 0000166F 750A                <1> 	jne hexshown
-  1993 00001671 BE[8E6C0000]        <1> 	mov esi, line
+  1993 00001671 BE[886C0000]        <1> 	mov esi, line
   1994 00001676 E8D7F5FFFF          <1> 	call print
   1995                              <1> hexshown:
   1996 0000167B C605[DA150000]00    <1> 	mov byte [firsthexshown], 0
@@ -2019,7 +2019,7 @@
   2019                              <1> showthatdec:
   2020 000016BE 803D[DA150000]03    <1> 	cmp byte [firsthexshown], 3
   2021 000016C5 750A                <1> 	jne nonewdecline
-  2022 000016C7 BE[8E6C0000]        <1> 	mov esi, line
+  2022 000016C7 BE[886C0000]        <1> 	mov esi, line
   2023 000016CC E881F5FFFF          <1> 	call print
   2024                              <1> nonewdecline:
   2025 000016D1 803D[DA150000]04    <1> 	cmp byte [firsthexshown], 4
@@ -2030,7 +2030,7 @@
   2030 000016E1 C0E105              <1> 	shl cl, 5
   2031 000016E4 80F900              <1> 	cmp cl, 0
   2032 000016E7 750F                <1> 	jne nonewlinetabfixdec
-  2033 000016E9 BE[8E6C0000]        <1> 	mov esi, line
+  2033 000016E9 BE[886C0000]        <1> 	mov esi, line
   2034 000016EE E85FF5FFFF          <1> 	call print
   2035 000016F3 E909000000          <1> 	jmp notabfixdec
   2036                              <1> nonewlinetabfixdec:
@@ -2047,7 +2047,7 @@
   2047 0000170D E840F5FFFF          <1> 	call print
   2048 00001712 803D[DA150000]02    <1> 	cmp byte [firsthexshown], 2
   2049 00001719 750A                <1> 	jne decshown
-  2050 0000171B BE[8E6C0000]        <1> 	mov esi, line
+  2050 0000171B BE[886C0000]        <1> 	mov esi, line
   2051 00001720 E82DF5FFFF          <1> 	call print
   2052                              <1> decshown:
   2053 00001725 C605[DA150000]00    <1> 	mov byte [firsthexshown], 0
@@ -2194,20 +2194,20 @@
   2194 00001867 8A0D[62010000]      <1> 		mov cl, [DriveNumber]
   2195 0000186D C605[DA150000]00    <1> 		mov byte [firsthexshown], 0
   2196 00001874 E876FDFFFF          <1> 		call showhex
-  2197 00001879 BE[8E6C0000]        <1> 		mov esi, line
+  2197 00001879 BE[886C0000]        <1> 		mov esi, line
   2198 0000187E E8CFF3FFFF          <1> 		call print
-  2199 00001883 BE[EB6B0000]        <1> 		mov esi, diskfileindex
+  2199 00001883 BE[E56B0000]        <1> 		mov esi, diskfileindex
   2200                              <1> 	diskindexdir:
   2201 00001888 E8C5F3FFFF          <1> 		call print
   2202 0000188D 8B4E05              <1> 		mov ecx, [esi + 5]
   2203 00001890 C605[DA150000]03    <1> 		mov byte [firsthexshown], 3
   2204 00001897 E8F8FDFFFF          <1> 		call showdec
   2205 0000189C 56                  <1> 		push esi
-  2206 0000189D BE[8E6C0000]        <1> 		mov esi, line
+  2206 0000189D BE[886C0000]        <1> 		mov esi, line
   2207 000018A2 E8ABF3FFFF          <1> 		call print
   2208 000018A7 5E                  <1> 		pop esi
   2209 000018A8 81C609000000        <1> 		add esi, 9
-  2210 000018AE 81FE[506C0000]      <1> 		cmp esi, enddiskfileindex
+  2210 000018AE 81FE[4A6C0000]      <1> 		cmp esi, enddiskfileindex
   2211 000018B4 72D2                <1> 		jb diskindexdir
   2212 000018B6 E9ECF8FFFF          <1> 		jmp nwcmd
   2213                              <1> 
@@ -2227,7 +2227,7 @@
   2227 000018F4 3C24                <1> 		cmp al, '$'
   2228 000018F6 7414                <1> 		je echovr
   2229 000018F8 E855F3FFFF          <1> 		call print
-  2230 000018FD BE[8E6C0000]        <1> 		mov esi, line
+  2230 000018FD BE[886C0000]        <1> 		mov esi, line
   2231 00001902 E84BF3FFFF          <1> 		call print
   2232 00001907 E99BF8FFFF          <1> 		jmp nwcmd
   2233 0000190C BB[6F150000]        <1> 	echovr:	mov ebx, variables
@@ -2270,7 +2270,7 @@
   2270 00001974 89DE                <1> 		mov esi, ebx
   2271 00001976 C3                  <1> 		ret
   2272 00001977 E8D6F2FFFF          <1> 	prntvr2: call print
-  2273 0000197C BE[8E6C0000]        <1> 		mov esi, line
+  2273 0000197C BE[886C0000]        <1> 		mov esi, line
   2274 00001981 E8CCF2FFFF          <1> 		call print
   2275 00001986 E91CF8FFFF          <1> 		jmp nwcmd
   2276                              <1> 		
@@ -2479,7 +2479,7 @@
   2479 00001BF6 EBEF                <1> 		jmp chkadd
   2480 00001BF8 4E                  <1> 	dnaddm1: dec esi
   2481 00001BF9 E854F0FFFF          <1> 	dnadd:	call print
-  2482 00001BFE BE[8E6C0000]        <1> 		mov esi, line
+  2482 00001BFE BE[886C0000]        <1> 		mov esi, line
   2483 00001C03 E84AF0FFFF          <1> 		call print
   2484 00001C08 C3                  <1> 		ret
   2485                              <1> 		
@@ -2553,7 +2553,7 @@
   2553 00001CC4 66BB0700            <1> 	mov bx, 7
   2554 00001CC8 C605[A10C0000]00    <1> 	mov byte [commandedit], 0
   2555 00001CCF E8D6EFFFFF          <1> 	call int305
-  2556 00001CD4 BE[8E6C0000]        <1> 	mov esi, line
+  2556 00001CD4 BE[886C0000]        <1> 	mov esi, line
   2557 00001CD9 E874EFFFFF          <1> 	call print
   2558 00001CDE EB9D                <1> 	jmp var
   2559 00001CE0 668B03              <1> seek:	mov ax, [ebx]
@@ -2672,12 +2672,12 @@
   2672 00001E09 81C302000000        <1> 	add ebx, 2
   2673 00001E0F FFE3                <1> 	jmp ebx
   2674                              <1> noprogfound:
-  2675 00001E11 BE[556C0000]        <1> 	mov esi, notfound1
+  2675 00001E11 BE[4F6C0000]        <1> 	mov esi, notfound1
   2676 00001E16 E837EEFFFF          <1> 	call print
   2677 00001E1B BE[7A1B0000]        <1> 	mov esi, buftxt
   2678 00001E20 81C602000000        <1> 	add esi, 2
   2679 00001E26 E827EEFFFF          <1> 	call print
-  2680 00001E2B BE[5F6C0000]        <1> 	mov esi, notfound2
+  2680 00001E2B BE[596C0000]        <1> 	mov esi, notfound2
   2681 00001E30 E81DEEFFFF          <1> 	call print
   2682 00001E35 E96DF3FFFF          <1> 	jmp nwcmd
   2683                              <1> progbatchfound:
@@ -2955,7 +2955,7 @@
   2955 000021EE E884E8FFFF          <1> 	call int301prnt
   2956 000021F3 EBE7                <1> 	jmp charmapcopy
   2957                              <1> nomorecharmap:
-  2958 000021F5 BE[8E6C0000]        <1> 	mov esi, line
+  2958 000021F5 BE[886C0000]        <1> 	mov esi, line
   2959 000021FA E853EAFFFF          <1> 	call print
   2960 000021FF E9A3EFFFFF          <1> 	jmp nwcmd
   2961                              <1> 	
@@ -2972,7 +2972,7 @@
   2972 0000222E E8A8F3FFFF          <1> 	call showhexsmall
   2973 00002233 EBD9                <1> 	jmp keycode
   2974                              <1> killkeycode:
-  2975 00002235 BE[8E6C0000]        <1> 	mov esi, line
+  2975 00002235 BE[886C0000]        <1> 	mov esi, line
   2976 0000223A E813EAFFFF          <1> 	call print
   2977 0000223F E963EFFFFF          <1> 	jmp nwcmd
   2978                              <1> 
@@ -3031,7 +3031,7 @@
   3031 0000232F 7423                <1> 		je endbatchcreate
   3032 00002331 3C02                <1> 		cmp al, 2
   3033 00002333 741F                <1> 		je endbatchcreate
-  3034 00002335 BE[8E6C0000]        <1> 		mov esi, line
+  3034 00002335 BE[886C0000]        <1> 		mov esi, line
   3035 0000233A E813E9FFFF          <1> 		call print
   3036 0000233F 8B35[EF220000]      <1> 		mov esi, [esicache2]
   3037 00002345 B00D                <1> 		mov al, 13
@@ -3043,7 +3043,7 @@
   3043 00002354 8B35[EB220000]      <1> 		mov esi, [esicache3]
   3044 0000235A B800000000          <1> 		mov eax, 0
   3045 0000235F 8806                <1> 		mov [esi], al
-  3046 00002361 BE[8E6C0000]        <1> 		mov esi, line
+  3046 00002361 BE[886C0000]        <1> 		mov esi, line
   3047 00002366 E8E7E8FFFF          <1> 		call print
   3048 0000236B BE00004000          <1> 		mov esi, 0x400000
   3049 00002370 E8DDE8FFFF          <1> 		call print
@@ -3063,7 +3063,7 @@
   3063 000023B1 66813E424D          <1> 		cmp word [esi], "BM"
   3064 000023B6 7414                <1> 		je bmpfound
   3065 000023B8 E895E8FFFF          <1> 		call print
-  3066 000023BD BE[8E6C0000]        <1> 		mov esi, line
+  3066 000023BD BE[886C0000]        <1> 		mov esi, line
   3067 000023C2 E88BE8FFFF          <1> 		call print
   3068 000023C7 E9DBEDFFFF          <1> 		jmp nwcmd
   3069                              <1> bmpfound:
@@ -3137,7 +3137,7 @@
   3137 00002503 E823000000          <1> 	call time
   3138 00002508 BE[15270000]        <1> 	mov esi, timeshow
   3139 0000250D E840E7FFFF          <1> 	call print
-  3140 00002512 BE[8E6C0000]        <1> 	mov esi, line
+  3140 00002512 BE[886C0000]        <1> 	mov esi, line
   3141 00002517 E836E7FFFF          <1> 	call print
   3142 0000251C BE[1F270000]        <1> 	mov esi, dateshow
   3143 00002521 E82CE7FFFF          <1> 	call print
@@ -3371,7 +3371,7 @@
   3371 000027BF 890D[10280000]      <1> 	mov [cpuidbuf + 8], ecx
   3372 000027C5 BE[08280000]        <1> 	mov esi, cpuidbuf
   3373 000027CA E883E4FFFF          <1> 	call print
-  3374 000027CF BE[8E6C0000]        <1> 	mov esi, line
+  3374 000027CF BE[886C0000]        <1> 	mov esi, line
   3375 000027D4 E879E4FFFF          <1> 	call print
   3376 000027D9 B801000000          <1> 	mov eax, 1
   3377 000027DE 0FA2                <1> 	cpuid
@@ -3827,7 +3827,7 @@
   3827                              <1> noscan:
   3828                                      %include 'source/gui.asm'
   3829                              <1> guiclear:
-  3830 00002CDF 8B3D[FC760000]      <1> 	mov edi, [physbaseptr]
+  3830 00002CDF 8B3D[F6760000]      <1> 	mov edi, [physbaseptr]
   3831 00002CE5 668B15[DA3C0000]    <1> 	mov dx, [resolutionx]
   3832 00002CEC 668B0D[D83C0000]    <1> 	mov cx, [resolutiony]
   3833 00002CF3 66A1[1C2D0000]      <1> 	mov ax, [background]
@@ -3850,7 +3850,7 @@
   3850 00002D23 BB00000000          <1> 	mov ebx, 0
   3851 00002D28 B900000000          <1> 	mov ecx, 0
   3852 00002D2D BA00000000          <1> 	mov edx, 0
-  3853 00002D32 8B3D[FC760000]      <1> 	mov edi, [physbaseptr]
+  3853 00002D32 8B3D[F6760000]      <1> 	mov edi, [physbaseptr]
   3854 00002D38 668B15[DA3C0000]    <1> 	mov dx, [resolutionx]
   3855 00002D3F 668B0D[D83C0000]    <1> 	mov cx, [resolutiony]
   3856 00002D46 668B1D[1C2D0000]    <1> 	mov bx, [background]
@@ -4024,7 +4024,7 @@
   4024                              <1> 		
   4025                              <1> clearmousecursor:
   4026 00002E79 BE[1C2D0000]        <1> 		mov esi, background
-  4027 00002E7E 8B3D[FC760000]      <1> 		mov edi, [physbaseptr]
+  4027 00002E7E 8B3D[F6760000]      <1> 		mov edi, [physbaseptr]
   4028 00002E84 BA00000000          <1> 		mov edx, 0
   4029 00002E89 B900000000          <1> 		mov ecx, 0
   4030 00002E8E 668B15[C62B0000]    <1> 		mov dx, [lastmouseposition]
@@ -4053,7 +4053,7 @@
   4053                              <1> 
   4054                              <1> switchmousepos:		;;switch were the mouse is located
   4055 00002EDC BE[00120000]        <1> 		mov esi, mousecolorbuf
-  4056 00002EE1 8B3D[FC760000]      <1> 		mov edi, [physbaseptr]
+  4056 00002EE1 8B3D[F6760000]      <1> 		mov edi, [physbaseptr]
   4057 00002EE7 BA00000000          <1> 		mov edx, 0
   4058 00002EEC B900000000          <1> 		mov ecx, 0
   4059 00002EF1 668B15[C62B0000]    <1> 		mov dx, [lastmouseposition]
@@ -4082,7 +4082,7 @@
   4082                              <1> 		
   4083                              <1> switchmousepos2:
   4084 00002F45 BE[00120000]        <1> 		mov esi, mousecolorbuf
-  4085 00002F4A 8B3D[FC760000]      <1> 		mov edi, [physbaseptr]
+  4085 00002F4A 8B3D[F6760000]      <1> 		mov edi, [physbaseptr]
   4086 00002F50 BA00000000          <1> 		mov edx, 0
   4087 00002F55 B900000000          <1> 		mov ecx, 0
   4088 00002F5A 668B15[CA2B0000]    <1> 		mov dx, [mousecursorposition]
@@ -4685,7 +4685,7 @@
   4685 0000392C 29D7                <1> 		sub edi, edx
   4686 0000392E 803D[760A0000]00    <1> 		cmp byte [termcopyon], 0
   4687 00003935 753E                <1> 		jne nocleartitlebarpos
-  4688 00003937 8B3D[FC760000]      <1> 		mov edi, [physbaseptr]
+  4688 00003937 8B3D[F6760000]      <1> 		mov edi, [physbaseptr]
   4689 0000393D BA00000000          <1> 		mov edx, 0
   4690 00003942 668B15[89380000]    <1> 		mov dx, [winvcopystx]
   4691 00003949 01D7                <1> 		add edi, edx
@@ -4750,13 +4750,13 @@
   4750                              <1> 
   4751                              <1> 	windowvideocopy:
   4752 00003A57 8B3D[95380000]      <1> 		mov edi, [windowbufloc]
-  4753 00003A5D 3B3D[FC760000]      <1> 		cmp edi, [physbaseptr]
+  4753 00003A5D 3B3D[F6760000]      <1> 		cmp edi, [physbaseptr]
   4754 00003A63 0F8345000000        <1> 		jae near windowvideocopyset
   4755 00003A69 B900000000          <1> 		mov ecx, 0
   4756 00003A6E BA00000000          <1> 		mov edx, 0
   4757 00003A73 668B15[89380000]    <1> 		mov dx, [winvcopystx]
   4758 00003A7A 668B0D[8B380000]    <1> 		mov cx, [winvcopysty]
-  4759 00003A81 8B3D[FC760000]      <1> 		mov edi, [physbaseptr]
+  4759 00003A81 8B3D[F6760000]      <1> 		mov edi, [physbaseptr]
   4760 00003A87 01D7                <1> 		add edi, edx
   4761 00003A89 81F900000000        <1> 		cmp ecx, 0
   4762 00003A8F 741D                <1> 		je windowvideocopyset
@@ -4778,7 +4778,7 @@
   4778 00003ACD 8A1E                <1> 		mov bl, [esi]
   4779 00003ACF B700                <1> 		mov bh, 0
   4780 00003AD1 66C1E304            <1> 		shl bx, 4
-  4781 00003AD5 678AB7[B46C]        <1> 		mov dh, [fonts + bx]
+  4781 00003AD5 678AB7[AE6C]        <1> 		mov dh, [fonts + bx]
   4782 00003ADA D0CE                <1> 		ror dh, 1
   4783 00003ADC 89FE                <1> 		mov esi, edi
   4784                              <1> 	copywindow:
@@ -4812,7 +4812,7 @@
   4812 00003B36 668B15[DC3C0000]    <1> 		mov dx, [resolutionx2]
   4813 00003B3D 01D6                <1> 		add esi, edx
   4814 00003B3F 89F7                <1> 		mov edi, esi
-  4815 00003B41 678AB7[B46C]        <1> 		mov dh, [fonts + bx]
+  4815 00003B41 678AB7[AE6C]        <1> 		mov dh, [fonts + bx]
   4816 00003B46 D0CE                <1> 		ror dh, 1
   4817 00003B48 FEC5                <1> 		inc ch
   4818 00003B4A 80FD10              <1> 		cmp ch, 16
@@ -4840,7 +4840,7 @@
   4840 00003BA5 7317                <1> 		jae fixwindowcopy
   4841 00003BA7 66890D[F73B0000]    <1> 		mov [charposline], cx
   4842 00003BAE 66B90000            <1> 		mov cx, 0
-  4843 00003BB2 678AB7[B46C]        <1> 		mov dh, [fonts + bx]
+  4843 00003BB2 678AB7[AE6C]        <1> 		mov dh, [fonts + bx]
   4844 00003BB7 D0CE                <1> 		ror dh, 1
   4845 00003BB9 E920FFFFFF          <1> 		jmp copywindow
   4846                              <1> fixwindowcopy:
@@ -4849,7 +4849,7 @@
   4849 00003BC9 662B15[8D380000]    <1> 		sub dx, [winvcopydx]
   4850 00003BD0 01D6                <1> 		add esi, edx
   4851 00003BD2 89F7                <1> 		mov edi, esi
-  4852 00003BD4 678AB7[B46C]        <1> 		mov dh, [fonts + bx]
+  4852 00003BD4 678AB7[AE6C]        <1> 		mov dh, [fonts + bx]
   4853 00003BD9 D0CE                <1> 		ror dh, 1
   4854 00003BDB E9FEFEFFFF          <1> 		jmp copywindow
   4855                              <1> donewincopynow:
@@ -4870,7 +4870,7 @@
   4870 00003C0B B401                <1> 		mov ah, 1
   4871 00003C0D E8C5F9FFFF          <1> 		call graphicsadd
   4872                              <1> 	showicon2:
-  4873 00003C12 8B3D[FC760000]      <1> 		mov edi, [physbaseptr]
+  4873 00003C12 8B3D[F6760000]      <1> 		mov edi, [physbaseptr]
   4874 00003C18 6601D2              <1> 		add dx, dx
   4875 00003C1B 663B15[DC3C0000]    <1> 		cmp dx, [resolutionx2]
   4876 00003C22 720C                <1> 		jb screenxgood
@@ -4939,7 +4939,7 @@
   4939                              <1> showfontvesa:		;;position in (dx,cx), color in bx, char in al
   4940 00003CEC 66890D[E13C0000]    <1> 	mov [posyvesa], cx
   4941 00003CF3 668915[DF3C0000]    <1> 	mov [posxvesa], dx
-  4942 00003CFA 8B3D[FC760000]      <1> 	mov edi, [physbaseptr]
+  4942 00003CFA 8B3D[F6760000]      <1> 	mov edi, [physbaseptr]
   4943 00003D00 66891D[E33C0000]    <1> 	mov [colorfont], bx
   4944 00003D07 BB00000000          <1> 	mov ebx, 0
   4945 00003D0C 88C3                <1> 	mov bl, al
@@ -4958,13 +4958,13 @@
   4958 00003D39 75F2                <1> 	jne vesaposloop
   4959                              <1> vesaposloopdn:
   4960 00003D3B 01D7                <1> 	add edi, edx
-  4961 00003D3D BE[B46C0000]        <1> 	mov esi, fonts
+  4961 00003D3D BE[AE6C0000]        <1> 	mov esi, fonts
   4962                              <1> findfontvesa:
   4963 00003D42 B400                <1> 	mov ah, 0
   4964 00003D44 C1E004              <1> 	shl eax, 4
   4965 00003D47 01C6                <1> 	add esi, eax
   4966 00003D49 C1E804              <1> 	shr eax, 4
-  4967 00003D4C 81FE[D4740000]      <1> 	cmp esi, fontend
+  4967 00003D4C 81FE[CE740000]      <1> 	cmp esi, fontend
   4968 00003D52 0F83BF000000        <1> 	jae near donefontvesa
   4969 00003D58 4E                  <1> 	dec esi
   4970                              <1> foundfontvesa:
@@ -5059,7 +5059,7 @@
   5059 00003E8B 668B06              <1> 	mov ax, [esi]
   5060 00003E8E 663D424D            <1> 	cmp ax, "BM"
   5061 00003E92 0F858E000000        <1> 	jne near endedbmp
-  5062 00003E98 8B3D[FC760000]      <1> 	mov edi, [physbaseptr]
+  5062 00003E98 8B3D[F6760000]      <1> 	mov edi, [physbaseptr]
   5063 00003E9E 6689D0              <1> 	mov ax, dx
   5064 00003EA1 6689CB              <1> 	mov bx, cx
   5065 00003EA4 B900000000          <1> 	mov ecx, 0
@@ -5383,7 +5383,7 @@
   5383 00004562 BF[7C450000]        <1> 	mov edi, frame
   5384 00004567 BE[BC450000]        <1> 	mov esi, framend
   5385 0000456C E86BFEFFFF          <1> 	call sendframe
-  5386 00004571 BE[8E6C0000]        <1> 	mov esi, line
+  5386 00004571 BE[886C0000]        <1> 	mov esi, line
   5387 00004576 E8D7C6FFFF          <1> 	call print
   5388 0000457B C3                  <1> 	ret
   5389                              <1> 	
@@ -5558,7 +5558,7 @@
   5558 000047EC 803F00              <1> 	cmp byte [edi], 0
   5559 000047EF 0F8444000000        <1> 	je near nofileload
   5560 000047F5 89FA                <1> 	mov edx, edi
-  5561 000047F7 BB[EB6B0000]        <1> 	mov ebx, diskfileindex
+  5561 000047F7 BB[E56B0000]        <1> 	mov ebx, diskfileindex
   5562                              <1> nextnamechar:
   5563 000047FC 8A07                <1> 	mov al, [edi]
   5564 000047FE 8A23                <1> 	mov ah, [ebx]
@@ -5586,7 +5586,7 @@
   5586                              <1> nextfilename:
   5587 00004829 81C308000000        <1> 	add ebx, 8		;;next descriptor
   5588 0000482F 89D7                <1> 	mov edi, edx
-  5589 00004831 81FB[506C0000]      <1> 	cmp ebx, enddiskfileindex
+  5589 00004831 81FB[4A6C0000]      <1> 	cmp ebx, enddiskfileindex
   5590 00004837 72C3                <1> 	jb nextnamechar
   5591                              <1> nofileload:
   5592 00004839 BA94010000          <1> 	mov edx, 404	;;indicate not found error
@@ -5595,7 +5595,7 @@
   5595 0000483F 81EB02000000        <1> 	sub ebx, 2
   5596                              <1> eqfilefind:
   5597 00004845 43                  <1> 	inc ebx
-  5598 00004846 81FB[506C0000]      <1> 	cmp ebx, enddiskfileindex
+  5598 00004846 81FB[4A6C0000]      <1> 	cmp ebx, enddiskfileindex
   5599 0000484C 0F83E7FFFFFF        <1> 	jae near nofileload
   5600 00004852 8A03                <1> 	mov al, [ebx]
   5601 00004854 3C00                <1> 	cmp al, 0
@@ -5738,406 +5738,404 @@
   5738                                  	%include 'source/threads.asm'
   5739                              <1> ;;THIS IS MY FIRST ATTEMPT AT IMPLEMENTING THREADS
   5740                              <1> threadstarttest:
-  5741 000049A2 E8E5200000          <1>     call startthreads
-  5742 000049A7 EBFE                <1> 	jmp $
-  5743                              <1> mainthread:
-  5744 000049A9 F4                  <1> 	hlt		;;this does not work properly
-  5745 000049AA BE[B6490000]        <1> 	mov esi, thrdmain
-  5746 000049AF E89EC2FFFF          <1> 	call print
-  5747 000049B4 EBF3                <1> 	jmp mainthread
-  5748 000049B6 4D41494E2054485245- <1> thrdmain db "MAIN THREAD ",0
-  5749 000049BF 41442000            <1>
-  5750                              <1> 
-  5751                              <1> thread1:
-  5752 000049C3 B85E000000          <1> 	mov eax, 94
-  5753                              <1> thrdlp1:
-  5754 000049C8 48                  <1> 	dec eax
-  5755 000049C9 50                  <1> 	push eax
-  5756 000049CA BE[DE490000]        <1> 	mov esi, thrd1
-  5757 000049CF E87EC2FFFF          <1> 	call print
-  5758 000049D4 58                  <1> 	pop eax
-  5759 000049D5 3D00000000          <1> 	cmp eax, 0
-  5760 000049DA 74FE                <1> 	je $
-  5761 000049DC EBEA                <1> 	jmp thrdlp1
-  5762                              <1> 	
-  5763 000049DE 544852454144203120- <1> thrd1	db "THREAD 1  ",0
-  5764 000049E7 2000                <1>
-  5765                              <1> 
-  5766                              <1> thread2:
-  5767 000049E9 B85F000000          <1> 	mov eax, 95
-  5768                              <1> thrdlp2:
-  5769 000049EE 48                  <1> 	dec eax
-  5770 000049EF 50                  <1> 	push eax
-  5771 000049F0 BE[044A0000]        <1> 	mov esi, thrd2
-  5772 000049F5 E858C2FFFF          <1> 	call print
-  5773 000049FA 58                  <1> 	pop eax
-  5774 000049FB 3D00000000          <1> 	cmp eax, 0
-  5775 00004A00 74FE                <1> 	je $
-  5776 00004A02 EBEA                <1> 	jmp thrdlp2
-  5777                              <1> 	
-  5778 00004A04 544852454144203220- <1> thrd2 db "THREAD 2  ",0
-  5779 00004A0D 2000                <1>
-  5780                              <1> 	
-  5781                              <1> thread3:
-  5782 00004A0F B860000000          <1> 	mov eax, 96
-  5783                              <1> thrd3lp:
-  5784 00004A14 2D02000000          <1> 	sub eax, 2	;;each cycle will take twice as long
-  5785 00004A19 89C1                <1> 	mov ecx, eax
-  5786 00004A1B 50                  <1> 	push eax
-  5787 00004A1C E8CECBFFFF          <1> 	call showhex
-  5788 00004A21 BE[494A0000]        <1> 	mov esi, thrd3
-  5789 00004A26 E827C2FFFF          <1> 	call print
-  5790 00004A2B 58                  <1> 	pop eax
-  5791 00004A2C 3D00000000          <1> 	cmp eax, 0
-  5792 00004A31 0F8402000000        <1> 	je near nwcmdst
-  5793 00004A37 EBDB                <1> 	jmp thrd3lp
-  5794                              <1> 	
-  5795                              <1> nwcmdst:
-  5796 00004A39 FA                  <1> 	cli			;;no more interrupts!!!
-  5797 00004A3A BE[8E6C0000]        <1> 	mov esi, line
-  5798 00004A3F E80EC2FFFF          <1> 	call print
-  5799 00004A44 E95EC7FFFF          <1> 	jmp nwcmd
-  5800                              <1> 	
-  5801 00004A49 544852454144203320- <1> thrd3 db "THREAD 3  ",0
-  5802 00004A52 2000                <1>
-  5803                              <1> 	
-  5804                              <1> modelthread:
-  5805 00004A54 B900000000          <1> 	mov ecx, 0
-  5806 00004A59 668B0D[E96B0000]    <1> 	mov cx, [currentthread]
-  5807 00004A60 E88ACBFFFF          <1> 	call showhex
-  5808 00004A65 F4                  <1> 	hlt		;;wait for next time around
-  5809 00004A66 B90000ADDE          <1> 	mov ecx, 0xDEAD0000
-  5810 00004A6B 668B0D[E96B0000]    <1> 	mov cx, [currentthread]
-  5811 00004A72 E878CBFFFF          <1> 	call showhex
-  5812 00004A77 F4                  <1> 	hlt
-  5813 00004A78 B90000DEC0          <1> 	mov ecx, 0xC0DE0000
-  5814 00004A7D 668B0D[E96B0000]    <1> 	mov cx, [currentthread]
-  5815 00004A84 E866CBFFFF          <1> 	call showhex
-  5816 00004A89 F4                  <1> 	hlt
-  5817 00004A8A EBAD                <1> 	jmp nwcmdst
+  5741 000049A2 E9E3200000          <1>     jmp startthreads
+  5742                              <1> mainthread:
+  5743 000049A7 F4                  <1> 	hlt		;;this does not work properly
+  5744 000049A8 BE[B4490000]        <1> 	mov esi, thrdmain
+  5745 000049AD E8A0C2FFFF          <1> 	call print
+  5746 000049B2 EBF3                <1> 	jmp mainthread
+  5747 000049B4 4D41494E2054485245- <1> thrdmain db "MAIN THREAD ",0
+  5748 000049BD 41442000            <1>
+  5749                              <1> 
+  5750                              <1> thread1:
+  5751 000049C1 B85E000000          <1> 	mov eax, 94
+  5752                              <1> thrdlp1:
+  5753 000049C6 48                  <1> 	dec eax
+  5754 000049C7 50                  <1> 	push eax
+  5755 000049C8 BE[DC490000]        <1> 	mov esi, thrd1
+  5756 000049CD E880C2FFFF          <1> 	call print
+  5757 000049D2 58                  <1> 	pop eax
+  5758 000049D3 3D00000000          <1> 	cmp eax, 0
+  5759 000049D8 74FE                <1> 	je $
+  5760 000049DA EBEA                <1> 	jmp thrdlp1
+  5761                              <1> 	
+  5762 000049DC 544852454144203120- <1> thrd1	db "THREAD 1  ",0
+  5763 000049E5 2000                <1>
+  5764                              <1> 
+  5765                              <1> thread2:
+  5766 000049E7 B85F000000          <1> 	mov eax, 95
+  5767                              <1> thrdlp2:
+  5768 000049EC 48                  <1> 	dec eax
+  5769 000049ED 50                  <1> 	push eax
+  5770 000049EE BE[024A0000]        <1> 	mov esi, thrd2
+  5771 000049F3 E85AC2FFFF          <1> 	call print
+  5772 000049F8 58                  <1> 	pop eax
+  5773 000049F9 3D00000000          <1> 	cmp eax, 0
+  5774 000049FE 74FE                <1> 	je $
+  5775 00004A00 EBEA                <1> 	jmp thrdlp2
+  5776                              <1> 	
+  5777 00004A02 544852454144203220- <1> thrd2 db "THREAD 2  ",0
+  5778 00004A0B 2000                <1>
+  5779                              <1> 	
+  5780                              <1> thread3:
+  5781 00004A0D B860000000          <1> 	mov eax, 96
+  5782                              <1> thrd3lp:
+  5783 00004A12 2D02000000          <1> 	sub eax, 2	;;each cycle will take twice as long
+  5784 00004A17 89C1                <1> 	mov ecx, eax
+  5785 00004A19 50                  <1> 	push eax
+  5786 00004A1A E8D0CBFFFF          <1> 	call showhex
+  5787 00004A1F BE[474A0000]        <1> 	mov esi, thrd3
+  5788 00004A24 E829C2FFFF          <1> 	call print
+  5789 00004A29 58                  <1> 	pop eax
+  5790 00004A2A 3D00000000          <1> 	cmp eax, 0
+  5791 00004A2F 0F8402000000        <1> 	je near nwcmdst
+  5792 00004A35 EBDB                <1> 	jmp thrd3lp
+  5793                              <1> 	
+  5794                              <1> nwcmdst:
+  5795 00004A37 FA                  <1> 	cli			;;no more interrupts!!!
+  5796 00004A38 BE[886C0000]        <1> 	mov esi, line
+  5797 00004A3D E810C2FFFF          <1> 	call print
+  5798 00004A42 E960C7FFFF          <1> 	jmp nwcmd
+  5799                              <1> 	
+  5800 00004A47 544852454144203320- <1> thrd3 db "THREAD 3  ",0
+  5801 00004A50 2000                <1>
+  5802                              <1> 	
+  5803                              <1> modelthread:
+  5804 00004A52 B900000000          <1> 	mov ecx, 0
+  5805 00004A57 668B0D[E36B0000]    <1> 	mov cx, [currentthread]
+  5806 00004A5E E88CCBFFFF          <1> 	call showhex
+  5807 00004A63 F4                  <1> 	hlt		;;wait for next time around
+  5808 00004A64 B90000ADDE          <1> 	mov ecx, 0xDEAD0000
+  5809 00004A69 668B0D[E36B0000]    <1> 	mov cx, [currentthread]
+  5810 00004A70 E87ACBFFFF          <1> 	call showhex
+  5811 00004A75 F4                  <1> 	hlt
+  5812 00004A76 B90000DEC0          <1> 	mov ecx, 0xC0DE0000
+  5813 00004A7B 668B0D[E36B0000]    <1> 	mov cx, [currentthread]
+  5814 00004A82 E868CBFFFF          <1> 	call showhex
+  5815 00004A87 F4                  <1> 	hlt
+  5816 00004A88 EBAD                <1> 	jmp nwcmdst
+  5817                              <1> 	
   5818                              <1> 	
-  5819                              <1> 	
-  5820                              <1> thrdtst:
-  5821                              <1> 	;dd thread1
-  5822                              <1> 	;dd thread2
-  5823                              <1> 	;dd thread3
-  5824 00004A8C [544A0000]<rept>    <1> times 2048 dd modelthread
-  5825                              <1> thrdtstend:
-  5826                              <1> 
-  5827                              <1> startthreads:
-  5828 00006A8C 60                  <1> 	pushad
-  5829 00006A8D 66B8FFFF            <1> 	mov ax, 0xFFFF
-  5830 00006A91 66C1E802            <1> 	shr ax, 2	;;divide by 4 to make interrupts happen four times faster
+  5819                              <1> thrdtst:
+  5820                              <1> 	;dd thread1
+  5821                              <1> 	;dd thread2
+  5822                              <1> 	;dd thread3
+  5823 00004A8A [524A0000]<rept>    <1> times 2048 dd modelthread
+  5824                              <1> thrdtstend:
+  5825                              <1> 
+  5826                              <1> startthreads:
+  5827 00006A8A 60                  <1> 	pushad
+  5828 00006A8B 66B80070            <1> 	mov ax, 0x7000	;;this is the divider for the PIT
+  5829 00006A8F E640                <1> 	out 0x40, al
+  5830 00006A91 66C1C008            <1> 	rol ax, 8
   5831 00006A95 E640                <1> 	out 0x40, al
-  5832 00006A97 66C1C008            <1> 	rol ax, 8
-  5833 00006A9B E640                <1> 	out 0x40, al
-  5834                              <1> 	
-  5835 00006A9D 8CC8                <1> 	mov eax, cs
-  5836 00006A9F 89C2                <1> 	mov edx, eax
-  5837 00006AA1 8B4C2428            <1> 	mov ecx, [esp + 40]
-  5838 00006AA5 81C900020000        <1> 	or ecx, 0x200
-  5839 00006AAB 89E3                <1> 	mov ebx, esp
-  5840 00006AAD BC[3B780000]        <1> 	mov esp, stackdummy
-  5841 00006AB2 90                  <1> 	nop
-  5842 00006AB3 60                  <1> 	pushad
-  5843 00006AB4 B8[A9490000]        <1> 	mov eax, mainthread
-  5844 00006AB9 89442420            <1> 	mov [esp + 32], eax
-  5845 00006ABD 89542424            <1> 	mov [esp + 36], edx
-  5846 00006AC1 894C2428            <1> 	mov [esp + 40], ecx
-  5847 00006AC5 8925[33540000]      <1> 	mov [threadlist], esp
-  5848                              <1> 			;;that above setup the dummy thread which for some reason does not run
-  5849                              <1> 			;;this below will setup the threads found in thrdtst
-  5850 00006ACB BE[8C4A0000]        <1> 	mov esi, thrdtst
-  5851 00006AD0 BC[3B7C0000]        <1> 	mov esp, stack1
-  5852 00006AD5 BF[33540000]        <1> 	mov edi, threadlist
-  5853 00006ADA 81C704000000        <1> 	add edi, 4
-  5854                              <1> nxtthreadld:
-  5855 00006AE0 60                  <1> 	pushad
-  5856 00006AE1 8B06                <1> 	mov eax, [esi]
-  5857 00006AE3 89442420            <1> 	mov [esp + 32], eax
-  5858 00006AE7 89542424            <1> 	mov [esp + 36], edx
-  5859 00006AEB 894C2428            <1> 	mov [esp + 40], ecx
-  5860 00006AEF 8927                <1> 	mov [edi], esp
-  5861 00006AF1 81C400040000        <1> 	add esp, 1024
-  5862 00006AF7 81C604000000        <1> 	add esi, 4
-  5863 00006AFD 81C704000000        <1> 	add edi, 4
-  5864 00006B03 81FF[3B740000]      <1> 	cmp edi, threadlistend
-  5865 00006B09 0F8322000000        <1> 	jae near nomorethreadspace
-  5866 00006B0F 81FC[3B842000]      <1> 	cmp esp, bssend
-  5867 00006B15 0F8344000000        <1> 	jae near nomorestackspace
-  5868 00006B1B 81FE[8C6A0000]      <1> 	cmp esi, thrdtstend
-  5869 00006B21 72BD                <1> 	jb nxtthreadld
-  5870 00006B23 89DC                <1> 	mov esp, ebx
-  5871 00006B25 B0FE                <1> 	mov al, 0xFE
-  5872 00006B27 E621                <1> 	out 0x21, al
-  5873 00006B29 B020                <1> 	mov al, 0x20
-  5874 00006B2B E620                <1> 	out 0x20, al
-  5875 00006B2D 61                  <1> 	popad
-  5876 00006B2E FB                  <1> 	sti
-  5877 00006B2F EBFE                <1> 	jmp $	;;wait for the irq to hook
-  5878                              <1> 	
-  5879                              <1> nomorethreadspace:
-  5880 00006B31 BE[3D6B0000]        <1> 	mov esi, nmts
-  5881 00006B36 E817A1FFFF          <1> 	call print
-  5882 00006B3B EBFE                <1> 	jmp $
-  5883 00006B3D 74656820636F6C6F6E- <1> nmts	db "teh colonel no can haz moar treds",0
-  5884 00006B46 656C206E6F2063616E- <1>
-  5885 00006B4F 2068617A206D6F6172- <1>
-  5886 00006B58 20747265647300      <1>
-  5887                              <1> 
-  5888                              <1> nomorestackspace:
-  5889 00006B5F BE[6B6B0000]        <1> 	mov esi, nmss
-  5890 00006B64 E8E9A0FFFF          <1> 	call print
-  5891 00006B69 EBFE                <1> 	jmp $
-  5892 00006B6B 74656820636F6C6F6E- <1> nmss	db "teh colonel no can haz moar staqz",0
-  5893 00006B74 656C206E6F2063616E- <1>
-  5894 00006B7D 2068617A206D6F6172- <1>
-  5895 00006B86 20737461717A00      <1>
-  5896                              <1> 	
-  5897                              <1> threadswitch:
-  5898 00006B8D FA                  <1> 	cli
-  5899 00006B8E 60                  <1> 	pushad
-  5900 00006B8F BF[33540000]        <1> 	mov edi, threadlist
-  5901 00006B94 B800000000          <1> 	mov eax, 0
-  5902 00006B99 66A1[E96B0000]      <1> 	mov ax, [currentthread]
-  5903 00006B9F 6640                <1> 	inc ax
-  5904 00006BA1 66A3[E96B0000]      <1> 	mov [currentthread], ax
-  5905 00006BA7 6648                <1> 	dec ax
-  5906 00006BA9 C1E002              <1> 	shl eax, 2
-  5907 00006BAC 01C7                <1> 	add edi, eax
-  5908 00006BAE 8927                <1> 	mov [edi], esp
-  5909 00006BB0 81C704000000        <1> 	add edi, 4
-  5910 00006BB6 81FF[3B740000]      <1> 	cmp edi, threadlistend
-  5911 00006BBC 0F830D000000        <1> 	jae near nookespthread
-  5912 00006BC2 8B07                <1> 	mov eax, [edi]
-  5913 00006BC4 3D00000000          <1> 	cmp eax, 0
-  5914 00006BC9 0F8511000000        <1> 	jne near okespthread
-  5915                              <1> nookespthread:
-  5916 00006BCF BF[33540000]        <1> 	mov edi, threadlist
-  5917 00006BD4 66B80000            <1> 	mov ax, 0
-  5918 00006BD8 66A3[E96B0000]      <1> 	mov [currentthread], ax
-  5919 00006BDE 8B07                <1> 	mov eax, [edi]
-  5920                              <1> okespthread:
-  5921 00006BE0 89C4                <1> 	mov esp, eax
-  5922 00006BE2 B020                <1> 	mov al, 0x20
-  5923 00006BE4 E620                <1> 	out 0x20, al
-  5924 00006BE6 61                  <1> 	popad
-  5925 00006BE7 FB                  <1> 	sti
-  5926 00006BE8 CF                  <1> 	iretd
-  5927                              <1> 	
-  5928 00006BE9 0000                <1> currentthread dw 0
-  5929                                      %include 'fileindex.asm'
-  5930                              <1> diskfileindex:
-  5931 00006BEB 65787000            <1> db "exp",0
-  5932 00006BEF 3C000000            <1> dd (f0-$$)/512
-  5933 00006BF3 01000000            <1> dd (f1-f0)/512
-  5934 00006BF7 736F6C6C65726F732E- <1> db "solleros.bmp",0
-  5935 00006C00 626D7000            <1>
-  5936 00006C04 3D000000            <1> dd (f1-$$)/512
-  5937 00006C08 B0020000            <1> dd (f2-f1)/512
-  5938 00006C0C 736F6C6C65726F732E- <1> db "solleros.txt",0
-  5939 00006C15 74787400            <1>
-  5940 00006C19 ED020000            <1> dd (f2-$$)/512
-  5941 00006C1D 01000000            <1> dd (f3-f2)/512
-  5942 00006C21 74656C7900          <1> db "tely",0
-  5943 00006C26 EE020000            <1> dd (f3-$$)/512
-  5944 00006C2A 01000000            <1> dd (f4-f3)/512
-  5945 00006C2E 74696D6500          <1> db "time",0
-  5946 00006C33 EF020000            <1> dd (f4-$$)/512
-  5947 00006C37 02000000            <1> dd (f5-f4)/512
-  5948 00006C3B 7475746F7269616C2E- <1> db "tutorial.bat",0
-  5949 00006C44 62617400            <1>
-  5950 00006C48 F1020000            <1> dd (f5-$$)/512
-  5951 00006C4C 03000000            <1> dd (f6-f5)/512
-  5952                              <1> enddiskfileindex:
-  5953                              <1> 
-  5954                                  	%include 'source/msg.asm'
-  5955 00006C50 6578697400          <1> 	exitmsg db	"exit",0
-  5956 00006C55 50726F6772616D2022- <1> 	notfound1 db "Program ",34,0
-  5957 00006C5E 00                  <1>
-  5958 00006C5F 22206E6F7420666F75- <1> 	notfound2 db  34," not found.",13,10,0
-  5959 00006C68 6E642E0D0A00        <1>
-  5960 00006C6E 757365726E616D653A- <1> 	userask db "username:",0
-  5961 00006C77 00                  <1>
-  5962 00006C78 70617373776F72643A- <1> 	pwdask	db	"password:",0
-  5963 00006C81 00                  <1>
-  5964 00006C82 40536F6C6C65724F53- <1> 	location	db	"@SollerOS]#",0
-  5965 00006C8B 5D2300              <1>
-  5966 00006C8E 0D0A00              <1> 	line	db	13,10,0
-  5967                              <1> 	userlst:
-  5968 00006C91 7573657200          <1> 			db "user",0
-  5969 00006C96 70617373776F726400  <1> 			db "password",0
-  5970 00006C9F 726F6F7400          <1> 			db "root",0
-  5971 00006CA4 617765736F6D65706F- <1> 			db "awesomepower",0
-  5972 00006CAD 77657200            <1>
-  5973 00006CB1 6E00                <1> 			db "n",0	;;use for quick entry-a quick double n followed by a double enter will get you in
-  5974 00006CB3 00                  <1> 			db 0
-  5975                              <1> 	userlstend:
-  5976                              <1> 	
-  5977 00006CB3 <incbin>            <1> fonts:	incbin 'source/precompiled/fonts.pak'
-  5978                              <1> fontend2:
-  5979                              <1> mcursor:
-  5980 000074C4 01                  <1> 	db	00000001b
-  5981 000074C5 81                  <1> 	db	10000001b
-  5982 000074C6 C1                  <1> 	db	11000001b
-  5983 000074C7 E1                  <1> 	db	11100001b
-  5984 000074C8 F1                  <1> 	db	11110001b
-  5985 000074C9 F9                  <1> 	db	11111001b
-  5986 000074CA FD                  <1> 	db	11111101b
-  5987 000074CB FF                  <1> 	db	11111111b
-  5988 000074CC F9                  <1> 	db	11111001b
-  5989 000074CD B9                  <1> 	db	10111001b
-  5990 000074CE 39                  <1> 	db	00111001b
-  5991 000074CF 1C                  <1> 	db	00011100b
-  5992 000074D0 1C                  <1> 	db	00011100b
-  5993 000074D1 0E                  <1> 	db	00001110b
-  5994 000074D2 0E                  <1> 	db	00001110b
-  5995 000074D3 0C                  <1> 	db	00001100b
-  5996                              <1> fontend:
-  5997                              <1> 
-  5998                              <1> ;cursorbmp:
-  5999                              <1> ;	db	1,0,0,0,0,0,0,0
-  6000                              <1> ;	db	1,1,0,0,0,0,0,0
-  6001                              <1> ;	db	1,1,1,0,0,0,0,0
-  6002                              <1> ;	db	1,1,1,1,0,0,0,0
-  6003                              <1> ;	db	1,1,1,1,1,0,0,0
-  6004                              <1> ;	db	1,1,1,1,1,1,0,0
-  6005                              <1> ;	db	1,1,1,1,1,1,1,0
-  6006                              <1> ;	db	1,1,1,1,1,1,1,1
-  6007                              <1> ;	db	1,1,1,1,1,1,0,0
-  6008                              <1> ;	db	1,1,0,1,1,1,0,0
-  6009                              <1> ;	db	1,0,0,1,1,1,0,0
-  6010                              <1> ;	db	0,0,0,0,1,1,1,0
-  6011                              <1> ;	db	0,0,0,0,1,1,1,0
-  6012                              <1> ;	db	0,0,0,0,0,1,1,1
-  6013                              <1> ;	db	0,0,0,0,0,1,1,1
-  6014                              <1> ;	db	0,0,0,0,0,1,1,0
-  6015                              <1> ;cursorbmpend:
-  6016                              <1> 
-  6017                              <1> 
-  6018                              <1> VBEMODEBLOCK:
-  6019 000074D4 00<rept>            <1> vbesignature 		times 4 db 0	;VBE Signature
-  6020 000074D8 00<rept>            <1> vbeversion  		times 2 db 0	;VBE Version
-  6021 000074DA 00<rept>            <1> oemstringptr  		times 4 db 0	;Pointer to OEM String
-  6022 000074DE 00<rept>            <1> capabilities 		times 4 db 0	;Capabilities of graphics cont.
-  6023 000074E2 00<rept>            <1> videomodeptr 		times 4 db 0	;Pointer to Video Mode List
-  6024 000074E6 00<rept>            <1> totalmemory   		times 2 db 0	;number of 64Kb memory blocks
-  6025 000074E8 00<rept>            <1> oemsoftwarerev  	times 2 db 0	;VBE implementation Software revision
-  6026 000074EA 00<rept>            <1> oemvendornameptr 	times 4 db 0	;Pointer to Vendor Name String
-  6027 000074EE 00<rept>            <1> oemproductnameptr 	times 4 db 0	;Pointer to Product Name String
-  6028 000074F2 00<rept>            <1> oemproductrevptr 	times 4 db 0	;Pointer to Product Revision String
-  6029 000074F6 00<rept>            <1> reserved			times 222 db 0	;Reserved for VBE implementation scratch area
-  6030 000075D4 00<rept>            <1> oemdata 			times 256 db 0	;Data Area for OEM Strings
-  6031                              <1> 
-  6032                              <1> 
-  6033                              <1> VBEMODEINFOBLOCK:
-  6034                              <1> ;Mandatory information for all VBE revision
-  6035 000076D4 00<rept>            <1> modeattributes   	times 2 db 0	;Mode attributes
-  6036 000076D6 00                  <1> winaattributes   	times 1 db 0	;Window A attributes
-  6037 000076D7 00                  <1> winbattributes   	times 1 db 0	;Window B attributes
-  6038 000076D8 00<rept>            <1> wingranularity   	times 2 db 0	;Window granularity
-  6039 000076DA 00<rept>            <1> winsize          	times 2 db 0	;Window size
-  6040 000076DC 00<rept>            <1> winasegment      	times 2 db 0	;Window A start segment
-  6041 000076DE 00<rept>            <1> winbsegment      	times 2 db 0	;Window B start segment
-  6042 000076E0 00<rept>            <1> winfuncptr       	times 4 db 0	;pointer to window function
-  6043 000076E4 00<rept>            <1> bytesperscanline 	times 2 db 0	;Bytes per scan line
-  6044                              <1> 
-  6045                              <1> ;Mandatory information for VBE 1.2 and above
-  6046 000076E6 00<rept>            <1> xresolution     	times 2 db 0	;Horizontal resolution in pixel or chars
-  6047 000076E8 00<rept>            <1> yresolution	    	times 2 db 0	;Vertical resolution in pixel or chars
-  6048 000076EA 00                  <1> xcharsize       	times 1 db 0	;Character cell width in pixel
-  6049 000076EB 00                  <1> ycharsize       	times 1 db 0	;Character cell height in pixel
-  6050 000076EC 00                  <1> numberofplanes  	times 1 db 0	;Number of memory planes
-  6051 000076ED 00                  <1> bitsperpixel    	times 1 db 0	;Bits per pixel
-  6052 000076EE 00                  <1> numberofbanks   	times 1 db 0	;Number of banks
-  6053 000076EF 00                  <1> memorymodel     	times 1 db 0	;Memory model type
-  6054 000076F0 00                  <1> banksize        	times 1 db 0	;Bank size in KB
-  6055 000076F1 00                  <1> numberofimagepages	times 1 db 0	;Number of images
-  6056 000076F2 00                  <1> reserved1       	times 1 db 0	;Reserved for page function
-  6057                              <1> 
-  6058                              <1> ;Direct Color fields (required for direct/6 and YUV/7 memory models)
-  6059 000076F3 00                  <1> redmasksize			times 1 db 0	;Size of direct color red mask in bits
-  6060 000076F4 00                  <1> redfieldposition	times 1 db 0	;Bit position of lsb of red bask
-  6061 000076F5 00                  <1> greenmasksize   	times 1 db 0	;Size of direct color green mask in bits
-  6062 000076F6 00                  <1> greenfieldposition	times 1 db 0	;Bit position of lsb of green bask
-  6063 000076F7 00                  <1> bluemasksize		times 1 db 0	;Size of direct color blue mask in bits
-  6064 000076F8 00                  <1> bluefieldposition	times 1 db 0	;Bit position of lsb of blue bask
-  6065 000076F9 00                  <1> rsvdmasksize        times 1	db 0	;Size of direct color reserved mask in bits
-  6066 000076FA 00                  <1> rsvdfieldposition	times 1	db 0	;Bit position of lsb of reserved bask
-  6067 000076FB 00                  <1> directcolormodeinfo	times 1 db 0	;Direct color mode attributes
-  6068                              <1> 
-  6069                              <1> ;Mandatory information for VBE 2.0 and above
-  6070 000076FC 00<rept>            <1> physbaseptr 		times 4 db 0	;Physical address for flat frame buffer
-  6071 00007700 00<rept>            <1> offscreenmemoffset 	times 4 db 0	;Pointer to start of off screen memory
-  6072 00007704 00<rept>            <1> offscreenmemsize 	times 2 db 0    ;Amount of off screen memory in 1Kb units
-  6073 00007706 00<rept>            <1> reserved2 			times 206 db 0  ;Remainder of ModeInfoBlock
-  6074                                  	;%include 'source/memory.asm'
-  6075                                  	%include 'source/buf.asm'
-  6076 000077D4 4255465354415254    <1> db "BUFSTART"
-  6077                              <1> [section .bss]
-  6078                              <1> bssstart:
-  6079                              <1> stack:
-  6080 00000000 <res 00001000>      <1> 	resb 4096
-  6081                              <1> stackend:
-  6082                              <1> graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
-  6083 00001000 <res 00000200>      <1> 	resb 200h 
-  6084                              <1> 	graphicstableend:
-  6085                              <1> mousecolorbuf: ;where the gui under the mouse is stored
-  6086 00001200 <res 00000100>      <1> 	resb 256 
-  6087                              <1> mcolorend:
-  6088 00001300 <res 00000001>      <1> IFON resb 1 
-  6089 00001301 <res 00000064>      <1> IFTRUE resb 100 
-  6090 00001365 <res 00000004>      <1> BATCHPOS resb 4 
-  6091 00001369 <res 00000001>      <1> BATCHISON resb 1 
-  6092 0000136A <res 00000001>      <1> LOOPON resb 1 
-  6093 0000136B <res 00000004>      <1> LOOPPOS	resb 4 
-  6094 0000136F <res 00000200>      <1> fileindex: resb 200h 
-  6095                              <1> fileindexend:
-  6096 0000156F <res 00000500>      <1> variables: 	resb 500h 
-  6097 00001A6F <res 00000001>      <1> varend: resb 1
-  6098 00001A70 <res 00000100>      <1> buftxt2: resb 100h
-  6099 00001B70 <res 0000000A>      <1> resb 10
-  6100 00001B7A <res 00000100>      <1> buftxt: resb 100h 
-  6101 00001C7A <res 00000014>      <1> buf2:	resb 20 
-  6102 00001C8E <res 00000001>      <1> numbuf: resb 1 
-  6103 00001C8F <res 000012C0>      <1> videobuf2 		resb 0x12C0 
-  6104 00002F4F <res 000000C8>      <1> videobufend		resb 200
-  6105 00003017 <res 00000004>      <1> lastcommandpos: resb 4
-  6106 0000301B <res 00000004>      <1> currentcommandpos: resb 4
-  6107                              <1> commandbuf:
-  6108 0000301F <res 00000400>      <1> resb 1024
-  6109                              <1> commandbufend:
-  6110                              <1> rbuffstart: ;for use with networking
-  6111 0000341F <res 00002014>      <1> resb 8212
-  6112                              <1> threadlist:	;;this buffer will hold the stack locations of all of the threads, up to 2048
-  6113 00005433 <res 00002008>      <1> 	resb 2050*4
-  6114                              <1> threadlistend:
-  6115                              <1> stacks:		;;the stacks will go on forever until end of memory
-  6116 0000743B <res 00000400>      <1> 	resb 1024
-  6117                              <1> stackdummy:
-  6118 0000783B <res 00000400>      <1> 	resb 1024
-  6119                              <1> stack1:
-  6120 00007C3B <res 00200800>      <1> 	resb 1024*2050	;;woah, thats a lot of space for stacks
-  6121                              <1> bssend:		;;from here on, it is not kernel space so apps can be loaded here.
-  6122                              <1> [section .text]
-  6123                                      %include 'files.asm'
-  6124 000077DC 00<rept>            <1> align 512,db 0
-  6125                              <1> f0:
-  6126 000077DC <incbin>            <1> incbin "included/exp"
-  6127 00007822 00<rept>            <1> align 512,db 0
-  6128                              <1> f1:
-  6129 00007822 <incbin>            <1> incbin "included/solleros.bmp"
-  6130 0005D9E6 00<rept>            <1> align 512,db 0
-  6131                              <1> f2:
-  6132 0005D9E6 <incbin>            <1> incbin "included/solleros.txt"
-  6133 0005DB76 00<rept>            <1> align 512,db 0
-  6134                              <1> f3:
-  6135 0005DB76 <incbin>            <1> incbin "included/tely"
-  6136 0005DDBD 00<rept>            <1> align 512,db 0
-  6137                              <1> f4:
-  6138 0005DDBD <incbin>            <1> incbin "included/time"
-  6139 0005E07B 00<rept>            <1> align 512,db 0
-  6140                              <1> f5:
-  6141 0005E07B <incbin>            <1> incbin "included/tutorial.bat"
-  6142 0005E6AA 00<rept>            <1> align 512,db 0
-  6143                              <1> f6:
+  5832                              <1> 	
+  5833 00006A97 8CC8                <1> 	mov eax, cs
+  5834 00006A99 89C2                <1> 	mov edx, eax
+  5835 00006A9B 8B4C2428            <1> 	mov ecx, [esp + 40]
+  5836 00006A9F 81C900020000        <1> 	or ecx, 0x200
+  5837 00006AA5 89E3                <1> 	mov ebx, esp
+  5838 00006AA7 BC[3B780000]        <1> 	mov esp, stackdummy
+  5839 00006AAC 90                  <1> 	nop
+  5840 00006AAD 60                  <1> 	pushad
+  5841 00006AAE B8[A7490000]        <1> 	mov eax, mainthread
+  5842 00006AB3 89442420            <1> 	mov [esp + 32], eax
+  5843 00006AB7 89542424            <1> 	mov [esp + 36], edx
+  5844 00006ABB 894C2428            <1> 	mov [esp + 40], ecx
+  5845 00006ABF 8925[33540000]      <1> 	mov [threadlist], esp
+  5846                              <1> 			;;that above setup the dummy thread which for some reason does not run
+  5847                              <1> 			;;this below will setup the threads found in thrdtst
+  5848 00006AC5 BE[8A4A0000]        <1> 	mov esi, thrdtst
+  5849 00006ACA BC[3B7C0000]        <1> 	mov esp, stack1
+  5850 00006ACF BF[33540000]        <1> 	mov edi, threadlist
+  5851 00006AD4 81C704000000        <1> 	add edi, 4
+  5852                              <1> nxtthreadld:
+  5853 00006ADA 60                  <1> 	pushad
+  5854 00006ADB 8B06                <1> 	mov eax, [esi]
+  5855 00006ADD 89442420            <1> 	mov [esp + 32], eax
+  5856 00006AE1 89542424            <1> 	mov [esp + 36], edx
+  5857 00006AE5 894C2428            <1> 	mov [esp + 40], ecx
+  5858 00006AE9 8927                <1> 	mov [edi], esp
+  5859 00006AEB 81C400040000        <1> 	add esp, 1024
+  5860 00006AF1 81C604000000        <1> 	add esi, 4
+  5861 00006AF7 81C704000000        <1> 	add edi, 4
+  5862 00006AFD 81FF[3B740000]      <1> 	cmp edi, threadlistend
+  5863 00006B03 0F8322000000        <1> 	jae near nomorethreadspace
+  5864 00006B09 81FC[3B842000]      <1> 	cmp esp, bssend
+  5865 00006B0F 0F8344000000        <1> 	jae near nomorestackspace
+  5866 00006B15 81FE[8A6A0000]      <1> 	cmp esi, thrdtstend
+  5867 00006B1B 72BD                <1> 	jb nxtthreadld
+  5868 00006B1D 89DC                <1> 	mov esp, ebx
+  5869 00006B1F B0FE                <1> 	mov al, 0xFE
+  5870 00006B21 E621                <1> 	out 0x21, al
+  5871 00006B23 B020                <1> 	mov al, 0x20
+  5872 00006B25 E620                <1> 	out 0x20, al
+  5873 00006B27 61                  <1> 	popad
+  5874 00006B28 FB                  <1> 	sti
+  5875 00006B29 EBFE                <1> 	jmp $	;;wait for the irq to hook
+  5876                              <1> 	
+  5877                              <1> nomorethreadspace:
+  5878 00006B2B BE[376B0000]        <1> 	mov esi, nmts
+  5879 00006B30 E81DA1FFFF          <1> 	call print
+  5880 00006B35 EBFE                <1> 	jmp $
+  5881 00006B37 74656820636F6C6F6E- <1> nmts	db "teh colonel no can haz moar treds",0
+  5882 00006B40 656C206E6F2063616E- <1>
+  5883 00006B49 2068617A206D6F6172- <1>
+  5884 00006B52 20747265647300      <1>
+  5885                              <1> 
+  5886                              <1> nomorestackspace:
+  5887 00006B59 BE[656B0000]        <1> 	mov esi, nmss
+  5888 00006B5E E8EFA0FFFF          <1> 	call print
+  5889 00006B63 EBFE                <1> 	jmp $
+  5890 00006B65 74656820636F6C6F6E- <1> nmss	db "teh colonel no can haz moar staqz",0
+  5891 00006B6E 656C206E6F2063616E- <1>
+  5892 00006B77 2068617A206D6F6172- <1>
+  5893 00006B80 20737461717A00      <1>
+  5894                              <1> 	
+  5895                              <1> threadswitch:
+  5896 00006B87 FA                  <1> 	cli
+  5897 00006B88 60                  <1> 	pushad
+  5898 00006B89 BF[33540000]        <1> 	mov edi, threadlist
+  5899 00006B8E B800000000          <1> 	mov eax, 0
+  5900 00006B93 66A1[E36B0000]      <1> 	mov ax, [currentthread]
+  5901 00006B99 6640                <1> 	inc ax
+  5902 00006B9B 66A3[E36B0000]      <1> 	mov [currentthread], ax
+  5903 00006BA1 6648                <1> 	dec ax
+  5904 00006BA3 C1E002              <1> 	shl eax, 2
+  5905 00006BA6 01C7                <1> 	add edi, eax
+  5906 00006BA8 8927                <1> 	mov [edi], esp
+  5907 00006BAA 81C704000000        <1> 	add edi, 4
+  5908 00006BB0 81FF[3B740000]      <1> 	cmp edi, threadlistend
+  5909 00006BB6 0F830D000000        <1> 	jae near nookespthread
+  5910 00006BBC 8B07                <1> 	mov eax, [edi]
+  5911 00006BBE 3D00000000          <1> 	cmp eax, 0
+  5912 00006BC3 0F8511000000        <1> 	jne near okespthread
+  5913                              <1> nookespthread:
+  5914 00006BC9 BF[33540000]        <1> 	mov edi, threadlist
+  5915 00006BCE 66B80000            <1> 	mov ax, 0
+  5916 00006BD2 66A3[E36B0000]      <1> 	mov [currentthread], ax
+  5917 00006BD8 8B07                <1> 	mov eax, [edi]
+  5918                              <1> okespthread:
+  5919 00006BDA 89C4                <1> 	mov esp, eax
+  5920 00006BDC B020                <1> 	mov al, 0x20
+  5921 00006BDE E620                <1> 	out 0x20, al
+  5922 00006BE0 61                  <1> 	popad
+  5923 00006BE1 FB                  <1> 	sti
+  5924 00006BE2 CF                  <1> 	iretd
+  5925                              <1> 	
+  5926 00006BE3 0000                <1> currentthread dw 0
+  5927                                      %include 'fileindex.asm'
+  5928                              <1> diskfileindex:
+  5929 00006BE5 65787000            <1> db "exp",0
+  5930 00006BE9 3C000000            <1> dd (f0-$$)/512
+  5931 00006BED 01000000            <1> dd (f1-f0)/512
+  5932 00006BF1 736F6C6C65726F732E- <1> db "solleros.bmp",0
+  5933 00006BFA 626D7000            <1>
+  5934 00006BFE 3D000000            <1> dd (f1-$$)/512
+  5935 00006C02 B0020000            <1> dd (f2-f1)/512
+  5936 00006C06 736F6C6C65726F732E- <1> db "solleros.txt",0
+  5937 00006C0F 74787400            <1>
+  5938 00006C13 ED020000            <1> dd (f2-$$)/512
+  5939 00006C17 01000000            <1> dd (f3-f2)/512
+  5940 00006C1B 74656C7900          <1> db "tely",0
+  5941 00006C20 EE020000            <1> dd (f3-$$)/512
+  5942 00006C24 01000000            <1> dd (f4-f3)/512
+  5943 00006C28 74696D6500          <1> db "time",0
+  5944 00006C2D EF020000            <1> dd (f4-$$)/512
+  5945 00006C31 02000000            <1> dd (f5-f4)/512
+  5946 00006C35 7475746F7269616C2E- <1> db "tutorial.bat",0
+  5947 00006C3E 62617400            <1>
+  5948 00006C42 F1020000            <1> dd (f5-$$)/512
+  5949 00006C46 03000000            <1> dd (f6-f5)/512
+  5950                              <1> enddiskfileindex:
+  5951                              <1> 
+  5952                                  	%include 'source/msg.asm'
+  5953 00006C4A 6578697400          <1> 	exitmsg db	"exit",0
+  5954 00006C4F 50726F6772616D2022- <1> 	notfound1 db "Program ",34,0
+  5955 00006C58 00                  <1>
+  5956 00006C59 22206E6F7420666F75- <1> 	notfound2 db  34," not found.",13,10,0
+  5957 00006C62 6E642E0D0A00        <1>
+  5958 00006C68 757365726E616D653A- <1> 	userask db "username:",0
+  5959 00006C71 00                  <1>
+  5960 00006C72 70617373776F72643A- <1> 	pwdask	db	"password:",0
+  5961 00006C7B 00                  <1>
+  5962 00006C7C 40536F6C6C65724F53- <1> 	location	db	"@SollerOS]#",0
+  5963 00006C85 5D2300              <1>
+  5964 00006C88 0D0A00              <1> 	line	db	13,10,0
+  5965                              <1> 	userlst:
+  5966 00006C8B 7573657200          <1> 			db "user",0
+  5967 00006C90 70617373776F726400  <1> 			db "password",0
+  5968 00006C99 726F6F7400          <1> 			db "root",0
+  5969 00006C9E 617765736F6D65706F- <1> 			db "awesomepower",0
+  5970 00006CA7 77657200            <1>
+  5971 00006CAB 6E00                <1> 			db "n",0	;;use for quick entry-a quick double n followed by a double enter will get you in
+  5972 00006CAD 00                  <1> 			db 0
+  5973                              <1> 	userlstend:
+  5974                              <1> 	
+  5975 00006CAD <incbin>            <1> fonts:	incbin 'source/precompiled/fonts.pak'
+  5976                              <1> fontend2:
+  5977                              <1> mcursor:
+  5978 000074BE 01                  <1> 	db	00000001b
+  5979 000074BF 81                  <1> 	db	10000001b
+  5980 000074C0 C1                  <1> 	db	11000001b
+  5981 000074C1 E1                  <1> 	db	11100001b
+  5982 000074C2 F1                  <1> 	db	11110001b
+  5983 000074C3 F9                  <1> 	db	11111001b
+  5984 000074C4 FD                  <1> 	db	11111101b
+  5985 000074C5 FF                  <1> 	db	11111111b
+  5986 000074C6 F9                  <1> 	db	11111001b
+  5987 000074C7 B9                  <1> 	db	10111001b
+  5988 000074C8 39                  <1> 	db	00111001b
+  5989 000074C9 1C                  <1> 	db	00011100b
+  5990 000074CA 1C                  <1> 	db	00011100b
+  5991 000074CB 0E                  <1> 	db	00001110b
+  5992 000074CC 0E                  <1> 	db	00001110b
+  5993 000074CD 0C                  <1> 	db	00001100b
+  5994                              <1> fontend:
+  5995                              <1> 
+  5996                              <1> ;cursorbmp:
+  5997                              <1> ;	db	1,0,0,0,0,0,0,0
+  5998                              <1> ;	db	1,1,0,0,0,0,0,0
+  5999                              <1> ;	db	1,1,1,0,0,0,0,0
+  6000                              <1> ;	db	1,1,1,1,0,0,0,0
+  6001                              <1> ;	db	1,1,1,1,1,0,0,0
+  6002                              <1> ;	db	1,1,1,1,1,1,0,0
+  6003                              <1> ;	db	1,1,1,1,1,1,1,0
+  6004                              <1> ;	db	1,1,1,1,1,1,1,1
+  6005                              <1> ;	db	1,1,1,1,1,1,0,0
+  6006                              <1> ;	db	1,1,0,1,1,1,0,0
+  6007                              <1> ;	db	1,0,0,1,1,1,0,0
+  6008                              <1> ;	db	0,0,0,0,1,1,1,0
+  6009                              <1> ;	db	0,0,0,0,1,1,1,0
+  6010                              <1> ;	db	0,0,0,0,0,1,1,1
+  6011                              <1> ;	db	0,0,0,0,0,1,1,1
+  6012                              <1> ;	db	0,0,0,0,0,1,1,0
+  6013                              <1> ;cursorbmpend:
+  6014                              <1> 
+  6015                              <1> 
+  6016                              <1> VBEMODEBLOCK:
+  6017 000074CE 00<rept>            <1> vbesignature 		times 4 db 0	;VBE Signature
+  6018 000074D2 00<rept>            <1> vbeversion  		times 2 db 0	;VBE Version
+  6019 000074D4 00<rept>            <1> oemstringptr  		times 4 db 0	;Pointer to OEM String
+  6020 000074D8 00<rept>            <1> capabilities 		times 4 db 0	;Capabilities of graphics cont.
+  6021 000074DC 00<rept>            <1> videomodeptr 		times 4 db 0	;Pointer to Video Mode List
+  6022 000074E0 00<rept>            <1> totalmemory   		times 2 db 0	;number of 64Kb memory blocks
+  6023 000074E2 00<rept>            <1> oemsoftwarerev  	times 2 db 0	;VBE implementation Software revision
+  6024 000074E4 00<rept>            <1> oemvendornameptr 	times 4 db 0	;Pointer to Vendor Name String
+  6025 000074E8 00<rept>            <1> oemproductnameptr 	times 4 db 0	;Pointer to Product Name String
+  6026 000074EC 00<rept>            <1> oemproductrevptr 	times 4 db 0	;Pointer to Product Revision String
+  6027 000074F0 00<rept>            <1> reserved			times 222 db 0	;Reserved for VBE implementation scratch area
+  6028 000075CE 00<rept>            <1> oemdata 			times 256 db 0	;Data Area for OEM Strings
+  6029                              <1> 
+  6030                              <1> 
+  6031                              <1> VBEMODEINFOBLOCK:
+  6032                              <1> ;Mandatory information for all VBE revision
+  6033 000076CE 00<rept>            <1> modeattributes   	times 2 db 0	;Mode attributes
+  6034 000076D0 00                  <1> winaattributes   	times 1 db 0	;Window A attributes
+  6035 000076D1 00                  <1> winbattributes   	times 1 db 0	;Window B attributes
+  6036 000076D2 00<rept>            <1> wingranularity   	times 2 db 0	;Window granularity
+  6037 000076D4 00<rept>            <1> winsize          	times 2 db 0	;Window size
+  6038 000076D6 00<rept>            <1> winasegment      	times 2 db 0	;Window A start segment
+  6039 000076D8 00<rept>            <1> winbsegment      	times 2 db 0	;Window B start segment
+  6040 000076DA 00<rept>            <1> winfuncptr       	times 4 db 0	;pointer to window function
+  6041 000076DE 00<rept>            <1> bytesperscanline 	times 2 db 0	;Bytes per scan line
+  6042                              <1> 
+  6043                              <1> ;Mandatory information for VBE 1.2 and above
+  6044 000076E0 00<rept>            <1> xresolution     	times 2 db 0	;Horizontal resolution in pixel or chars
+  6045 000076E2 00<rept>            <1> yresolution	    	times 2 db 0	;Vertical resolution in pixel or chars
+  6046 000076E4 00                  <1> xcharsize       	times 1 db 0	;Character cell width in pixel
+  6047 000076E5 00                  <1> ycharsize       	times 1 db 0	;Character cell height in pixel
+  6048 000076E6 00                  <1> numberofplanes  	times 1 db 0	;Number of memory planes
+  6049 000076E7 00                  <1> bitsperpixel    	times 1 db 0	;Bits per pixel
+  6050 000076E8 00                  <1> numberofbanks   	times 1 db 0	;Number of banks
+  6051 000076E9 00                  <1> memorymodel     	times 1 db 0	;Memory model type
+  6052 000076EA 00                  <1> banksize        	times 1 db 0	;Bank size in KB
+  6053 000076EB 00                  <1> numberofimagepages	times 1 db 0	;Number of images
+  6054 000076EC 00                  <1> reserved1       	times 1 db 0	;Reserved for page function
+  6055                              <1> 
+  6056                              <1> ;Direct Color fields (required for direct/6 and YUV/7 memory models)
+  6057 000076ED 00                  <1> redmasksize			times 1 db 0	;Size of direct color red mask in bits
+  6058 000076EE 00                  <1> redfieldposition	times 1 db 0	;Bit position of lsb of red bask
+  6059 000076EF 00                  <1> greenmasksize   	times 1 db 0	;Size of direct color green mask in bits
+  6060 000076F0 00                  <1> greenfieldposition	times 1 db 0	;Bit position of lsb of green bask
+  6061 000076F1 00                  <1> bluemasksize		times 1 db 0	;Size of direct color blue mask in bits
+  6062 000076F2 00                  <1> bluefieldposition	times 1 db 0	;Bit position of lsb of blue bask
+  6063 000076F3 00                  <1> rsvdmasksize        times 1	db 0	;Size of direct color reserved mask in bits
+  6064 000076F4 00                  <1> rsvdfieldposition	times 1	db 0	;Bit position of lsb of reserved bask
+  6065 000076F5 00                  <1> directcolormodeinfo	times 1 db 0	;Direct color mode attributes
+  6066                              <1> 
+  6067                              <1> ;Mandatory information for VBE 2.0 and above
+  6068 000076F6 00<rept>            <1> physbaseptr 		times 4 db 0	;Physical address for flat frame buffer
+  6069 000076FA 00<rept>            <1> offscreenmemoffset 	times 4 db 0	;Pointer to start of off screen memory
+  6070 000076FE 00<rept>            <1> offscreenmemsize 	times 2 db 0    ;Amount of off screen memory in 1Kb units
+  6071 00007700 00<rept>            <1> reserved2 			times 206 db 0  ;Remainder of ModeInfoBlock
+  6072                                  	;%include 'source/memory.asm'
+  6073                                  	%include 'source/buf.asm'
+  6074 000077CE 4255465354415254    <1> db "BUFSTART"
+  6075                              <1> [section .bss]
+  6076                              <1> bssstart:
+  6077                              <1> stack:
+  6078 00000000 <res 00001000>      <1> 	resb 4096
+  6079                              <1> stackend:
+  6080                              <1> graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
+  6081 00001000 <res 00000200>      <1> 	resb 200h 
+  6082                              <1> 	graphicstableend:
+  6083                              <1> mousecolorbuf: ;where the gui under the mouse is stored
+  6084 00001200 <res 00000100>      <1> 	resb 256 
+  6085                              <1> mcolorend:
+  6086 00001300 <res 00000001>      <1> IFON resb 1 
+  6087 00001301 <res 00000064>      <1> IFTRUE resb 100 
+  6088 00001365 <res 00000004>      <1> BATCHPOS resb 4 
+  6089 00001369 <res 00000001>      <1> BATCHISON resb 1 
+  6090 0000136A <res 00000001>      <1> LOOPON resb 1 
+  6091 0000136B <res 00000004>      <1> LOOPPOS	resb 4 
+  6092 0000136F <res 00000200>      <1> fileindex: resb 200h 
+  6093                              <1> fileindexend:
+  6094 0000156F <res 00000500>      <1> variables: 	resb 500h 
+  6095 00001A6F <res 00000001>      <1> varend: resb 1
+  6096 00001A70 <res 00000100>      <1> buftxt2: resb 100h
+  6097 00001B70 <res 0000000A>      <1> resb 10
+  6098 00001B7A <res 00000100>      <1> buftxt: resb 100h 
+  6099 00001C7A <res 00000014>      <1> buf2:	resb 20 
+  6100 00001C8E <res 00000001>      <1> numbuf: resb 1 
+  6101 00001C8F <res 000012C0>      <1> videobuf2 		resb 0x12C0 
+  6102 00002F4F <res 000000C8>      <1> videobufend		resb 200
+  6103 00003017 <res 00000004>      <1> lastcommandpos: resb 4
+  6104 0000301B <res 00000004>      <1> currentcommandpos: resb 4
+  6105                              <1> commandbuf:
+  6106 0000301F <res 00000400>      <1> resb 1024
+  6107                              <1> commandbufend:
+  6108                              <1> rbuffstart: ;for use with networking
+  6109 0000341F <res 00002014>      <1> resb 8212
+  6110                              <1> threadlist:	;;this buffer will hold the stack locations of all of the threads, up to 2048
+  6111 00005433 <res 00002008>      <1> 	resb 2050*4
+  6112                              <1> threadlistend:
+  6113                              <1> stacks:		;;the stacks will go on forever until end of memory
+  6114 0000743B <res 00000400>      <1> 	resb 1024
+  6115                              <1> stackdummy:
+  6116 0000783B <res 00000400>      <1> 	resb 1024
+  6117                              <1> stack1:
+  6118 00007C3B <res 00200800>      <1> 	resb 1024*2050	;;woah, thats a lot of space for stacks
+  6119                              <1> bssend:		;;from here on, it is not kernel space so apps can be loaded here.
+  6120                              <1> [section .text]
+  6121                                      %include 'files.asm'
+  6122 000077D6 00<rept>            <1> align 512,db 0
+  6123                              <1> f0:
+  6124 000077D6 <incbin>            <1> incbin "included/exp"
+  6125 00007822 00<rept>            <1> align 512,db 0
+  6126                              <1> f1:
+  6127 00007822 <incbin>            <1> incbin "included/solleros.bmp"
+  6128 0005D9E6 00<rept>            <1> align 512,db 0
+  6129                              <1> f2:
+  6130 0005D9E6 <incbin>            <1> incbin "included/solleros.txt"
+  6131 0005DB76 00<rept>            <1> align 512,db 0
+  6132                              <1> f3:
+  6133 0005DB76 <incbin>            <1> incbin "included/tely"
+  6134 0005DDBD 00<rept>            <1> align 512,db 0
+  6135                              <1> f4:
+  6136 0005DDBD <incbin>            <1> incbin "included/time"
+  6137 0005E07B 00<rept>            <1> align 512,db 0
+  6138                              <1> f5:
+  6139 0005E07B <incbin>            <1> incbin "included/tutorial.bat"
+  6140 0005E6AA 00<rept>            <1> align 512,db 0
+  6141                              <1> f6:

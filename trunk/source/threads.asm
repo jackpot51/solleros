@@ -1,7 +1,6 @@
 ;;THIS IS MY FIRST ATTEMPT AT IMPLEMENTING THREADS
 threadstarttest:
-    call startthreads
-	jmp $
+    jmp startthreads
 mainthread:
 	hlt		;;this does not work properly
 	mov esi, thrdmain
@@ -84,8 +83,7 @@ thrdtstend:
 
 startthreads:
 	pushad
-	mov ax, 0xFFFF
-	shr ax, 2	;;divide by 4 to make interrupts happen four times faster
+	mov ax, 0x7000	;;this is the divider for the PIT
 	out 0x40, al
 	rol ax, 8
 	out 0x40, al
