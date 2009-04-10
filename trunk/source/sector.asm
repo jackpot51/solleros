@@ -93,25 +93,30 @@ ReadHardDisk:
 	mov gs, ax
 	mov bx, 4
 	mov ecx, [gs:bx]
-	cmp ecx, [signature + 4]	;;My initials, JS, followed by OS and by the version number
-	je dumpconts1
+dumpconts1:
+	mov si, signature
+	mov bx, 0
+dumpconts1lp:
+	mov ecx, [gs:bx]
+	cmp ecx, [si]
+	jne nodumpconts
+	add bx, 4
+	add si, 4
+	cmp si, signatureend
+	jae dumpconts
+	jmp dumpconts1lp
 nodumpconts:
 	mov bx, 0
 	mov eax, [lbaad]
 	inc eax
 	mov [lbaad], eax
 	jmp ReadHardDisk
-dumpconts1:
-	mov bx, 0
-	mov ecx, [gs:bx]
-	cmp ecx, [signature]
-	je dumpconts
-	jmp nodumpconts
 dumpconts:
 	pusha
 	mov si, sectormsg3
 	call print2
 	popa
+	mov bx, 0
 dumpconts2:
 	mov ecx, [gs:bx]
 	push bx
@@ -226,20 +231,3 @@ lbaad:
 %include 'source/signature.asm'
     	times 510-($-$$) db 0
     dw 0AA55h	;;magic byte
-
-;;partition table-does not matter
-;;    times 446-($-$$) db 0	;;skip to partition table
-;;ptable:
-;;  	db 0x80			;;bootable
-;;    	db 0x1			;;start head
-;;    	db 0x1,0x0		;;start sector,cylinder
-;;    	db 0x0B			;;system id, 0B = FAT 32
-;;	db 0xB8			;;end head
-;;	db 0xFE,0xFD		;;end sector,cylinder
-;;	db 0x3E,0,0,0		;;relative sector
-;;	db 0x26,0xDE,0xB2,0	;;total sectors
-;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 01
-;;;01 00 0B B8 FE FD 3E 00 00 00 26 DE B2 00 00 00
-;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-;;;00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 AA

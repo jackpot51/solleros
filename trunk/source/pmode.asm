@@ -61,6 +61,7 @@ do_pm:
 	mov ax, NEW_DATA_SEL
 	mov gs,ax
 	mov esi, 0
+	
 copykernel:
 	mov eax, [fs:esi]
 	mov [gs:esi], eax
@@ -100,7 +101,7 @@ done_copy:
 	shl eax, 4
 	sub edi, eax
 	mov [physbaseptr], edi
-	call indexfiles	
+	call indexfiles
 	cmp byte [guinodo], 0
 	je near guido
 	jmp os
@@ -122,12 +123,13 @@ unhand:
 	%endrep
 unhand2:
 	pushad
-	mov dword [user2codepoint], 0
 	mov esi, esp
-	add esi, ((unhndrgend - unhndrg)/13)*4
+	add esi, ((unhndrgend - unhndrg)/15)*4
 	mov [esploc], esi
 	mov esi, unhandmsg
 	mov [esiloc], esi
+	mov esi, line
+	call print
 	mov ecx, 0
 	mov cl, [intprob]
 	call expdump
@@ -168,10 +170,10 @@ backtoosmsg db "Press any key to return to SollerOS",10,13,0
 expdump:
 	mov esi, [esiloc]
 	mov edi, esi
-	add edi, 13
+	add edi, 15
 	add esi, 4
 	mov [esiloc], edi
-	dec edi
+	sub edi, 3
 	call converthex
 	sub esi, 4
 	cmp byte [guion], 0
@@ -185,30 +187,29 @@ expdump:
 	ret
 expdumptext:
 	call print
-	mov esi, line
-	call print
 	ret
 esploc dd 0
 esiloc dd 0
 locunhand dw 1
 intprob db 0
 	unhandmsg:	
-			db "INT=00000000",0
+			db "INT=00000000",10,13,0
 unhndrg:
-			db "EFL=00000000",0
-			db "CS:=00000000",0
-			db "EIP=00000000",0
-			db "EAX=00000000",0
-			db "ECX=00000000",0
-			db "EDX=00000000",0
-			db "EBX=00000000",0
-			db "ESP=00000000",0
-			db "EBP=00000000",0
-			db "ESI=00000000",0
-unhndrgend:	db "EDI=00000000",0
-			db "CMD=00000000",0
-			db "CMD=00000000",0
-			db "CMD=00000000",0
+   times 40 db "  ",8,8,"00000000  ",0	;;this dumps the stack before the stack frame in question
+			db "EFL=00000000",10,13,0
+			db "CS:=00000000",10,13,0
+			db "EIP=00000000",10,13,0
+			db "EAX=00000000",10,13,0
+			db "ECX=00000000",10,13,0
+			db "EDX=00000000",10,13,0
+			db "EBX=00000000",10,13,0
+			db "ESP=00000000",10,13,0
+			db "EBP=00000000",10,13,0
+			db "ESI=00000000",10,13,0
+unhndrgend:	db "EDI=00000000",10,13,0
+			db "CMD=00000000",10,13,0
+			db "CMD=00000000",10,13,0
+			db "CMD=00000000",10,13,0
 unhandmsgend:
 
 timerinterrupt:
@@ -285,28 +286,32 @@ gdt_end:
 ;	interrupt descriptor table (IDT)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 32 reserved interrupts:
-db "IDT"
-dw unhand
 idt:	
 %assign i 0
-%rep    8
-        dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+%rep    3
+        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1 
 %endrep
-		dw timerinterrupt,SYS_CODE_SEL,0x8E00,0
+		dw handled,NEW_CODE_SEL,0x8E00,0	;;for int3 debug
+%assign i 4
+%rep    4
+        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+%assign i i+1 
+%endrep
+		dw timerinterrupt,NEW_CODE_SEL,0x8E00,0
 %assign i 9
 %rep    6
-        dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1 
 %endrep
-		dw handled,SYS_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
+		dw handled,NEW_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
 %assign i 16
 %rep    32
-		dw unhand + i*13,SYS_CODE_SEL,0x8E00,0
+		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep
 		
 ;;INT 30h for os use and 3rd party use:
-	dw newints,SYS_CODE_SEL,0x8E00,0
+	dw newints,NEW_CODE_SEL,0x8E00,0
 idt_end:
 [BITS 32]

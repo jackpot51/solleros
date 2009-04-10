@@ -3,52 +3,7 @@ threadstarttest:
     jmp startthreads
 mainthread:
 	hlt		;;this does not work properly
-	mov esi, thrdmain
-	call print
 	jmp mainthread
-thrdmain db "MAIN THREAD ",0
-
-thread1:
-	mov eax, 94
-thrdlp1:
-	dec eax
-	push eax
-	mov esi, thrd1
-	call print
-	pop eax
-	cmp eax, 0
-	je $
-	jmp thrdlp1
-	
-thrd1	db "THREAD 1  ",0
-
-thread2:
-	mov eax, 95
-thrdlp2:
-	dec eax
-	push eax
-	mov esi, thrd2
-	call print
-	pop eax
-	cmp eax, 0
-	je $
-	jmp thrdlp2
-	
-thrd2 db "THREAD 2  ",0
-	
-thread3:
-	mov eax, 96
-thrd3lp:
-	sub eax, 2	;;each cycle will take twice as long
-	mov ecx, eax
-	push eax
-	call showhex
-	mov esi, thrd3
-	call print
-	pop eax
-	cmp eax, 0
-	je near nwcmdst
-	jmp thrd3lp
 	
 nwcmdst:
 	cli			;;no more interrupts!!!
@@ -56,29 +11,29 @@ nwcmdst:
 	call print
 	jmp nwcmd
 	
-thrd3 db "THREAD 3  ",0
-	
 modelthread:
+	mov ax, [currentthread]
+	
 	mov ecx, 0
-	mov cx, [currentthread]
+	mov cx, ax
 	call showhex
 	hlt		;;wait for next time around
-	mov ecx, 0xDEAD0000
-	mov cx, [currentthread]
-	call showhex
-	hlt
+	
 	mov ecx, 0xC0DE0000
-	mov cx, [currentthread]
+	mov cx, ax
 	call showhex
 	hlt
+	
+	mov ecx, 0xDEAD0000
+	mov cx, ax
+	call showhex
+	hlt
+
 	jmp nwcmdst
 	
 	
 thrdtst:
-	;dd thread1
-	;dd thread2
-	;dd thread3
-times 2048 dd modelthread
+times 256 dd modelthread	;;could go up to 2048, but that takes too long
 thrdtstend:
 
 startthreads:

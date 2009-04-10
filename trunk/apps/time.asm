@@ -22,19 +22,6 @@ time:
 
 	mov al,0x07			;Get day of month (01 to 31)
 	call tget1
-;	mov ah, 0			;;fix day
-;	mov ah, al
-;	shr ah, 4
-;	shl al, 4
-;	shr al, 4
-;	cmp al, 0
-;	jne nodecahday
-;	mov al, 10
-;	dec ah
-;nodecahday:
-;	dec al
-;	shl ah, 4
-;	or al, ah
 	mov [RTCtimeDay],al
 
 	mov al,0x08			;Get month (01 to 12)
