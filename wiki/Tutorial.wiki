@@ -3,12 +3,12 @@
 In order to test
 
 If you are using Windows:
-#Unzip the newest archive from the Downloads section
-#Double click on testhd.bat
+  #Unzip the newest archive from the Downloads section
+  #Double click on testhd.bat
 
 If you are using Linux, BSD, or Solaris:
-#Unzip the newest archive from the Downloads section
-#Install qemu and nasm with apt-get, yum, deb, pkg-add, or whatever package manager you have
-#Open a terminal
-#Navigate to the folder where you unzipped the archive
-#Run "./testhd.sh" or "sh testhd.sh"
+  #Unzip the newest archive from the Downloads section
+  #Install qemu and nasm with apt-get, yum, deb, pkg-add, or whatever package manager you have
+  #Open a terminal
+  #Navigate to the folder where you unzipped the archive
+  #Run "./testhd.sh" or "sh testhd.sh"
