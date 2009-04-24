@@ -28,30 +28,30 @@ The 0x30 Interrupt Vector is used to communicate with SollerOS and have it perfo
 This quits the program.
 ====AH=1====
 This prints strings with the following properties:
-  *AL=Terminating character in the string, usually 0
-  *BL=Modifier of the string, usually 7
-  *ESI=Location of the string to print
+  * AL=Terminating character in the string, usually 0
+  * BL=Modifier of the string, usually 7
+  * ESI=Location of the string to print
 ====AH=2====
 This reads strings from user input with the following properties:
-  *AL=Terminating character, usually 13(which is the Enter key)
-  *ESI=Buffer to put the string into
+  * AL=Terminating character, usually 13(which is the Enter key)
+  * ESI=Buffer to put the string into
 ====AH=3====
 This clears the screen.
 ====AH=4====
 This both reads a string from user input and prints it to the screen with the following properties:
-  *AL=Terminating character
-  *BL=Modifier
-  *ESI=Buffer to put the string into
+  * AL=Terminating character
+  * BL=Modifier
+  * ESI=Buffer to put the string into
 ====AH=5====
 This reads a character from user input with the following properties:
-  *AL=Zero if the function should wait for a keypress and nonzero if it should not wait.
+  * AL=Zero if the function should wait for a keypress and nonzero if it should not wait.
 ====AH=6====
 This prints a character to the screen with the following properties:
-  *AL=Character to print
-  *BL=Modifier
+  * AL=Character to print
+  * BL=Modifier
 ====AH=7====
 This reads a file from the disk with the following properties:
-  *ESI=Location in memory where file should be placed
-  *EDI=Location of zero-terminated string containing the file's filename
+  * ESI=Location in memory where file should be placed
+  * EDI=Location of zero-terminated string containing the file's filename
 ====AH=[8,∞)====
 There are a few more that are in development, who knows what else will be added
