@@ -1,14 +1,20 @@
 #summary Hopefully this will help people start using/abusing/getting abused by SollerOS
 
-In order to test
+===In order to test SollerOS:===
 
-If you are using Windows:
-  #Unzip the newest archive from the Downloads section
-  #Double click on testhd.bat
+====If you are using Windows(preferably Windows XP or above):====
+  # Unzip the newest archive from the Downloads section
+  # Double click on testhd.bat
 
-If you are using Linux, BSD, or Solaris:
-  #Unzip the newest archive from the Downloads section
-  #Install qemu and nasm with apt-get, yum, deb, pkg-add, or whatever package manager you have
-  #Open a terminal
-  #Navigate to the folder where you unzipped the archive
-  #Run "./testhd.sh" or "sh testhd.sh"
+====If you are using Linux, BSD, Solaris, or some other good UNIX-based OS:====
+  # Unzip the newest archive from the Downloads section
+  # Install qemu and nasm with apt-get, yum, deb, pkg-add, or whatever package manager you have
+  # Open a terminal
+  # Navigate to the folder where you unzipped the archive
+  # Run "./testhd.sh" or "sh testhd.sh"
+
+===In order to develop apps/test the filesystem of SollerOS===
+You will need to install the latest JDK(Java Development Kit) and look at my programming
+manual for information about the interrupts used to interface with SollerOS. You can also
+look at the example programs and example batch scripts I have which should provide some
+help for anyone who wants to test their programs on SollerOS.
