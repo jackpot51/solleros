@@ -33,7 +33,7 @@ commandbuf:
 resb 1024
 commandbufend:
 rbuffstart: ;for use with networking
-resb 8212
+;resb 8212
 threadlist:	;;this buffer will hold the stack locations of all of the threads, up to 2048
 	resb 2050*4
 threadlistend:

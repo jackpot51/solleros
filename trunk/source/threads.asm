@@ -9,36 +9,45 @@ nwcmdst:
 	cli			;;no more interrupts!!!
 	mov esi, line
 	call print
+	mov byte [threadson], 0
 	jmp nwcmd
 	
 modelthread:
-	mov ax, [currentthread]
-	
+	mov bx, [currentthread]
+	mov al, 1
+	mov ah, 9
 	mov ecx, 0
-	mov cx, ax
-	call showhex
-	hlt		;;wait for next time around
+	mov cx, bx
+	int 0x30
 	
 	mov ecx, 0xC0DE0000
-	mov cx, ax
-	call showhex
-	hlt
+	mov cx, bx
+	int 0x30
 	
 	mov ecx, 0xDEAD0000
-	mov cx, ax
-	call showhex
-	hlt
-
+	mov cx, bx
+	int 0x30
+	
+	int 8	;;skip this thread three times to ensure that all threads run
+	int 8
+	int 8
+	
 	jmp nwcmdst
 	
 	
+threadson db 0
+lastthread dd 4
+
 thrdtst:
 times 256 dd modelthread	;;could go up to 2048, but that takes too long
 thrdtstend:
 
-startthreads:
+	espold dd 0
+
+threadfork:
+	mov byte [threadson], 1
 	pushad
-	mov ax, 0x7000	;;this is the divider for the PIT
+	mov ax, 0xA000	;;this is the divider for the PIT
 	out 0x40, al
 	rol ax, 8
 	out 0x40, al
@@ -50,14 +59,66 @@ startthreads:
 	mov ebx, esp
 	mov esp, stackdummy
 	nop
+	
 	pushad
 	mov eax, mainthread
 	mov [esp + 32], eax
 	mov [esp + 36], edx
 	mov [esp + 40], ecx
 	mov [threadlist], esp
+	
+	mov [espold], ebx
+	mov eax, esi
+	mov esp, stack1
+	mov ebx, [lastthread]
+	shl ebx, 10
+	add esp, ebx
+	shr ebx, 10
+	nop
+	pushad
+	mov [esp + 32], eax
+	mov [esp + 36], edx
+	mov [esp + 40], ecx
+	mov [threadlist + ebx], esp
+	mov esp, [espold]
+	add ebx, 4
+	mov [threadlist + ebx], esp
+	add ebx, 4
+	mov [lastthread], ebx
+	mov al, 0xFE
+	out 0x21, al
+	mov al, 0x20
+	out 0x20, al
+	popad
+	ret
+
+startthreads:
+	mov byte [threadson], 1
+	pushad
+	mov ax, 0xA000	;;this is the divider for the PIT
+	out 0x40, al
+	rol ax, 8
+	out 0x40, al
+	
+	mov eax, cs
+	mov edx, eax
+	mov ecx, [esp + 40]
+	or ecx, 0x200
+	mov ebx, esp
+	mov esp, stackdummy
+	nop
+	
+	pushad
+	mov eax, mainthread
+	mov [esp + 32], eax
+	mov [esp + 36], edx
+	mov [esp + 40], ecx
+	mov [threadlist], esp
+
 			;;that above setup the dummy thread which for some reason does not run
 			;;this below will setup the threads found in thrdtst
+
+testthreads:
 	mov esi, thrdtst
 	mov esp, stack1
 	mov edi, threadlist
@@ -78,7 +139,7 @@ nxtthreadld:
 	jae near nomorestackspace
 	cmp esi, thrdtstend
 	jb nxtthreadld
-	mov esp, ebx
+	mov esp, ebx	
 	mov al, 0xFE
 	out 0x21, al
 	mov al, 0x20
@@ -90,14 +151,16 @@ nxtthreadld:
 nomorethreadspace:
 	mov esi, nmts
 	call print
-	jmp $
-nmts	db "teh colonel no can haz moar treds",0
+	mov byte [threadson], 0
+	jmp nwcmd
+nmts	db "teh colonel no can haz moar treds",13,10,0
 
 nomorestackspace:
 	mov esi, nmss
 	call print
-	jmp $
-nmss	db "teh colonel no can haz moar staqz",0
+	mov byte [threadson], 0
+	jmp nwcmd
+nmss	db "teh colonel no can haz moar staqz",13,10,0
 	
 threadswitch:
 	cli
@@ -122,6 +185,8 @@ nookespthread:
 	mov ax, 0
 	mov [currentthread], ax
 	mov eax, [edi]
+	cmp eax, 0
+	je near nwcmdst
 okespthread:
 	mov esp, eax
 	mov al, 0x20

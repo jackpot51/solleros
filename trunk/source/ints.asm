@@ -1,4 +1,5 @@
 newints:	;;for great justice
+	cli				;;stop other interrupts
 	cmp ah, 0		;;originally 0
 	je near intx0   ;;0=kills app
 	cmp ah, 1		;;originally 1
@@ -21,40 +22,42 @@ newints:	;;for great justice
 	je near intx10	;;create thread
 	ret
 	
+;;the jmp timerinterrupt's ensure that task switches occur
+	
 intx0:
 	jmp nwcmd
 intx1:
 	call int303
-	ret
+	jmp timerinterrupt
 intx2:
 	call int304
-	ret
+	jmp timerinterrupt
 intx3:
 	call int306
-	ret
+	jmp timerinterrupt
 intx4:
 	call int305
-	ret
+	jmp timerinterrupt
 intx5:
 	call int302
-	ret
+	jmp timerinterrupt
 intx6:
 	call int301
-	ret
+	jmp timerinterrupt
 intx7:
 	call loadfile
-	ret
+	jmp timerinterrupt
 intx9:
 	cmp al, 0
 	jne intx9B
 	call showdec
-	ret
+	jmp timerinterrupt
 intx9B:
 	call showhex
-	ret
+	jmp timerinterrupt
 intx10:
-;	call thread
-	ret
+	call threadfork
+	iret
 	
 linebeginpos dw 0
 videobufpos: dw 0
@@ -64,7 +67,8 @@ charbuf dw 0
 
 int301:	;;print char, char in al, modifier in bl, will run videobuf2copy if called as is
 	call int301prnt
-	jmp termcopy
+	call termcopy
+	ret
 termguion db 0
 termcopyon db 0
 int301prnt:
@@ -224,7 +228,8 @@ endkey303 db 0
 	int303:	;;print line, al=last key,bl=modifier, esi=buffer
 		mov [endkey303], al
 		call int303b
-		jmp termcopy
+		call termcopy
+		ret
 	int303b:
 		mov al, [esi]
 		cmp al, [endkey303]
@@ -507,7 +512,8 @@ backcursor db 8," ",0
 		dec ch
 		cmp ch, 0
 		jne int306b
-		jmp termcopy
+		call termcopy
+		ret
 		
 	termcursorpos dd 0
 	removedvideo dw 0

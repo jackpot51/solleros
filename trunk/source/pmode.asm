@@ -8,7 +8,7 @@ pmode:
 	in al, dx	;;A20
 	or al, 2
 	out dx, al
-	xor ebx,ebx
+	mov ebx, 0
 	mov bx,cs		; EBX=segment
 	shl ebx,4		;	<< 4
 	lea eax,[ebx]		; EAX=linear address of segment base
@@ -24,7 +24,7 @@ pmode:
 	shr eax,16
 	mov [gdts + 4],al
 	mov [gdts + 7],ah
-	mov eax, 0x100000
+	mov eax, [newcodecache]
 	mov [gdt4 + 2],ax
 	mov [gdt5 + 2],ax
 	shr eax,16
@@ -68,19 +68,10 @@ copykernel:
 	add esi, 4
 	cmp esi, bssstart
 	jb copykernel
-	
-	mov esi, bssstart
-	mov eax, 0
-clearkernelbuffers:
-	mov [gs:esi], eax
-	add esi, 4
-	cmp esi, bssend
-	jb clearkernelbuffers
-	
 	jmp NEW_CODE_SEL:done_copy
 	
 done_copy:
-	mov ax, NEW_DATA_SEL
+	mov ax, NEW_DATA_SEL	;;these MUST be setup AFTER the kernel switches places!!!
 	mov ds, ax
 	mov ss, ax
 	mov esp, stackend
@@ -92,9 +83,16 @@ done_copy:
 	mov ax, SYS_DATA_SEL
 	mov gs, ax
 	
-	mov eax, 0x100000
+	mov eax, [newcodecache]
 	shr eax, 4
 	mov [basecache], eax
+	mov esi, bssstart
+	mov eax, 0
+clearkernelbuffers:
+	mov [esi], eax
+	add esi, 4
+	cmp esi, bssend
+	jb clearkernelbuffers	
 	
 	mov edi, [physbaseptr]
 	mov eax, [basecache]
@@ -111,6 +109,7 @@ guido:
 	
 user2codepoint dw 0,0
 basecache dd 0
+newcodecache dd 0x110000
 	
 
 unhand:	
@@ -122,6 +121,11 @@ unhand:
 	%assign i i+1
 	%endrep
 unhand2:
+	push ds
+	push es
+	push fs
+	push gs
+	push ss
 	pushad
 	mov esi, esp
 	add esi, ((unhndrgend - unhndrg)/15)*4
@@ -159,6 +163,18 @@ donedump:
 	call print
 	mov al, 0
 	call int302
+	cmp byte [intprob], 3
+	jne nodebugint
+	mov esi, [esploc]
+	mov esp, esi
+	popad
+	pop ss
+	pop gs
+	pop fs
+	pop es
+	pop ds
+	iret
+nodebugint:
 	cmp byte [guion], 0
 	jne returnunhandgui
 	jmp nwcmd
@@ -199,6 +215,11 @@ unhndrg:
 			db "EFL=00000000",10,13,0
 			db "CS:=00000000",10,13,0
 			db "EIP=00000000",10,13,0
+			db "DS:=00000000",10,13,0
+			db "ES:=00000000",10,13,0
+			db "FS:=00000000",10,13,0
+			db "GS:=00000000",10,13,0
+			db "SS:=00000000",10,13,0
 			db "EAX=00000000",10,13,0
 			db "ECX=00000000",10,13,0
 			db "EDX=00000000",10,13,0
@@ -213,11 +234,14 @@ unhndrgend:	db "EDI=00000000",10,13,0
 unhandmsgend:
 
 timerinterrupt:
+	cmp byte [threadson], 1
+	jne handled
 	jmp threadswitch
 	
 handled:
 	iret
 
+align 4, db 0	;;this makes me feel safer
 [BITS 16]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	16-bit limit/32-bit linear base address of GDT and IDT
@@ -266,6 +290,7 @@ gdts:	dw 1
 	db 0x92			; present, ring 0, data, expand-up, writable
 	db 0xC0
 	db 0
+currentcodesel  equ $-gdt		;move this to wherever it should be
 NEW_CODE_SEL	equ	$-gdt
 gdt4:	dw 0xFFFF
 	dw 0			; (base gets set above)
@@ -288,30 +313,24 @@ gdt_end:
 ; 32 reserved interrupts:
 idt:	
 %assign i 0
-%rep    3
-        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+%rep    8
+        dw unhand + i*13,currentcodesel,0x8E00,0
 %assign i i+1 
 %endrep
-		dw handled,NEW_CODE_SEL,0x8E00,0	;;for int3 debug
-%assign i 4
-%rep    4
-        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
-%assign i i+1 
-%endrep
-		dw timerinterrupt,NEW_CODE_SEL,0x8E00,0
+		dw timerinterrupt,currentcodesel,0x8E00,0
 %assign i 9
 %rep    6
-        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+        dw unhand + i*13,currentcodesel,0x8E00,0
 %assign i i+1 
 %endrep
-		dw handled,NEW_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
+		dw handled,currentcodesel,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
 %assign i 16
 %rep    32
-		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+		dw unhand + i*13,currentcodesel,0x8E00,0
 %assign i i+1
 %endrep
 		
 ;;INT 30h for os use and 3rd party use:
-	dw newints,NEW_CODE_SEL,0x8E00,0
+	dw newints,currentcodesel,0x8E00,0
 idt_end:
 [BITS 32]
