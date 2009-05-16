@@ -19,6 +19,7 @@ pmode:
 	mov [gdt3 + 4],al
 	mov [gdt2 + 7],ah
 	mov [gdt3 + 7],ah
+	
 	mov eax, stack
 	mov [gdts + 2],ax
 	shr eax,16
@@ -32,6 +33,7 @@ pmode:
 	mov [gdt5 + 4],al
 	mov [gdt4 + 7],ah
 	mov [gdt5 + 7],ah
+	
 ; fix up gdt and idt
 	lea eax,[ebx + gdt]	; EAX=linear address of gdt
 	mov [gdtr + 2],eax
@@ -48,19 +50,22 @@ pmode:
 	mov cr0,eax
 	jmp SYS_CODE_SEL:do_pm
 [BITS 32]
+	nop
+	nop
+	nop
+	nop
 do_pm:
+	mov eax, 0
 	mov ax, SYS_DATA_SEL
 	mov ds,ax
-	mov ss, ax	;;can switch back to STACK_SEL later
+	mov ss,ax	;;can switch back to STACK_SEL later
 	mov esp, stackend	;;can switch back to 4096 later
 	nop
 	nop
-	mov ax, SYS_DATA_SEL
-	mov es,ax
-	mov fs,ax
+	mov es, ax
+	mov fs, ax
 	mov ax, NEW_DATA_SEL
-	mov gs,ax
-	mov esi, 0
+	mov gs, ax
 	
 copykernel:
 	mov eax, [fs:esi]
@@ -92,24 +97,20 @@ clearkernelbuffers:
 	mov [esi], eax
 	add esi, 4
 	cmp esi, bssend
-	jb clearkernelbuffers	
-	
-	mov edi, [physbaseptr]
-	mov eax, [basecache]
-	shl eax, 4
-	sub edi, eax
-	mov [physbaseptr], edi
-	call indexfiles
-	cmp byte [guinodo], 0
-	je near guido
-	jmp os
-	
-guido:
+	jb clearkernelbuffers
+	cmp byte [guinodo], 1
+	je guidonot
+	nop
+	nop
 	jmp gui
+guidonot:
+	nop
+	nop
+	jmp os
 	
 user2codepoint dw 0,0
 basecache dd 0
-newcodecache dd 0x110000
+newcodecache dd 0x100000
 	
 
 unhand:	
@@ -127,7 +128,18 @@ unhand2:
 	push gs
 	push ss
 	pushad
+	cmp byte [guion], 0
+	je near noguiunhandstuff
+	mov word [locunhandy], 8
+	mov word [locunhandx], 8
+	mov bx, [background]
+	mov [backgroundcache], bx
+	mov byte [mousedisabled],1
+	mov bx, 1111100000000000b
+	mov [background], bx
+noguiunhandstuff
 	mov esi, esp
+	mov [espfirst], esi
 	add esi, ((unhndrgend - unhndrg)/15)*4
 	mov [esploc], esi
 	mov esi, unhandmsg
@@ -147,25 +159,53 @@ dumpstack:
 	call expdump
 	jmp dumpstack
 donedump:
-	mov esi, [esploc]
-	mov edi, [ss:esp + 32]
-	mov ecx, [edi - 4]
+	mov ecx, cr0
+	call expdump
+	mov ecx, cr2
+	call expdump
+	mov ecx, cr3
+	call expdump
+	mov ecx, cr4
 	call expdump
 	mov esi, [esploc]
-	mov edi, [ss:esp + 32]
+	mov edi, [ss:esp + 52]
+	add edi, 16
+	mov [codelocend], edi
+	sub edi, 32
+dumpcodeloop:
+	mov [codeloc], edi
 	mov ecx, [edi]
 	call expdump
-	mov esi, [esploc]
-	mov edi, [ss:esp + 32]
-	mov ecx, [edi + 4]
-	call expdump
+	mov edi, [codeloc]
+	add edi, 4
+	cmp edi, [codelocend]
+	jb dumpcodeloop
 	mov esi, backtoosmsg
+	cmp byte [guion], 0
+	jne guibacktomsg
 	call print
+	jmp backtomsgdone
+guibacktomsg:
+	mov dx, [locunhandx]
+	mov cx, [locunhandy]
+	mov ax, 1
+	mov bx, 0
+	call showstring2
+backtomsgdone:
 	mov al, 0
 	call int302
 	cmp byte [intprob], 3
 	jne nodebugint
-	mov esi, [esploc]
+	cmp byte [guion], 0
+	je nodebuggui
+	mov bx, [backgroundcache]
+	mov [background], bx
+	mov bx, 0
+	mov byte [mousedisabled], 0
+	call guiclear
+	call reloadallgraphics
+nodebuggui:
+	mov esi, [espfirst]
 	mov esp, esi
 	popad
 	pop ss
@@ -175,13 +215,23 @@ donedump:
 	pop ds
 	iret
 nodebugint:
+	popad
+	pop ss
+	pop gs
+	pop fs
+	pop es
+	pop ds
 	cmp byte [guion], 0
-	jne returnunhandgui
-	jmp nwcmd
-returnunhandgui:
+	je returnunhandgui
+	mov bx, [backgroundcache]
+	mov [background], bx
+	mov bx, 0
+	mov byte [mousedisabled], 0
 	call guiclear
 	call reloadallgraphics
-	jmp guistart
+	jmp gui
+returnunhandgui:
+	jmp nwcmd
 backtoosmsg db "Press any key to return to SollerOS",10,13,0
 expdump:
 	mov esi, [esiloc]
@@ -194,24 +244,38 @@ expdump:
 	sub esi, 4
 	cmp byte [guion], 0
 	je near expdumptext
-	mov cx, [locunhand]
-	add word [locunhand], 16
-	mov dx, 2
+	mov cx, [locunhandy]
+	mov dx, [locunhandx]
 	mov ax, 1
 	mov bx, 0
 	call showstring2
+	mov [locunhandy], cx
+	mov [locunhandx], dx
 	ret
 expdumptext:
 	call print
 	ret
 esploc dd 0
+espfirst dd 0
 esiloc dd 0
-locunhand dw 1
+locunhandy dw 1
+locunhandx dw 1
+backgroundcache dw 0
 intprob db 0
+codeloc dd 0
+codelocend dd 0
 	unhandmsg:	
 			db "INT=00000000",10,13,0
 unhndrg:
-   times 40 db "  ",8,8,"00000000  ",0	;;this dumps the stack before the stack frame in question
+	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
+			db 255,255,255,255,"00000000",10,13,0
+	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
+			db 255,255,255,255,"00000000",10,13,0
+	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
+			db 255,255,255,255,"00000000",10,13,0
+	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
+			db 255,255,255,255,"00000000",10,13,0
+unhandregs:
 			db "EFL=00000000",10,13,0
 			db "CS:=00000000",10,13,0
 			db "EIP=00000000",10,13,0
@@ -228,9 +292,15 @@ unhndrg:
 			db "EBP=00000000",10,13,0
 			db "ESI=00000000",10,13,0
 unhndrgend:	db "EDI=00000000",10,13,0
-			db "CMD=00000000",10,13,0
-			db "CMD=00000000",10,13,0
-			db "CMD=00000000",10,13,0
+			db "CR0=00000000",10,13,0
+			db "CR2=00000000",10,13,0
+			db "CR3=00000000",10,13,0
+			db "CR4=00000000",10,13,0
+unhandcode: times 2 db 255,255,255,255,"00000000  ",0	;;this dumps the code before and after the interrupt in question
+			db 255,255,255,255,"00000000 ",255,0
+			db 255,255,255,"[00000000] ",0
+			times 3 db 255,255,255,255,"00000000  ",0
+			db 255,255,255,255,"00000000",10,13,0
 unhandmsgend:
 
 timerinterrupt:
@@ -240,17 +310,16 @@ timerinterrupt:
 	
 handled:
 	iret
-
-align 4, db 0	;;this makes me feel safer
+	jmp $
 [BITS 16]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	16-bit limit/32-bit linear base address of GDT and IDT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 gdtr:	dw gdt_end - gdt - 1	; GDT limit
-	dd gdt			; linear, physical address of GDT
+	dd 0    		; filled with linear, physical address of GDT
 
 idtr:	dw idt_end - idt - 1	; IDT limit
-	dd idt			; linear, physical address of IDT
+	dd 0			; filled with linear, physical address of IDT
 
 
 gdt:	dw 0			; limit 15:0
@@ -290,7 +359,6 @@ gdts:	dw 1
 	db 0x92			; present, ring 0, data, expand-up, writable
 	db 0xC0
 	db 0
-currentcodesel  equ $-gdt		;move this to wherever it should be
 NEW_CODE_SEL	equ	$-gdt
 gdt4:	dw 0xFFFF
 	dw 0			; (base gets set above)
@@ -314,23 +382,23 @@ gdt_end:
 idt:	
 %assign i 0
 %rep    8
-        dw unhand + i*13,currentcodesel,0x8E00,0
+        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1 
 %endrep
-		dw timerinterrupt,currentcodesel,0x8E00,0
+		dw timerinterrupt,NEW_CODE_SEL,0x8E00,0
 %assign i 9
 %rep    6
-        dw unhand + i*13,currentcodesel,0x8E00,0
+        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1 
 %endrep
-		dw handled,currentcodesel,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
+		dw handled,NEW_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
 %assign i 16
 %rep    32
-		dw unhand + i*13,currentcodesel,0x8E00,0
+		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep
 		
 ;;INT 30h for os use and 3rd party use:
-	dw newints,currentcodesel,0x8E00,0
+	dw newints,SYS_CODE_SEL,0x8E00,0
 idt_end:
 [BITS 32]

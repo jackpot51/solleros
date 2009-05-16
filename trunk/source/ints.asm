@@ -64,7 +64,7 @@ videobufpos: dw 0
 charpos db 0,0
 charxy db 160,30
 charbuf dw 0
-
+	
 int301:	;;print char, char in al, modifier in bl, will run videobuf2copy if called as is
 	call int301prnt
 	call termcopy
@@ -85,12 +85,16 @@ int301prnt:
 	mov dx, [charpos]
 	mov ecx, 0
 	mov cx, [charxy]
+	cmp al, 9
+	je near int301tab
 	cmp al, 13
 	je near int301cr
 	cmp al, 10
 	je near int301nl
 	cmp al, 8
 	je near int301bs
+	cmp al, 255		;;null character
+	je near donescr
 	mov [edi], ax
 	add edi, 2
 	add dl, 2
@@ -110,6 +114,17 @@ donescr:
 	mov ax, [charbuf]
 	mov bl, ah
 	ret
+	
+	int301tab:
+		shr edi, 4
+		shl edi, 4
+		add edi, 16
+		shr dl, 4
+		shl dl, 4
+		add dl, 16
+		dec edi
+		dec dl
+		jmp donecrnl
 	
 	int301cr:
 		mov dl, 0
@@ -202,7 +217,7 @@ trans db 0
 		mov ax, [lastkey]
 		cmp ah, 1Ch
 		je int302enter
-		cmp al, 0xE0
+		cmp byte [specialkey], 0xE0
 		jne nospecialtrans
 		mov bl, al
 		mov al, 0

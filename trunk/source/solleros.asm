@@ -102,6 +102,9 @@ retbufclr: ret
 
 full:	jmp nwcmd
 
+nwcmd2:
+	mov esi, line
+	call print
 
 nwcmd:	mov al, 1
 	cmp [BATCHISON], al
@@ -129,6 +132,8 @@ cancel:	mov al, 0
 	mov bx, 7
 	call int305
 	mov byte [commandedit], 0
+	cmp byte [buftxt], 0
+	je near nwcmd2
 gotcmd:	mov esi, [currentcommandpos]
 	mov [lastcommandpos], esi
 	mov edi, buftxt
@@ -165,6 +170,9 @@ stdin:	mov al, 13
 
 run:	mov esi, line
 	call print
+	cmp byte [indexdone], 0
+	jne progtest
+	call indexfiles
 progtest:
 	mov esi, buftxt
 	mov ebx, fileindex
@@ -297,13 +305,15 @@ dir:	mov esi, fileindex
 	dirfnd2: add esi, 1
 		call print
 		mov [esidir], esi
-		mov esi, line
+		mov esi, dirtab
 		call print
 		mov esi, [esidir]
 		cmp esi,  fileindexend
 		jae dirdn
 		jmp dirnxt
-	dirdn:	jmp nwcmd
+	dirdn:	mov esi, line
+			call print
+			jmp nwcmd
 esidir dd 0
 
 array:				;arraystart in si, arrayend in bx, arrayseperator in cx

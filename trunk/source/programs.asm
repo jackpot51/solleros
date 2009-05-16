@@ -18,34 +18,51 @@ db 5,4,"threads",0
 	jmp threadstarttest
 	jmp nwcmd
 	
+db 5,4,"reg",0
+	int 3
+	jmp nwcmd
+	
 db 5,4,"charmap",0
 	mov al, 0
 	mov bx, 7
 charmapcopy:
 	inc al
 	cmp al, 8
-	je charmapcopy
+	je charmapnocopy
+	cmp al, 9
+	je charmapnocopy
 	cmp al, 10
-	je charmapcopy
+	je charmapnocopy
 	cmp al, 13
-	je charmapcopy
-	cmp al, 129
-	jae nomorecharmap
+	je charmapnocopy
+	cmp al, 0
+	je nomorecharmap
 	call int301prnt
 	jmp charmapcopy
 nomorecharmap:
 	mov esi, line
 	call print
 	jmp nwcmd
+charmapnocopy:
+	push ax
+	mov al, " "
+	call int301prnt
+	pop ax
+	jmp charmapcopy
 	
 db 5,4,"keycode",0
 keycode:
 	call guistartin
 	mov eax, 0
+	mov ecx, 0
+	mov cl, [specialkey]
+	cmp cl, 0
+	je near nospecialkeycode
+	call showhexsmall
+nospecialkeycode:
 	mov ax, [lastkey]
 	cmp ah, 1
 	je near killkeycode
-	mov ecx, 0
 	mov cl, ah
 	call showhexsmall
 	jmp keycode

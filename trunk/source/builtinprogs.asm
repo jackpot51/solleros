@@ -3,6 +3,8 @@ progstart:		;programs start here
 ;db 5,4,"index",0
 ;	call indexfiles
 ;	jmp nwcmd
+
+
 indexfiles:
 	mov esi, progstart
 	mov ebx, fileindex
@@ -47,7 +49,10 @@ indexloop2done:
 		jae indexloopdone
 		add esi, 1
 		jmp indexloop
-indexloopdone: 	ret
+indexloopdone: 	mov byte [indexdone], 1
+		ret
+
+indexdone db 0
 
 
 ;db 5,4,"showindex",0
@@ -539,7 +544,6 @@ rebootcomp:
 	db 5,4,"shutdown",0
 shutdowncomp:
 	jmp shutdown
-	
 	
 	db 5,4,"./",0
 rundiskprog:

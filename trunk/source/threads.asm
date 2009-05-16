@@ -47,7 +47,7 @@ thrdtstend:
 threadfork:
 	mov byte [threadson], 1
 	pushad
-	mov ax, 0xA000	;;this is the divider for the PIT
+	mov ax, 0x4000	;;this is the divider for the PIT
 	out 0x40, al
 	rol ax, 8
 	out 0x40, al

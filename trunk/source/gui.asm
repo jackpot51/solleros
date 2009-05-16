@@ -559,11 +559,15 @@ windowselect:
 		mov [pLBUTTON], al
 		mov al, [RBUTTON]
 		mov [pRBUTTON], al
+		cmp word [dragging], 1
+		jbe near noreloadgraphicsclick
+call clearmousecursor
 call reloadallgraphics
+noreloadgraphicsclick:
 		mov ecx, 0
 		mov edx, 0
 		mov ah, 0
-		mov al, 128
+		mov al, 127
 		mov dx, [mousecursorposition]
 		mov cx, [mousecursorposition + 2]
 		mov bx, 0011100011100111b
@@ -791,10 +795,17 @@ grphbuf times 16 db 0
 		cmp al, 0
 		je doneshowstring
 		inc esi
+		cmp al, 255
+		je showstring2
 		mov [showstringesi], esi
 		mov bx, [colorfont2]
 		call showfontvesa
+		cmp al, 13
+		je noproceedshst
+		cmp al, 10
+		je noproceedshst
 		add dx, 8
+		noproceedshst
 		mov esi, [showstringesi]
 		jmp showstring2
 	doneshowstring:
@@ -1094,7 +1105,26 @@ colorfont dw 0xFFFF
 savefontvesa:		;;same rules as showfontvesa
 	mov byte [savefonton], 1
 showfontvesa:		;;position in (dx,cx), color in bx, char in al
+	cmp al, 255
+	jne nostopshowfont
+	ret
+nostopshowfont:
 	mov [posyvesa], cx
+	cmp al, 10
+	je near goodvesafontx
+	cmp al, 13
+	je near goodvesafontx
+	mov ecx, 0
+	mov cx, [resolutionx2]
+	sub cx, 16
+	cmp dx, cx
+	jbe goodvesafontx
+	mov dx, 0
+	mov cx, [posyvesa]
+	add cx, 16
+	mov [posyvesa], cx
+goodvesafontx:
+	mov cx, [posyvesa]
 	mov [posxvesa], dx
 	mov edi, [physbaseptr]
 	mov [colorfont], bx
@@ -1118,6 +1148,10 @@ vesaposloopdn:
 	mov esi, fonts
 findfontvesa:
 	mov ah, 0
+	cmp al, 10
+	je near nwlinevesa
+	cmp al, 13
+	je near cretvesa
 	shl eax, 4
 	add esi, eax
 	shr eax, 4
@@ -1185,6 +1219,16 @@ donefontvesa:
 	mov byte [savefonton], 0
 	ret
 charwidth db 8
+nwlinevesa:
+	mov cx, [posyvesa]
+	add cx, 16
+	mov [posyvesa], cx
+	jmp donefontvesa
+cretvesa:
+	mov dx, [posxvesa]
+	mov dx, 0
+	mov [posxvesa], dx
+	jmp donefontvesa
 vesafontsaver:
 	mov al, 0
 	mov cl, 0

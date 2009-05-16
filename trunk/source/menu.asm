@@ -12,7 +12,6 @@ menustart:
 	mov ax, 12h
 	mov bx, 0
 	int 10h
-	
 guiload:
 	mov si, bootmsg
 	call printrm
@@ -85,6 +84,13 @@ setvesamode:
 	mov bx, [vesamode]
 	int 10h		;;enter VESA mode
 	mov byte [guinodo], 0
+	mov byte [guion], 1
+	mov ebx, 0
+	mov bx, cs
+	shl ebx, 4
+	mov edi, [physbaseptr]
+	sub edi, ebx
+	mov [physbaseptr], edi
 	xor eax, eax
 	xor ebx, ebx
 	xor ecx, ecx
@@ -117,6 +123,16 @@ vesamode dw 0
 videomodecache dw 0
 
 guinodo db 0
+tests:
+	mov bx, 7
+	mov ah, 0Eh
+	inc al
+	cmp al, 2
+	jne cnttest
+	ret
+cnttest:
+	int 10h
+	jmp tests
 
     printrm:			; 'si' comes in with string address
 	    mov bx,07		; write to display

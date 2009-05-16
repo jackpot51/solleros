@@ -73,16 +73,32 @@ RBUTTON db 0x00	;	Right  button status 1=PRESSED 0=RELEASED
 MBUTTON db 0x00	;	Middle button status 1=PRESSED 0=RELEASED
 XCOORD  db 0x00	;	the moved distance  (horizontal)
 YCOORD  db 0x00	;	the moved distance  (vertical)
-
+mousedisabled db 0
 specialkey db 0
-
-	guistartin:
+guistartin2:		;;this is basically the idle process
+					;;this halts the cpu for a small amount of time and then sees if there was a keypress
+					;;this lets the cpu stay at close to 0% instead of 100%
+	mov ax, 0x2000	;;this is the divider for the PIT
+	out 0x40, al
+	rol ax, 8
+	out 0x40, al
+	mov al, 0xFE
+	out 0x21, al
+	mov al, 0x20
+	out 0x20, al
+	mov al, [threadson]
+	mov byte [threadson], 0
+	sti
+	hlt
+	mov [threadson], al
+	cli
+guistartin:
 		mov eax, 0
 		mov [specialkey], al
 		mov [lastkey], ax
 		in al, 64h ; Status
-		test al, 1 ; output buffer full?
-		jz guistartin
+		test al, 1 
+		jz guistartin2 ; if output buffer full or no keypress, jump to idle process (only works when it is jz guistartin2, use jz guistartin to disable)
 		test al, 20h ; PS2-Mouse?
 		jnz near maincall2
 	guigetkey:
@@ -96,7 +112,9 @@ specialkey db 0
 		cmp al, 3Ah
 		jae guiscanother
 		mov ah, 0
-		shl al, 1
+		shl al, 2
+		add edi, eax
+		shr al, 1
 		add edi, eax
 		shr al, 1
 		mov ah, [edi]
@@ -110,9 +128,16 @@ guiscanother:
 		mov [lastkey], ax
 		cmp ah, 0E0h
 		je near guigetkeyspecial
-		mov al, 0xE0
-		cmp [specialkey], al
+		cmp byte [specialkey], 0xE0
 		jne nospecialkey
+		cmp ah, 38h
+		je near guialton
+		cmp ah, 0B8h
+		je near guialtoff
+		cmp ah, 1Dh
+		je near guictron
+		cmp ah, 9Dh
+		je near guictroff
 		mov [lastkey], ax
 		ret
 nospecialkey:
@@ -136,8 +161,7 @@ nospecialkey:
 		je near guiscrolllock
 		ret
 	guigetkeyspecial:
-		mov al, 0xE0
-		mov [specialkey], al
+		mov byte [specialkey], 0xE0
 		jmp guigetkey
 	guishift:
 		mov al, [guiupper]
@@ -145,13 +169,38 @@ nospecialkey:
 		jae guishiftoff
 	guishifton:
 		mov byte [guiupper], 1
-		jmp guistartin
+		ret
+		;jmp guistartin
 	guishiftoff:
 		mov byte [guiupper], 0
-		jmp guistartin
+		ret
+		;jmp guistartin
+	guictron:
+		mov byte [guictr], 1
+		ret
+	guictroff:
+		mov byte [guictr], 0
+		ret
+	guialton:
+		mov byte [guialt], 1
+		ret
+		;jmp guistartin
+	guialtoff:
+		mov byte [guialt], 0
+		ret
+		;jmp guistartin
 	guientdown:
 		ret
 	guiscanfound:
+		add edi, 4
+		cmp byte [guictr], 1
+		jae altguiin
+		sub edi, 4
+		add edi, 2
+		cmp byte [guialt], 1
+		jae altguiin
+		sub edi, 2
+altguiin:
 		add edi, 1
 		cmp byte [guiupper], 1
 		jae uppercasegui
@@ -164,6 +213,8 @@ uppercasegui:
 keyboardstatus db 0
 numlockstatus db 0
 scrolllockstatus db 0
+guialt db 0
+guictr db 0
 	guicaps:
 		xor byte [keyboardstatus], 00000100b
 		call updatekblights
@@ -210,8 +261,11 @@ scrolllockstatus db 0
 				;;If the bytes are mixed up,
 				;;remove this line or add another of this line.
 		;call GETB
+	nomouse:
 		ret
 	maincall2:
+		cmp byte [mousedisabled], 1
+		je nomouse
 		  cmp byte [mouseon], 1
 		  jne initmouse
 		  call GETB
@@ -316,7 +370,7 @@ scrolllockstatus db 0
 		mov cx, [mousecursorposition + 2]
 		mov bx, 1100011100011000b
 		mov ah, 0
-		mov al, 128
+		mov al, 127
 		mov byte [showcursorfonton], 1
 		call showfontvesa
 		mov byte [showcursorfonton], 0
@@ -373,62 +427,62 @@ termmousecplp2:
 cursorcache db 0,0
 	
 scancode:
-	db 0,0		;,0h
-	db 0,0		;,1h
-	db '1','!'	;,2h
-	db '2','@'	;,3h
-	db '3','#'	;,4h
-	db '4','$'	;,5h
-	db '5','%'	;,6h
-	db '6','^'	;,7h
-	db '7','&'	;,8h
-	db '8','*'	;,9h
-	db '9','('	;,0Ah
-	db '0',')'	;,0Bh
-	db '-','_'	;,0Ch
-	db '=','+'	;,0Dh
-	db 8,8		;,0Eh
-	db 0,0		;,0Fh
-	db 'q','Q'	;,10h
-	db 'w','W'	;,11h
-	db 'e','E'	;,12h
-	db 'r','R'	;,13h
-	db 't','T'	;,14h
-	db 'y','Y'	;,15h
-	db 'u','U'	;,16h
-	db 'i','I'	;,17h
-	db 'o','O'	;,18h
-	db 'p','P'	;,19h
-	db '[','{'	;,1Ah
-	db ']','}'	;,1Bh
-	db 0,0		;,1Ch
-	db 0,0		;,1Dh
-	db 'a','A'	;,1Eh
-	db 's','S'	;,1Fh
-	db 'd','D'	;,20h
-	db 'f','F'	;,21h
-	db 'g','G'	;,22h
-	db 'h','H'	;,23h
-	db 'j','J'	;,24h
-	db 'k','K'	;,25h
-	db 'l','L'	;,26h
-	db ';',':'	;,27h
-	db 27h,22h	;,28h
-	db '`','~'	;,29h
-	db 0,0		;,2Ah
-	db '\','|'	;,2Bh
-	db 'z','Z'	;,2Ch
-	db 'x','X'	;,2Dh
-	db 'c','C'	;,2Eh
-	db 'v','V'	;,2Fh
-	db 'b','B'	;,30h
-	db 'n','N'	;,31h
-	db 'm','M'	;,32h
-	db ',','<'	;,33h
-	db '.','>'	;,34h
-	db '/','?'	;,35h
-	db 0,0		;,36h
-	db 0,0		;,37h
-	db 0,0		;,38h
-	db ' ',' '	;,39h
+	db 0,0,0,0,0,0			;,0h
+	db 0,0,0,0,0,0			;,1h
+	db '1','!',173,0,0,0	;,2h
+	db '2','@',253,0,0,0	;,3h
+	db '3','#',0,0,0,0		;,4h
+	db '4','$',155,156,0,0	;,5h
+	db '5','%',238,0,0,0	;,6h
+	db '6','^',172,0,0,0	;,7h
+	db '7','&',171,0,0,0	;,8h
+	db '8','*',0,0,0,0		;,9h
+	db '9','(',0,0,0,0		;,0Ah
+	db '0',')',0,0,0,0		;,0Bh
+	db '-','_',157,241,0,0	;,0Ch
+	db '=','+',247,246,0,0	;,0Dh
+	db 8,8,0,0,0,0			;,0Eh
+	db 0,0,0,0,0,0			;,0Fh
+	db 'q','Q',132,142,0,0	;,10h
+	db 'w','W',134,143,0,0	;,11h
+	db 'e','E',130,144,238,'E'	;,12h
+	db 'r','R',0,0,'p','P'		;,13h
+	db 't','T',0,0,'t','T'		;,14h
+	db 'y','Y',129,154,'u','Y'	;,15h
+	db 'u','U',163,151,0,0	;,16h
+	db 'i','I',161,141,'i','I'	;,17h
+	db 'o','O',162,149,'w',234	;,18h
+	db 'p','P',148,153,227,239	;,19h
+	db '[','{',0,0,0,0		;,1Ah
+	db ']','}',0,0,0,0		;,1Bh
+	db 0,0,0,0,0,0			;,1Ch
+	db 0,0,0,0,0,0			;,1Dh
+	db 'a','A',160,0,224,'A'	;,1Eh
+	db 's','S',21,0,229,228		;,1Fh
+	db 'd','D',0,0,235,127	;,20h
+	db 'f','F',159,0,237,232	;,21h
+	db 'g','G',0,0,'y',226		;,22h
+	db 'h','H',0,0,'n','H'		;,23h
+	db 'j','J',0,0,0,0		;,24h
+	db 'k','K',0,0,'k','K'		;,25h
+	db 'l','L',0,0,233,233		;,26h
+	db ';',':',20,0,0,0		;,27h
+	db 27h,22h,0,0,0,0		;,28h
+	db '`','~',0,0,0,0		;,29h
+	db 0,0,0,0,0,0			;,2Ah
+	db '\','|',170,179,0,0	;,2Bh
+	db 'z','Z',145,146,'z','Z'	;,2Ch
+	db 'x','X',0,0,0,240		;,2Dh
+	db 'c','C',135,128,0,0	;,2Eh
+	db 'v','V',0,0,0,0		;,2Fh
+	db 'b','B',0,0,225,'B'	;,30h
+	db 'n','N',164,165,'v','N'	;,31h
+	db 'm','M',0,0,230,'M'		;,32h
+	db ',','<',243,174,0,0	;,33h
+	db '.','>',242,175,0,0	;,34h
+	db '/','?',168,0,0,0	;,35h
+	db 0,0,0,0,0,0			;,36h
+	db 0,0,0,0,0,0			;,37h
+	db 0,0,0,0,0,0			;,38h
+	db ' ',' ',0,0,0,0		;,39h
 noscan:

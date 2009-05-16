@@ -3,8 +3,9 @@
 	notfound2 db  34," not found.",13,10,0
 	userask db "username:",0
 	pwdask	db	"password:",0
-	location	db	"@SollerOS]#",0
+	location	db	"@SollerOS]:",0
 	line	db	13,10,0
+	dirtab 	db " ",9,0
 	userlst:
 			db "user",0
 			db "password",0
@@ -15,7 +16,9 @@
 	userlstend:
 	
 fonts:	incbin 'source/precompiled/fonts.pak'
-fontend2:
+fontend:
+
+
 mcursor:
 	db	00000001b
 	db	10000001b
@@ -33,7 +36,6 @@ mcursor:
 	db	00001110b
 	db	00001110b
 	db	00001100b
-fontend:
 
 ;cursorbmp:
 ;	db	1,0,0,0,0,0,0,0

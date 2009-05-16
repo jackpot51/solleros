@@ -10,14 +10,14 @@ graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, d
 mousecolorbuf: ;where the gui under the mouse is stored
 	resb 256 
 mcolorend:
+fileindex: resb 200h
+fileindexend:
 IFON resb 1 
 IFTRUE resb 100 
 BATCHPOS resb 4 
 BATCHISON resb 1 
 LOOPON resb 1 
 LOOPPOS	resb 4 
-fileindex: resb 200h 
-fileindexend:
 variables: 	resb 500h 
 varend: resb 1
 buftxt2: resb 100h
