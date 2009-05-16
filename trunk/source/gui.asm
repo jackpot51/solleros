@@ -567,7 +567,7 @@ noreloadgraphicsclick:
 		mov ecx, 0
 		mov edx, 0
 		mov ah, 0
-		mov al, 127
+		mov al, 254
 		mov dx, [mousecursorposition]
 		mov cx, [mousecursorposition + 2]
 		mov bx, 0011100011100111b

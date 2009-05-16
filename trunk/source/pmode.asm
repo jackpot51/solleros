@@ -91,6 +91,13 @@ done_copy:
 	mov eax, [newcodecache]
 	shr eax, 4
 	mov [basecache], eax
+	
+	mov ebx, eax
+	shl ebx, 4
+	mov edi, [physbaseptr]
+	sub edi, ebx
+	mov [physbaseptr], edi
+	
 	mov esi, bssstart
 	mov eax, 0
 clearkernelbuffers:

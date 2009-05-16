@@ -97,10 +97,10 @@ guistartin:
 		mov [specialkey], al
 		mov [lastkey], ax
 		in al, 64h ; Status
-		test al, 1 
-		jz guistartin2 ; if output buffer full or no keypress, jump to idle process (only works when it is jz guistartin2, use jz guistartin to disable)
 		test al, 20h ; PS2-Mouse?
 		jnz near maincall2
+		test al, 1 
+		jz guistartin2 ; if output buffer full or no keypress, jump to idle process (only works when it is jz guistartin2, use jz guistartin to disable)
 	guigetkey:
 		in al, 60h
 		mov ah, al
@@ -370,7 +370,7 @@ guictr db 0
 		mov cx, [mousecursorposition + 2]
 		mov bx, 1100011100011000b
 		mov ah, 0
-		mov al, 127
+		mov al, 254
 		mov byte [showcursorfonton], 1
 		call showfontvesa
 		mov byte [showcursorfonton], 0

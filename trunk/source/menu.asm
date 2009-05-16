@@ -85,12 +85,6 @@ setvesamode:
 	int 10h		;;enter VESA mode
 	mov byte [guinodo], 0
 	mov byte [guion], 1
-	mov ebx, 0
-	mov bx, cs
-	shl ebx, 4
-	mov edi, [physbaseptr]
-	sub edi, ebx
-	mov [physbaseptr], edi
 	xor eax, eax
 	xor ebx, ebx
 	xor ecx, ecx
