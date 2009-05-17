@@ -113,8 +113,8 @@ db 5,4,"echo",0
 	echo:	mov esi, buftxt
 		add esi, 5
 		mov al, [esi]
-		cmp al, '$'
-		je echovr
+		;cmp al, '$'
+		;je echovr		;;now unnecessary
 		call print
 		mov esi, line
 		call print
@@ -148,8 +148,8 @@ db 5,4,"echo",0
 		je nxtvrec2
 		inc ebx
 		cmp ebx, varend
-		jae nwcmd
-		jmp nxtvrech
+		jb nxtvrech
+		ret
 	nxtvrec2: inc ebx
 		mov al, [ebx]
 		cmp al, 4
@@ -194,8 +194,8 @@ db 5,4,"#",0
 		mov edi, esi
 		inc esi
 		mov al, [esi]
-		cmp al, '$'
-		je near varnum1
+		;cmp al, '$'
+		;je near varnum1	;;unnecessary
 		cmp al, '%'
 		je near resultnum1
 	varnum2: 
@@ -211,8 +211,8 @@ db 5,4,"#",0
 		mov edi, esi
 		inc esi
 		mov al, [esi]
-		cmp al, '$'
-		je near varnum3
+		;cmp al, '$'
+		;je near varnum3	;;unnecessary
 		cmp al, '%'
 		je near resultnum2
 	varnum4: 
@@ -235,29 +235,35 @@ db 5,4,"#",0
 		je near expnum
 		jmp nwcmd
 	resultnum1:
+		mov cl, [decimalresult]
+		mov [decimal], cl
 		mov ecx, [result]
 		jmp vrnm2
 	resultnum2:
+		mov cl, [decimal]
+		mov [decimal2], cl
+		mov cl, [decimalresult]
+		mov [decimal], cl
 		mov ecx, [result]
 		jmp vrnm4
-	varnum1: sub esi, buftxt
-		mov edi, esi
-		add esi, buftxt
-		inc edi
-		mov ebx, variables
-		call nxtvrech
-		mov edi, esi
-		dec edi
-		jmp varnum2
-	varnum3: sub esi, buftxt
-		mov edi, esi
-		add esi, buftxt
-		inc edi
-		mov ebx, variables
-		call nxtvrech
-		mov edi, esi
-		dec edi
-		jmp varnum4
+;	varnum1: sub esi, buftxt
+;		mov edi, esi
+;		add esi, buftxt
+;		inc edi
+;		mov ebx, variables
+;		call nxtvrech
+;		mov edi, esi
+;		dec edi
+;		jmp varnum2
+;	varnum3: sub esi, buftxt
+;		mov edi, esi
+;		add esi, buftxt
+;		inc edi
+;		mov ebx, variables
+;		call nxtvrech
+;		mov edi, esi
+;		dec edi
+;		jmp varnum4
 	checkdecimal2:
 		mov ah, [decimal]
 		mov [decimal2], ah
@@ -337,6 +343,7 @@ db 5,4,"#",0
 		call convert
 		mov esi, numbuf
 		mov ah, [decimal]
+		mov [decimalresult], ah
 		cmp ah, 0
 		je near noputdecimal
 	putdecimal:
@@ -403,6 +410,7 @@ edxnumbuf dw 0,0
 		
 decimal db 0
 decimal2 db 0
+decimalresult db 0
 result db 0,0,0,0
 	
 db 5,4,"%",0

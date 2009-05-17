@@ -120,11 +120,6 @@ cancel:	mov al, 0
 	call print
 	mov esi, location
 	call print
-	;call time
-	;mov esi, timeshow
-	;call print
-	;mov esi, cmd
-	;call print
 	call buftxtclear
 	mov esi, buftxt
 	mov byte [commandedit], 1
@@ -168,8 +163,68 @@ stdin:	mov al, 13
 	int 30h
 	ret
 
-run:	mov esi, line
+replacevariable:
+	push esi
+	sub esi, buftxt
+	mov edi, esi
+	add esi, buftxt
+	inc edi
+	mov ebx, variables
+	call nxtvrech
+	mov edi, esi
+	mov ebx, 0
+	dec esi
+findvarname:
+	dec esi
+	mov al, [esi]
+	inc ebx
+	cmp al, 4
+	jne findvarname
+	pop esi
+replacevarloop:
+	mov al, [edi]
+	cmp al, 0
+	je near fixvariables
+	cmp ebx, 0
+	je near expandbuftxt
+	mov [esi], al
+	dec ebx
+	inc esi
+	inc edi
+	jmp replacevarloop
+expandbuftxt:
+	mov ecx, esi
+	mov ah, [esi]
+expandbuftxtlp:
+	mov bl, [esi]
+	inc esi
+	mov bh, [esi]
+	mov [esi], ah
+	mov ah, bh
+	cmp bl, 0
+	jne expandbuftxtlp
+	mov esi, ecx
+	mov [esi], al
+	inc edi
+	mov al, [edi]
+	cmp al, 0
+	je near fixvariables
+	inc esi
+	jmp expandbuftxt
+	
+	
+run:	
+	mov esi, line		;;I should add some sort of command line parsing before it is processed to replace variables with stuff
 	call print
+	mov esi, buftxt
+fixvariables:
+	inc esi
+	mov al, [esi]
+	cmp al, '$'
+	je near replacevariable
+	cmp al, 0
+	jne fixvariables
+
 	cmp byte [indexdone], 0
 	jne progtest
 	call indexfiles
@@ -617,6 +672,11 @@ cnvrtlptxt:
 	jne cnvrtlptxt
 	dec esi
 	mov al, [esi]
+	cmp al, '.'
+	jne nocnvrtdot
+	inc esi
+	jmp cnvrtlptxt
+nocnvrtdot:
 	cmp al, '0'
 	jne txtlp
 zerotest: cmp esi, edi

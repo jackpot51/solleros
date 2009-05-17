@@ -7,6 +7,6 @@ dd 0xA11CA752	;all cats too.
 dd 0x1510750F   ;is lots of
 dd 0xDEADCA75   ;dead cats
 dd 0xDEADD095   ;dead dogs
-dd 21			;version
+dd 22			;version
 db "SOLLEROS"
 signatureend:
