@@ -565,6 +565,10 @@ rundiskprog:
 	cmp word [ebx], "EX"
 	jne progbatchfound
 	add ebx, 2
+	mov edi, buftxt
+	add edi, 2
+	push edi	;;give the program the commands it receives
+	nop
 	jmp ebx
 noprogfound:
 	mov esi, notfound1

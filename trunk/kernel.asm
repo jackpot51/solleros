@@ -2,6 +2,7 @@
     %include 'source/menu.asm'
     %include 'source/pmode.asm'
 [BITS 32]
+	%include 'source/exception.asm'
     %include 'source/ints.asm'
     %include 'source/solleros.asm'
     %include 'source/builtinprogs.asm'

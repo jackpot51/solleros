@@ -2,11 +2,6 @@
 	[ORG 0x400000]
 	db "EX"
 	tely:
-		mov esi, line
-		mov bx, 7
-		mov al, 0
-		mov ah, 1
-		int 30h
 		mov [telydx], dx
 		mov ecx, 0
 		mov edx, 0
@@ -41,10 +36,9 @@
 	telyreceive:
 		mov ax, 0
 		mov dx, [BASEADDRSERIAL]		;;wait until char received or keyboard pressed
-		add dx, 5
 		in al, dx
-		cmp al, 1
-		je telyreceive2
+		cmp al, 0
+		jne telyreceive2
 		loop telyreceive
 		mov al, 23
 		mov ah, 5
@@ -62,8 +56,6 @@
 	nullchar db 0,0
 
 	telyreceive2:
-		mov dx, [BASEADDRSERIAL]
-		in al, dx
 		mov [chartely], al
 		mov dx, [telydx]
 		mov esi, chartely
