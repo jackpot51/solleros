@@ -1,5 +1,4 @@
 newints:	;;for great justice
-	cli				;;stop other interrupts
 	cmp ah, 0		;;originally 0
 	je near intx0   ;;0=kills app
 	cmp ah, 1		;;originally 1
@@ -17,9 +16,11 @@ newints:	;;for great justice
 	cmp ah, 7
 	je near intx7	;;read file
 	cmp ah, 9
-	je near intx9	;;convert number
+	je near intx9	;;convert number to string
 	cmp ah, 10
-	je near intx10	;;create thread
+	je near intx10	;;convert string to number
+	cmp ah, 11
+	je near intx11	;;create thread
 	ret
 	
 ;;the jmp timerinterrupt's ensure that task switches occur
@@ -56,6 +57,9 @@ intx9B:
 	call showhex
 	jmp timerinterrupt
 intx10:
+	call convert	;the string goes into esi, number into ecx
+	jmp timerinterrupt
+intx11:
 	call threadfork
 	iret
 	
@@ -116,6 +120,8 @@ donescr:
 	ret
 	
 	int301tab:
+		inc edi
+		inc dl	;make sure it works
 		shr edi, 4
 		shl edi, 4
 		add edi, 16
@@ -208,9 +214,13 @@ donescr:
 		
 lastkey db 0,0
 trans db 0
-
+getkey:
+	mov al, 0
 	int302:		;;get char, if al is 0, wait for key
-		mov [trans], al
+		mov byte [trans], 1
+		cmp al, 1
+		jae transcheck
+		mov byte [trans], 0
 	transcheck:
 		call guistartin
 		mov bh, [trans]
@@ -256,8 +266,10 @@ endkey303 db 0
 		ret
 		
 endkey304 db 0
-	int304:	;;get line, al=last key, esi = buffer
+endbuffer304 dd 0
+	int304:	;;get line, al=last key, esi = buffer, edi = endbuffer
 		mov [endkey304], al
+		mov [endbuffer304], edi
 	int304b:
 		push esi
 		mov al, 0
@@ -265,8 +277,11 @@ endkey304 db 0
 		pop esi
 		mov [esi], al
 		inc esi
+		cmp esi, [endbuffer304]
+		jae int304done
 		cmp al, [endkey304]
 		jne int304b
+	int304done:
 		dec esi
 		mov byte [esi], 0
 	ret
@@ -277,16 +292,18 @@ firstesi305 dd 0
 commandedit db 0
 txtmask db 0
 buftxtloc dd 0
+endbuffer305 dd 0
 backcursor db 8," ",0
-	int305:	;;print and get line, al=last key, bl=modifier, esi=buffer
+	int305:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=bufferend
 		mov [buftxtloc], esi
 		mov [endkey305], al
 		mov [modkey305], bl
 		mov [firstesi305], esi
+		mov [endbuffer305], edi
 	int305b:
 		push esi
 		mov al, 1
-		call int302
+		call int302	;then get it
 		pop esi
 		cmp ah, 0x48
 		je near int305up
@@ -299,6 +316,8 @@ backcursor db 8," ",0
 		cmp al, 8
 		je near int305bscheck
 		cmp al, 0
+		je int305b
+		cmp ah, 0
 		je int305b
 		mov [esi], al
 		inc esi
@@ -330,10 +349,13 @@ backcursor db 8," ",0
 	nobackprintbuftxt2:
 		call int301
 		pop esi
+		cmp esi, [endbuffer305]
+		jae near doneint305
 		mov ax, [int305axcache]
 		mov ah, [endkey305]
 		cmp al, ah
 		jne int305b
+	doneint305:
 		dec esi
 		mov edi, buftxt2
 	copylaterstuff:

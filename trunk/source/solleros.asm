@@ -5,9 +5,9 @@ os:
 	call print
 usercheck:
 	mov esi, buftxt
+	mov edi, buftxtend
 	mov al, 13
-	mov ah, 4
-	int 30h
+	call int305
 	push esi
 	mov esi, line
 	call print
@@ -18,8 +18,7 @@ usercheck:
 	mov [esipass], esi
 passcheck:
 	mov al, 0
-	mov ah, 5
-	int 30h
+	call int302
 	cmp al, 13
 	je near gotpass
 	cmp al, 8
@@ -27,8 +26,7 @@ passcheck:
 	mov [esi], al
 	inc esi
 	mov al, '*'
-	mov ah, 6
-	int 30h
+	call int301
 	jmp passcheck
 backcursor2 db 8," ",8,0
 backpass:
@@ -106,7 +104,13 @@ nwcmd2:
 	mov esi, line
 	call print
 
-nwcmd:	mov al, 1
+nwcmd:	
+	cmp byte [threadson], 2
+	jne noclinwcmd
+	cli
+	mov byte [threadson], 0
+noclinwcmd:
+	mov al, 1
 	cmp [BATCHISON], al
 	jae near batchran
 cancel:	mov al, 0
@@ -125,6 +129,7 @@ cancel:	mov al, 0
 	mov byte [commandedit], 1
 	mov al, 13
 	mov bx, 7
+	mov edi, buftxtend
 	call int305
 	mov byte [commandedit], 0
 	cmp byte [buftxt], 0
@@ -150,6 +155,7 @@ copycommand:
 donecopy:
 	sub esi, commandbuf
 	mov [currentcommandpos], esi
+	sti
 	jmp run
 	
 batchran:
@@ -157,6 +163,7 @@ batchran:
 
 input:	call buftxtclear
 	mov esi, buftxt		;puts input into buftxt AND onto screen
+	mov edi, buftxtend
 stdin:	mov al, 13
 	mov bl, 7
 	mov ah, 4
@@ -251,6 +258,10 @@ prggood: cmp ebx, fileindexend
 	jae prgdn
 	add ebx, 3
 	mov edi, [ebx]
+	mov byte [threadson], 2
+	mov al, 0x20
+	out 0x20, al
+	;sti
 	jmp edi
 prgnf:	
 	mov al, [buftxt]
@@ -416,7 +427,7 @@ doneclearbuff:
 
 convert:
 	dec esi
-	mov ebx, esi		;place to convert into must be in si, number to convert must be in cx
+	mov ebx, esi		;place to convert into must be in esi, number to convert must be in ecx
 cnvrt:
 	mov esi, ebx
 	sub esi, 9

@@ -1,8 +1,6 @@
 [BITS 32]
 [ORG 0x400000]
 db "EX"
-	pop edi
-	add edi, 4
 	mov ax, [edi]
 	mov [numbuf], ax
 	mov ecx, 0xB100D015
@@ -18,11 +16,12 @@ exceptionloop:
 	cmp edi, exceptionsend
 	jb near exceptionloop
 nofoundexception:
-	mov edi, exceptions
+	jmp exception3
 foundexception:
 	mov eax, 0xD15EA5ED
 	add edi, 2
-	jmp dword [edi]
+	mov ebx, [edi]
+	jmp ebx
 	
 numbuf dw 0
 exceptions:
@@ -44,6 +43,8 @@ exceptions:
 	dd exception6
 	db "7",0
 	dd exception7
+	db "8",0
+	dd exception8
 	db "9",0
 	dd exception9
 	db "1","0"
@@ -56,6 +57,8 @@ exceptions:
 	dd exception13
 	db "1","4"
 	dd exception14
+	db "1","5"
+	dd exception15
 exceptionsend:
 	exception0:	
 		int 0
@@ -90,6 +93,10 @@ exceptionsend:
 		int 7
 		mov ah, 0
 		int 0x30
+	exception8:
+		int 8
+		mov ah, 0
+		int 0x30
 	exception9:	
 		int 9
 		mov ah, 0
@@ -112,5 +119,9 @@ exceptionsend:
 		int 0x30
 	exception14:
 		int 14
+		mov ah, 0
+		int 0x30
+	exception15:
+		int 15
 		mov ah, 0
 		int 0x30

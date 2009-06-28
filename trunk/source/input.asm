@@ -78,19 +78,17 @@ specialkey db 0
 guistartin2:		;;this is basically the idle process
 					;;this halts the cpu for a small amount of time and then sees if there was a keypress
 					;;this lets the cpu stay at close to 0% instead of 100%
-	mov ax, 0x2000	;;this is the divider for the PIT
+	mov ax, 0xA000	;;this is the divider for the PIT
 	out 0x40, al
 	rol ax, 8
 	out 0x40, al
-	mov al, 0xFE
-	out 0x21, al
-	mov al, 0x20
-	out 0x20, al
 	mov al, [threadson]
 	mov byte [threadson], 0
 	sti
 	hlt
 	mov [threadson], al
+	cmp al, 2
+	je guistartin
 	cli
 guistartin:
 		mov eax, 0
@@ -436,7 +434,7 @@ scancode:
 	db '5','%',238,0,0,0	;,6h
 	db '6','^',172,0,0,0	;,7h
 	db '7','&',171,0,0,0	;,8h
-	db '8','*',236,0,0,0	;,9h
+	db '8','*',0,0,0,0		;,9h
 	db '9','(',0,0,0,0		;,0Ah
 	db '0',')',0,0,0,0		;,0Bh
 	db '-','_',157,241,0,0	;,0Ch

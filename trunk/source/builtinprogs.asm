@@ -88,17 +88,19 @@ db 5,4,"disk",0
 		mov esi, diskfileindex
 	diskindexdir:
 		call print
-		mov ecx, [esi + 5]
-		mov byte [firsthexshown], 3
-		call showdec
 		push esi
-		mov esi, line
+		mov esi, disktab
 		call print
 		pop esi
+		mov ecx, [esi + 5]
+		mov byte [firsthexshown], 2
+		call showdec
 		add esi, 9
 		cmp esi, enddiskfileindex
 		jb diskindexdir
 		jmp nwcmd
+		
+		disktab db 13,9,9,9,0
 
 db 5,4,"clear",0
 	cls:	call clear
@@ -449,6 +451,7 @@ readvar:
 	mov al, 13
 	mov bx, 7
 	mov byte [commandedit], 0
+	mov edi, buftxtend
 	call int305
 	mov esi, line
 	call print
@@ -567,8 +570,17 @@ rundiskprog:
 	add ebx, 2
 	mov edi, buftxt
 	add edi, 2
-	push edi	;;give the program the commands it receives
-	nop
+findspaceprog:
+	mov al, [edi]
+	inc edi
+	cmp al, " "
+	jne findspaceprog
+findnonspaceprog:
+	mov al, [edi]
+	inc edi
+	cmp al, " "
+	je findnonspaceprog
+	dec edi
 	jmp ebx
 noprogfound:
 	mov esi, notfound1

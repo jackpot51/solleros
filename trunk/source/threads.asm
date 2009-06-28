@@ -6,9 +6,8 @@ mainthread:
 	jmp mainthread
 	
 nwcmdst:
-	cli			;;no more interrupts!!!
-	mov esi, line
-	call print
+	mov al, 11111101b
+	out 0x21, al
 	mov byte [threadson], 0
 	jmp nwcmd
 	
@@ -28,9 +27,9 @@ modelthread:
 	mov cx, bx
 	int 0x30
 	
-	int 8	;;skip this thread three times to ensure that all threads run
-	int 8
-	int 8
+	int 0x40	;;skip this thread three times to ensure that all threads run
+	int 0x40
+	int 0x40
 	
 	jmp nwcmdst
 	
@@ -85,8 +84,6 @@ threadfork:
 	mov [threadlist + ebx], esp
 	add ebx, 4
 	mov [lastthread], ebx
-	mov al, 0xFE
-	out 0x21, al
 	mov al, 0x20
 	out 0x20, al
 	popad
@@ -140,7 +137,9 @@ nxtthreadld:
 	cmp esi, thrdtstend
 	jb nxtthreadld
 	mov esp, ebx	
-	mov al, 0xFE
+	;mov al, 0xFE
+	;out 0x21, al
+	mov al, 0
 	out 0x21, al
 	mov al, 0x20
 	out 0x20, al

@@ -4,6 +4,7 @@
 [BITS 32]
 	%include 'source/exception.asm'
     %include 'source/ints.asm'
+    %include 'source/dosints.asm'
     %include 'source/solleros.asm'
     %include 'source/builtinprogs.asm'
     %include 'source/programs.asm'

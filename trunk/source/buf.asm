@@ -8,7 +8,7 @@ graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, d
 	resb 200h 
 	graphicstableend:
 mousecolorbuf: ;where the gui under the mouse is stored
-	resb 256 
+	resb 256
 mcolorend:
 fileindex: resb 200h
 fileindexend:
@@ -23,6 +23,7 @@ varend: resb 1
 buftxt2: resb 100h
 resb 10
 buftxt: resb 200h 
+buftxtend:
 buf2:	resb 20 
 numbuf: resb 1 
 videobuf2 		resb 0x12C0 

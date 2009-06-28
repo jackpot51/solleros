@@ -88,6 +88,41 @@ done_copy:
 	mov ax, SYS_DATA_SEL
 	mov gs, ax
 	
+;Now I will initialise the interrupt controllers and remap irq's
+	mov al, 0x11
+	out 0x20, al
+	out 0xA0, al
+	mov al, 0x40	;interrupt for master
+	out 0x21, al
+	mov al, 0x48	;interrupt for slave
+	out 0xA1, al
+	mov al, 4
+	out 0x21, al
+	mov al, 2
+	out 0xA1, al
+	mov al, 0x1
+	out 0x21, al
+	mov al, 0x1
+	out 0xA1, al
+	;masks are set to zero so as not to mask
+	mov al, 0
+	out 0x21, al
+	mov al, 0
+	out 0xA1, al
+	mov al, 0x20
+	out 0xA0, al
+	out 0x20, al
+	;And now to initialize the fpu
+	mov eax, cr4
+	or eax, 0x200
+	mov cr4, eax
+	mov eax, 0xB7F
+	push eax
+	fldcw [esp]
+	pop eax
+	mov eax, 0
+	mov ecx, 0
+
 	mov eax, [newcodecache]
 	shr eax, 4
 	mov [basecache], eax
@@ -107,24 +142,52 @@ clearkernelbuffers:
 	jb clearkernelbuffers
 	cmp byte [guinodo], 1
 	je guidonot
-	nop
-	nop
 	jmp gui
 guidonot:
-	nop
-	nop
 	jmp os
 	
 user2codepoint dw 0,0
 basecache dd 0
 newcodecache dd 0x100000
 
+surekillmsg db 10,13,"Kill this application?",10,13,0
+
 timerinterrupt:
 	cmp byte [threadson], 1
-	jne handled
+	jne userinterrupt
 	jmp threadswitch
-	
+userinterrupt:		;checks for escape, if pressed, it quits the program currently running
+	cli
+	cmp byte [threadson], 0
+	je near handled3
+	push eax
+	in al, 60h
+	cmp al, 1		;escape
+	je userint
+	jmp handled2
+userint:
+	push esi
+	mov esi, surekillmsg
+	call print
+	pop esi
+	sti
+	call getkey
+	cmp al, 'y'
+	jne handled2
+	mov al, 0x20
+	out 0x20, al
+	pop eax
+	sti
+	jmp nwcmd
+handled2:
+	pop eax
+handled3:
+	sti
 handled:
+	push eax
+	mov al, 0x20
+	out 0x20, al
+	pop eax
 	iret
 	jmp $
 [BITS 16]
@@ -197,24 +260,41 @@ gdt_end:
 ; 32 reserved interrupts:
 idt:	
 %assign i 0
-%rep    8
-        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
-%assign i i+1 
-%endrep
-		dw timerinterrupt,NEW_CODE_SEL,0x8E00,0
-%assign i 9
-%rep    6
-        dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
-%assign i i+1 
-%endrep
-		dw handled,NEW_CODE_SEL,0x8E00,0		;;irq 7 or int 0xF is random, unusable, and usually reserved
-%assign i 16
-%rep    32
+%rep    33
 		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep
-		
-;;INT 30h for os use and 3rd party use:
-	dw newints,SYS_CODE_SEL,0x8E00,0
+		;dw handled,NEW_CODE_SEL,0x8E00,0
+		dw int21h,NEW_CODE_SEL,0x8E00,0
+%assign i 0x22
+%rep 14
+		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+		;dw handled,NEW_CODE_SEL,0x8E00,0
+%assign i +1
+%endrep
+;INT 30h for os use and 3rd party use:
+		dw newints,NEW_CODE_SEL,0x8E00,0
+;here are all the irq's
+%assign i 0x31
+%rep 15
+		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+		;dw handled,NEW_CODE_SEL,0x8E00,0
+%assign i +1
+%endrep
+		dw timerinterrupt,NEW_CODE_SEL,0x8E00,0
+		dw userinterrupt,NEW_CODE_SEL,0x8E00,0
+;%assign i 0x42
+%rep 14
+		;dw unhand + i*13, NEW_CODE_SEL,0x8E00,0
+		dw handled,NEW_CODE_SEL,0x8E00,0
+;%assign i +1
+%endrep
+;This brings me up to something
+%assign i 0x50
+%rep 176
+		dw unhand + i*13, NEW_CODE_SEL,0x8E00,0
+		;dw handled,NEW_CODE_SEL,0x8E00,0
+%assign i +1
+%endrep
 idt_end:
 [BITS 32]

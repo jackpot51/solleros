@@ -12,11 +12,20 @@
 		jmp nwcmd
 ;datmsg: db "Internet has not been implemented yet.",10,13,0
 	
+db 5,4, "cline",0
+	mov eax, 0
+	mov [firsthexshown], al
+	mov [clinebuf], eax
+clinelp:
+	mov ecx, [clinebuf]
+	inc ecx
+	mov [clinebuf], ecx
+	call showhex
+	jmp clinelp
+	clinebuf dd 0
+	
 db 5,4,"threads",0
-	nop
-	nop
 	jmp threadstarttest
-	jmp nwcmd
 	
 db 5,4,"reg",0
 	int 3
@@ -52,6 +61,7 @@ charmapnocopy:
 	
 db 5,4,"keycode",0
 keycode:
+	mov byte [trans], 0
 	call guistartin
 	mov eax, 0
 	mov ecx, 0
@@ -61,15 +71,9 @@ keycode:
 	call showhexsmall
 nospecialkeycode:
 	mov ax, [lastkey]
-	cmp ah, 1
-	je near killkeycode
 	mov cl, ah
 	call showhexsmall
 	jmp keycode
-killkeycode:
-	mov esi, line
-	call print
-	jmp nwcmd
 
 db 5,4,"pci",0
 	pcishow:
@@ -106,6 +110,7 @@ db 5,4,"batch",0
 		mov esi, 0x400000
 	batchcreate:
 		mov [esicache3], esi
+		mov edi, 0x800000
 		mov al, 13
 		mov bl, 7
 		mov ah, 4
@@ -215,12 +220,8 @@ db 5,4,"time",0
 	call time
 	mov esi, timeshow
 	call print
-	mov esi, line
-	call print
-	mov esi, dateshow
-	call print
-	jmp nwcmd
-	time:
+	jmp findday
+time:
 	call tstackput1
 	mov al,10			;Get RTC register A
 	call tget1
@@ -282,6 +283,7 @@ db 5,4,"time",0
 	mov ch, [RTCtimeYear]
 	call tput1
 	call tstackget1
+	ret
 	mov esi, timeshow
 	mov bx, 7
 	mov ah, 1
@@ -296,6 +298,7 @@ db 5,4,"time",0
 ;;day of the month
 ;;divide these by 7
 ;;the remainder is the day
+findday:
 	mov eax, 0
 ;;first convert the values from BCD to hex
 	mov al, [RTCtimeDay]

@@ -1,13 +1,14 @@
 
 unhand:	
 	%assign i 0
-	%rep 40
+	%rep 256
 	cli
 	mov byte [intprob], i
 	jmp unhand2
 	%assign i i+1
 	%endrep
 unhand2:
+	cli
 	push ds
 	push es
 	push fs
@@ -166,6 +167,7 @@ expdumptext:
 esploc dd 0
 espfirst dd 0
 esiloc dd 0
+esiregbuf dd 0
 locunhandy dw 1
 locunhandx dw 1
 backgroundcache dw 0
@@ -232,13 +234,14 @@ errortypesend:
 			dd unknownerror
 			
 err0	db "Division by zero:",10,13
-		db "Technically x",246,"0=",236," when x is any real number. Happy Easter!",10,13,0
+		db "Technically lim a",246,"x = ",236," when a is any real number. Happy Easter!",10,13
+		db "            x",26,"0",10,13,0
 		
 err1	db "Single-step/Breakpoint:",10,13
 		db "A breakpoint fault, breakpoint trap, or single-step trap was triggered.",10,13,0
 		
 err2	db "Nonmaskable interrupt:",10,13
-		db "A hardware interrupt was triggered that could not be masked.",10,13,0
+		db "A hardware interrupt was triggered that could not be masked",10,13,0
 		
 err3	db "Breakpoint:",10,13
 		db "This interrupt is used in programs to show the stack and registers and can be",10,13
@@ -259,7 +262,7 @@ err7	db "Coprocessor not available:",10,13
 		db "Don't you know they don't make those anymore!",10,13,0
 		
 err8	db "Double fault:",10,13
-		db "The exception handler could not accept that it could not handle an exception.",10,13,0
+		db "The exception handler could not handle that it could not handle an exception.",10,13,0
 		
 err9	db "Coprocessor segment overrun:",10,13,0
 		db "This never happens in modern computers, and never should.",10,13,0
@@ -279,8 +282,9 @@ err13	db "General protection violation:",10,13
 err14	db "Page fault:",10,13
 		db "The page that was requested was not available.",10,13,0
 		
-err15	db "Reserved:",10,13
-		db "This interrupt is not an exception but should also should not be triggered.",10,13,0
+err15	db "Reserved for Plan R:",10,13
+		db "This interrupt is reserved for usage only by the military when it is necessary",10,13
+		db "to initiate a full-scale coup d'",130,"tat.",10,13,0
 		
 unknownerror db "What the hell just happened? Is everyone okay? Hard drive? Video card?",10,13
 			db	"Memory? Are you there?",10,13,0
