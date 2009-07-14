@@ -103,6 +103,7 @@ nwcmd2:
 	mov esi, line
 	call print
 
+shush:	;SollerOS Hardly Unix-compatible Shell
 nwcmd:	
 	cmp byte [threadson], 0
 	je noclinwcmd

@@ -1,3 +1,4 @@
+	shushmsg db "Welcome to the SollerOS Hardly Unix-Compatible Shell!",10,13,0
 	exitmsg db	"exit",0
 	notfound1 db "Program ",34,0
 	notfound2 db  34," not found.",13,10,0
@@ -36,26 +37,6 @@ mcursor:
 	db	00001110b
 	db	00001110b
 	db	00001100b
-
-;cursorbmp:
-;	db	1,0,0,0,0,0,0,0
-;	db	1,1,0,0,0,0,0,0
-;	db	1,1,1,0,0,0,0,0
-;	db	1,1,1,1,0,0,0,0
-;	db	1,1,1,1,1,0,0,0
-;	db	1,1,1,1,1,1,0,0
-;	db	1,1,1,1,1,1,1,0
-;	db	1,1,1,1,1,1,1,1
-;	db	1,1,1,1,1,1,0,0
-;	db	1,1,0,1,1,1,0,0
-;	db	1,0,0,1,1,1,0,0
-;	db	0,0,0,0,1,1,1,0
-;	db	0,0,0,0,1,1,1,0
-;	db	0,0,0,0,0,1,1,1
-;	db	0,0,0,0,0,1,1,1
-;	db	0,0,0,0,0,1,1,0
-;cursorbmpend:
-
 
 VBEMODEBLOCK:
 vbesignature 		times 4 db 0	;VBE Signature
