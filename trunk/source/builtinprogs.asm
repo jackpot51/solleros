@@ -73,6 +73,11 @@ indexdone db 0
 ;	call array
 ;	jmp nwcmd
 
+db 5,4,"shush",0
+	mov esi, shushmsg
+	call print
+	jmp shush
+
 db 5,4,"ls",0
 	lscmd:	mov esi, progstart
 		mov ebx, progend
@@ -555,6 +560,35 @@ rebootcomp:
 	db 5,4,"shutdown",0
 shutdowncomp:
 	jmp shutdown
+
+	db 5,4,"dos",0
+rundosprog:
+	mov edi, buftxt
+	add edi, 4
+	mov esi, 0x100
+	call loadfile
+	cmp edx, 404
+	je near noprogfound
+	mov ebx, 0x80
+	mov edi, buftxt
+	add edi, 4
+finddosparams:
+	mov al, [edi]
+	inc edi
+	cmp al, " "
+	jne finddosparams
+copydosparams:
+	mov al, [edi]
+	mov [ebx], al
+	inc ebx
+	inc edi
+	cmp ebx, 0x100
+	jae nomoredosparams
+	cmp al, 0
+	jne copydosparams
+nomoredosparams:
+	mov ebx, 0x100
+	jmp ebx
 	
 	db 5,4,"./",0
 rundiskprog:
@@ -703,6 +737,9 @@ runnextline db 1
 iffalsebuf db 0
 
 notbatch: jmp nwcmd
+
+	db 5,4,"rem",0	;this lets you rem stuff
+	jmp nwcmd
 
 	db 5,4,"while",0
 whilecmd:  xor al, al

@@ -2,7 +2,7 @@ diskfileindex:
 db "2084.sh",0
 dd (f0-$$)/512
 dd (f1-f0)/512
-db "dos",0
+db "dosprog",0
 dd (f1-$$)/512
 dd (f2-f1)/512
 db "exp",0
@@ -38,8 +38,5 @@ dd (f12-f11)/512
 db "unfs",0
 dd (f12-$$)/512
 dd (f13-f12)/512
-db "unfstest",0
-dd (f13-$$)/512
-dd (f14-f13)/512
 enddiskfileindex:
 

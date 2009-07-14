@@ -1,9 +1,8 @@
 [BITS 32]
-[ORG 0x400000]
+[ORG 0x100]
 start:
-db "EX"
 ;finding out the ways to emulate certain dos calls.
-mov eax, [edi]
+mov eax, [0x80]
 mov edx, start
 mov edi, start
 mov esi, start
@@ -18,6 +17,7 @@ cmp eax, "time"
 je near timeex
 cmp eax, "help"
 je near help
+jmp printex
 mov ax, 0x4C00
 int 21h
 

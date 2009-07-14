@@ -3,7 +3,7 @@ f0:
 incbin "included/2084.sh"
 align 512,db 0
 f1:
-incbin "included/dos"
+incbin "included/dosprog"
 align 512,db 0
 f2:
 incbin "included/exp"
@@ -39,6 +39,3 @@ f12:
 incbin "included/unfs"
 align 512,db 0
 f13:
-incbin "included/unfstest"
-align 512,db 0
-f14:
