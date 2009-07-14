@@ -160,27 +160,28 @@ userinterrupt:		;checks for escape, if pressed, it quits the program currently r
 	cli
 	cmp byte [threadson], 0
 	je near handled3
-	push eax
+	pusha
+	in al, 64h
+	test al, 20h
+	jnz handled2
 	in al, 60h
 	cmp al, 1		;escape
 	je userint
 	jmp handled2
 userint:
-	push esi
 	mov esi, surekillmsg
 	call print
-	pop esi
 	sti
 	call getkey
 	cmp al, 'y'
 	jne handled2
 	mov al, 0x20
 	out 0x20, al
-	pop eax
+	popa
 	sti
 	jmp nwcmd
 handled2:
-	pop eax
+	popa
 handled3:
 	sti
 handled:
