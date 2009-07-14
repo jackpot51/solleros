@@ -1,8 +1,8 @@
 diskfileindex:
-db "dos",0
+db "2084.sh",0
 dd (f0-$$)/512
 dd (f1-f0)/512
-db "dostest",0
+db "dos",0
 dd (f1-$$)/512
 dd (f2-f1)/512
 db "exp",0
@@ -11,7 +11,7 @@ dd (f3-f2)/512
 db "fork",0
 dd (f3-$$)/512
 dd (f4-f3)/512
-db "fputest",0
+db "fpu",0
 dd (f4-$$)/512
 dd (f5-f4)/512
 db "linux",0
@@ -35,8 +35,11 @@ dd (f11-f10)/512
 db "tutorial.bat",0
 dd (f11-$$)/512
 dd (f12-f11)/512
-db "unfstest",0
+db "unfs",0
 dd (f12-$$)/512
 dd (f13-f12)/512
+db "unfstest",0
+dd (f13-$$)/512
+dd (f14-f13)/512
 enddiskfileindex:
 

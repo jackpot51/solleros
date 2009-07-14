@@ -615,18 +615,19 @@ progbatchfound:
 	nxtbatchrunline:
 		add edi, 2
 		mov [batchedi], edi
+		mov [BATCHPOS], edi
 		mov byte [esi], 0
 		mov esi, buftxt
 		cmp byte [esi], 0
 		je near nobatchfoundrun
 		xor ebx, ebx
 		mov bl, [IFON]
-		cmp bl, 1
-		jae near iftestbatch
+		cmp bl, 0
+		jne near iftestbatch
 	doneiftest:
 		cmp byte [runnextline], 0
 		je near noruniftest
-		call progtest
+		call progtest2
 	noruniftest:
 		mov byte [runnextline], 1
 		mov edi, [batchedi]
@@ -645,8 +646,11 @@ batchedi dd 0
 		jne near doneiftest
 		mov [iffalsebuf], bl
 		cmp byte [LOOPON], 1
-		jne fifindbatch
-		mov edi, [LOOPPOS]
+		jne near fifindbatch
+		jmp batchrunloop
+	elsetestbatch:
+		mov byte [esi], 1
+		add edi, 6
 		jmp batchrunloop
 	fifindbatch:
 		mov cx, "if"
@@ -657,6 +661,9 @@ batchedi dd 0
 		je near iffoundbatch
 		cmp byte [edi], 0
 		je near fifoundbatch
+		mov eax, "else"
+		cmp [edi], eax
+		je near elsetestbatch
 		add edi, 2
 		jmp fifindbatch
 	fifoundbatch:
@@ -664,10 +671,10 @@ batchedi dd 0
 		mov al, 13
 		mov ah, 10
 		cmp [edi], ax
-		je goodfibatch
+		je near goodfibatch
 		rol ax, 8
 		cmp [edi], ax
-		je goodfibatch
+		je near goodfibatch
 		cmp byte [edi], 0
 		je near nobatchfoundrun
 		jmp fifindbatch
@@ -701,7 +708,8 @@ notbatch: jmp nwcmd
 whilecmd:  xor al, al
 	cmp [BATCHISON], al
 	je near notbatch
-	MOV esi, [BATCHPOS]
+	mov esi, [BATCHPOS]
+	sub esi, 2
 whilefnd: dec esi
 	mov al, [esi]
 	cmp al, 10
@@ -712,9 +720,9 @@ whilefnd: dec esi
 	je near whilefnd2
 	jmp whilefnd
 whilefnd2:
+	inc esi
 	mov [LOOPPOS], esi
 	mov BYTE [LOOPON], 1
-	add [IFON], al
 	mov esi, buftxt
 	mov ebx, buftxt
 	add ebx, 6
@@ -791,24 +799,19 @@ elsecmd:	xor eax, eax
 	mov esi, IFTRUE
 	add esi, eax
 	mov al, [esi]
-	cmp al, 0		
-	je else1
-	cmp al, 1
-	je else2
-	jmp nwcmd
-else1:  mov al, 1
-	mov [esi], al
-	jmp nwcmd
-else2:	xor al, al
+	xor al, 1
 	mov [esi], al
 	jmp nwcmd
 
 	db 5,4,"loop",0
-	cmp [LOOPON], al
-	je near filoop
+	cmp byte [LOOPON], 0
+	jne near filoop
 	jmp nwcmd
 filoop: mov esi, [LOOPPOS]
+	dec byte [IFON]
+	mov byte [LOOPON], 0
 	mov [BATCHPOS], esi
+	mov [batchedi], esi
 	jmp nwcmd
 	
 

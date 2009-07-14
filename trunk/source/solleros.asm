@@ -76,7 +76,6 @@ pwdrgt:	call clear
 bufclr:	mov [esi], al
 	inc esi
 	loop bufclr
-;;;;;;;;;;;;;;;;
 	jmp nwcmd
 
 esipass dd 0
@@ -112,7 +111,8 @@ nwcmd:
 noclinwcmd:
 	mov al, 1
 	cmp [BATCHISON], al
-	jae near batchran
+	jne cancel
+	ret
 cancel:	xor al, al
 	mov [IFON], al
 	mov [BATCHISON], al
@@ -157,9 +157,6 @@ donecopy:
 	mov [currentcommandpos], esi
 	sti
 	jmp run
-	
-batchran:
-	ret
 
 input:	call buftxtclear
 	mov esi, buftxt		;puts input into buftxt AND onto screen
@@ -190,15 +187,22 @@ findvarname:
 	pop esi
 replacevarloop:
 	mov al, [edi]
-	cmp al, 0
-	je near fixvariables
 	cmp ebx, 0
 	je near expandbuftxt
+	cmp al, 0
+	je near compressbuftxt
 	mov [esi], al
 	dec ebx
 	inc esi
 	inc edi
 	jmp replacevarloop
+compressbuftxt:	
+	mov al, [esi + ebx]
+	mov [esi], al
+	inc esi
+	cmp al, 0
+	jne compressbuftxt
+	jmp fixvariables
 expandbuftxt:
 	mov ecx, esi
 	mov ah, [esi]
@@ -221,8 +225,9 @@ expandbuftxtlp:
 	
 	
 run:	
-	mov esi, line		;;I should add some sort of command line parsing before it is processed to replace variables with stuff
+	mov esi, line		;;I should add some sort of command line parsing before it is processed to replace variables with stuff-o I did!
 	call print
+progtest2:
 	mov esi, buftxt
 fixvariables:
 	inc esi

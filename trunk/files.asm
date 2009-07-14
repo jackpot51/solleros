@@ -1,9 +1,9 @@
 align 512,db 0
 f0:
-incbin "included/dos"
+incbin "included/2084.sh"
 align 512,db 0
 f1:
-incbin "included/dostest"
+incbin "included/dos"
 align 512,db 0
 f2:
 incbin "included/exp"
@@ -12,7 +12,7 @@ f3:
 incbin "included/fork"
 align 512,db 0
 f4:
-incbin "included/fputest"
+incbin "included/fpu"
 align 512,db 0
 f5:
 incbin "included/linux"
@@ -36,6 +36,9 @@ f11:
 incbin "included/tutorial.bat"
 align 512,db 0
 f12:
-incbin "included/unfstest"
+incbin "included/unfs"
 align 512,db 0
 f13:
+incbin "included/unfstest"
+align 512,db 0
+f14:
