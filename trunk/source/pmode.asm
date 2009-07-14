@@ -150,7 +150,7 @@ user2codepoint dw 0,0
 basecache dd 0
 newcodecache dd 0x100000
 
-surekillmsg db 10,13,"Kill this application?",10,13,0
+;surekillmsg db 10,13,"Kill this application?",10,13,0
 
 timerinterrupt:
 	cmp byte [threadson], 1
@@ -161,20 +161,11 @@ userinterrupt:		;checks for escape, if pressed, it quits the program currently r
 	cmp byte [threadson], 0
 	je near handled3
 	pusha
-	in al, 64h
-	test al, 20h
-	jnz handled2
 	in al, 60h
 	cmp al, 1		;escape
 	je userint
 	jmp handled2
 userint:
-	mov esi, surekillmsg
-	call print
-	sti
-	call getkey
-	cmp al, 'y'
-	jne handled2
 	mov al, 0x20
 	out 0x20, al
 	popa

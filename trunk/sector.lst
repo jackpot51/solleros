@@ -244,7 +244,7 @@
    244 000001CD 0F751015            <1> dd 0x1510750F   ;is lots of
    245 000001D1 75CAADDE            <1> dd 0xDEADCA75   ;dead cats
    246 000001D5 95D0ADDE            <1> dd 0xDEADD095   ;dead dogs
-   247 000001D9 18000000            <1> dd 24			;version
+   247 000001D9 86000000            <1> dd 134			;version
    248 000001DD 534F4C4C45524F53    <1> db "SOLLEROS"
    249                              <1> signatureend:
    250 000001E5 00<rept>                    	times 510-($-$$) db 0
