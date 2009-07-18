@@ -694,10 +694,13 @@ cnvrtlptxt:
 	inc esi
 	jmp cnvrtlptxt
 nocnvrtdot:
+	cmp al, ' '
+	je zerotest
 	cmp al, '0'
 	jne txtlp
-zerotest: cmp esi, edi
-	je donecnvrt
+zerotest: 
+		cmp esi, edi
+		je donecnvrt
 txtlp:	
 	xor eax, eax
 	mov al, [esi]

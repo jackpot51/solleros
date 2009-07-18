@@ -820,6 +820,7 @@ winvcopydx dw 0
 winvcopycx dw 0
 windowcolor dw 0xFFFF,0x0
 windowbufloc: dw 0,0
+windowinfobuf dd 0
 termcol dw 0
 wincopyendpos dd 0
 
@@ -828,6 +829,7 @@ wincopyendpos dd 0
 		add cx, 16
 		mov [winvcopystx], dx
 		mov [winvcopysty], cx
+		mov [windowinfobuf], esi
 		mov dx, [esi]
 		mov cx, [esi + 2]
 		xor eax, eax
@@ -941,6 +943,18 @@ wincopyendpos dd 0
 		jmp windowvideocopyset
 
 	windowvideocopy:
+		mov esi, [windowinfobuf]
+		mov dx, [esi]
+		mov cx, [esi + 2]
+		xor eax, eax
+		xor ebx, ebx
+		mov ax, dx
+		mov bx, cx
+		shr ax, 3
+		shr bx, 4
+		mov [termcol], ax
+		mov [charxy], al
+		mov [charxy + 1], bl
 		mov edi, [windowbufloc]
 		cmp edi, [physbaseptr]
 		jae near windowvideocopyset

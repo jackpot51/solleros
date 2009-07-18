@@ -73,12 +73,12 @@ dumppcidevicelp:
 	mov ecx, eax
 	mov al, [pciregister]
 	add al, 4
-	cmp al, 0x1A
-	jae dumppcidn
 	call showhex
-	jmp dumppcidevicelp
+	cmp al, 0x3C
+	jb dumppcidevicelp
 dumppcidn:
-	call showhex
+	cmp byte [charpos], 0
+	je near searchpciret
 	mov esi, line
 	call print
 	jmp searchpciret
