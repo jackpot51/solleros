@@ -121,7 +121,6 @@ donescr:
 	
 	int301tab:
 		inc edi
-		inc dl	;make sure it works
 		shr edi, 4
 		shl edi, 4
 		add edi, 16
@@ -129,7 +128,6 @@ donescr:
 		shl dl, 3
 		add dl, 8
 		dec edi
-		dec dl
 		jmp donecrnl
 	
 	int301cr:
