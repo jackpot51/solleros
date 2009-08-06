@@ -75,177 +75,177 @@
     75                                  
     76 00000056 BE[0400]                	mov si, sectormsg2
     77 00000059 E80300                  	call print2
-    78 0000005C E91200                  	jmp ReadHardDisk
+    78 0000005C E91100                  	jmp ReadHardDisk
     79                                      print2:			; 'si' comes in with string address
     80 0000005F BB0700                  	    mov bx,7		; write to display
     81 00000062 B40E                    	    mov ah,0Eh		; screen function
     82 00000064 8A04                        prs2:    mov al,[si]         ; get next character
     83 00000066 3C00                    	    cmp al,0		; look for terminator 
-    84 00000068 7406                                je finpr2		; zero byte at end of string
+    84 00000068 7405                                je finpr2		; zero byte at end of string
     85 0000006A CD10                    	    int 10h		; write character to screen.    
     86 0000006C 46                           	    inc si	     	; move to next character
-    87 0000006D E9F4FF                  	    jmp prs2		; loop
-    88 00000070 C3                          finpr2: ret
+    87 0000006D EBF5                    	    jmp prs2		; loop
+    88 0000006F C3                          finpr2: ret
     89                                  ReadHardDisk:
-    90 00000071 BE[B001]                	mov si, diskaddresspacket
-    91 00000074 31C0                    	xor ax, ax
-    92 00000076 B442                    	mov ah, 0x42
-    93 00000078 8A16[0300]              	mov dl, [DriveNumber]
-    94 0000007C CD13                    	int 0x13
-    95 0000007E 72F1                    	jc ReadHardDisk
-    96 00000080 668B0E[B801]            	mov ecx, [lbaad]
-    97 00000085 E86F00                  	call printnum
-    98 00000088 A1[B601]                	mov ax, [segm]
-    99 0000008B 8EE8                    	mov gs, ax
-   100 0000008D BB0400                  	mov bx, 4
-   101 00000090 65668B0F                	mov ecx, [gs:bx]
+    90 00000070 BE[A901]                	mov si, diskaddresspacket
+    91 00000073 31C0                    	xor ax, ax
+    92 00000075 B442                    	mov ah, 0x42
+    93 00000077 8A16[0300]              	mov dl, [DriveNumber]
+    94 0000007B CD13                    	int 0x13
+    95 0000007D 72F1                    	jc ReadHardDisk
+    96 0000007F 668B0E[B101]            	mov ecx, [lbaad]
+    97 00000084 E86D00                  	call printnum
+    98 00000087 A1[AF01]                	mov ax, [segm]
+    99 0000008A 8EE8                    	mov gs, ax
+   100 0000008C BB0400                  	mov bx, 4
+   101 0000008F 65668B0F                	mov ecx, [gs:bx]
    102                                  dumpconts1:
-   103 00000094 BE[C001]                	mov si, signature
-   104 00000097 31DB                    	xor bx, bx
+   103 00000093 BE[B901]                	mov si, signature
+   104 00000096 31DB                    	xor bx, bx
    105                                  dumpconts1lp:
-   106 00000099 65668B0F                	mov ecx, [gs:bx]
-   107 0000009D 663B0C                  	cmp ecx, [si]
-   108 000000A0 7511                    	jne nodumpconts
-   109 000000A2 81C30400                	add bx, 4
-   110 000000A6 81C60400                	add si, 4
-   111 000000AA 81FE[EC01]              	cmp si, signatureend
-   112 000000AE 7312                    	jae dumpconts
-   113 000000B0 E9E6FF                  	jmp dumpconts1lp
+   106 00000098 65668B0F                	mov ecx, [gs:bx]
+   107 0000009C 663B0C                  	cmp ecx, [si]
+   108 0000009F 7510                    	jne nodumpconts
+   109 000000A1 81C30400                	add bx, 4
+   110 000000A5 81C60400                	add si, 4
+   111 000000A9 81FE[E501]              	cmp si, signatureend
+   112 000000AD 7310                    	jae dumpconts
+   113 000000AF EBE7                    	jmp dumpconts1lp
    114                                  nodumpconts:
-   115 000000B3 31DB                    	xor bx, bx
-   116 000000B5 66A1[B801]              	mov eax, [lbaad]
-   117 000000B9 6640                    	inc eax
-   118 000000BB 66A3[B801]              	mov [lbaad], eax
-   119 000000BF E9AFFF                  	jmp ReadHardDisk
+   115 000000B1 31DB                    	xor bx, bx
+   116 000000B3 66A1[B101]              	mov eax, [lbaad]
+   117 000000B7 6640                    	inc eax
+   118 000000B9 66A3[B101]              	mov [lbaad], eax
+   119 000000BD EBB1                    	jmp ReadHardDisk
    120                                  dumpconts:
-   121 000000C2 60                      	pusha
-   122 000000C3 BE[1400]                	mov si, sectormsg3
-   123 000000C6 E896FF                  	call print2
-   124 000000C9 61                      	popa
-   125 000000CA 31DB                    	xor bx, bx
+   121 000000BF 60                      	pusha
+   122 000000C0 BE[1400]                	mov si, sectormsg3
+   123 000000C3 E899FF                  	call print2
+   124 000000C6 61                      	popa
+   125 000000C7 31DB                    	xor bx, bx
    126                                  dumpconts2:
-   127 000000CC 65668B0F                	mov ecx, [gs:bx]
-   128 000000D0 53                      	push bx
-   129 000000D1 E82300                  	call printnum
-   130 000000D4 5B                      	pop bx
-   131 000000D5 81C30400                	add bx, 4
-   132 000000D9 81FBBC02                	cmp bx, 700
-   133 000000DD 76ED                    	jbe dumpconts2
-   134 000000DF BE[2900]                	mov si, continuemsg
-   135 000000E2 E87AFF                  	call print2
-   136 000000E5 31C0                    	xor ax, ax
-   137 000000E7 CD16                    	int 0x16
-   138 000000E9 8A0E[0300]              	mov cl, [DriveNumber]
-   139 000000ED 668B16[B801]            	mov edx, [lbaad]
-   140 000000F2 EA2C000010                  jmp 0x1000:(signatureend - signature)
+   127 000000C9 65668B0F                	mov ecx, [gs:bx]
+   128 000000CD 53                      	push bx
+   129 000000CE E82300                  	call printnum
+   130 000000D1 5B                      	pop bx
+   131 000000D2 81C30400                	add bx, 4
+   132 000000D6 81FBBC02                	cmp bx, 700
+   133 000000DA 76ED                    	jbe dumpconts2
+   134 000000DC BE[2900]                	mov si, continuemsg
+   135 000000DF E87DFF                  	call print2
+   136 000000E2 31C0                    	xor ax, ax
+   137 000000E4 CD16                    	int 0x16
+   138 000000E6 8A0E[0300]              	mov cl, [DriveNumber]
+   139 000000EA 668B16[B101]            	mov edx, [lbaad]
+   140 000000EF EA2C000010                  jmp 0x1000:(signatureend - signature)
    141                                  
    142                                  printnum:
-   143 000000F7 BE[A401]                	mov si, number
-   144 000000FA BF[AD01]                	mov di, numberend
-   145 000000FD 31DB                    	xor bx, bx
-   146 000000FF 31C0                    	xor ax, ax
-   147 00000101 E81300                  	call converthex
+   143 000000F4 BE[9D01]                	mov si, number
+   144 000000F7 BF[A601]                	mov di, numberend
+   145 000000FA 31DB                    	xor bx, bx
+   146 000000FC 31C0                    	xor ax, ax
+   147 000000FE E81300                  	call converthex
    148                                  chkzero:
-   149 00000104 8A04                    	mov al, [si]
-   150 00000106 3C30                    	cmp al, '0'
-   151 00000108 7505                    	jne donechkzero
-   152 0000010A 46                      	inc si
-   153 0000010B 39FE                    	cmp si, di
-   154 0000010D 7200                    	jb donechkzero
+   149 00000101 8A04                    	mov al, [si]
+   150 00000103 3C30                    	cmp al, '0'
+   151 00000105 7505                    	jne donechkzero
+   152 00000107 46                      	inc si
+   153 00000108 39FE                    	cmp si, di
+   154 0000010A 7200                    	jb donechkzero
    155                                  donechkzero:
-   156 0000010F E84DFF                  	call print2
-   157 00000112 C3                      	ret
+   156 0000010C E850FF                  	call print2
+   157 0000010F C3                      	ret
    158                                  	
-   159 00000113 0000                    sibuf db 0,0
-   160 00000115 0000                    dibuf db 0,0
+   159 00000110 0000                    sibuf db 0,0
+   160 00000112 0000                    dibuf db 0,0
    161                                  
    162                                  converthex: 
    163                                  clearbuffer:
-   164 00000117 B030                    	mov al, '0'
-   165 00000119 8936[1301]              	mov [sibuf], si
-   166 0000011D 893E[1501]              	mov [dibuf], di
-   167 00000121 39FE                    clearbuf: cmp si, di
-   168 00000123 7306                    	jae doneclearbuff
-   169 00000125 8804                    	mov [si], al
-   170 00000127 46                      	inc si
-   171 00000128 E9F6FF                  	jmp clearbuf
+   164 00000114 B030                    	mov al, '0'
+   165 00000116 8936[1001]              	mov [sibuf], si
+   166 0000011A 893E[1201]              	mov [dibuf], di
+   167 0000011E 39FE                    clearbuf: cmp si, di
+   168 00000120 7305                    	jae doneclearbuff
+   169 00000122 8804                    	mov [si], al
+   170 00000124 46                      	inc si
+   171 00000125 EBF7                    	jmp clearbuf
    172                                  doneclearbuff:
-   173 0000012B 8B36[1501]              	mov si, [dibuf]
-   174 0000012F 6689CA                  	mov edx, ecx
+   173 00000127 8B36[1201]              	mov si, [dibuf]
+   174 0000012B 6689CA                  	mov edx, ecx
    175                                  nxtexphx:			;0x10^x
-   176 00000132 4E                      	dec si
-   177 00000133 89F7                    	mov di, si		;;location of 0x10^x
-   178 00000135 6689D1                  	mov ecx, edx
-   179 00000138 6681E10F000000          	and ecx, 0xF		;;just this digit
-   180 0000013F E81B00                  	call cnvrtexphx		;;get this digit
-   181 00000142 89FE                    	mov si, di
-   182 00000144 66C1EA04                	shr edx, 4		;;next digit
-   183 00000148 6681FA00000000          	cmp edx, 0
-   184 0000014F 7403                    	je donenxtephx
-   185 00000151 E9DEFF                  	jmp nxtexphx 
+   176 0000012E 4E                      	dec si
+   177 0000012F 89F7                    	mov di, si		;;location of 0x10^x
+   178 00000131 6689D1                  	mov ecx, edx
+   179 00000134 6681E10F000000          	and ecx, 0xF		;;just this digit
+   180 0000013B E81A00                  	call cnvrtexphx		;;get this digit
+   181 0000013E 89FE                    	mov si, di
+   182 00000140 66C1EA04                	shr edx, 4		;;next digit
+   183 00000144 6681FA00000000          	cmp edx, 0
+   184 0000014B 7402                    	je donenxtephx
+   185 0000014D EBDF                    	jmp nxtexphx 
    186                                  donenxtephx:
-   187 00000154 8B36[1301]              	mov si, [sibuf]
-   188 00000158 8B3E[1501]              	mov di, [dibuf]
-   189 0000015C C3                      	ret
+   187 0000014F 8B36[1001]              	mov si, [sibuf]
+   188 00000153 8B3E[1201]              	mov di, [dibuf]
+   189 00000157 C3                      	ret
    190                                  cnvrtexphx:			;;convert this number
-   191 0000015D 89F3                    	mov bx, si		;place to convert to must be in si, number to convert must be in cx
-   192 0000015F 6681F900000000          	cmp ecx, 0
-   193 00000166 742C                    	je zerohx
-   194 00000168 8A04                    cnvrthx:  mov al, [si]
-   195 0000016A 3C39                    	cmp al, '9'
-   196 0000016C 741D                    	je lettershx
-   197 0000016E 3C46                    lttrhxdn: cmp al, 'F'
-   198 00000170 7422                    	je zerohx
-   199 00000172 8A04                    	mov al, [si]
-   200 00000174 FEC0                    	inc al
-   201 00000176 8804                    	mov [si], al
-   202 00000178 89DE                    	mov si, bx
-   203 0000017A 6681E901000000          cnvrtlphx: sub ecx, 1
-   204 00000181 6681F900000000          	cmp ecx, 0
-   205 00000188 75DE                    	jne cnvrthx
-   206 0000018A C3                      	ret
+   191 00000158 89F3                    	mov bx, si		;place to convert to must be in si, number to convert must be in cx
+   192 0000015A 6681F900000000          	cmp ecx, 0
+   193 00000161 742B                    	je zerohx
+   194 00000163 8A04                    cnvrthx:  mov al, [si]
+   195 00000165 3C39                    	cmp al, '9'
+   196 00000167 741D                    	je lettershx
+   197 00000169 3C46                    lttrhxdn: cmp al, 'F'
+   198 0000016B 7421                    	je zerohx
+   199 0000016D 8A04                    	mov al, [si]
+   200 0000016F FEC0                    	inc al
+   201 00000171 8804                    	mov [si], al
+   202 00000173 89DE                    	mov si, bx
+   203 00000175 6681E901000000          cnvrtlphx: sub ecx, 1
+   204 0000017C 6681F900000000          	cmp ecx, 0
+   205 00000183 75DE                    	jne cnvrthx
+   206 00000185 C3                      	ret
    207                                  lettershx:
-   208 0000018B B041                    	mov al, 'A'
-   209 0000018D 2C01                    	sub al, 1
-   210 0000018F 8804                    	mov [si], al
-   211 00000191 E9DAFF                  	jmp lttrhxdn
-   212 00000194 B030                    zerohx:	mov al, '0'
-   213 00000196 8804                    	mov [si], al
-   214 00000198 4E                      	dec si
-   215 00000199 8A04                    	mov al, [si]
-   216 0000019B 3C46                    	cmp al, 'F'
-   217 0000019D 74F5                    	je zerohx
-   218 0000019F 6641                    	inc ecx
-   219 000001A1 E9D6FF                  	jmp cnvrtlphx
+   208 00000186 B041                    	mov al, 'A'
+   209 00000188 2C01                    	sub al, 1
+   210 0000018A 8804                    	mov [si], al
+   211 0000018C EBDB                    	jmp lttrhxdn
+   212 0000018E B030                    zerohx:	mov al, '0'
+   213 00000190 8804                    	mov [si], al
+   214 00000192 4E                      	dec si
+   215 00000193 8A04                    	mov al, [si]
+   216 00000195 3C46                    	cmp al, 'F'
+   217 00000197 74F5                    	je zerohx
+   218 00000199 6641                    	inc ecx
+   219 0000019B EBD8                    	jmp cnvrtlphx
    220                                  
-   221 000001A4 00<rept>                number times 9 db 0
+   221 0000019D 00<rept>                number times 9 db 0
    222                                  numberend:
-   223 000001AD 202000                  db '  ',0
+   223 000001A6 202000                  db '  ',0
    224                                  
    225                                  diskaddresspacket:
-   226 000001B0 10                      len:	db 0x10 ;;size of packet
-   227 000001B1 00                      	db 0
-   228 000001B2 7F00                    readlen:	dw 0x7F	;;blocks to read
-   229 000001B4 0000                    address:	dw 0x0	;;address 0
-   230 000001B6 0010                    segm:	dw 0x1000	;;segment
+   226 000001A9 10                      len:	db 0x10 ;;size of packet
+   227 000001AA 00                      	db 0
+   228 000001AB 7F00                    readlen:	dw 0x7F	;;blocks to read
+   229 000001AD 0000                    address:	dw 0x0	;;address 0
+   230 000001AF 0010                    segm:	dw 0x1000	;;segment
    231                                  ;;start with known value for hd
    232                                  lbaad:	
    233                                  	;dd 0xF2252E5	;;use only for hd on laptop
-   234 000001B8 00000000                	dd 0	;;lba address
-   235 000001BC 00000000                	dd 0
+   234 000001B1 00000000                	dd 0	;;lba address
+   235 000001B5 00000000                	dd 0
    236                                  
    237                                  %include 'source/signature.asm'
    238                              <1> signature:	;used by bootloader to find SollerOS, is totally awesome
-   239 000001C0 EDA55ED1            <1> dd 0xD15EA5ED	;diseased
-   240 000001C4 15D000B1            <1> dd 0xB100D015	;blood is
-   241 000001C8 EDFED2BA            <1> dd 0xBAD2FEED	;bad to feed
-   242 000001CC 95D0112A            <1> dd 0x2A11D095	;to all dogs
-   243 000001D0 52A71CA1            <1> dd 0xA11CA752	;all cats too.
-   244 000001D4 0F751015            <1> dd 0x1510750F   ;is lots of
-   245 000001D8 75CAADDE            <1> dd 0xDEADCA75   ;dead cats
-   246 000001DC 95D0ADDE            <1> dd 0xDEADD095   ;dead dogs
-   247 000001E0 86000000            <1> dd 134			;version
-   248 000001E4 534F4C4C45524F53    <1> db "SOLLEROS"
+   239 000001B9 EDA55ED1            <1> dd 0xD15EA5ED	;diseased
+   240 000001BD 15D000B1            <1> dd 0xB100D015	;blood is
+   241 000001C1 EDFED2BA            <1> dd 0xBAD2FEED	;bad to feed
+   242 000001C5 95D0112A            <1> dd 0x2A11D095	;to all dogs
+   243 000001C9 52A71CA1            <1> dd 0xA11CA752	;all cats too.
+   244 000001CD 0F751015            <1> dd 0x1510750F   ;is lots of
+   245 000001D1 75CAADDE            <1> dd 0xDEADCA75   ;dead cats
+   246 000001D5 95D0ADDE            <1> dd 0xDEADD095   ;dead dogs
+   247 000001D9 86000000            <1> dd 134			;version
+   248 000001DD 534F4C4C45524F53    <1> db "SOLLEROS"
    249                              <1> signatureend:
-   250 000001EC 00<rept>                    	times 510-($-$$) db 0
+   250 000001E5 00<rept>                    	times 510-($-$$) db 0
    251 000001FE 55AA                        dw 0AA55h	;;magic byte
