@@ -26,6 +26,8 @@ newints:	;;for great justice
 ;;the jmp timerinterrupt's ensure that task switches occur
 	
 intx0:
+	cmp al, 0
+	jne near warnexitstatus
 	jmp nwcmd
 intx1:
 	call int303
@@ -63,6 +65,22 @@ intx11:
 	call threadfork
 	iret
 	
+warnexitstatus:
+	mov cl, al
+	mov al, 0
+	mov [firsthexshown], al
+	push cx
+	mov esi, exitstatus1msg
+	call print
+	pop cx
+	call showhexsmall
+	mov esi, exitstatus2msg
+	call print
+	jmp nwcmd
+	
+exitstatus1msg db "An exit status of 0x",0
+exitstatus2msg db 8,"was returned.",10,13,0
+
 linebeginpos dw 0
 videobufpos: dw 0
 charpos db 0,0

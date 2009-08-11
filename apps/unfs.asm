@@ -1,6 +1,4 @@
-[BITS 32]
-[ORG 0x400000]
-db "EX"
+%include "include.asm"
 	;this program will at least try to load files from unfs-eventually it will be rolled into the os
 	mov eax, [edi]
 	cmp eax, "list"
@@ -55,10 +53,7 @@ mov [edibuf], edi
 mov ebx, [esi]
 mov [ebxbuf], ebx
 	add esi, 4
-	mov al, 0
-	mov ah, 1
-	mov bx, 7
-	int 30h
+	call print
 	
 mov [esibuf], esi
 
@@ -75,10 +70,7 @@ mov [esibuf], esi
 fileprint:
 
 	mov esi, line
-	mov al, 0
-	mov ah, 1
-	mov bx, 7
-	int 30h
+	call print
 	mov esi, [esibuf]
 	mov edi, [edibuf]
 	inc esi
@@ -86,9 +78,7 @@ fileprint:
 	je near exit
 	cmp esi, edi
 	jb near listfilesloop
-exit:
-	mov ax, 0
-	int 30h
+	jmp exit
 
 line db 10,13,0
 nodeloc dd 0

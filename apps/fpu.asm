@@ -1,7 +1,5 @@
 ;test the fpu-it should have already been initialized
-[BITS 32]
-[ORG 0x400000]
-db "EX"
+%include "include.asm"
 fld tword [real]
 fbld [bcd]
 fadd st1
@@ -35,14 +33,11 @@ dec esi
 add edi, 2
 loop convertbcd
 mov esi, bcdstr
-mov al, 0
-mov ah, 1
-mov bl, 7
-int 30h
-mov ax, 0
-int 30h
+call print
+jmp exit
 
-bcdstr times 20 db 0 ;one sign, 18 decimals, one ending zero
+bcdstr times 19 db 0
+	   db 10,13,0	;one sign, 18 decimals, newline, one ending zero
 bcdout times 10 db 0
 bcdoutend:
 bcd db 0x36, 0x55, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80

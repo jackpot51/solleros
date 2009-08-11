@@ -1,6 +1,4 @@
-[BITS 32]
-[ORG 0x400000]
-db "EX"
+%include "include.asm"
 	mov ax, [edi]
 	mov [numbuf], ax
 	mov ecx, 0xB100D015

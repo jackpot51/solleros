@@ -1,6 +1,4 @@
-[BITS 32]
-[ORG 0x400000]
-db "EX"
+%include "include.asm"
 forktest:		;;this program will test multithreading by "forking" the program
 	mov esi, forkstart
 	mov al, 0
@@ -10,8 +8,7 @@ forktest:		;;this program will test multithreading by "forking" the program
 	mov al, 0
 	mov ah, 1
 	int 0x30
-	mov ah, 0
-	int 0x30
+	call exit
 	jmp $
 
 forkstart:
@@ -19,8 +16,7 @@ forkstart:
 	mov al, 0
 	mov ah, 1
 	int 0x30
-	mov ah, 0
-	int 0x30
+	call exit
 	jmp $
 	
 fork1 db "This is the main thread.",10,13,0

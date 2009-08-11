@@ -1,6 +1,4 @@
-	[BITS 32]
-	[ORG 0x400000]
-	db "EX"
+%include "include.asm"
 time:
 	call tstackput1
 	mov al,10			;Get RTC register A
@@ -51,10 +49,7 @@ time:
 	call tput1
 	call tstackget1
 	mov esi, timeshow
-	mov bx, 7
-	mov ah, 1
-	mov al, 0
-	int 30h
+	call print
 ;;get day of week
 ;;add these:
 ;;century value
@@ -95,13 +90,8 @@ time:
 	shl edx, 2
 	add edx, day
 	mov esi, [edx]
-	mov bx, 7
-	mov ah, 1
-	mov al, 0
-	int 30h
-	mov ax, 0
-	int 30h
-	hlt
+	call print
+	jmp exit
 	
 converttohex:
 	mov ah, al
