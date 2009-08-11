@@ -1,6 +1,4 @@
-	[BITS 32]
-	[ORG 0x400000]
-	db "EX"
+%include "include.asm"
 		;use the PIT to turn on the pc speaker-then turn it off
 	mov esi, edi
 	mov ah, 10
@@ -32,8 +30,7 @@ killsound:
 	in al, 0x61
 	and al, 0xFC
 	out 0x61, al
-	mov ax, 0
-	int 30h
+	jmp exit
 	
 pianohz:	;this list has the pit frequency divided by the frequency for all 88 keys-I know, i'm insane-btw the frequencies were multiplied by 10000 to be compatible with nasm
 dw 285;(11931816667/41860100)
