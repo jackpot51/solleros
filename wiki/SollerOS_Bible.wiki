@@ -1,6 +1,10 @@
 ===Intro===
 Welcome to a collection of all of the things every SollerOS programmer should know. This page will include information about basic program structure, the various interfaces that programmers can use for their programs, and other things that are needed to use SollerOS to its full potential(albeit a very low potential).
 
+==With Library==
+Since version 140 there is a simple library that may be included at the beginning of a program. This changes
+
+==Without Library==
 ===Program Structure===
 Program structure is very important because any failure to adhere to this structure could cause problems when you try to run your program. The basic structure of a hello world program in SollerOS is as follows:
 {{{ 
@@ -26,6 +30,7 @@ msg db "Hello World!",0  ;zero terminated string
 The 0x30 Interrupt Vector is used to communicate with SollerOS and have it perform basic functions.
 ====AH=0====
 This quits the program.
+  * AL=Exit Code. A non-zero value gives an error.
 ====AH=1====
 This prints strings with the following properties:
   * AL=Terminating character in the string, usually 0
