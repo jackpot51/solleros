@@ -1,5 +1,14 @@
 %include "include.asm"
 	;this program will at least try to load files from unfs-eventually it will be rolled into the os
+	push edi
+	mov esi, filesystem
+	mov edi, systemlocation
+	mov ah, 7
+	int 0x30
+	mov eax, edx
+	cmp edx, 0
+	jne near exit
+	pop edi
 	mov eax, [edi]
 	cmp eax, "list"
 	je near listfiles
@@ -7,7 +16,7 @@
 	cmp eax, "load"
 	je near loadfiles
 	jmp exit	;there are no other commands yet
-
+systemlocation db "unfs-system",0
 loadfiles:
 		jmp exit
 
@@ -96,6 +105,5 @@ fschartype	db 0
 nodecollectionnode  dd 0
 indexcollectionnode dd 0
 
-align 512,db 0
+align 512, db 0
 filesystem:
-incbin "unfs"
