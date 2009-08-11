@@ -1,3 +1,4 @@
+#summary Programmers should use this as a reference.
 ==Intro==
 Welcome to a collection of all of the things every SollerOS programmer should know. This page will include information about basic program structure, the various interfaces that programmers can use for their programs, and other things that are needed to use SollerOS to its full potential(albeit a very low potential).
 
