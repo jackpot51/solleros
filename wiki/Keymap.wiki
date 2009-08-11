@@ -7,7 +7,7 @@ SollerOS will be switching to Unicode soon, meaning that all Greek characters, L
 || 2 || Greek ||
 || 3 || Cyrillic ||
 
-Here is the keymap currently in use by SollerOS. This may change as characters are added so remember to check this page to get the current keymap.
+=====Here is the keymap currently in use by SollerOS. This may change as characters are added so remember to check this page to get the current keymap.=====
 || *None* || Shift || *Alt* || Shift || *Ctrl* || Shift ||
 || ` || ~ || || || || ||
 || 1 || ! || ¡ || || || ||
