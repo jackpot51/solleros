@@ -35,5 +35,8 @@ dd (f11-f10)/512
 db "unfs",0
 dd (f11-$$)/512
 dd (f12-f11)/512
+db "unfs-system",0
+dd (f12-$$)/512
+dd (f13-f12)/512
 enddiskfileindex:
 
