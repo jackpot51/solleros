@@ -1,23 +1,42 @@
-===Intro===
+==Intro==
 Welcome to a collection of all of the things every SollerOS programmer should know. This page will include information about basic program structure, the various interfaces that programmers can use for their programs, and other things that are needed to use SollerOS to its full potential(albeit a very low potential).
 
 ==With Library==
-Since version 140 there is a simple library that may be included at the beginning of a program. This changes
+Since version 140 there is a simple library that may be included at the beginning of a program. This should make it easier to code programs.
+===Program Structure===
+Program structure is still the same though the library handles it more easily. A hello world program now looks more like this:
+{{{
+%include "include.asm"
+mov esi, msg
+call print
+jmp exit
+
+msg db "Hello World!",0
+}}}
+
+===System Calls===
+Now you may use easy to remember syscalls to do what used to be done using interrupts.
+====print====
+This prints the string in ESI.
+  * ESI=Location of zero-terminated string.
+====exit====
+This exits with an error code in AL.
+  * AL=Error code.
 
 ==Without Library==
 ===Program Structure===
 Program structure is very important because any failure to adhere to this structure could cause problems when you try to run your program. The basic structure of a hello world program in SollerOS is as follows:
 {{{ 
-   [BITS 32]      ;make sure that the program uses 32 bit pointers
-   [ORG 0x400000] ;this is the place where the program will be loaded
-   db "EX"        ;this marks the file as an executable
-   mov esi, msg   ;move the location of the message into esi
-   mov bx, 7      ;this is the color of the font-7 is white on black
-   mov al, 0      ;the string ends in 0
-   mov ah, 1      ;this is the number of the print string function
-   int 0x30       ;this is the interrupt used to call the function
-   mov ah, 0      ;choose the quit application function
-   int 0x30       ;quit the application
+[BITS 32]      ;make sure that the program uses 32 bit pointers
+[ORG 0x400000] ;this is the place where the program will be loaded
+db "EX"        ;this marks the file as an executable
+mov esi, msg   ;move the location of the message into esi
+mov bx, 7      ;this is the color of the font-7 is white on black
+mov al, 0      ;the string ends in 0
+mov ah, 1      ;this is the number of the print string function
+int 0x30       ;this is the interrupt used to call the function
+mov ah, 0      ;choose the quit application function
+int 0x30       ;quit the application
    
 msg db "Hello World!",0  ;zero terminated string
 }}}
