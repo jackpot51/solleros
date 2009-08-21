@@ -1,3 +1,2 @@
-#summary One-sentence summary of this page.
-
+#summary The C Compiler for SollerOS.
 This is the name for a future C compiler for SollerOS.
