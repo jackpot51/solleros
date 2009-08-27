@@ -107,7 +107,7 @@ shush:	;SollerOS Hardly Unix-compatible Shell
 nwcmd:	
 	cmp byte [threadson], 0
 	je noclinwcmd
-	cli
+	;cli
 	mov byte [threadson], 0
 noclinwcmd:
 	mov al, 1
@@ -675,6 +675,40 @@ decshown:
 	mov byte [firsthexshown], 0
 	popa
 	ret
+	
+cnvrthextxt:
+	xor ecx, ecx
+	xor eax, eax
+	xor edx, edx
+	xor ebx, ebx
+	dec esi
+cnvrthexendtxt:
+	inc esi
+	mov al, [esi]
+	cmp al, 0
+	jne cnvrthexendtxt
+cnvrthextxtlp:
+	dec esi
+	mov al, [esi]
+	sub al, 48
+	cmp al, 16
+	ja donecnvrthx
+	cmp edx, 0
+	je noshlhextxt
+	mov ebx, edx
+shlhextxt:
+	shl eax, 4
+	dec ebx
+	cmp ebx, 0
+	jne shlhextxt
+noshlhextxt:
+	inc edx
+	add ecx, eax
+	cmp edx, 8
+	jb cnvrthextxtlp
+donecnvrthx:
+	ret
+	
 	
 cnvrttxt: 
 	xor ecx, ecx

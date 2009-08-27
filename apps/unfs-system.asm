@@ -174,7 +174,7 @@ indexstart:		;this will basically contain all of the names/metadata/dates/other 
 				db "user",0
 		
 		user1indexname: dd user1node - fsstart
-				db "solleros.bmp",0
+				db "solleros.txt",0
 align 512, db 0				
 indexend:
 
@@ -189,6 +189,6 @@ align 512, db 0
 etc1p1end:
 
 user1p1start:
-incbin "included/solleros.bmp"
+incbin "included/solleros.txt"
 align 512, db 0
 user1p1end:

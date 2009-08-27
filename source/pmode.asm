@@ -50,18 +50,12 @@ pmode:
 	mov cr0,eax
 	jmp SYS_CODE_SEL:do_pm
 [BITS 32]
-	nop
-	nop
-	nop
-	nop
 do_pm:
 	xor eax, eax
 	mov ax, SYS_DATA_SEL
 	mov ds,ax
 	mov ss,ax	;;can switch back to STACK_SEL later
 	mov esp, stackend	;;can switch back to 4096 later
-	nop
-	nop
 	mov es, ax
 	mov fs, ax
 	mov ax, NEW_DATA_SEL
@@ -80,8 +74,6 @@ done_copy:
 	mov ds, ax
 	mov ss, ax
 	mov esp, stackend
-	nop
-	nop
 	mov ax, NEW_DATA_SEL
 	mov es, ax
 	mov fs, ax
@@ -112,6 +104,11 @@ done_copy:
 	mov al, 0x20
 	out 0xA0, al
 	out 0x20, al
+	;initialize the PIT
+	mov ax, [timediv] ;this is the divider for the PIT
+	out 0x40, al
+	rol ax, 8
+	out 0x40, al
 	;And now to initialize the fpu
 	mov eax, cr4
 	or eax, 0x200
@@ -150,24 +147,34 @@ user2codepoint dw 0,0
 basecache dd 0
 newcodecache dd 0x100000
 
-;surekillmsg db 10,13,"Kill this application?",10,13,0
+timediv dw 2685
+timeseconds dd 0
+timenanoseconds dd 0
+timeinterval dd 2250286 	;div=451 is 377981.0004, div=5370 is 4500572.00007ns, div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
 
-timerinterrupt:
+timerinterrupt: ;this keeps time and controls threading
+	push eax
+	mov eax, [timenanoseconds]
+	add eax, [timeinterval]
+	cmp eax, 1000000000
+	jb nonanosecondrollover
+	inc dword [timeseconds]
+	sub eax, 1000000000
+nonanosecondrollover:
+	mov [timenanoseconds], eax
+	pop eax
 	cmp byte [threadson], 1
-	jne userinterrupt
-	jmp threadswitch
+	je near threadswitch
 userinterrupt:		;checks for escape, if pressed, it quits the program currently running
-	cli
 	cmp byte [threadson], 0
-	je near handled3
+	je handled
+	cli
 	pusha
 	in al, 60h
 	cmp al, 1		;escape
 	je userint
 	jmp handled2
 userint:
-	mov al, 0x20
-	out 0x20, al
 	popa
 	sti
 	jmp nwcmd
@@ -181,7 +188,6 @@ handled:
 	out 0x20, al
 	pop eax
 	iret
-	jmp $
 [BITS 16]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	16-bit limit/32-bit linear base address of GDT and IDT
