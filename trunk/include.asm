@@ -3,6 +3,33 @@
 [ORG 0x400000]
 db "EX"
 jmp ___progstart___
+
+line db 10,13,0
+
+tester:			;si=user bx=prog cl=endchar returns 1 in al if true
+			xor al, al
+	.retest:
+			mov al, [esi]
+			mov ah, [ebx]
+			cmp ah, cl
+			je .testtrue
+			cmp al, ah
+			jne .testfalse
+			inc ebx
+			inc esi
+			jmp .retest
+	.testtrue:
+			cmp al, cl
+			jne .testalmost
+			mov al, 1
+			ret
+	.testfalse:
+			xor al, al
+			ret
+	.testalmost:
+			mov al, 2
+			ret
+	
 print:
 	mov al, 0
 	mov ah, 1

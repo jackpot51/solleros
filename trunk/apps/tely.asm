@@ -93,5 +93,4 @@
 		out dx, al
 		jmp telyreceive
 
-line db 10,13,0
 BASEADDRSERIAL dw 03f8h

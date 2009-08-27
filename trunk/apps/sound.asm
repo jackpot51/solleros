@@ -8,7 +8,7 @@
 	add esi, ecx
 	mov edi, esi
 	sub edi, pianohz
-setpitch
+setpitch:
 	mov al, 0xB6
 	out 0x43, al
 	mov ax, [esi]

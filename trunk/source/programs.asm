@@ -1,17 +1,3 @@
-;db 5,4,"internet",0
-	internettest: 			;;initialize network card, lets hope this is right
-							;;^^used to^^, now tests int 30h functions		
-		mov ah, 3
-		int 30h
-		mov ah, 1
-		;mov esi, datmsg
-		mov bx, 7
-		xor al, al
-		int 30h
-	    ;jmp packettest
-		jmp nwcmd
-;datmsg: db "Internet has not been implemented yet.",10,13,0
-	
 db 5,4,"threads",0
 	jmp threadstarttest
 	
@@ -61,7 +47,9 @@ nospecialkeycode:
 	mov ax, [lastkey]
 	mov cl, ah
 	call showhexsmall
-	jmp keycode
+	cmp ah, 1
+	jne keycode
+	jmp nwcmd
 
 db 5,4,"pci",0
 	pcishow:
@@ -191,7 +179,15 @@ loadedbmpmsg db " loaded.",13,10,0
 	mov esi, buftxt
 	add esi, 5
 	xor ecx, ecx
+	mov ax, "0x"
+	cmp [esi], ax
+	je dumphexin
 	call cnvrttxt
+	jmp dumphexnow
+dumphexin:
+	call cnvrthextxt
+	jmp dumphexnow
+dumphexnow:
 	mov edi, ecx
 	mov esi, edi
 	add esi, 896
@@ -204,7 +200,24 @@ dumphexloop:
 	jb dumphexloop
 	jmp nwcmd
 
+
+timenscache db 8,".000000000"
+timenscacheend: db " ",10,13,0
+	
 db 5,4,"time",0
+	mov ecx, [timeseconds]
+	call showdec
+	
+	mov ecx, [timenanoseconds]
+	mov esi, timenscache
+	mov dword [esi+ 2], "0000"
+	mov dword [esi + 6], "0000"
+	mov byte [esi + 10], "0"
+	mov esi, timenscacheend
+	call convert
+	mov esi, timenscache
+	call print
+	
 	call time
 	mov esi, timeshow
 	call print
@@ -230,19 +243,6 @@ time:
 
 	mov al,0x07			;Get day of month (01 to 31)
 	call tget1
-;	mov ah, 0			;;fix day
-;	mov ah, al
-;	shr ah, 4
-;	shl al, 4
-;	shr al, 4
-;	cmp al, 0
-;	jne nodecahday
-;	mov al, 10
-;	dec ah
-;nodecahday:
-;	dec al
-;	shl ah, 4
-;	or al, ah
 	mov [RTCtimeDay],al
 
 	mov al,0x08			;Get month (01 to 12)

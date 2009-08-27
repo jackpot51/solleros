@@ -805,7 +805,7 @@ grphbuf times 16 db 0
 		cmp al, 10
 		je noproceedshst
 		add dx, 8
-		noproceedshst
+	noproceedshst:
 		mov esi, [showstringesi]
 		jmp showstring2
 	doneshowstring:

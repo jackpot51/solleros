@@ -219,12 +219,12 @@ db '  ',0
 diskaddresspacket:
 len:	db 0x10 ;;size of packet
 	db 0
-readlen:	dw 0x7F	;;blocks to read
+readlen:	dw 0x7F	;;blocks to read=maximum
 address:	dw 0x0	;;address 0
 segm:	dw 0x1000	;;segment
 ;;start with known value for hd
-lbaad:	
-	;dd 0xF2252E5	;;use only for hd on laptop
+lbaad:
+	;dd 0x3D000
 	dd 0	;;lba address
 	dd 0
 

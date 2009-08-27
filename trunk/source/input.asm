@@ -75,13 +75,14 @@ XCOORD  db 0x00	;	the moved distance  (horizontal)
 YCOORD  db 0x00	;	the moved distance  (vertical)
 mousedisabled db 0
 specialkey db 0
+charregion db 0
 guistartin2:		;;this is basically the idle process
 					;;this halts the cpu for a small amount of time and then sees if there was a keypress
 					;;this lets the cpu stay at close to 0% instead of 100%
-	mov ax, 0xA000	;;this is the divider for the PIT
-	out 0x40, al
-	rol ax, 8
-	out 0x40, al
+	;mov ax, 0xA000	;;this is the divider for the PIT
+	;out 0x40, al
+	;rol ax, 8
+	;out 0x40, al
 	mov al, [threadson]
 	mov byte [threadson], 0
 	sti
@@ -89,7 +90,6 @@ guistartin2:		;;this is basically the idle process
 	mov [threadson], al
 	cmp al, 2
 	je guistartin
-	cli
 guistartin:
 		xor eax, eax
 		mov [specialkey], al
@@ -468,7 +468,7 @@ scancode:
 	db 27h,22h,0,0,0,0		;,28h
 	db '`','~',0,0,0,0		;,29h
 	db 0,0,0,0,0,0			;,2Ah
-	db '\','|',170,179,0,0	;,2Bh
+	db 92,'|',170,179,0,0	;,2Bh
 	db 'z','Z',145,146,'z','Z'	;,2Ch
 	db 'x','X',0,0,0,240		;,2Dh
 	db 'c','C',135,128,0,0	;,2Eh

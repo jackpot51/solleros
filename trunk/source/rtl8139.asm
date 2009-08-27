@@ -146,7 +146,7 @@ showmacloop:
 	call print
 	ret
 	
-macprint db "00-00-00-00-00-00  ",0
+macprint db "00:00:00:00:00:00  ",0
 ethernetend dw 0,0
 nicconfig db 0
 nonicfoundmsg db "NO NIC",0
