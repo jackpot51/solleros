@@ -1,8 +1,8 @@
 #!/bin/bash
 javac filecopy.java
 java filecopy
-nasm source/sector.asm -f bin -o sector.bin -l sector.lst
-nasm kernel.asm -f bin -o kernel.bin -l kernel.lst
+nasm source/sector.asm -f bin -o sector.bin
+nasm kernel.asm -f bin -o kernel.bin
 rm SollerOS.bin
 dd if=sector.bin of=SollerOS.bin bs=512
 dd if=kernel.bin of=SollerOS.bin bs=512 seek=1

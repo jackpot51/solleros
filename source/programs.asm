@@ -1,11 +1,25 @@
-db 5,4,"threads",0
+db 255,44,"thread",0
 	jmp threadstarttest
 	
-db 5,4,"reg",0
+db 255,44,"mario",0
+	mov dword [soundpos], mariosound
+	mov dword [soundendpos], mariosoundend
+	mov word [soundrepititions], 0
+	mov byte [soundon], 1
+	jmp nwcmd
+	
+db 255,44,"zelda",0
+	mov dword [soundpos], zeldasound
+	mov dword [soundendpos], zeldasoundend
+	mov byte [soundon], 1
+	mov word [soundrepititions], 0
+	jmp nwcmd
+	
+db 255,44,"reg",0
 	int 3
 	jmp nwcmd
 	
-db 5,4,"charmap",0
+db 255,44,"charmap",0
 	xor al, al
 	mov bx, 7
 charmapcopy:
@@ -33,7 +47,7 @@ charmapnocopy:
 	pop ax
 	jmp charmapcopy
 	
-db 5,4,"keycode",0
+db 255,44,"keycode",0
 keycode:
 	mov byte [trans], 0
 	call guistartin
@@ -51,16 +65,16 @@ nospecialkeycode:
 	jne keycode
 	jmp nwcmd
 
-db 5,4,"pci",0
+db 255,44,"pci",0
 	pcishow:
 	call pcidump
 	jmp nwcmd
 	
-db 5,4,"arp",0
+db 255,44,"arp",0
 	call arptest
 	jmp nwcmd
 
-db 5,4,"batch",0
+db 255,44,"batch",0
 	batchst: 
 		mov edi, buftxt
 		add edi, 6
@@ -121,7 +135,7 @@ db 5,4,"batch",0
 	exitword db "\x",0
 	wordmsg db "Type \x to exit.",10,13,0
 		
-db 5,4,"show",0
+db 255,44,"show",0
 		mov edi, buftxt
 		add edi, 5
 		mov esi, 0x400000
@@ -175,7 +189,7 @@ filenf2 db 34," could not be found.",13,10,0
 		
 loadedbmpmsg db " loaded.",13,10,0
 
-	db 5,4,"dump",0
+	db 255,44,"dump",0
 	mov esi, buftxt
 	add esi, 5
 	xor ecx, ecx
@@ -185,26 +199,49 @@ loadedbmpmsg db " loaded.",13,10,0
 	call cnvrttxt
 	jmp dumphexnow
 dumphexin:
+	add esi, 2
 	call cnvrthextxt
 	jmp dumphexnow
 dumphexnow:
 	mov edi, ecx
 	mov esi, edi
 	add esi, 896
-	mov byte [firsthexshown],0
 dumphexloop:
 	mov ecx, [edi]
+	mov byte [firsthexshown],5
 	call showhex
 	add edi, 4
 	cmp edi, esi
 	jb dumphexloop
+	call termcopy
 	jmp nwcmd
 
 
 timenscache db 8,".000000000"
 timenscacheend: db " ",10,13,0
-	
-db 5,4,"time",0
+istimeset db 0
+settimemsg db "Enter the current UNIX time:",10,13,0
+timeinputbuffer times 12 db 0
+timeinputbend: db 0
+
+db 255,44,"time",0
+	cmp byte [istimeset], 0
+	jne timeisset
+	mov esi, settimemsg
+	call print
+	mov esi, timeinputbuffer
+	mov edi, timeinputbend
+	call readline
+	mov esi, timeinputbuffer
+	xor edi, edi
+	call cnvrttxt
+	mov [timeseconds], ecx
+	xor ecx, ecx
+	mov [timenanoseconds], ecx
+	mov esi, line
+	call print
+	mov byte [istimeset], 1
+timeisset:
 	mov ecx, [timeseconds]
 	call showdec
 	
@@ -423,7 +460,7 @@ friday:
 saturday:
 	db "Saturday",13,10,0
 
-db 5,4,"cpuid",0
+db 255,44,"cpuid",0
 	xor eax, eax
 	cpuid
 	mov [cpuidbuf], ebx
