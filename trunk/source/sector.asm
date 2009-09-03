@@ -6,80 +6,28 @@
 [BITS 16]
 	; Boot record is loaded at 0000:7C00
 ORG 7c00h
-
-;;0x000: EB 58 90 6D 6B 64 6F 73 66 73 00 00 02 08 20 00 EXAMPLE
-;;0x010: 02 00 00 00 00 F8 00 00 3E 00 B9 00 00 00 00 00
-;;0x020: 26 DE B2 00 A2 2C 00 00 00 00 00 00 02 00 00 00
-;;0x030: 01 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00
-;;0x040: 00 00 29 52 D1 D2 48 20 20 20 20 20 20 20 20 20
-;;0x050: 20 20 46 41 54 33 32 20 20 20 0E 1F BE 77 7C AC
-;;0x060: 22 C0 74 0B 56 B4 0E BB 07 00 CD 10 5E EB F0 32
-;;0x070: E4 CD 16 CD 19 EB FE 54 68 69 73 20 69 73 20 6E
-;;0x080: 6F 74 20 61 20 62 6F 6F 74 61 62 6C 65 20 64 69
-;;0x090: 73 6B 2E 20 20 50 6C 65 61 73 65 20 69 6E 73 65
-;;0x0A0: 72 74 20 61 20 62 6F 6F 74 61 62 6C 65 20 66 6C
-;;0x0B0: 6F 70 70 79 20 61 6E 64 0D 0A 70 72 65 73 73 20
-;;0x0C0: 61 6E 79 20 6B 65 79 20 74 6F 20 74 72 79 20 61
-;;0x0D0: 67 61 69 6E 20 2E 2E 2E 20 0D 0A 00 00 00 00 00
-;;0x0E0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-;;fuck trying to set up FAT for now
-;FATDRIVETABLE:
-;	;jmp short 0x3C		;;0x00-0x02, jump over table
-;	db "SOLLEROS"		;;0x03-0x0A, os name
-;	db 0x02,0x08		;;0x0B-0x0C, number of bytes per sector
-;	db 0x20			;;0x0D, sectors per cluster
-;	db 0,0x02		;;0x0F-0x20, reserved sectors
-;	db 0x00			;;0x21, number of FAT tables
-;	db 0,0xB9		;;0x22-0x23, number of directory entries
-;	db 0,0			;;0x24-0x25, total sectors, if zero, > 0xFFFF
-;	db 0			;;0x26, media descriptor
-;	db 0x26,0xDE		;;0x27-0x28, sectors per FAT table
-;	db 0xB2,0		;;0x29-0x2A, sectors per track
-;	db 0xA2,0x2C		;;0x2B-0x2C, heads on storage media
-;	db 0x0,0x0,0x0,0x0	;;0x2D-0x31, LBA
-;FAT32EXTENDEDTABLE:
-;	db 0xA2,0x2C,0,0	;;4 bytes, size of FAT table in bytes
-;	db 0,0			;;2 bytes, flags
-
-
-
-
-	jmp start
-
-	DriveNumber db 0
-	sectormsg2 db "Loading OS...",10,13,0
-	sectormsg3 db 13,10,"SollerOS loaded.",10,13,0
-	continuemsg db "Press ", 0x22, "ANY", 0x22, " key to continue.",0
-	
-    start:                ; Update the segment registers
-	mov [DriveNumber], dl
-	xor ax,		ax		; XOR ax
-	mov ds,		ax		; Mov AX into DS
+	mov [DriveNumber], dl	;save the original drive number
+	xor ax,		ax
+	mov ds,		ax		;Update the segment registers
 	mov es, 	ax
 	mov ss,		ax
 	mov fs,		ax
 	mov gs,		ax
-
-;Resetdrive:
-;	mov ax,		0x00		; Select Floppy Reset BIOS Function
-;        mov dl,		[DriveNumber]	; Select the floppy booted from
-;        int 13h				; Reset the floppy drive
-;        jc Resetdrive		; If there was a error, try again.
-
-	mov si, sectormsg2
-	call print2
 	jmp ReadHardDisk
-    print2:			; 'si' comes in with string address
+
+	DriveNumber db 0
+	line db 10,13,0
+	
+    print:			; 'si' comes in with string address
 	    mov bx,7		; write to display
 	    mov ah,0Eh		; screen function
-    prs2:    mov al,[si]         ; get next character
+    prs:    mov al,[si]         ; get next character
 	    cmp al,0		; look for terminator 
-            je finpr2		; zero byte at end of string
+            je finpr		; zero byte at end of string
 	    int 10h		; write character to screen.    
      	    inc si	     	; move to next character
-	    jmp prs2		; loop
-    finpr2: ret
+	    jmp prs		; loop
+    finpr: ret
 ReadHardDisk:
 	mov si, diskaddresspacket
 	xor ax, ax
@@ -97,11 +45,11 @@ dumpconts1:
 	mov si, signature
 	xor bx, bx
 dumpconts1lp:
-	mov ecx, [gs:bx]
-	cmp ecx, [si]
+	mov cl, [gs:bx]
+	cmp cl, [si]
 	jne nodumpconts
-	add bx, 4
-	add si, 4
+	inc bx
+	inc si
 	cmp si, signatureend
 	jae dumpconts
 	jmp dumpconts1lp
@@ -112,10 +60,8 @@ nodumpconts:
 	mov [lbaad], eax
 	jmp ReadHardDisk
 dumpconts:
-	pusha
-	mov si, sectormsg3
-	call print2
-	popa
+	mov esi, line
+	call print
 	xor bx, bx
 dumpconts2:
 	mov ecx, [gs:bx]
@@ -125,11 +71,7 @@ dumpconts2:
 	add bx, 4
 	cmp bx, 700
 	jbe dumpconts2
-	mov si, continuemsg
-	call print2
-	xor ax, ax
-	int 0x16
-	mov cl, [DriveNumber]
+	mov cx, [DriveNumber]
 	mov edx, [lbaad]
     jmp 0x1000:(signatureend - signature)
 
@@ -147,24 +89,22 @@ chkzero:
 	cmp si, di
 	jb donechkzero
 donechkzero:
-	call print2
+	call print
 	ret
-	
-sibuf db 0,0
-dibuf db 0,0
 
 converthex: 
 clearbuffer:
 	mov al, '0'
-	mov [sibuf], si
-	mov [dibuf], di
+	push si
+	push di
 clearbuf: cmp si, di
 	jae doneclearbuff
 	mov [si], al
 	inc si
 	jmp clearbuf
 doneclearbuff:
-	mov si, [dibuf]
+	pop si	;pop pushed di into si
+	push si ;then repush the value
 	mov edx, ecx
 nxtexphx:			;0x10^x
 	dec si
@@ -178,8 +118,8 @@ nxtexphx:			;0x10^x
 	je donenxtephx
 	jmp nxtexphx 
 donenxtephx:
-	mov si, [sibuf]
-	mov di, [dibuf]
+	pop di
+	pop si
 	ret
 cnvrtexphx:			;;convert this number
 	mov bx, si		;place to convert to must be in si, number to convert must be in cx

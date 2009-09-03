@@ -105,10 +105,21 @@ done_copy:
 	out 0xA0, al
 	out 0x20, al
 	;initialize the PIT
-	mov ax, [timediv] ;this is the divider for the PIT
+	mov ax, [pitdiv] ;this is the divider for the PIT
 	out 0x40, al
 	rol ax, 8
 	out 0x40, al
+	;enable rtc interrupt
+	mov al, 0xB
+	out 0x70, al
+	rol ax, 8
+	in al, 0x71
+	rol ax, 8
+	out 0x70, al
+	rol ax, 8
+	or al, 0x40
+	out 0x71, al
+
 	;And now to initialize the fpu
 	mov eax, cr4
 	or eax, 0x200
@@ -137,6 +148,7 @@ clearkernelbuffers:
 	add esi, 4
 	cmp esi, bssend
 	jb clearkernelbuffers
+	sti
 	cmp byte [guinodo], 1
 	je guidonot
 	jmp gui
@@ -147,27 +159,56 @@ user2codepoint dw 0,0
 basecache dd 0
 newcodecache dd 0x100000
 
-timediv dw 2685
+pitdiv dw 5370
 timeseconds dd 0
 timenanoseconds dd 0
-timeinterval dd 2250286 	;div=451 is 377981.0004, div=5370 is 4500572.00007ns, div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
-
-timerinterrupt: ;this keeps time and controls threading
-	push eax
-	mov eax, [timenanoseconds]
-	add eax, [timeinterval]
-	cmp eax, 1000000000
-	jb nonanosecondrollover
-	inc dword [timeseconds]
-	sub eax, 1000000000
-nonanosecondrollover:
-	mov [timenanoseconds], eax
-	pop eax
+timeinterval dd 4500572
+soundon db 1
+soundrepititions dw 0
+soundpos dd startupsound
+soundendpos dd startupsoundend
+					;if using the rtc, the default frequency yeilds a period of 976562.5ns
+					;if using the pit, div=451 is 377981.0004, div=5370 is 4500572.00007ns, div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
+pitinterrupt: ;this controls threading
+	call timekeeper
+	cmp byte [soundon], 1
+	jne timerinterrupt
+	pusha
+	mov esi, [soundpos]
+	xor ecx, ecx
+	mov cx, [soundrepititions]
+	cmp cx, 0
+	jne donesetpitch
+	mov cx, [esi]
+	mov bx, [esi + 2]
+	mov [soundrepititions], cx
+	add esi, 4
+	cmp esi, [soundendpos]
+	ja stopsound
+	mov [soundpos], esi
+	cmp bx, 0
+	je nosoundplay
+	call setpitch
+	call startsound
+	jmp donesetpitch
+nosoundplay:
+	call killsound
+donesetpitch:
+	dec cx
+	mov [soundrepititions], cx
+	popa
+	jmp timerinterrupt
+stopsound:
+	call killsound
+	mov word [soundrepititions], 0
+	mov byte [soundon], 0
+	popa
+timerinterrupt:	;put this into the interrupt handler that controls threading
 	cmp byte [threadson], 1
 	je near threadswitch
-userinterrupt:		;checks for escape, if pressed, it quits the program currently running
+keyinterrupt:		;checks for escape, if pressed, it quits the program currently running
 	cmp byte [threadson], 0
-	je handled
+	je near handled
 	cli
 	pusha
 	in al, 60h
@@ -178,6 +219,23 @@ userint:
 	popa
 	sti
 	jmp nwcmd
+	
+rtcinterrupt:
+	jmp handled
+	
+timekeeper:
+	push eax
+	mov eax, [timenanoseconds]
+	add eax, [timeinterval]
+	cmp eax, 1000000000
+	jb nonanosecondrollover
+	inc dword [timeseconds]
+	sub eax, 1000000000
+nonanosecondrollover:
+	mov [timenanoseconds], eax
+	pop eax
+	ret
+	
 handled2:
 	popa
 handled3:
@@ -262,30 +320,28 @@ idt:
 		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep
-		;dw handled,NEW_CODE_SEL,0x8E00,0
 		dw int21h,NEW_CODE_SEL,0x8E00,0
 %assign i 0x22
 %rep 14
 		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
-		;dw handled,NEW_CODE_SEL,0x8E00,0
 %assign i +1
 %endrep
 ;INT 30h for os use and 3rd party use:
 		dw newints,NEW_CODE_SEL,0x8E00,0
-;here are all the irq's
 %assign i 0x31
 %rep 15
 		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
-		;dw handled,NEW_CODE_SEL,0x8E00,0
 %assign i +1
 %endrep
-		dw timerinterrupt,NEW_CODE_SEL,0x8E00,0
-		dw userinterrupt,NEW_CODE_SEL,0x8E00,0
-;%assign i 0x42
-%rep 14
-		;dw unhand + i*13, NEW_CODE_SEL,0x8E00,0
+;here are all the irq's
+		dw pitinterrupt,NEW_CODE_SEL,0x8E00,0
+		dw keyinterrupt,NEW_CODE_SEL,0x8E00,0
+%rep 6
 		dw handled,NEW_CODE_SEL,0x8E00,0
-;%assign i +1
+%endrep
+		dw rtcinterrupt,NEW_CODE_SEL,0x8E00,0
+%rep 7
+		dw handled,NEW_CODE_SEL,0x8E00,0
 %endrep
 ;This brings me up to something
 %assign i 0x50

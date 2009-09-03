@@ -1,6 +1,12 @@
 	;SOLLEROS.ASM
 os:
 	call clear
+	mov esi, signature
+	call print
+	mov ecx, [signatureend - 4]
+	call showdec
+	mov esi, line
+	call print
 	mov esi, userask
 	call print
 usercheck:
@@ -122,8 +128,12 @@ cancel:	xor al, al
 	mov bx, 7
 	call int301prnt
 	mov esi, [usercache]
-	call print
+	call printquiet
+	mov esi, computer
+	call printquiet
 	mov esi, location
+	call printquiet
+	mov esi, endprompt
 	call print
 	call buftxtclear
 	mov esi, buftxt
@@ -245,8 +255,8 @@ progtest:
 	mov esi, buftxt
 	mov ebx, fileindex
 prgnxt:	mov ax, [ebx]
-	mov cl, 5
-	mov ch, 4
+	mov cl, 255
+	mov ch, 44
 	cmp ax, cx
 	je fndprg
 	inc ebx
@@ -349,17 +359,12 @@ currentdir db 0
 dir:	mov esi, fileindex
 	dirnxt:	mov al, [esi]
 		xor ah, ah
-		cmp al, 5
+		cmp al, 255
 		je dirfnd
-		cmp al, 7
-		je dirfnd3
-		cmp al, 6
-		je dirfnd3
 		inc esi
 		cmp esi,  fileindexend
 		jae dirdn
 		jmp dirnxt
-	typetable db 6,4,0,"batch",0,7,4,0,"document",0,10,4,0,"folder",0,5,4,0,"executable",0
 	dirfnd3:
 		inc esi
 		cmp esi, fileindexend
@@ -368,17 +373,17 @@ dir:	mov esi, fileindex
 	dirfnd:	inc esi
 		mov al, [esi]
 		xor ah, ah
-		cmp al, 4
+		cmp al, 44
 		je dirfnd2
 		inc esi
 		cmp esi,  fileindexend
 		jae dirdn
 		jmp dirnxt
 	dirfnd2: add esi, 1
-		call print
+		call printquiet
 		mov [esidir], esi
 		mov esi, dirtab
-		call print
+		call printquiet
 		mov esi, [esidir]
 		cmp esi,  fileindexend
 		jae dirdn
@@ -387,7 +392,6 @@ dir:	mov esi, fileindex
 			call print
 			jmp nwcmd
 esidir dd 0
-
 array:				;arraystart in si, arrayend in bx, arrayseperator in cx
 		                ;ends if array seperator is found backwards after 0
 	arnxt:	      
@@ -610,7 +614,13 @@ notabfixhex:
 	jne printnosmallhex
 	add esi, 6
 printnosmallhex:
+	cmp byte [firsthexshown], 5
+	jne noquietprinthex
+	call printquiet
+	jmp donequiethex
+noquietprinthex:
 	call print
+donequiethex:
 	cmp byte [firsthexshown], 2
 	jne hexshown
 	mov esi, line

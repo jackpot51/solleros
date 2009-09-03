@@ -62,6 +62,7 @@ dumppcidevice:
 	mov [pciregister], al
 	call getpciaddr
 	mov ecx, eax
+	mov byte [firsthexshown], 5
 	call showhex
 dumppcidevicelp:
 	mov [pciregister], al
@@ -73,6 +74,7 @@ dumppcidevicelp:
 	mov ecx, eax
 	mov al, [pciregister]
 	add al, 4
+	mov byte [firsthexshown], 5
 	call showhex
 	cmp al, 0x3C
 	jb dumppcidevicelp

@@ -7,11 +7,6 @@ menustart:
 	mov ss, ax
 	mov [DriveNumber], cl
 	mov [lbaad], edx
-	mov ax, 0xA000
-	mov gs, ax
-	mov ax, 12h
-	xor bx, bx
-	int 10h
 guiload:
 	mov si, bootmsg
 	call printrm
@@ -19,6 +14,8 @@ guiload:
 	int 16h
 	cmp al, "y"
 	jne near guiload2
+	mov si, line
+	call printrm
 guiloadagain:
 	mov ax, 04F00h
 	mov di, VBEMODEBLOCK
@@ -257,4 +254,4 @@ realmode:
    xor eax, eax
    ret
    
-bootmsg:	db "Boot into the GUI?(y/n)",10,13,0
+bootmsg:	db "Boot into the GUI?(y/n)",0

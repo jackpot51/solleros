@@ -314,6 +314,10 @@ txtmask db 0
 buftxtloc dd 0
 endbuffer305 dd 0
 backcursor db 8," ",0
+
+readline:
+  mov al, 13
+  mov bl, 7
 	int305:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=bufferend
 		mov [buftxtloc], esi
 		mov [endkey305], al
@@ -400,7 +404,11 @@ backcursor db 8," ",0
 		cmp edi, buftxt
 		jne clearbuftxt2lp
 		ret
-		
+	
+	int305b2:
+		call termcopy
+		jmp int305b
+	
 	int305axcache dw 0
 		
 	int305left:
@@ -479,11 +487,13 @@ backcursor db 8," ",0
 		mov al, " "
 		call int301prnt
 		mov al, 8
-		call int301
+		call int301prnt
 		dec esi
 		cmp esi, [buftxtloc]
-		je noint305upbck
+		je noint305upbck2
 		jmp int305upbckspclp
+	noint305upbck2:
+		call termcopy
 	noint305upbck:
 		mov edi, [currentcommandpos]
 		add edi, commandbuf
@@ -523,15 +533,15 @@ backcursor db 8," ",0
 		inc edi
 		sub edi, commandbuf
 		cmp al, 0
-		je near int305b
+		je near int305b2
 		cmp edi, [currentcommandpos]
-		jae near int305b
+		jae near int305b2
 		add edi, commandbuf
 		mov [esi], al
 		inc esi
 		push edi
 		mov bl, [modkey305]
-		call int301
+		call int301prnt
 		pop edi
 		cmp edi, commandbufend
 		jbe moreint305up
@@ -664,3 +674,23 @@ movedcursorterm:
 fixednocursorterm:
 	ret
 	
+;FUTURE INTS
+;sound
+setpitch:
+	mov al, 0xB6
+	out 0x43, al
+	mov ax, bx
+	out 0x42, al
+	mov al, ah
+	out 0x42, al
+	ret
+startsound:
+	in al, 0x61
+	or al, 3
+	out 0x61, al
+	ret
+killsound:
+	in al, 0x61
+	and al, 0xFC
+	out 0x61, al
+	ret

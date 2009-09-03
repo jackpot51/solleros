@@ -85,20 +85,8 @@ superrootnodesend:	dd 0		;there is no next unode
 					bin1nodesend:	dd 0
 					
 		etcnodes:	dd etcnodesend - fsstart
-			etc1node:
-				dd etc1indexname - indexstart
-				db 1
-				dd 0
-				dd etc1nodes - fsstart
-				dd etcnode - fsstart
 		etcnodesend:	dd 0
-				
-					etc1nodes:	dd etc1nodesend - fsstart
-							db 0,0
-							dd (etc1p1start-filesys)/512	;remember, this is 6 bytes
-							db 0,0
-							dd (etc1p1end-filesys)/512	;remember, this is 6 bytes
-					etc1nodesend:	dd 0
+
 		homenodes:	dd homenodesend - fsstart
 			usernode:
 				dd userindexname - indexstart
@@ -166,9 +154,6 @@ indexstart:		;this will basically contain all of the names/metadata/dates/other 
 		
 		bin1indexname:	dd bin1node - fsstart
 				db "time.exe",0
-		
-		etc1indexname:	dd etc1node - fsstart
-				db "tutorial.bat",0
 
 		userindexname:	dd usernode - fsstart
 				db "user",0
@@ -182,11 +167,6 @@ bin1p1start:
 incbin "included/time"
 align 512, db 0
 bin1p1end:
-
-etc1p1start:
-incbin "included/tutorial.bat"
-align 512, db 0
-etc1p1end:
 
 user1p1start:
 incbin "included/solleros.txt"

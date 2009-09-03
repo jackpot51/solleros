@@ -1,6 +1,6 @@
-filetypes db 5,4,6,4,7,4
+filetypes db 255,44
 progstart:		;programs start here
-;db 5,4,"index",0
+;db 255,44,"index",0
 ;	call indexfiles
 ;	jmp nwcmd
 
@@ -54,69 +54,58 @@ indexloopdone: 	mov byte [indexdone], 1
 
 indexdone db 0
 
-
-;db 5,4,"showindex",0
-;	mov esi, fileindex
-;	mov ebx, fileindexend
-;	mov cl, 5
-;	mov ch, 4
-;	call array
-;	mov esi, fileindex
-;	mov ebx, fileindexend
-;	mov cl, 6
-;	mov ch, 4
-;	call array
-;	mov esi, fileindex
-;	mov ebx, fileindexend
-;	mov cl, 7
-;	mov ch, 4
-;	call array
-;	jmp nwcmd
-
-db 5,4,"shush",0
+db 255,44,"shush",0
 	mov esi, shushmsg
 	call print
 	jmp shush
 
-db 5,4,"ls",0
+db 255,44,"ls",0
 	lscmd:	mov esi, progstart
 		mov ebx, progend
 		jmp dir
 		
-db 5,4,"disk",0
+db 255,44,"disk",0
+		mov esi, diskmsg
+		call printquiet
 		xor ecx, ecx
 		mov cl, [DriveNumber]
-		mov byte [firsthexshown], 0
-		call showhex
+		mov byte [firsthexshown], 5
+		call showhexsmall
 		mov esi, line
-		call print
+		call printquiet
 		mov esi, diskfileindex
 	diskindexdir:
-		call print
+		call printquiet
 		push esi
 		mov esi, disktab
-		call print
+		call printquiet
 		pop esi
 		mov ecx, [esi + 5]
-		mov byte [firsthexshown], 2
+		mov byte [firsthexshown], 5
 		call showdec
+		push esi
+		mov esi, line
+		call printquiet
+		pop esi
 		add esi, 9
 		cmp esi, enddiskfileindex
 		jb diskindexdir
+		call termcopy
 		jmp nwcmd
 		
+		diskmsg db "Disk ",0
 		disktab db 13,9,9,9,0
 
-db 5,4,"clear",0
+db 255,44,"clear",0
 	cls:	call clear
 		jmp nwcmd
 		
-db 5,4,"wait",0
+db 255,44,"wait",0
 		xor al, al
 		call int302
 		jmp nwcmd
 
-db 5,4,"echo",0
+db 255,44,"echo",0
 	echo:	mov esi, buftxt
 		add esi, 5
 		mov al, [esi]
@@ -171,7 +160,7 @@ db 5,4,"echo",0
 		jmp nwcmd
 		
 
-db 5,4,"#",0
+db 255,44,"#",0
 	num:	
 		call clearbuffer
 		mov byte [decimal], 0
@@ -420,7 +409,7 @@ decimal2 db 0
 decimalresult db 0
 result db 0,0,0,0
 	
-db 5,4,"%",0
+db 255,44,"%",0
 	ans:	call clearbuffer
 		mov ecx, [result]
 		mov esi, buf2
@@ -429,7 +418,7 @@ db 5,4,"%",0
 		call chkadd
 		jmp nwcmd
 
-db 5,4,"$",0
+db 255,44,"$",0
 var: mov esi, buftxt
 	mov ebx, variables
 lkeq:	mov al, [esi]
@@ -549,19 +538,19 @@ svdone:	xor al, al
 	mov [ebx], al
 	jmp nwcmd
 	
-	db 5,4,"logout",0
+	db 255,44,"logout",0
 logout:
 	jmp os
 	
-	db 5,4,"reboot",0
+	db 255,44,"reboot",0
 rebootcomp:
 	jmp coldboot
 
-	db 5,4,"shutdown",0
+	db 255,44,"shutdown",0
 shutdowncomp:
 	jmp shutdown
 
-	db 5,4,"dos",0
+	db 255,44,"dos",0
 rundosprog:
 	mov edi, buftxt
 	add edi, 4
@@ -590,7 +579,7 @@ nomoredosparams:
 	mov ebx, 0x100
 	jmp ebx
 	
-	db 5,4,"./",0
+	db 255,44,"./",0
 rundiskprog:
 	mov edi, buftxt
 	add edi, 2
@@ -738,10 +727,10 @@ iffalsebuf db 0
 
 notbatch: jmp nwcmd
 
-	db 5,4,"rem",0	;this lets you rem stuff
+	db 255,44,"rem",0	;this lets you rem stuff
 	jmp nwcmd
 
-	db 5,4,"while",0
+	db 255,44,"while",0
 whilecmd:  xor al, al
 	cmp [BATCHISON], al
 	je near notbatch
@@ -766,7 +755,7 @@ whilefnd2:
 	jmp chkeqsn
 
 
-	db 5,4,"if",0
+	db 255,44,"if",0
 ifcmd:	xor al, al
 	cmp [BATCHISON], al
 	je near notbatch
@@ -830,7 +819,7 @@ ifvar3: mov [esiif], esi
 
 esiif dd 0
 	
-	db 5,4,"else",0
+	db 255,44,"else",0
 elsecmd:	xor eax, eax
 	mov al, [IFON]
 	mov esi, IFTRUE
@@ -840,7 +829,7 @@ elsecmd:	xor eax, eax
 	mov [esi], al
 	jmp nwcmd
 
-	db 5,4,"loop",0
+	db 255,44,"loop",0
 	cmp byte [LOOPON], 0
 	jne near filoop
 	jmp nwcmd
@@ -852,7 +841,7 @@ filoop: mov esi, [LOOPPOS]
 	jmp nwcmd
 	
 
-	db 5,4,"fi",0
+	db 255,44,"fi",0
 	xor al, al
 	cmp [BATCHISON], al
 	je near notbatch
@@ -860,7 +849,7 @@ fi:	mov al, 1
 	sub [IFON],al
 	jmp nwcmd
 
-	db 5,4,"stop",0
+	db 255,44,"stop",0
 stop:	xor al, al
 	mov [BATCHISON], al
 	mov [IFON], al

@@ -4,7 +4,11 @@
 	notfound2 db  34," not found.",13,10,0
 	userask db "username:",0
 	pwdask	db	"password:",0
-	location	db	"@SollerOS]:",0
+	computer db "@"
+	computername	db	"SollerOS",0
+	location db " "
+	locationname db "/",0
+	endprompt db "]$ ",0
 	line	db	13,10,0
 	dirtab 	db " ",9,0
 	userlst:

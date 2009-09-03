@@ -6,8 +6,6 @@ mainthread:
 	jmp mainthread
 	
 nwcmdst:
-	mov al, 11111101b
-	out 0x21, al
 	mov byte [threadson], 0
 	jmp nwcmd
 	
@@ -18,19 +16,15 @@ modelthread:
 	xor ecx, ecx
 	mov cx, bx
 	int 0x30
-	
 	mov ecx, 0xC0DE0000
 	mov cx, bx
 	int 0x30
-	
 	mov ecx, 0xDEAD0000
 	mov cx, bx
 	int 0x30
-	
-	int 0x40	;;skip this thread three times to ensure that all threads run
-	int 0x40
-	int 0x40
-	
+	call timerinterrupt	;;skip this thread three times to ensure that all threads run
+	call timerinterrupt
+	call timerinterrupt
 	jmp nwcmdst
 	
 	
@@ -46,10 +40,6 @@ thrdtstend:
 threadfork:
 	mov byte [threadson], 1
 	pushad
-	mov ax, 0x4000	;;this is the divider for the PIT
-	out 0x40, al
-	rol ax, 8
-	out 0x40, al
 	
 	mov eax, cs
 	mov edx, eax
@@ -92,10 +82,6 @@ threadfork:
 startthreads:
 	mov byte [threadson], 1
 	pushad
-	mov ax, 0xA000	;;this is the divider for the PIT
-	out 0x40, al
-	rol ax, 8
-	out 0x40, al
 	
 	mov eax, cs
 	mov edx, eax
@@ -136,13 +122,7 @@ nxtthreadld:
 	jae near nomorestackspace
 	cmp esi, thrdtstend
 	jb nxtthreadld
-	mov esp, ebx	
-	;mov al, 0xFE
-	;out 0x21, al
-	xor al, al
-	out 0x21, al
-	mov al, 0x20
-	out 0x20, al
+	mov esp, ebx
 	popad
 	sti
 	jmp $	;;wait for the irq to hook
