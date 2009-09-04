@@ -45,4 +45,6 @@ stackdummy:
 stack1:
 	resb 1024*2050	;;woah, thats a lot of space for stacks
 bssend:		;;from here on, it is not kernel space so apps can be loaded here.
+align 4192, resb 0
+dosprogloc equ $
 [section .text]

@@ -2,7 +2,7 @@
 [ORG 0x100]
 start:
 ;finding out the ways to emulate certain dos calls.
-mov eax, [0x80]
+mov ax, [0x81]
 cmp eax, "prin"
 je near printex
 cmp eax, "char"
@@ -11,17 +11,12 @@ cmp eax, "read"
 je near readex
 cmp eax, "time"
 je near timeex
-cmp eax, "help"
-je near help
-mov ax, 0x4C00
-int 21h
 
 help:
 	mov dx, helpmsg
 	mov ah, 9
 	int 21h
-	mov ax, 0x4C00
-	int 21h
+	int 20h
 
 helpmsg db "print - print a string",10,13,"char - print a character",10,13,"read - read and print string",10,13,"help - never!",10,13,"$"
 
@@ -29,15 +24,13 @@ printex:
 	mov dx, dosmsg
 	mov ah, 9
 	int 21h
-	mov ax, 0x4C00
-	int 21h
+	int 20h
 	
 charex:
-	mov al, "$"
+	mov dl, "$"
 	mov ah, 2
 	int 21h
-	mov ax, 0x4C00
-	int 21h
+	int 20h
 	
 readex:
 	mov dx, dosbuf
@@ -53,12 +46,10 @@ readex:
 	mov dx, line
 	mov ah, 9
 	int 21h
-	mov ax, 0x4C00
-	int 21h
+	int 20h
 	
 timeex:
-	mov ax, 0x4C00
-	int 21h
+	int 20h
 
 dosmsg db "Hello from dos!",10,13,"$"
 line db 10,13,"$"

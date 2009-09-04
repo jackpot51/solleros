@@ -1,3 +1,5 @@
+int20h:
+mov ax, 0x4C00
 int21h:
 dostosolleros:
 	push ax
@@ -8,6 +10,8 @@ dostosolleros:
 	mov ax, SYS_DATA_SEL
 	mov gs, ax
 	pop ax
+	pushf
+	pusha
 	cmp ah, 1
 	je near dosgchar
 	cmp ah, 2
@@ -23,8 +27,10 @@ dostosolleros:
 	cmp ah, 0x4C
 	je near dosexit
 backtodos:
+	popa
+	popf
 	push ax
-	mov ax, PROG_DATA_SEL
+	mov ax, DOS_DATA_SEL
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
@@ -38,21 +44,24 @@ dosgchar:
 	jmp backtodos
 	
 doswchar:
+	mov al, dl
 	mov bl, 7
 	call int301
 	jmp backtodos
 	
 dosprintstr:
-	mov esi, 0x400000
+	xor esi, esi
 	mov si, dx
+	add esi, dosprogloc
 	mov al, "$"
 	mov bl, 7
 	call int303
 	jmp backtodos
 	
 dosgetstr:
-	mov esi, 0x400000
+	xor esi, esi
 	mov si, dx
+	add esi, dosprogloc
 	mov ecx, 0
 	mov cl, [esi]
 	add esi, 3
@@ -88,4 +97,5 @@ dosgettime:
 	jmp backtodos
 	
 dosexit:
+	popa
 	jmp nwcmd
