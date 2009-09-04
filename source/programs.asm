@@ -50,6 +50,7 @@ charmapnocopy:
 db 255,44,"keycode",0
 keycode:
 	mov byte [trans], 0
+	mov byte [threadson], 0
 	call guistartin
 	xor eax, eax
 	xor ecx, ecx

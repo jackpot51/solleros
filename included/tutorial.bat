@@ -26,7 +26,7 @@ echo echo prints text and variables to the screen
 echo logout logs the user out
 echo # evaluates expresions
 echo % gives back the last answer from #
-echo the $ sign is used to denote and set variables
+echo the dollar sign is used to denote and set variables
 echo ./ runs batch files and programs
 echo while, if, else, loop, and fi are used in batch files
 echo they use the syntax if $var=$var, else, fi

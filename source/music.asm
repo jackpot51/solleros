@@ -1,9 +1,9 @@
 startupsound:
 mariosound:	;put a nasty startup noise here
 	dw 25,E4
-	dw 30,0
-	dw 25,E4
-	dw 30,0
+	dw 25,0
+	dw 35,E4
+	dw 25,0
 	dw 50,E4
 	dw 30,0
 	dw 20,C4
@@ -16,6 +16,7 @@ mariosound:	;put a nasty startup noise here
 mariosoundend:
 startupsoundend:
 zeldasound:
+;song of time
 	dw 100,A4
 	dw 200,D4
 	dw 100,F4
