@@ -1,6 +1,6 @@
 startupsound:
 lostwoodssound:
-	dw 50,F4
+	dw 30,F4
 	dw 50,A4
 	dw 100,B4
 	dw 50,F4
