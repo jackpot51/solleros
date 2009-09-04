@@ -1379,18 +1379,8 @@ endedbmp:
 		jmp showstring	
 	
 	noie:
-		xor edx, edx
-		xor ecx, ecx
-		mov dx, [resolutionx]
-		mov cx, [resolutiony]
-		shr dx, 3
-		shr cx, 4
-		sub dx, 4
-		sub cx, 4
-		shl dx, 3
-		shl cx, 4
-		mov [termwindow], dx
-		mov [termwindow + 2], cx	;the previous lines of code make a large terminal window that is 4 characters smaller than the screen
+		mov word [termwindow], 640
+		mov word [termwindow + 2], 480	;the previous lines of code make a large terminal window that is 4 characters smaller than the screen
 		mov esi, termwindow
 		mov dx, 16
 		mov cx, 16
