@@ -554,13 +554,13 @@ shutdowncomp:
 rundosprog:
 	mov edi, buftxt
 	add edi, 4
-	mov esi, 0x100
+	mov esi,  0x400100
 	call loadfile
-	cmp edx, 404
-	je near noprogfound
-	mov ebx, 0x80
 	mov edi, buftxt
 	add edi, 4
+	cmp edx, 404
+	je near dosnoprogfound
+	mov ebx, 0x400080
 finddosparams:
 	mov al, [edi]
 	inc edi
@@ -571,13 +571,32 @@ copydosparams:
 	mov [ebx], al
 	inc ebx
 	inc edi
-	cmp ebx, 0x100
+	cmp ebx, 0x400100
 	jae nomoredosparams
 	cmp al, 0
 	jne copydosparams
 nomoredosparams:
-	mov ebx, 0x100
-	jmp ebx
+	mov ax, PROG_DATA_SEL
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	xor eax, eax
+	xor ebx, ebx
+	xor ecx, ecx
+	xor edx, edx
+	xor edi, edi
+	xor esi, esi
+	jmp PROG_CODE_SEL:0x100
+dosnoprogfound:
+	mov esi, notfound1
+	call print
+	mov esi, buftxt
+	add esi, 4
+	call print
+	mov esi, notfound2
+	call print
+	jmp nwcmd
 	
 	db 255,44,"./",0
 rundiskprog:

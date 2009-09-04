@@ -27,6 +27,12 @@ newints:	;;for great justice
 	
 intx0:
 	cmp al, 0
+	mov ax, NEW_DATA_SEL
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov ax, SYS_DATA_SEL
+	mov gs, ax
 	jne near warnexitstatus
 	jmp nwcmd
 intx1:
@@ -264,6 +270,7 @@ getkey:
 endkey303 db 0
 	printquiet:
 		xor ax, ax
+		mov [endkey303], al
 		mov bx, 7
 		call int303b
 		ret

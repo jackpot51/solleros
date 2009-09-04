@@ -3,10 +3,6 @@
 start:
 ;finding out the ways to emulate certain dos calls.
 mov eax, [0x80]
-mov edx, start
-mov edi, start
-mov esi, start
-mov ebx, start
 cmp eax, "prin"
 je near printex
 cmp eax, "char"
@@ -17,7 +13,6 @@ cmp eax, "time"
 je near timeex
 cmp eax, "help"
 je near help
-jmp printex
 mov ax, 0x4C00
 int 21h
 
@@ -51,13 +46,6 @@ readex:
 	mov dx, line
 	mov ah, 9
 	int 21h
-	;mov di, dosbuf
-	;mov cx, 0
-	;mov cl, [dosbuf + 2]
-	;add di, cx
-	;inc di
-	;mov al, "$"
-	;mov [edi], al
 	mov dx, dosbuf
 	add dx, 3
 	mov ah, 9
