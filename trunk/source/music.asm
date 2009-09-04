@@ -1,4 +1,27 @@
 startupsound:
+lostwoodssound:
+	dw 50,F4
+	dw 50,A4
+	dw 100,B4
+	dw 50,F4
+	dw 50,A4
+	dw 100,B4
+	dw 50,F4
+	dw 50,A4
+	dw 50,B4
+	dw 50,E5
+	dw 100,D5
+	dw 50,B4
+	dw 50,C5
+	dw 50,B4
+	dw 50,G4
+	dw 200,E4
+	dw 50,D4
+	dw 50,E4
+	dw 50,G4
+	dw 200,E4
+lostwoodssoundend:
+startupsoundend:
 mariosound:	;put a nasty startup noise here
 	dw 25,E4
 	dw 25,0
@@ -14,7 +37,6 @@ mariosound:	;put a nasty startup noise here
 	dw 50,0
 	dw 70,G3
 mariosoundend:
-startupsoundend:
 zeldasound:
 ;song of time
 	dw 100,A4

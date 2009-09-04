@@ -13,6 +13,13 @@ db 255,44,"zelda",0
 	mov dword [soundendpos], zeldasoundend
 	mov byte [soundon], 1
 	mov word [soundrepititions], 0
+	jmp nwcmd	
+	
+db 255,44,"lostw",0
+	mov dword [soundpos], lostwoodssound
+	mov dword [soundendpos], lostwoodssoundend
+	mov byte [soundon], 1
+	mov word [soundrepititions], 0
 	jmp nwcmd
 	
 db 255,44,"reg",0
