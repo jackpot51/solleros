@@ -1,0 +1,21 @@
+db "SN"
+dd soundend
+	dw 100,A4
+	dw 200,D4
+	dw 100,F4
+	dw 100,A4
+	dw 200,D4
+	dw 100,F4
+	dw 50,A4
+	dw 50,C5
+	dw 100,B4
+	dw 100,G4
+	dw 50,F4
+	dw 50,G4
+	dw 100,A4
+	dw 100,D4
+	dw 50,C4
+	dw 50,E4
+	dw 200,D4
+soundend:
+%include 'music.asm'
