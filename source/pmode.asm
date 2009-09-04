@@ -29,15 +29,15 @@ pmode:
 	mov [gdt4 + 7],ah
 	mov [gdt5 + 7],ah
 	
-	mov eax, [newcodecache]
-	add eax, 0x400000 ;end of kernel
-	mov [gdtprog + 2], ax
-	mov [gdtprogd + 2], ax
-	shr eax, 16
-	mov [gdtprog + 4], al
-	mov [gdtprogd + 4], al
-	mov [gdtprog + 7], ah
-	mov [gdtprogd + 7], ah
+	mov eax, dosprogloc
+	add eax, [newcodecache]
+	mov [gdtdos + 2],ax
+	mov [gdtdos2 + 2],ax
+	shr eax,16
+	mov [gdtdos + 4],al
+	mov [gdtdos2 + 4],al
+	mov [gdtdos + 7],ah
+	mov [gdtdos2 + 7],ah
 	
 ; fix up gdt and idt
 	lea eax,[ebx + gdt]	; EAX=linear address of gdt
@@ -313,15 +313,15 @@ gdt5:	dw 0xFFFF
 	db 0x92			; present, ring 0, data, expand-up, writable
 	db 0xCF
 	db 0
-PROG_CODE_SEL	equ $-gdt	;this gives the program complete access at a non-vital part of memory
-gdtprog:	dw 8192	;give it 32 MB
+DOS_CODE_SEL	equ $-gdt	;this gives dos programs complete access to one megabyte at the beginning of memory
+gdtdos:	dw 256	;give it 1 MB
 	dw 0
 	db 0
 	db 0x9A
 	db 0xCF
 	db 0
-PROG_DATA_SEL 	equ $-gdt
-gdtprogd: dw 8192
+DOS_DATA_SEL 	equ $-gdt
+gdtdos2:	dw 256
 	dw 0
 	db 0
 	db 0x92
@@ -334,10 +334,11 @@ gdt_end:
 ; 32 reserved interrupts:
 idt:	
 %assign i 0
-%rep    33
+%rep    32
 		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep
+		dw int20h,NEW_CODE_SEL,0x8E00,0
 		dw int21h,NEW_CODE_SEL,0x8E00,0
 %assign i 0x22
 %rep 14
