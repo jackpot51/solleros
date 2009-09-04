@@ -2,7 +2,7 @@
 [ORG 0x100]
 start:
 ;finding out the ways to emulate certain dos calls.
-mov ax, [0x81]
+mov eax, [0x81]
 cmp eax, "prin"
 je near printex
 cmp eax, "char"
