@@ -24,21 +24,18 @@ f7:
 incbin "included/solleros.txt"
 align 512,db 0
 f8:
-incbin "included/sound"
-align 512,db 0
-f9:
 incbin "included/tely"
 align 512,db 0
-f10:
+f9:
 incbin "included/time"
 align 512,db 0
-f11:
+f10:
 incbin "included/tutorial.bat"
 align 512,db 0
-f12:
+f11:
 incbin "included/unfs"
 align 512,db 0
-f13:
+f12:
 incbin "included/unfs-system"
 align 512,db 0
-f14:
+f13:
