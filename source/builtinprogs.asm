@@ -1,8 +1,5 @@
 filetypes db 255,44
 progstart:		;programs start here
-;db 255,44,"index",0
-;	call indexfiles
-;	jmp nwcmd
 
 
 indexfiles:
