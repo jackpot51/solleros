@@ -1,4 +1,13 @@
 int21h:
+dostosolleros:
+	push ax
+	mov ax, NEW_DATA_SEL
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov ax, SYS_DATA_SEL
+	mov gs, ax
+	pop ax
 	cmp ah, 1
 	je near dosgchar
 	cmp ah, 2
@@ -13,31 +22,36 @@ int21h:
 	je near dosgettime
 	cmp ah, 0x4C
 	je near dosexit
-	ret
+backtodos:
+	push ax
+	mov ax, PROG_DATA_SEL
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	pop ax
+	iret
 
 dosgchar:
-	mov ah, 5
 	xor al, al
-	int 30h
-	ret
+	call int302
+	jmp backtodos
 	
 doswchar:
 	mov bl, 7
-	mov ah, 6
-	int 30h
-	ret
+	call int301
+	jmp backtodos
 	
 dosprintstr:
-	mov esi, [esp]
+	mov esi, 0x400000
 	mov si, dx
 	mov al, "$"
-	mov ah, 1
 	mov bl, 7
-	int 30h
-	ret
+	call int303
+	jmp backtodos
 	
 dosgetstr:
-	mov esi, [esp]
+	mov esi, 0x400000
 	mov si, dx
 	mov ecx, 0
 	mov cl, [esi]
@@ -46,15 +60,14 @@ dosgetstr:
 	mov [stringstart], esi
 	add edi, ecx
 	mov al, 13
-	mov ah, 4
 	mov bl, 7
-	int 30h
+	call int305
 	mov ecx, esi
 	sub ecx, [stringstart]
 	mov esi, [stringstart]
 	mov [esi - 1], cl
 	mov [esi - 2], cl
-	ret
+	jmp backtodos
 stringstart dd 0
 
 dosgetdate:
@@ -64,7 +77,7 @@ dosgetdate:
 	add cx, 2000
 	mov dh, [RTCtimeMonth]
 	mov dl, [RTCtimeDay]
-	ret
+	jmp backtodos
 
 dosgettime:
 	call time
@@ -72,8 +85,7 @@ dosgettime:
 	mov cl, [RTCtimeMinute]
 	mov dh, [RTCtimeSecond]
 	mov dl, 0
-	ret
+	jmp backtodos
 	
 dosexit:
-	xor ax, ax
-	int 30h
+	jmp nwcmd

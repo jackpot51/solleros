@@ -113,7 +113,6 @@ shush:	;SollerOS Hardly Unix-compatible Shell
 nwcmd:	
 	cmp byte [threadson], 0
 	je noclinwcmd
-	;cli
 	mov byte [threadson], 0
 noclinwcmd:
 	mov al, 1
