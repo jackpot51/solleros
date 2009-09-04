@@ -34,3 +34,15 @@
 		D3 equ 8126
 		C3# equ 8609
 		C3 equ 9121
+		B2 equ 9664
+		A2# equ 10238
+		A2 equ 10847
+		G2# equ 11492
+		G2 equ 12175
+		F2# equ 12899
+		F2 equ 13666
+		E2 equ 14479
+		D2# equ 15340
+		D2 equ 16252
+		C2# equ 17219
+		C2 equ 18243
