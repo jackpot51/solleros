@@ -749,6 +749,26 @@ notbatch: jmp nwcmd
 	db 255,44,"rem",0	;this lets you rem stuff
 	jmp nwcmd
 
+	db 255,44,"system",0
+	mov esi, systeminfomsg
+	call printquiet
+	mov ecx, bssstart
+	shr ecx, 10
+	call showdec
+	mov esi, diskbytemsg
+	call printquiet
+	mov ecx, commandbufend
+	shr ecx, 10
+	call showdec
+	mov esi, membytemsg
+	call print
+	jmp nwcmd
+
+systeminfomsg db "Kernel Information:",10,13,0
+diskbytemsg db "KB Disk Space",10,13,0
+membytemsg db "KB Memory",10,13,0
+	
+
 	db 255,44,"while",0
 whilecmd:  xor al, al
 	cmp [BATCHISON], al
