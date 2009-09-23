@@ -1,0 +1,16 @@
+C:\Users\Jackpot\Documents\Visual Studio 2008\Projects\FontMaker\FontMaker\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Jackpot\Documents\Visual Studio 2008\Projects\FontMaker\FontMaker\obj\Debug\FontMaker.Form1.resources
+C:\Users\Jackpot\Documents\Visual Studio 2008\Projects\FontMaker\FontMaker\obj\Debug\FontMaker.Properties.Resources.resources
+C:\Users\Jackpot\Documents\Visual Studio 2008\Projects\FontMaker\FontMaker\obj\Debug\FontMaker.csproj.GenerateResource.Cache
+C:\Users\Jackpot\Documents\Visual Studio 2008\Projects\FontMaker\FontMaker\bin\Debug\FontMaker.exe
+C:\Users\Jackpot\Documents\Visual Studio 2008\Projects\FontMaker\FontMaker\bin\Debug\FontMaker.pdb
+C:\Users\Jackpot\Documents\Visual Studio 2008\Projects\FontMaker\FontMaker\obj\Debug\FontMaker.exe
+C:\Users\Jackpot\Documents\Visual Studio 2008\Projects\FontMaker\FontMaker\obj\Debug\FontMaker.pdb
+C:\Users\Jackpot\SollerOS\SVN\FontMaker\FontMaker\obj\Debug\FontMaker.exe
+C:\Users\Jackpot\SollerOS\SVN\FontMaker\FontMaker\obj\Debug\FontMaker.pdb
+C:\Users\Jackpot\SollerOS\SVN\FontMaker\FontMaker\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Jackpot\SollerOS\SVN\FontMaker\FontMaker\obj\Debug\FontMaker.Form1.resources
+C:\Users\Jackpot\SollerOS\SVN\FontMaker\FontMaker\obj\Debug\FontMaker.Properties.Resources.resources
+C:\Users\Jackpot\SollerOS\SVN\FontMaker\FontMaker\obj\Debug\FontMaker.csproj.GenerateResource.Cache
+C:\Users\Jackpot\SollerOS\SVN\FontMaker\FontMaker\bin\Debug\FontMaker.exe
+C:\Users\Jackpot\SollerOS\SVN\FontMaker\FontMaker\bin\Debug\FontMaker.pdb

@@ -1,4 +1,3 @@
-db "BUFSTART"
 [section .bss]
 bssstart:
 stack:
@@ -32,7 +31,7 @@ lastcommandpos: resb 4
 currentcommandpos: resb 4
 commandbuf:
 resb 1024
-commandbufend:
+commandbufend:	;this is where kernel space only ends, the rest is for threading
 rbuffstart: ;for use with networking
 ;resb 8212
 threadlist:	;;this buffer will hold the stack locations of all of the threads, up to 2048

@@ -1,4 +1,4 @@
-;test the fpu-it should have already been initialized
+;test the fpu-it should have already been initialized-by default it does -65536 + 28
 %include "include.asm"
 fld tword [real]
 fbld [bcd]
