@@ -39,15 +39,12 @@ f12:
 incbin "included/tely"
 align 512,db 0
 f13:
-incbin "included/time"
-align 512,db 0
-f14:
 incbin "included/tutorial.bat"
 align 512,db 0
-f15:
+f14:
 incbin "included/unfs"
 align 512,db 0
-f16:
+f15:
 incbin "included/unfs-system"
 align 512,db 0
-f17:
+f16:

@@ -117,3 +117,4 @@ physbaseptr 		times 4 db 0	;Physical address for flat frame buffer
 offscreenmemoffset 	times 4 db 0	;Pointer to start of off screen memory
 offscreenmemsize 	times 2 db 0    ;Amount of off screen memory in 1Kb units
 reserved2 			times 206 db 0  ;Remainder of ModeInfoBlock
+osend:	;this is the end of the operating system's space on disk
