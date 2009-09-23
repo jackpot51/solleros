@@ -4,7 +4,7 @@
 ;I think I will make a java program which can create and extract this filesystem from the solleros image
 ;by default everything is owned by and readable by root, therefore this does not need to be stated
 ;the structure of the system should be as follows:
-	;/bin/time
+	;/bin/tely
 	;/etc/tutorial
 	;/home/user/
 filesys:
@@ -153,7 +153,7 @@ indexstart:		;this will basically contain all of the names/metadata/dates/other 
 				db "home",0
 		
 		bin1indexname:	dd bin1node - fsstart
-				db "time.exe",0
+				db "tely.exe",0
 
 		userindexname:	dd usernode - fsstart
 				db "user",0
@@ -164,7 +164,7 @@ align 512, db 0
 indexend:
 
 bin1p1start:
-incbin "included/time"
+incbin "included/tely"
 align 512, db 0
 bin1p1end:
 

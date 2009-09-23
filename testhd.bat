@@ -4,7 +4,6 @@ java filecopy
 nasm source\sector.asm -f bin -o sector.bin
 nasm kernel.asm -f bin -o kernel.bin
 del SollerOS.bin
-del SollerOS.vmdk
 dd if=sector.bin of=SollerOS.bin bs=512
 dd if=kernel.bin of=SollerOS.bin bs=512 seek=1
 cd qemu

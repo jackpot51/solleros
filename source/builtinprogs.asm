@@ -752,12 +752,14 @@ notbatch: jmp nwcmd
 	db 255,44,"system",0
 	mov esi, systeminfomsg
 	call printquiet
-	mov ecx, bssstart
+	mov ecx, osend
 	shr ecx, 10
 	call showdec
 	mov esi, diskbytemsg
 	call printquiet
-	mov ecx, commandbufend
+	mov ecx, osend
+	add ecx, commandbufend
+	sub ecx, bssstart	;add the extra buffer space
 	shr ecx, 10
 	call showdec
 	mov esi, membytemsg

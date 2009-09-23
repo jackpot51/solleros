@@ -38,17 +38,14 @@ dd (f12-f11)/512
 db "tely",0
 dd (f12-$$)/512
 dd (f13-f12)/512
-db "time",0
+db "tutorial.bat",0
 dd (f13-$$)/512
 dd (f14-f13)/512
-db "tutorial.bat",0
+db "unfs",0
 dd (f14-$$)/512
 dd (f15-f14)/512
-db "unfs",0
+db "unfs-system",0
 dd (f15-$$)/512
 dd (f16-f15)/512
-db "unfs-system",0
-dd (f16-$$)/512
-dd (f17-f16)/512
 enddiskfileindex:
 
