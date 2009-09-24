@@ -174,17 +174,7 @@ guistart:
 	
 	
 ;cursorloc: dd 0
-		
-;nextimage:	
-;	call guiclear
-;	mov esi, [bmpend]
-;	xor eax, eax
-;	xor ebx, ebx
-;	xor ecx, ecx
-;	xor edx, edx
-;	call showbmp
-;	jmp guistartin
-		
+				
 copygui db 0
 graphicsset db 0
 graphicspos db 0,0

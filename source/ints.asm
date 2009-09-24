@@ -477,8 +477,6 @@ readline:
 		mov [commandedit], ah
 		
 	int305up:
-		;cmp bl, 0xE0
-		;jne int305b
 		xor al, al
 		cmp [commandedit], al
 		je near int305b
