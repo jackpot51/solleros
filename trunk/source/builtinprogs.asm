@@ -106,8 +106,6 @@ db 255,44,"echo",0
 	echo:	mov esi, buftxt
 		add esi, 5
 		mov al, [esi]
-		;cmp al, '$'
-		;je echovr		;;now unnecessary
 		call print
 		mov esi, line
 		call print
@@ -239,24 +237,6 @@ db 255,44,"#",0
 		mov [decimal], cl
 		mov ecx, [result]
 		jmp vrnm4
-;	varnum1: sub esi, buftxt
-;		mov edi, esi
-;		add esi, buftxt
-;		inc edi
-;		mov ebx, variables
-;		call nxtvrech
-;		mov edi, esi
-;		dec edi
-;		jmp varnum2
-;	varnum3: sub esi, buftxt
-;		mov edi, esi
-;		add esi, buftxt
-;		inc edi
-;		mov ebx, variables
-;		call nxtvrech
-;		mov edi, esi
-;		dec edi
-;		jmp varnum4
 	checkdecimal2:
 		mov ah, [decimal]
 		mov [decimal2], ah
