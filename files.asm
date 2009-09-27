@@ -27,24 +27,21 @@ f8:
 incbin "included/piano"
 align 512,db 0
 f9:
-incbin "included/solleros.bmp"
-align 512,db 0
-f10:
 incbin "included/solleros.txt"
 align 512,db 0
-f11:
+f10:
 incbin "included/songotime.snd"
 align 512,db 0
-f12:
+f11:
 incbin "included/tely"
 align 512,db 0
-f13:
+f12:
 incbin "included/tutorial.bat"
 align 512,db 0
-f14:
+f13:
 incbin "included/unfs"
 align 512,db 0
-f15:
+f14:
 incbin "included/unfs-system"
 align 512,db 0
-f16:
+f15:

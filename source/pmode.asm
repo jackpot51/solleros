@@ -154,12 +154,9 @@ clearkernelbuffers:
 	jb clearkernelbuffers
 	sti
 	cmp byte [guinodo], 1
-	je guidonot
+	je near os
 	jmp gui
-guidonot:
-	jmp os
 	
-user2codepoint dw 0,0
 basecache dd 0
 newcodecache dd 0x100000
 
@@ -167,10 +164,10 @@ pitdiv dw 5370
 timeseconds dd 0
 timenanoseconds dd 0
 timeinterval dd 4500572
-soundon db 0
+soundon db 1
 soundrepititions dw 0
-soundpos dd 0
-soundendpos dd 0
+soundpos dd startupsound
+soundendpos dd startupsoundend
 					;if using the rtc, the default frequency yeilds a period of 976562.5ns
 					;if using the pit, div=451 is 377981.0004, div=5370 is 4500572.00007ns, div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
 pitinterrupt: ;this controls threading
@@ -223,9 +220,6 @@ userint:
 	popa
 	sti
 	jmp nwcmd
-	
-rtcinterrupt:
-	jmp handled
 	
 timekeeper:
 	push eax
@@ -356,20 +350,15 @@ idt:
 ;here are all the irq's
 		dw pitinterrupt,NEW_CODE_SEL,0x8E00,0
 		dw keyinterrupt,NEW_CODE_SEL,0x8E00,0
-%rep 6
-		dw handled,NEW_CODE_SEL,0x8E00,0
-%endrep
-		dw rtcinterrupt,NEW_CODE_SEL,0x8E00,0
-%rep 7
+%rep 14
 		dw handled,NEW_CODE_SEL,0x8E00,0
 %endrep
 ;This brings me up to 0x50
-;SPACEWASTA
-;%assign i 0x50
-;%rep 176
-;		dw unhand + i*13, NEW_CODE_SEL,0x8E00,0
-		;dw handled,NEW_CODE_SEL,0x8E00,0
-;%assign i +1
-;%endrep
+%assign i 0x50
+%rep 176
+		dw handled, NEW_CODE_SEL,0x8E00,0
+		;dw unhand + i*13, NEW_CODE_SEL,0x8E00,0
+%assign i +1
+%endrep
 idt_end:
 [BITS 32]
