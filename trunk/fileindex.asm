@@ -26,26 +26,23 @@ dd (f8-f7)/512
 db "piano",0
 dd (f8-$$)/512
 dd (f9-f8)/512
-db "solleros.bmp",0
+db "solleros.txt",0
 dd (f9-$$)/512
 dd (f10-f9)/512
-db "solleros.txt",0
+db "songotime.snd",0
 dd (f10-$$)/512
 dd (f11-f10)/512
-db "songotime.snd",0
+db "tely",0
 dd (f11-$$)/512
 dd (f12-f11)/512
-db "tely",0
+db "tutorial.bat",0
 dd (f12-$$)/512
 dd (f13-f12)/512
-db "tutorial.bat",0
+db "unfs",0
 dd (f13-$$)/512
 dd (f14-f13)/512
-db "unfs",0
+db "unfs-system",0
 dd (f14-$$)/512
 dd (f15-f14)/512
-db "unfs-system",0
-dd (f15-$$)/512
-dd (f16-f15)/512
 enddiskfileindex:
 

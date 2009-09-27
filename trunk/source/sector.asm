@@ -1,11 +1,6 @@
-    ; SECTOR.ASM
-    ; Load a program off the disk and jump to it
-
-    ; Tell the compiler that this is offset 0.
-    ; It isn't offset 0, but it will be after the jump.
 [BITS 16]
 	; Boot record is loaded at 0000:7C00
-ORG 7c00h
+[ORG 7c00h]
 	mov [DriveNumber], dl	;save the original drive number
 	xor ax,		ax
 	mov ds,		ax		;Update the segment registers
@@ -164,7 +159,6 @@ address:	dw 0x0	;;address 0
 segm:	dw 0x1000	;;segment
 ;;start with known value for hd
 lbaad:
-	;dd 0x3D000
 	dd 0	;;lba address
 	dd 0
 

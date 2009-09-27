@@ -524,7 +524,6 @@ windowselect:
 		jmp doneiconsel
 	killwin:
 		mov word [esi], 0
-		mov dword [user2codepoint], 0
 		mov byte [termguion], 0
 		call guiclear
 		call reloadallgraphics
@@ -1375,7 +1374,6 @@ endedbmp:
 		mov dx, 16
 		mov cx, 16
 		mov ebx, os
-		mov [user2codepoint], ebx
 		xor ax, ax
 		call showwindow
 		jmp os
@@ -1394,7 +1392,6 @@ endedbmp:
 		xor dx, dx
 		xor cx, cx
 		mov ebx, os
-		mov [user2codepoint], ebx
 		xor ax, ax
 		call showwindow
 		jmp os
