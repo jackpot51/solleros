@@ -60,66 +60,50 @@ exceptions:
 exceptionsend:
 	exception0:	
 		int 0
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception1:	
 		int 1
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception2:	
 		int 2
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception3:	
 		mov eax, 0xD15EA5ED
 		int 3
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception4:	
 		int 4
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception5:	
 		int 5
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception6:	
 		int 6
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception7:	
 		int 7
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception8:
 		int 8
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception9:	
 		int 9
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception10:  
 		int 10
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception11:	
 		int 11
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception12:		
 		int 12
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception13:	
 		int 13
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception14:
 		int 14
-		mov ah, 0
-		int 0x30
+		jmp exit
 	exception15:
 		int 15
-		mov ah, 0
-		int 0x30
+		jmp exit

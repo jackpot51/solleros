@@ -154,7 +154,9 @@ clearkernelbuffers:
 	jb clearkernelbuffers
 	sti
 	cmp byte [guinodo], 1
-	je near os
+	jne near guistartup
+	jmp os
+guistartup:	;this prevents weird issues
 	jmp gui
 	
 basecache dd 0

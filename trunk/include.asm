@@ -39,6 +39,6 @@ print:
 read:
 	ret
 exit:
-	mov ah, 0
+	xor eax, eax
 	int 0x30
 ___progstart___:

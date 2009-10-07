@@ -159,7 +159,7 @@ address:	dw 0x0	;;address 0
 segm:	dw 0x1000	;;segment
 ;;start with known value for hd
 lbaad:
-	dd 0	;;lba address
+	dd 0x160	;;lba address
 	dd 0
 
 %include 'source/signature.asm'
