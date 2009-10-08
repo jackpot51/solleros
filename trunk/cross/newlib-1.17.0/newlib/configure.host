@@ -333,9 +333,6 @@ esac
 # THIS TABLE IS ALPHA SORTED.  KEEP IT THAT WAY.
 
 case "${host}" in
- i[3-7]86-*-solleros*)
-   sys_dir=solleros
-   ;;
   *-*-cygwin*)
 	posix_dir=posix
 	stdio64_dir=stdio64
@@ -408,6 +405,9 @@ case "${host}" in
   i[34567]86-*-sco*)
 	sys_dir=sysvi386
 	unix_dir=unix
+	;;
+  i[34567]86-*-solleros*)
+	sys_dir=solleros
 	;;
   i[34567]86-pc-linux-*)
 	sys_dir=linux

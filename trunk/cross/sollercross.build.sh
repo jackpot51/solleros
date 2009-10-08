@@ -3,11 +3,10 @@ echo Press enter if you ran this as root
 read throwaway
 
 echo Setting up directory structure
+svndir=$PWD
 mkdir /SollerOS/
 cd /SollerOS
-mkdir svn src cross
-echo Checking out SollerOS
-svn checkout http://solleros.googlecode.com/svn/trunk svn/ || exit 0
+mkdir src cross
 
 echo Getting GCC source
 cd src
@@ -25,10 +24,10 @@ export TARGET=i586-pc-solleros
 export PREFIX=/SollerOS/cross
 cd /SollerOS/src
 mkdir build-binutils build-newlib build-gcc
-cp -r --remove-destination ../svn/cross/* . || exit 0
+cp -r --remove-destination $svndir/*/ . || exit 0
 
 echo Rebuilding autoconf caches
-cd newlib/libc/sys
+cd newlib-1.17.0/newlib/libc/sys
 autoreconf || exit 0
 cd solleros
 autoreconf || exit 0
@@ -36,7 +35,7 @@ autoreconf || exit 0
 echo Building Binutils
 cd ../../../../../build-binutils
 ../binutils-2.19.1/configure --target=$TARGET --prefix=$PREFIX --disable-nls || exit 0
-make || exit 0
+make all || exit 0
 make install || exit 0
 export PATH=$PATH:$PREFIX/bin
 
