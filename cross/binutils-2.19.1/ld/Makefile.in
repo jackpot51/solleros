@@ -1839,7 +1839,7 @@ eelf_i386.c: $(srcdir)/emulparams/elf_i386.sh \
   $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
 	${GENSCRIPTS} elf_i386 "$(tdir_elf_i386)"
 esolleros_i386.c: $(srcdir)/emulparams/solleros_i386.sh $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
-          ${GENSCRIPTS} solleros_i386 "$(tdir_solleros_i386)"
+	${GENSCRIPTS} solleros_i386 "$(tdir_solleros_i386)"
 eelf_x86_64.c: $(srcdir)/emulparams/elf_x86_64.sh \
   $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
 	${GENSCRIPTS} elf_x86_64 "$(tdir_elf_x86_64)"

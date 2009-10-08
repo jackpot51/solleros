@@ -21,7 +21,6 @@ fi
 
 if test -n "${sys_dir}"; then
   case ${sys_dir} in
-	solleros) AC_CONFIG_SUBDIRS(solleros) ;;
 	a29khif) AC_CONFIG_SUBDIRS(a29khif) ;;
 	arc) AC_CONFIG_SUBDIRS(arc) ;;
 	arm) AC_CONFIG_SUBDIRS(arm) ;;
@@ -36,6 +35,7 @@ if test -n "${sys_dir}"; then
 	rdos) AC_CONFIG_SUBDIRS(rdos) ;;
 	rtems) AC_CONFIG_SUBDIRS(rtems) ;;
 	sh) AC_CONFIG_SUBDIRS(sh) ;;
+	solleros) AC_CONFIG_SUBDIRS(solleros) ;;
 	sparc64) AC_CONFIG_SUBDIRS(sparc64) ;;
 	sun4) AC_CONFIG_SUBDIRS(sun4) ;;
 	sysmec) AC_CONFIG_SUBDIRS(sysmec) ;;
