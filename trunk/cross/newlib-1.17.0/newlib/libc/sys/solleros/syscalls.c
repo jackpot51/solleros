@@ -1,11 +1,19 @@
-	#include <errno.h>
-    #undef errno
-    extern int errno;
+  #include <sys/stat.h>
+  #include <sys/types.h>
+  #include <sys/fcntl.h>
+  #include <sys/times.h>
+  #include <sys/errno.h>
+  #include <sys/time.h>
+  #include <stdio.h>
+  #include <errno.h>
+  #undef errno
+  extern int errno;
 	
-	void _exit{
-		asm("xorl %eax, %eax\n\t"
-			"int $0x30");
-	}
+    void _exit(){
+    	asm("xorl %eax, %eax\n\t"
+	"int $0x30");
+    }
+
     int close(int file){
         return -1;
     }
@@ -18,7 +26,7 @@
       return -1;
     }
 
-	int fork() {
+    int fork() {
       errno=EAGAIN;
       return -1;
     }
@@ -50,7 +58,7 @@
         return 0;
     }
 
-    int open(const char *name, int flags, int mode){
+    int _open(const char *name, int flags, int mode){
         return -1;
     }
 	
@@ -67,22 +75,22 @@
         heap_end = &end;
       }
       prev_heap_end = heap_end;
-      if (heap_end + incr > stack_ptr)
-        {
-          _write (1, "Heap and stack collision\n", 25);
-          abort ();
-        }
+//      if (heap_end + incr > stack_ptr)
+//        {
+//          _write (1, "Heap and stack collision\n", 25);
+//          abort ();
+//        }
 
       heap_end += incr;
       return (caddr_t) prev_heap_end;
     }
 
-    int stat(char *file, struct stat *st) {
+    int _stat(char *file, struct stat *st) {
       st->st_mode = S_IFCHR;
       return 0;
     }
 
-    int times(struct tms *buf){
+    int _times(struct tms *buf){
       return -1;
     }
 
@@ -100,12 +108,13 @@
         int todo;
       
         for (todo = 0; todo < len; todo++) {
-            asm("movb $6, %ah\n\t"
-				"int $0x30"
-				:
-				: "a"(*ptr++)
-				:
-				);
+            asm("movb $6, %%ah\n\t"
+		"int $0x30"
+		:
+		: "a" (*ptr)
+		: "%esi", "%edi", "%ebx", "%ecx", "%edx"
+		);
+	    *ptr++;
         }
         return len;
     }
