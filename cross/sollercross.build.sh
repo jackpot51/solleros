@@ -23,7 +23,7 @@ echo Copying SollerOS configuration files
 export TARGET=i586-pc-solleros
 export PREFIX=/SollerOS/cross
 cd /SollerOS/src
-mkdir build-binutils build-newlib build-gcc
+mkdir build-binutils build-newlib build-gcc build-gcc-full
 cp -r --remove-destination $svndir/*/ . || exit 0
 
 echo Rebuilding autoconf caches
@@ -44,9 +44,19 @@ cd ../build-gcc
 ../gcc-4.4.1/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c --without-headers || exit 0
 make all-gcc || exit 0
 make install-gcc || exit 0
+make all-target-libgcc || exit 0
+make install-target-libgcc || exit 0
 
 echo Building Newlib
 cd ../build-newlib
-../newlib-1.17.0/configure --target=$TARGET --prefix=$PREFIX
-make
-make install
+../newlib-1.17.0/configure --target=$TARGET --prefix=$PREFIX || exit 0
+make || exit 0
+make install || exit 0
+
+echo Building GCC with Newlib
+cd ../build-gcc-full
+../gcc-4.4.1/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c --with-headers || exit 0
+make all-gcc || exit 0
+make install-gcc || exit 0
+make all-target-libgcc
+make install-target-libgcc

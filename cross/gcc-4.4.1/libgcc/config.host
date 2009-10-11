@@ -166,8 +166,8 @@ esac
 
 case ${host} in
 # Support site-specific machine types.
- i[3-7]86-*-myos*)
-     ;;
+i[3-7]86-*-solleros*)
+	;;
 *local*)
 	rest=`echo ${host} | sed -e "s/$cpu_type-//"`
 	if test -f $srcdir/config/${cpu_type}/t-$rest
