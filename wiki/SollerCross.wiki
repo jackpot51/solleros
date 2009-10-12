@@ -1,2 +1,11 @@
 #summary The GCC Cross Compiler for SollerOS.
-This is the name for a future cross compiler for SollerOS.
+===Building===
+Open a terminal and cd to the svn trunk/cross.
+Run the firstbuild.sh script as root.
+===Using===
+Make a .c file.
+Run /SollerOS/cross/bin/i586-pc-solleros-gcc (name of the .c file) -o (name of the output executable)
+Copy the output file to the svn trunk/included
+Run the testhd.sh script in the svn trunk
+Login to SollerOS
+Run ./(name of the executable)
