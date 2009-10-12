@@ -23,10 +23,6 @@
 fonts:	incbin 'source/precompiled/fonts.pak'
 fontend:
 
-startupsound:
-	dw 20, 4561
-startupsoundend:
-
 mcursor:
 	db	00000001b
 	db	10000001b

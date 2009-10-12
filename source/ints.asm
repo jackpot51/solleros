@@ -26,13 +26,13 @@ newints:	;;for great justice
 ;;the jmp timerinterrupt's ensure that task switches occur
 	
 intx0:
+	mov bx, NEW_DATA_SEL
+	mov ds, bx
+	mov es, bx
+	mov fs, bx
+	mov bx, SYS_DATA_SEL
+	mov gs, bx
 	cmp al, 0
-	mov ax, NEW_DATA_SEL
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov ax, SYS_DATA_SEL
-	mov gs, ax
 	jne near warnexitstatus
 	jmp nwcmd
 intx1:

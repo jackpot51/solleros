@@ -166,10 +166,10 @@ pitdiv dw 5370
 timeseconds dd 0
 timenanoseconds dd 0
 timeinterval dd 4500572
-soundon db 1
+soundon db 0
 soundrepititions dw 0
-soundpos dd startupsound
-soundendpos dd startupsoundend
+soundpos dd 0
+soundendpos dd 0
 					;if using the rtc, the default frequency yeilds a period of 976562.5ns
 					;if using the pit, div=451 is 377981.0004, div=5370 is 4500572.00007ns, div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
 pitinterrupt: ;this controls threading

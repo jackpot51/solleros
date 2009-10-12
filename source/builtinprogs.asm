@@ -1,7 +1,5 @@
 filetypes db 255,44
 progstart:		;programs start here
-
-
 indexfiles:
 	mov esi, progstart
 	mov ebx, fileindex
@@ -154,7 +152,6 @@ db 255,44,"echo",0
 		call print
 		jmp nwcmd
 		
-
 db 255,44,"#",0
 	num:	
 		call clearbuffer
@@ -202,8 +199,6 @@ db 255,44,"#",0
 		mov edi, esi
 		inc esi
 		mov al, [esi]
-		;cmp al, '$'
-		;je near varnum3	;;unnecessary
 		cmp al, '%'
 		je near resultnum2
 	varnum4: 
@@ -523,7 +518,7 @@ logout:
 rebootcomp:
 	jmp coldboot
 
-	db 255,44,"shutdown",0
+	db 255,44,"off",0
 shutdowncomp:
 	jmp shutdown
 
@@ -578,6 +573,7 @@ dosnoprogfound:
 	call print
 	jmp nwcmd
 	
+elfstart db 0x7F,"ELF"
 	db 255,44,"./",0
 rundiskprog:
 	mov edi, buftxt
@@ -587,6 +583,9 @@ rundiskprog:
 	cmp edx, 404
 	je noprogfound
 	mov ebx, 0x400000
+	mov eax, [elfstart]
+	cmp [ebx], eax
+	je near runelf
 	cmp word [ebx], "EX"
 	jne progbatchfound
 	add ebx, 2
@@ -603,6 +602,9 @@ findnonspaceprog:
 	cmp al, " "
 	je findnonspaceprog
 	dec edi
+	jmp ebx
+runelf:
+	add ebx, 0x80
 	jmp ebx
 noprogfound:
 	mov esi, notfound1
@@ -750,6 +752,17 @@ systeminfomsg db "Kernel Information:",10,13,0
 diskbytemsg db "KB Disk Space",10,13,0
 membytemsg db "KB Memory",10,13,0
 	
+	db 255,44,"beep",0
+	mov eax, beepstart
+	mov [soundpos], eax
+	mov eax, beepend
+	mov [soundendpos], eax
+	mov byte [soundon], 1
+	jmp nwcmd
+	
+beepstart:
+	dw 15, 4561
+beepend:
 
 	db 255,44,"while",0
 whilecmd:  xor al, al

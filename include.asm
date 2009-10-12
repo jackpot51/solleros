@@ -28,17 +28,57 @@ tester:			;si=user bx=prog cl=endchar returns 1 in al if true
 			ret
 	.testalmost:
 			mov al, 2
-			ret
-	
+			ret	
+
 print:
 	mov al, 0
 	mov ah, 1
 	mov bl, 7
 	int 0x30
 	ret
+	
 read:
+	mov al, 13
+	mov ah, 4
+	mov bl, 7
+	int 0x30
 	ret
+	
 exit:
 	xor eax, eax
 	int 0x30
+			
+%macro EXIT 1
+	xor eax, eax
+	mov al, %1
+	int 0x30
+%endmacro
+
+%macro READ 1
+	section .data
+%%stringread:
+    times %1 db 0
+	db 0
+	section .text
+    mov esi, %%stringread
+	mov edi, %%stringread + %1
+	mov al, 13
+	mov ah, 4
+	mov bl, 7
+	int 0x30
+	mov esi, %%stringread
+%endmacro
+
+%macro PRINT 1+
+	section .data
+%%stringprint:
+    db %1,0
+	section .text
+    mov esi, %%stringprint
+	mov al, 0
+	mov ah, 1
+	mov bl, 7
+	int 0x30
+%endmacro
+
 ___progstart___:

@@ -171,8 +171,7 @@ diskdataread:
 	mov esi, [bufferstartesi]
 	mov ebx, [lbaadstartebx]
 	ret
-	
-	
+
 diskold: ;;28 bits
 	xor ax, ax
 	mov dx, 0x1F1

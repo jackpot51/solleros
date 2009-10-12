@@ -33,7 +33,7 @@ db 255,44,"reg",0
 	int 3
 	jmp nwcmd
 	
-db 255,44,"charmap",0
+db 255,44,"chars",0
 	xor al, al
 	mov bx, 7
 charmapcopy:
@@ -61,7 +61,7 @@ charmapnocopy:
 	pop ax
 	jmp charmapcopy
 	
-db 255,44,"keycode",0
+db 255,44,"keys",0
 keycode:
 	mov byte [trans], 0
 	mov byte [threadson], 0
@@ -189,7 +189,6 @@ noguibmp:
 		jmp nwcmd
 warnguibmp db "This can not be done without the gui.",10,13,0
 
-		
 filenotfound:
 		mov esi, filenf
 		call print
@@ -204,7 +203,7 @@ filenf2 db 34," could not be found.",13,10,0
 		
 loadedbmpmsg db " loaded.",13,10,0
 
-	db 255,44,"dump",0
+db 255,44,"dump",0
 	mov esi, buftxt
 	add esi, 5
 	xor ecx, ecx
