@@ -1,12 +1,9 @@
 import java.io.*;
-
-/**
- *
+/*
  * @author Jackpot
  */
 public class filecopy {
-
-    /**
+    /*
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
@@ -23,7 +20,7 @@ public class filecopy {
             Process child = Runtime.getRuntime().exec(command);
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(child.getErrorStream()));
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(child.getInputStream()));
-			while ((s = stdInput.readLine()) != null) {
+            while ((s = stdInput.readLine()) != null) {
                 System.out.println(s);
             }
             while ((s = stdError.readLine()) != null) {
@@ -60,5 +57,4 @@ public class filecopy {
         br2.write("f" + files.length + ":\n");
         br2.close();
     }
-
 }

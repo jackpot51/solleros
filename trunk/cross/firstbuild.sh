@@ -4,7 +4,7 @@ read throwaway
 
 echo Setting up directory structure
 svndir=$PWD
-mkdir /SollerOS/
+mkdir /SollerOS/ || exit 0
 cd /SollerOS
 mkdir src cross
 
@@ -22,7 +22,6 @@ tar xvfj binutils-2.19.1.tar.bz2 || exit 0
 echo Copying SollerOS configuration files
 export TARGET=i586-pc-solleros
 export PREFIX=/SollerOS/cross
-cd /SollerOS/src
 mkdir build-binutils build-newlib build-gcc build-gcc-full
 cp -r --remove-destination $svndir/*/ . || exit 0
 

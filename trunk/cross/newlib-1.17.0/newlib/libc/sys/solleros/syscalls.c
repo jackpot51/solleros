@@ -10,7 +10,7 @@
   extern int errno;
 	
     void _exit(){
-    	asm("xorl %eax, %eax\n\t"
+    asm("xorl %eax, %eax\n\t"
 	"int $0x30");
     }
 
@@ -63,7 +63,19 @@
     }
 	
     int read(int file, char *ptr, int len){
-        return 0;
+	int i = 0;
+	while((i < len) && (*ptr != 13)){
+            asm("movb $5, %%ah\n\t"
+		"movb $0, %%al\n\t"
+		"int $0x30"
+		: "=a" (*ptr)
+		:
+		: "%esi", "%edi", "%ebx", "%ecx", "%edx"
+		);
+	    *ptr++;
+	    i++;
+        }
+        return len;
     }
 
     caddr_t sbrk(int incr){
@@ -105,10 +117,10 @@
     }
 
     int write(int file, char *ptr, int len){
-        int todo;
-      
-        for (todo = 0; todo < len; todo++) {
+	int i;
+        for (i = 0; i < len; i++) {
             asm("movb $6, %%ah\n\t"
+		"movb $7, %%bl\n\t"
 		"int $0x30"
 		:
 		: "a" (*ptr)
