@@ -68,7 +68,7 @@ dosgetstr:
 	mov edi, esi
 	mov [stringstart], esi
 	add edi, ecx
-	mov al, 13
+	mov al, 10
 	mov bl, 7
 	call int305
 	mov ecx, esi

@@ -414,13 +414,11 @@ eqfnd:	inc esi
 	mov ebx, variables
 	jmp seek
 readvar:
-	mov al, 13
+	mov al, 10
 	mov bx, 7
 	mov byte [commandedit], 0
 	mov edi, buftxtend
 	call int305
-	mov esi, line
-	call print
 	jmp var
 seek:	mov ax, [ebx]
 	mov cl, 5
@@ -604,6 +602,8 @@ findnonspaceprog:
 	dec edi
 	jmp ebx
 runelf:
+	mov edi, buftxt
+	add edi, 2
 	add ebx, 0x80
 	jmp ebx
 noprogfound:
@@ -622,12 +622,11 @@ progbatchfound:
 		call buftxtclear
 		mov esi, buftxt
 	batchrunloop2:
-		mov cl, 13
-		mov ch, 10
-		cmp [edi], cx
+		mov cl, 10
+		mov ch, 13
+		cmp [edi], cl
 		je near nxtbatchrunline
-		rol cx, 8
-		cmp [edi], cx
+		cmp [edi], ch
 		je near nxtbatchrunline
 		cmp byte [edi], 0
 		je near nxtbatchrunline
@@ -637,7 +636,11 @@ progbatchfound:
 		inc edi
 		jmp batchrunloop2
 	nxtbatchrunline:
-		add edi, 2
+		inc edi
+		cmp [edi], cl
+		je nxtbatchrunline
+		cmp [edi], ch
+		je nxtbatchrunline
 		mov [batchedi], edi
 		mov [BATCHPOS], edi
 		mov byte [esi], 0
@@ -691,13 +694,9 @@ batchedi dd 0
 		add edi, 2
 		jmp fifindbatch
 	fifoundbatch:
-		add edi, 2
-		mov al, 13
-		mov ah, 10
-		cmp [edi], ax
-		je near goodfibatch
-		rol ax, 8
-		cmp [edi], ax
+		inc edi
+		mov al, 10
+		cmp [edi], al
 		je near goodfibatch
 		cmp byte [edi], 0
 		je near nobatchfoundrun
@@ -748,9 +747,9 @@ notbatch: jmp nwcmd
 	call print
 	jmp nwcmd
 
-systeminfomsg db "Kernel Information:",10,13,0
-diskbytemsg db "KB Disk Space",10,13,0
-membytemsg db "KB Memory",10,13,0
+systeminfomsg db "Kernel Information:",10,0
+diskbytemsg db "KB Disk Space",10,0
+membytemsg db "KB Memory",10,0
 	
 	db 255,44,"beep",0
 	mov eax, beepstart
@@ -773,8 +772,6 @@ whilecmd:  xor al, al
 whilefnd: dec esi
 	mov al, [esi]
 	cmp al, 10
-	je near whilefnd2
-	cmp al, 13
 	je near whilefnd2
 	cmp al, 0
 	je near whilefnd2

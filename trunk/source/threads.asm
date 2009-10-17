@@ -132,14 +132,14 @@ nomorethreadspace:
 	call print
 	mov byte [threadson], 0
 	jmp nwcmd
-nmts	db "teh colonel no can haz moar treds",13,10,0
+nmts	db "teh colonel no can haz moar treds",10,0
 
 nomorestackspace:
 	mov esi, nmss
 	call print
 	mov byte [threadson], 0
 	jmp nwcmd
-nmss	db "teh colonel no can haz moar staqz",13,10,0
+nmss	db "teh colonel no can haz moar staqz",10,0
 	
 threadswitch:
 	cli
