@@ -1,53 +1,65 @@
 align 512,db 0
 f0:
-incbin "included/charmap.com"
+incbin "included/argtest.elf"
 align 512,db 0
 f1:
-incbin "included/dostest.com"
+incbin "included/bc"
 align 512,db 0
 f2:
-incbin "included/exp"
+incbin "included/charmap.com"
 align 512,db 0
 f3:
-incbin "included/finalcount.snd"
+incbin "included/dostest.com"
 align 512,db 0
 f4:
-incbin "included/fork"
+incbin "included/exp"
 align 512,db 0
 f5:
-incbin "included/fpu"
+incbin "included/finalcount.snd"
 align 512,db 0
 f6:
-incbin "included/helloworld.elf"
+incbin "included/fork"
 align 512,db 0
 f7:
-incbin "included/lostwoods.snd"
+incbin "included/fpu"
 align 512,db 0
 f8:
-incbin "included/macrotest"
+incbin "included/helloworld.elf"
 align 512,db 0
 f9:
-incbin "included/mario.snd"
+incbin "included/lostwoods.snd"
 align 512,db 0
 f10:
-incbin "included/piano"
+incbin "included/macrotest"
 align 512,db 0
 f11:
-incbin "included/solleros.txt"
+incbin "included/mario.snd"
 align 512,db 0
 f12:
-incbin "included/songotime.snd"
+incbin "included/piano"
 align 512,db 0
 f13:
-incbin "included/tely"
+incbin "included/solleros.txt"
 align 512,db 0
 f14:
-incbin "included/tutorial.bat"
+incbin "included/songotime.snd"
 align 512,db 0
 f15:
-incbin "included/unfs"
+incbin "included/tely"
 align 512,db 0
 f16:
-incbin "included/unfs-system"
+incbin "included/testio.elf"
 align 512,db 0
 f17:
+incbin "included/tutorial.bat"
+align 512,db 0
+f18:
+incbin "included/tutorial.sh"
+align 512,db 0
+f19:
+incbin "included/unfs"
+align 512,db 0
+f20:
+incbin "included/unfs-system"
+align 512,db 0
+f21:

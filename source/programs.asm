@@ -103,8 +103,8 @@ db 255,44,"batch",0
 		mov esi, badbatchname
 		call print
 		jmp nwcmd
-		badbatchname db "This file already exists!",10,13,0
-		namenotfoundbatch db "You have to type a name after the command.",10,13,0
+		badbatchname db "This file already exists!",10,0
+		namenotfoundbatch db "You have to type a name after the command.",10,0
 		esicache3 dd 0
 		esicache2 dd 0
 	nonamefound:
@@ -116,7 +116,7 @@ db 255,44,"batch",0
 	batchcreate:
 		mov [esicache3], esi
 		mov edi, 0x800000
-		mov al, 13
+		mov al, 10
 		mov bl, 7
 		mov ah, 4
 		int 30h
@@ -132,10 +132,9 @@ db 255,44,"batch",0
 		mov esi, line
 		call print
 		mov esi, [esicache2]
-		mov al, 13
-		mov ah, 10
-		mov [esi], ax
-		add esi, 2
+		mov al, 10
+		mov [esi], al
+		inc esi
 		jmp batchcreate
 	endbatchcreate:
 		mov esi, [esicache3]
@@ -148,7 +147,7 @@ db 255,44,"batch",0
 		jmp nwcmd
 	
 	exitword db "\x",0
-	wordmsg db "Type \x to exit.",10,13,0
+	wordmsg db "Type \x to exit.",10,0
 		
 db 255,44,"show",0
 		mov edi, buftxt
@@ -187,7 +186,7 @@ noguibmp:
 		mov esi, warnguibmp
 		call print
 		jmp nwcmd
-warnguibmp db "This can not be done without the gui.",10,13,0
+warnguibmp db "This can not be done without the gui.",10,0
 
 filenotfound:
 		mov esi, filenf
@@ -199,9 +198,9 @@ filenotfound:
 		call print
 		jmp nwcmd
 filenf db "The file ",34,0
-filenf2 db 34," could not be found.",13,10,0
+filenf2 db 34," could not be found.",10,0
 		
-loadedbmpmsg db " loaded.",13,10,0
+loadedbmpmsg db " loaded.",10,0
 
 db 255,44,"dump",0
 	mov esi, buftxt
@@ -232,9 +231,9 @@ dumphexloop:
 
 
 timenscache db 8,".000000000"
-timenscacheend: db " ",10,13,0
+timenscacheend: db " ",10,0
 istimeset db 0
-settimemsg db "Enter the current UNIX time:",10,13,0
+settimemsg db "Enter the current UNIX time:",10,0
 timeinputbuffer times 12 db 0
 timeinputbend: db 0
 
@@ -443,8 +442,8 @@ tput1:
 	dayhex db 0
 	monthhex db 0
 	yearhex db 0
-	timeshow db "00:00:00",13,10
-	dateshow db "00-00-0000",13,10,0
+	timeshow db "00:00:00",10
+	dateshow db "00-00-0000",10,0
 	oldcentury:	;;from 1700 to 1900
 	db 4,2,0
 	century:	;;from 2000 to 2500
@@ -460,19 +459,19 @@ tput1:
 	dd friday
 	dd saturday
 sunday:
-	db "Sunday",13,10,0
+	db "Sunday",10,0
 monday:
-	db "Monday",13,10,0
+	db "Monday",10,0
 tuesday:
-	db "Tuesday",13,10,0
+	db "Tuesday",10,0
 wednesday:
-	db "Wednesday",13,10,0
+	db "Wednesday",10,0
 thursday:
-	db "Thursday",13,10,0
+	db "Thursday",10,0
 friday:
-	db "Friday",13,10,0
+	db "Friday",10,0
 saturday:
-	db "Saturday",13,10,0
+	db "Saturday",10,0
 
 db 255,44,"cpuid",0
 	xor eax, eax

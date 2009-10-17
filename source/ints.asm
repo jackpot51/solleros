@@ -15,12 +15,22 @@ newints:	;;for great justice
 	je near intx6	;;1=print char
 	cmp ah, 7
 	je near intx7	;;read file
+;	cmp ah, 8		;;write file
+;	je near intx8
 	cmp ah, 9
 	je near intx9	;;convert number to string
 	cmp ah, 10
 	je near intx10	;;convert string to number
 	cmp ah, 11
 	je near intx11	;;create thread
+	cmp ah, 12		;;get time
+	je near intx12
+	cmp ah, 13		;;set time
+	je near intx13
+	cmp ah, 14		;;run program
+	je near intx14
+	cmp ah, 15		;;get program info-location of name/options/number of options/environmental vars
+	je near intx15
 	ret
 	
 ;;the jmp timerinterrupt's ensure that task switches occur
@@ -70,6 +80,44 @@ intx10:
 intx11:
 	call threadfork
 	iret
+intx12:
+	mov eax, [timeseconds]
+	mov ebx, [timenanoseconds]
+	mov ecx, ebx
+	shr ecx, 10	;this is in microseconds
+	iret
+intx13:
+	mov [timeseconds], eax
+	mov [timenanoseconds], ebx
+	iret
+intx14:
+	mov edi, buftxt
+cpccmd:
+	mov al, [esi]
+	mov [edi], al
+	inc esi
+	inc edi
+	loop cpccmd
+	jmp run
+intx15:
+	mov ebx, variables
+	mov esi, [lastcommandpos]
+	add esi, commandbuf
+	mov edi, esi
+	xor ecx, ecx
+getcommandzeroes:
+	mov al, [edi]
+	inc edi
+	cmp al, 0
+	je nomorezeroes
+	cmp al, ' '
+	jne getcommandzeroes
+	inc ecx
+	jmp getcommandzeroes
+nomorezeroes:
+	inc ecx
+	dec edi
+	iret
 	
 warnexitstatus:
 	mov cl, al
@@ -85,8 +133,7 @@ warnexitstatus:
 	jmp nwcmd
 	
 exitstatus1msg db "An exit status of 0x",0
-exitstatus2msg db 8,"was returned.",10,13,0
-
+exitstatus2msg db 8,"was returned.",10,0
 linebeginpos dw 0
 videobufpos: dw 0
 charpos db 0,0
@@ -115,10 +162,10 @@ int301prnt:
 	mov cx, [charxy]
 	cmp al, 9
 	je near int301tab
-	cmp al, 13
+	cmp al, 13		;I am phasing this out-it is used by windows but not unix based systems
 	je near int301cr
 	cmp al, 10
-	je near int301nl
+	je near int301nlcr
 	cmp al, 8
 	je near int301bs
 	cmp al, 255		;;null character
@@ -177,19 +224,16 @@ donescr:
 		dec dh
 		jmp int301nobmr
 		
-	int301nl:
+	int301nlcr:
 		inc dh
 		xor ebx, ebx
+		xor dl, dl
 		mov bl, cl
 		shl bx, 1
 		mov edi, videobuf
-		add bx, [videobufpos]
-		add edi, ebx
-		xor ebx, ebx
-		mov bl, cl
-		shl bx, 1
 		add bx, [linebeginpos]
 		mov [linebeginpos], bx
+		add edi, ebx
 		jmp donecrnl
 		
 	int301eol:
@@ -244,8 +288,8 @@ getkey:
 	xor al, al
 	int302:		;;get char, if al is 0, wait for key
 		mov byte [trans], 1
-		cmp al, 1
-		jae transcheck
+		cmp al, 0
+		jne transcheck
 		mov byte [trans], 0
 	transcheck:
 		call guistartin
@@ -263,11 +307,12 @@ getkey:
 		je transcheck
 		jmp int302end
 	int302enter:
-		mov al, 13
+		mov al, 10
 	int302end:
 		ret
 	
 endkey303 db 0
+startesi303 dd 0
 	printquiet:
 		xor ax, ax
 		mov [endkey303], al
@@ -278,9 +323,14 @@ endkey303 db 0
 		xor ax, ax
 		mov bx, 7
 	int303:	;;print line, al=last key,bl=modifier, esi=buffer
+		mov [startesi303], esi
 		mov [endkey303], al
 		call int303b
+		mov ecx, esi
+		sub ecx, [startesi303]
+		push ecx
 		call termcopy
+		pop ecx
 		ret
 	int303b:
 		mov al, [esi]
@@ -323,7 +373,7 @@ endbuffer305 dd 0
 backcursor db 8," ",0
 
 readline:
-  mov al, 13
+  mov al, 10
   mov bl, 7
 	int305:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=bufferend
 		mov [buftxtloc], esi
@@ -378,14 +428,20 @@ readline:
 		cmp esi, buftxt2
 		ja backprintbuftxt2
 	nobackprintbuftxt2:
+		cmp al, 10
+		je nonobackprint
 		call int301
+	nonobackprint:
 		pop esi
 		cmp esi, [endbuffer305]
-		jae near doneint305
+		jae near doneint305inc
 		mov ax, [int305axcache]
 		mov ah, [endkey305]
 		cmp al, ah
 		jne int305b
+		jmp doneint305
+	doneint305inc:
+		inc esi
 	doneint305:
 		dec esi
 		mov edi, buftxt2
@@ -400,6 +456,9 @@ readline:
 	nocopylaterstuff:
 		mov byte [esi], 0
 		call clearbuftxt2
+		mov ecx, esi
+		mov edi, [firstesi305]
+		sub ecx, edi
 		ret
 	
 	clearbuftxt2:

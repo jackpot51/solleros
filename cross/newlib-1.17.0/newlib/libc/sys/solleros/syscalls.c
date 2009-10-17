@@ -11,7 +11,7 @@
 	
     void _exit(){
     asm("xorl %eax, %eax\n\t"
-	"int $0x30");
+		"int $0x30");
     }
 
     int close(int file){
@@ -35,6 +35,20 @@
       st->st_mode = S_IFCHR;
       return 0;
     }
+
+	int gettimeofday(struct timeval *p, void *z){
+		time_t _sec;
+		suseconds_t _usec;
+		asm("movb $12, %%ah\n\t"
+			"int $0x30"
+			:
+			: "a" (_sec), "c" (_usec)
+			: "%ebx"
+			);
+		p->tv_sec = _sec;
+		p->tv_usec = _usec;
+		return 0;
+	}
 
     int getpid() {
       return 1;
@@ -63,19 +77,18 @@
     }
 	
     int read(int file, char *ptr, int len){
-	int i = 0;
-	while((i < len) && (*ptr != 13)){
-            asm("movb $5, %%ah\n\t"
-		"movb $0, %%al\n\t"
-		"int $0x30"
-		: "=a" (*ptr)
-		:
-		: "%esi", "%edi", "%ebx", "%ecx", "%edx"
-		);
-	    *ptr++;
-	    i++;
-        }
-        return len;
+		int i = 0;
+		if(file==0){
+			    asm("movb $4, %%ah\n\t"
+					"movb $0, %%al\n\t"
+					"movb $7, %%bl\n\t"
+					"int $0x30"
+					: "=c" (i)
+					: "S" (ptr), "D" (ptr + len)
+					: "%eax", "%ebx", "%edx"
+					);
+		}
+		return i;
     }
 
     caddr_t sbrk(int incr){
@@ -87,12 +100,6 @@
         heap_end = &end;
       }
       prev_heap_end = heap_end;
-//      if (heap_end + incr > stack_ptr)
-//        {
-//          _write (1, "Heap and stack collision\n", 25);
-//          abort ();
-//        }
-
       heap_end += incr;
       return (caddr_t) prev_heap_end;
     }
@@ -117,16 +124,28 @@
     }
 
     int write(int file, char *ptr, int len){
-	int i;
-        for (i = 0; i < len; i++) {
-            asm("movb $6, %%ah\n\t"
-		"movb $7, %%bl\n\t"
-		"int $0x30"
-		:
-		: "a" (*ptr)
-		: "%esi", "%edi", "%ebx", "%ecx", "%edx"
-		);
-	    *ptr++;
-        }
-        return len;
+		int i;
+		if(file==1){
+			for(i=0;i<len;i++){
+		        asm("movb $6, %%ah\n\t"
+					"movb $7, %%bl\n\t"
+					"int $0x30"
+					:
+					: "a" (*ptr++)
+					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
+					);
+			}
+		}
+		if(file==2){
+			for(i=0;i<len;i++){
+		        asm("movb $6, %%ah\n\t"
+					"movb $0xF0, %%bl\n\t"
+					"int $0x30"
+					:
+					: "a" (*ptr++)
+					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
+					);
+			}
+		}
+        return i;
     }

@@ -12,11 +12,9 @@ os:
 usercheck:
 	mov esi, buftxt
 	mov edi, buftxtend
-	mov al, 13
+	mov al, 10
 	call int305
 	push esi
-	mov esi, line
-	call print
 	mov esi, pwdask
 	call print
 	pop esi
@@ -25,7 +23,7 @@ usercheck:
 passcheck:
 	xor al, al
 	call int302
-	cmp al, 13
+	cmp al, 10
 	je near gotpass
 	cmp al, 8
 	je near backpass
@@ -48,8 +46,6 @@ backpass:
 gotpass:
 	mov al,0
 	mov [esi], al
-	mov esi, line
-	call print
 	mov ebx, userlst
 userfind:
 	mov esi, buftxt
@@ -105,9 +101,9 @@ retbufclr: ret
 
 full:	jmp nwcmd
 
-nwcmd2:
-	mov esi, line
-	call print
+;nwcmd2:
+;	mov esi, line
+;	call print
 
 shush:	;SollerOS Hardly Unix-compatible Shell
 nwcmd:	
@@ -137,13 +133,13 @@ cancel:	xor al, al
 	call buftxtclear
 	mov esi, buftxt
 	mov byte [commandedit], 1
-	mov al, 13
+	mov al, 10
 	mov bx, 7
 	mov edi, buftxtend
 	call int305
 	mov byte [commandedit], 0
 	cmp byte [buftxt], 0
-	je near nwcmd2
+	je near nwcmd
 gotcmd:	mov esi, [currentcommandpos]
 	mov [lastcommandpos], esi
 	mov edi, buftxt
@@ -171,7 +167,7 @@ donecopy:
 input:	call buftxtclear
 	mov esi, buftxt		;puts input into buftxt AND onto screen
 	mov edi, buftxtend
-stdin:	mov al, 13
+stdin:	mov al, 10
 	mov bl, 7
 	mov ah, 4
 	int 30h
@@ -234,9 +230,7 @@ expandbuftxtlp:
 	jmp expandbuftxt
 	
 	
-run:	
-	mov esi, line		;;I should add some sort of command line parsing before it is processed to replace variables with stuff-o I did!
-	call print
+run:
 progtest2:
 	mov esi, buftxt
 fixvariables:
@@ -289,7 +283,6 @@ prgnf:
 	mov esi, notfound2
 	call print
 prgdn:	jmp nwcmd
-
 
 tester:			;si=user bx=prog returns 1 in al if true
 	xor al, al

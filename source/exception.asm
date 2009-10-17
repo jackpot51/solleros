@@ -1,4 +1,3 @@
-
 unhand:	
 	%assign i 0
 	%rep 0x40
@@ -175,42 +174,42 @@ intprob db 0
 codeloc dd 0
 codelocend dd 0
 	unhandmsg:	
-			db "INT=00000000",10,13,0
+			db "INT=00000000 ",10,0
 unhndrg:
 	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
-			db 255,255,255,255,"00000000",10,13,0
+			db 255,255,255,255,"00000000 ",10,0
 	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
-			db 255,255,255,255,"00000000",10,13,0
+			db 255,255,255,255,"00000000 ",10,0
 	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
-			db 255,255,255,255,"00000000",10,13,0
+			db 255,255,255,255,"00000000 ",10,0
 	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
-			db 255,255,255,255,"00000000",10,13,0
+			db 255,255,255,255,"00000000 ",10,0
 unhandregs:
 			db "EFL=00000000  ",0
 			db "CS:=00000000  ",0
-			db "EIP=00000000",10,13,0
+			db "EIP=00000000 ",10,0
 			db "DS:=00000000  ",0
 			db "ES:=00000000  ",0
 			db "FS:=00000000  ",0
 			db "GS:=00000000  ",0
-			db "SS:=00000000",10,13,0
+			db "SS:=00000000 ",10,0
 			db "EAX=00000000  ",0
 			db "ECX=00000000  ",0
 			db "EDX=00000000  ",0
-			db "EBX=00000000",10,13,0
+			db "EBX=00000000 ",10,0
 			db "ESP=00000000  ",0
 			db "EBP=00000000  ",0
 			db "ESI=00000000  ",0
-unhndrgend:	db "EDI=00000000",10,13,0
+unhndrgend:	db "EDI=00000000 ",10,0
 			db "CR0=00000000  ",0
 			db "CR2=00000000  ",0
 			db "CR3=00000000  ",0
-			db "CR4=00000000",10,13,0
+			db "CR4=00000000 ",10,0
 unhandcode: times 2 db 255,255,255,255,"00000000  ",0	;;this dumps the code before and after the interrupt in question
 			db 255,255,255,255,"00000000 ",255,0
 			db 255,255,255,"[00000000] ",0
 			times 3 db 255,255,255,255,"00000000  ",0
-			db 255,255,255,255,"00000000",10,13,0
+			db 255,255,255,255,"00000000",255,10,0
 unhandmsgend:
 
 errortypes:
@@ -233,58 +232,58 @@ errortypes:
 errortypesend:
 			dd unknownerror
 			
-err0	db "Division by zero:",10,13
-		db "Technically lim a",246,"x = ",236," when a is any real number. Happy Easter!",10,13
-		db "            x",26,"0",10,13,0
+err0	db "Division by zero:",10
+		db "Technically lim a",246,"x = ",236," when a is any real number. Happy Easter!",10
+		db "            x",26,"0",10,0
 		
-err1	db "Single-step/Breakpoint:",10,13
-		db "A breakpoint fault, breakpoint trap, or single-step trap was triggered.",10,13,0
+err1	db "Single-step/Breakpoint:",10
+		db "A breakpoint fault, breakpoint trap, or single-step trap was triggered.",10,0
 		
-err2	db "Nonmaskable interrupt:",10,13
-		db "A hardware interrupt was triggered that could not be masked",10,13,0
+err2	db "Nonmaskable interrupt:",10
+		db "A hardware interrupt was triggered that could not be masked",10,0
 		
-err3	db "Breakpoint:",10,13
-		db "This interrupt is used in programs to show the stack and registers and can be",10,13
-		db "ignored.",10,13,0
+err3	db "Breakpoint:",10
+		db "This interrupt is used in programs to show the stack and registers and can be",10
+		db "ignored.",10,0
 		
-err4	db "Overflow:",10,13
-		db "The processor ran into an INTO instruction with the overflow flag set.",10,13,0
+err4	db "Overflow:",10
+		db "The processor ran into an INTO instruction with the overflow flag set.",10,0
 		
-err5	db "Bounds check:",10,13
-		db "The processor rebounded from a BOUND instruction run on an operand that was out",10,13
-		db "of bounds.",10,13,0
+err5	db "Bounds check:",10
+		db "The processor rebounded from a BOUND instruction run on an operand that was out",10
+		db "of bounds.",10,0
 		
-err6	db "Invalid opcode:",10,13
-		db "The processor has no idea what it was trying to execute. Don't run SSE4 code",10,13
-		db "on 486's!",10,13,0
+err6	db "Invalid opcode:",10
+		db "The processor has no idea what it was trying to execute. Don't run SSE4 code",10
+		db "on 486's!",10,0
 		
-err7	db "Coprocessor not available:",10,13
-		db "Don't you know they don't make those anymore!",10,13,0
+err7	db "Coprocessor not available:",10
+		db "Don't you know they don't make those anymore!",10,0
 		
-err8	db "Double fault:",10,13
-		db "The exception handler could not handle that it could not handle an exception.",10,13,0
+err8	db "Double fault:",10
+		db "The exception handler could not handle that it could not handle an exception.",10,0
 		
-err9	db "Coprocessor segment overrun:",10,13,0
-		db "This never happens in modern computers, and never should.",10,13,0
+err9	db "Coprocessor segment overrun:",10,0
+		db "This never happens in modern computers, and never should.",10,0
 
-err10	db "Invalid TSS:",10,13
-		db "The TSS that was switched to is invalid. Nothing funny here.",10,13,0
+err10	db "Invalid TSS:",10
+		db "The TSS that was switched to is invalid. Nothing funny here.",10,0
 		
-err11	db "Segment not present:",10,13
-		db "The present bit of the segment descriptor is set to zero.",10,13,0
+err11	db "Segment not present:",10
+		db "The present bit of the segment descriptor is set to zero.",10,0
 		
-err12	db "Stack exception:",10,13
-		db "The SS descriptor is invalid or not present or its limit is too small.",10,13,0
+err12	db "Stack exception:",10
+		db "The SS descriptor is invalid or not present or its limit is too small.",10,0
 		
-err13	db "General protection violation:",10,13
-		db "You violated the computer. Step away slowly. The FBI is on its way.",10,13,0
+err13	db "General protection violation:",10
+		db "You violated the computer. Step away slowly. The FBI is on its way.",10,0
 		
-err14	db "Page fault:",10,13
-		db "The page that was requested was not available.",10,13,0
+err14	db "Page fault:",10
+		db "The page that was requested was not available.",10,0
 		
-err15	db "Reserved for Plan R:",10,13
-		db "This interrupt is reserved for usage only by the military when it is necessary",10,13
-		db "to initiate a full-scale coup d'",130,"tat.",10,13,0
+err15	db "Reserved for Plan R:",10
+		db "This interrupt is reserved for usage only by the military when it is necessary",10
+		db "to initiate a full-scale coup d'",130,"tat.",10,0
 		
-unknownerror db "What the hell just happened? Is everyone okay? Hard drive? Video card?",10,13
-			db	"Memory? Are you there?",10,13,0
+unknownerror db "What the hell just happened? Is everyone okay? Hard drive? Video card?",10
+			db	"Memory? Are you there?",10,0

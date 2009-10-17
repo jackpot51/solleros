@@ -3,35 +3,33 @@ bssstart:
 stack:
 	resb 4096
 stackend:
-
 graphicstable: ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
-	resb 200h 
+	resb 200h
 	graphicstableend:
 mousecolorbuf: ;where the gui under the mouse is stored
 	resb 256
 mcolorend:
-fileindex: resb 200h
+fileindex: resb 1024
 fileindexend:
-IFON resb 1 
-IFTRUE resb 100 
-BATCHPOS resb 4 
-BATCHISON resb 1 
-LOOPON resb 1 
-LOOPPOS	resb 4 
-variables: 	resb 500h 
+IFON resb 1
+IFTRUE resb 100
+BATCHPOS resb 4
+BATCHISON resb 1
+LOOPON resb 1
+LOOPPOS	resb 4
+variables: resb 1024
 varend: resb 1
-buftxt2: resb 100h
+buftxt2: resb 256
 resb 10
-buftxt: resb 200h 
+buftxt: resb 512
 buftxtend:
-buf2:	resb 20 
+buf2:	resb 20
 numbuf: resb 1 
 videobuf 		resb (160*64*2)	;1280x1024pixels in characters
 videobufend		resb 200
 lastcommandpos: resb 4
 currentcommandpos: resb 4
-commandbuf:
-resb 1024
+commandbuf: resb 1024
 commandbufend:	;this is where kernel space only ends, the rest is for threading
 
 rbuffstart: ;for use with networking

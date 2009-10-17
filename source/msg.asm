@@ -1,7 +1,7 @@
-	shushmsg db "Welcome to the SollerOS Hardly Unix-Compatible Shell!",10,13,0
+	shushmsg db "Welcome to the SollerOS Hardly Unix-Compatible Shell!",10,0
 	exitmsg db	"exit",0
 	notfound1 db "Program ",34,0
-	notfound2 db  34," not found.",13,10,0
+	notfound2 db  34," not found.",10,0
 	userask db "username:",0
 	pwdask	db	"password:",0
 	computer db "@"
@@ -9,7 +9,7 @@
 	location db " "
 	locationname db "/",0
 	endprompt db "]$ ",0
-	line	db	13,10,0
+	line	db	10,0
 	dirtab 	db " ",9,0
 	userlst:
 			db "user",0

@@ -789,8 +789,6 @@ grphbuf times 16 db 0
 		mov [showstringesi], esi
 		mov bx, [colorfont2]
 		call showfontvesa
-		cmp al, 13
-		je noproceedshst
 		cmp al, 10
 		je noproceedshst
 		add dx, 8
@@ -1139,8 +1137,6 @@ nostopshowfont:
 	mov [posyvesa], cx
 	cmp al, 10
 	je near goodvesafontx
-	cmp al, 13
-	je near goodvesafontx
 	xor ecx, ecx
 	mov cx, [resolutionx2]
 	sub cx, 16
@@ -1177,8 +1173,6 @@ findfontvesa:
 	xor ah, ah
 	cmp al, 10
 	je near nwlinevesa
-	cmp al, 13
-	je near cretvesa
 	shl eax, 4
 	add esi, eax
 	shr eax, 4
@@ -1247,14 +1241,12 @@ donefontvesa:
 	ret
 charwidth db 8
 nwlinevesa:
-	mov cx, [posyvesa]
-	add cx, 16
-	mov [posyvesa], cx
-	jmp donefontvesa
-cretvesa:
 	mov dx, [posxvesa]
 	xor dx, dx
 	mov [posxvesa], dx
+	mov cx, [posyvesa]
+	add cx, 16
+	mov [posyvesa], cx
 	jmp donefontvesa
 vesafontsaver:
 	xor al, al
