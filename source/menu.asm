@@ -82,6 +82,7 @@ setvesamode:
 	int 10h		;;enter VESA mode
 	mov byte [guinodo], 0
 	mov byte [guion], 1
+	call getmemorysize ;get the memory map after vesa is initialized
 	xor eax, eax
 	xor ebx, ebx
 	xor ecx, ecx
@@ -100,6 +101,7 @@ guiload2:
 	xor bx, bx
 	int 10h
 	mov byte [guinodo], 1
+	call getmemorysize ;get the memory map after the video is initialized
 	xor ebx, ebx
 	xor ecx, ecx
 	xor edx, edx
@@ -253,5 +255,28 @@ realmode:
    sti
    xor eax, eax
    ret
-   
+
+getmemorysize:
+	mov di, memlistbuf
+	xor ebx, ebx
+getmemsizeloop:
+	mov eax, 0xE820
+	mov edx, 0x0534D4150
+	mov ecx, 24
+	int 0x15
+	add di, 24
+	cmp di, memlistend
+	jae nomoregetmemsize
+	cmp ebx, 0
+	jne getmemsizeloop
+nomoregetmemsize:
+	sub di, memlistbuf
+	mov [memlistend], di
+	ret
+	
+
+memlistbuf:
+	times 576 db 0
+memlistend: dw 0
+	
 bootmsg:	db "Boot into the GUI?(y/n)",0
