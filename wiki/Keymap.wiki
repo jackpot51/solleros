@@ -4,8 +4,9 @@ SollerOS will be switching to Unicode soon, meaning that all Greek characters, L
 
 || *Number* || *Mode* ||
 || 1 || Latin ||
-|| 2 || Greek ||
-|| 3 || Cyrillic ||
+|| 2 || Special ||
+|| 3 || Greek ||
+|| 4 || Cyrillic ||
 
 ====Here is the keymap currently in use by SollerOS. This may change as characters are added so remember to check this page to get the current keymap.====
 || *None* || Shift || *Alt* || Shift || *Ctrl* || Shift ||
