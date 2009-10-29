@@ -145,14 +145,22 @@ diskr:		;;sector count in cl, disk number in ch, 48 bit address with last 32 bit
 	out dx, al	;;READ!!!
 	mov bx, 0xFFFF		;;try 65536 times before forcing
 diskrwait:
+	dec bx
+	cmp bx, 0xFFFF
+	jne diskrwait	;wait more than 400ns-wait until it loops back to 0xFFFF
+diskrwait2:
 	mov dx, 0x1F7
 	in al, dx
-	and al, 0x08
+	mov ah, al
+	and ah, 0x80
+	and al, 8
 	dec bx
 	cmp bx, 0
 	je nomorediskwait
 	cmp al, 0x08
-	jne diskrwait
+	jne diskrwait2
+	cmp ah, 0x80
+	je diskrwait2
 nomorediskwait:
 	mov bx, 256
 diskdataread:
@@ -171,36 +179,6 @@ diskdataread:
 	mov esi, [bufferstartesi]
 	mov ebx, [lbaadstartebx]
 	ret
-
-diskold: ;;28 bits
-	xor ax, ax
-	mov dx, 0x1F1
-	out dx, al	;;send null byte to port
-	inc dx	;;0x1F2
-	mov al, cl	;;get sector count
-	out dx, al	;;send sector count
-	inc dx	;;0x1F3
-	mov al, bl	;;get first 8 bits of address
-	out dx, al	;;send them
-	inc dx	;;0x1F4
-	ror ebx, 8	;;get next 8 bits
-	mov al, bl
-	out dx, al
-	inc dx	;;0x1F5
-	ror ebx, 8	;;again
-	mov al, bl
-	out dx, al
-	inc dx	;;0x1F6
-	ror ebx, 8
-	mov al, bl
-	and al, 00001111b	;;last 4 bits of address
-	or al, 0xE0			;;majic number
-	shl ch, 4
-	or al, ch
-	out dx, al			;;send drive indicator, magic bits, and highest 4 bits of address
-	inc dx	;;0x1F7
-	mov al, 0x20
-	out dx, al			;;execute read command
 	
 lbaadend dd 0
 lbaadstartebx dd 0

@@ -98,4 +98,6 @@ dosgettime:
 	
 dosexit:
 	popa
+	cmp al, 0
+	jne near warnexitstatus
 	jmp nwcmd

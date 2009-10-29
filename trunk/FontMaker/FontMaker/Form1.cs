@@ -15,10 +15,13 @@ namespace FontMaker
         Graphics box;
         Graphics box2;
         Graphics box3;
-        FileStream fs;
+        FileStream openfs;
+        FileStream savefs;
+        bool openedafilealready = false;
         bool[] pixeldata = new bool[128];
         byte[] readbyte = new byte[16];
-        string fontfile = "";
+        string openedfile = "";
+        string savedfile = "";
 
         public Form1()
         {
@@ -49,9 +52,14 @@ namespace FontMaker
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                fontfile = openFileDialog1.FileName;
-                fs = new FileStream(fontfile, FileMode.Open);
-                numericUpDown1.Maximum = fs.Length / 16 - 1;
+                if (openedafilealready)
+                {
+                    openfs.Close();
+                }
+                openedfile = openFileDialog1.FileName;
+                openfs = new FileStream(openedfile, FileMode.Open);
+                openedafilealready = true;
+                numericUpDown1.Maximum = openfs.Length / 16 - 1;
                 loadpdata(numericUpDown1.Value);
             }
         }
@@ -62,11 +70,11 @@ namespace FontMaker
         }
         private void loadpdata(decimal value)
         {
-            if (fs.CanRead)
+            if (openfs.CanRead)
             {
                 this.Text = Convert.ToChar(Convert.ToInt64(value)).ToString();
-                fs.Position = Convert.ToInt64(value * 16);
-                fs.Read(readbyte, 0, 16);
+                openfs.Position = Convert.ToInt64(value * 16);
+                openfs.Read(readbyte, 0, 16);
                 for (int i = 0; i < 16; i++)
                 {
                     bool[] pd = new bool[8];
@@ -105,6 +113,61 @@ namespace FontMaker
 
         }
 
-        private void button2_Click(object sender, EventArgs e) { }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                savedfile = saveFileDialog1.FileName;
+                if (savedfile == openedfile)
+                {
+                    for (int i = 0; i < 16; i++)
+                    {
+                        readbyte[i] = 0;
+                        bool[] pd = new bool[8];
+                        pd[0] = pixeldata[i * 8];
+                        for (int i2 = 1; i2 < 8; i2++)
+                        {
+                            pd[8 - i2] = pixeldata[i * 8 + i2];
+                        }
+                        for (int i2 = 0; i2 < 8; i2++)
+                        {
+                            readbyte[i] = Convert.ToByte((Convert.ToByte(pd[i2]) << i2) + readbyte[i]);
+                        }
+                    }
+                    openfs.Position = Convert.ToInt64(numericUpDown1.Value * 16);
+                    openfs.Write(readbyte, 0, 16);
+                }
+                else
+                {
+                    savefs = new FileStream(savedfile, FileMode.OpenOrCreate);
+                    if (savefs.CanWrite && openfs.CanRead)
+                    {
+                        openfs.Position = 0;
+                        savefs.Position = 0;
+                        for (int i = 0; i < openfs.Length; i++)
+                        {
+                            savefs.WriteByte(Convert.ToByte(openfs.ReadByte()));
+                        }
+                        for (int i = 0; i < 16; i++)
+                        {
+                            readbyte[i] = 0;
+                            bool[] pd = new bool[8];
+                            pd[0] = pixeldata[i * 8];
+                            for (int i2 = 1; i2 < 8; i2++)
+                            {
+                                pd[8 - i2] = pixeldata[i * 8 + i2];
+                            }
+                            for (int i2 = 0; i2 < 8; i2++)
+                            {
+                                readbyte[i] = Convert.ToByte((Convert.ToByte(pd[i2]) << i2) + readbyte[i]);
+                            }
+                        }
+                        savefs.Position = Convert.ToInt64(numericUpDown1.Value * 16);
+                        savefs.Write(readbyte, 0, 16);
+                    }
+                    savefs.Close();
+                }
+            }
+        }
     }
 }
