@@ -51,15 +51,12 @@ f16:
 incbin "included/testio.elf"
 align 512,db 0
 f17:
-incbin "included/tutorial.bat"
-align 512,db 0
-f18:
 incbin "included/tutorial.sh"
 align 512,db 0
-f19:
+f18:
 incbin "included/unfs"
 align 512,db 0
-f20:
+f19:
 incbin "included/unfs-system"
 align 512,db 0
-f21:
+f20:

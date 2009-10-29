@@ -11,6 +11,8 @@ cmp eax, "read"
 je near readex
 cmp eax, "time"
 je near timeex
+cmp eax, "exit"
+je near exitnogood
 
 help:
 	mov dx, helpmsg
@@ -18,7 +20,11 @@ help:
 	int 21h
 	int 20h
 
-helpmsg db "print - print a string",10,13,"char - print a character",10,13,"read - read and print string",10,13,"help - never!",10,13,"$"
+exitnogood:
+	mov ax, 0x4C10 ;exit with an error level of 0x10
+	int 21h
+
+helpmsg db "print - print a string",10,13,"char - print a character",10,13,"read - read and print string",10,13,"help - never!",10,13,"exit - exit with a bad error number",10,13,"$"
 
 printex:
 	mov dx, dosmsg
