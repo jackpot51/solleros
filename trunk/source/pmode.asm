@@ -162,26 +162,19 @@ getmemoryspace:
 	xor eax, eax
 memoryspaceaddition:
 	cmp esi, edi
-	jae getcpuspeed
+	jae finishedmemspacecalc
 	add esi, 8
 	mov ecx, [esi]
 	add esi, 8
 	mov ebx, [esi]
 	add esi, 8
-	cmp ebx, 3
+	cmp ebx, 1
 	jne memoryspaceaddition
 	add eax, ecx
 	jmp memoryspaceaddition
-	
-getcpuspeed:
+finishedmemspacecalc:
 	mov [memoryspace], eax
-	xor eax, eax
-	hlt
-	mov byte [testingcpuspeed], 1
-cpuspeedloop:	;wait until next timer interrupt, then inc eax until the next
-	inc eax
-	jmp cpuspeedloop
-cpuspeedloopend:
+	
 	cmp byte [guinodo], 1
 	jne near guistartup
 	jmp os
