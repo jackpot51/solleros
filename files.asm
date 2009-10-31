@@ -39,24 +39,27 @@ f12:
 incbin "included/piano"
 align 512,db 0
 f13:
-incbin "included/solleros.txt"
+incbin "included/solleros.bmp"
 align 512,db 0
 f14:
-incbin "included/songotime.snd"
+incbin "included/solleros.txt"
 align 512,db 0
 f15:
-incbin "included/tely"
+incbin "included/songotime.snd"
 align 512,db 0
 f16:
-incbin "included/testio.elf"
+incbin "included/tely"
 align 512,db 0
 f17:
-incbin "included/tutorial.sh"
+incbin "included/testio.elf"
 align 512,db 0
 f18:
-incbin "included/unfs"
+incbin "included/tutorial.sh"
 align 512,db 0
 f19:
-incbin "included/unfs-system"
+incbin "included/unfs"
 align 512,db 0
 f20:
+incbin "included/unfs-system"
+align 512,db 0
+f21:

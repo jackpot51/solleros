@@ -99,7 +99,7 @@ diskr:		;read from disk
 	mov al, 0x24
 	mov dx, 0x1F7
 	out dx, al	;;READ!!!
-	mov bx, 0xFFF
+	mov bx, 0xFF
 diskrwait:
 	dec bx
 	cmp bx, 0xFFFF
@@ -150,7 +150,7 @@ diskw:		;write disk
 	mov al, 0x34
 	mov dx, 0x1F7
 	out dx, al	;;WRITE!!!
-	mov bx, 0xFFF		;;try 65536 times before forcing
+	mov bx, 0xFF	;;try 65536 times before forcing
 diskwwait:
 	dec bx
 	cmp bx, 0xFFFF

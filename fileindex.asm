@@ -38,26 +38,29 @@ dd (f12-f11)/512
 db "piano",0
 dd (f12-$$)/512
 dd (f13-f12)/512
-db "solleros.txt",0
+db "solleros.bmp",0
 dd (f13-$$)/512
 dd (f14-f13)/512
-db "songotime.snd",0
+db "solleros.txt",0
 dd (f14-$$)/512
 dd (f15-f14)/512
-db "tely",0
+db "songotime.snd",0
 dd (f15-$$)/512
 dd (f16-f15)/512
-db "testio.elf",0
+db "tely",0
 dd (f16-$$)/512
 dd (f17-f16)/512
-db "tutorial.sh",0
+db "testio.elf",0
 dd (f17-$$)/512
 dd (f18-f17)/512
-db "unfs",0
+db "tutorial.sh",0
 dd (f18-$$)/512
 dd (f19-f18)/512
-db "unfs-system",0
+db "unfs",0
 dd (f19-$$)/512
 dd (f20-f19)/512
+db "unfs-system",0
+dd (f20-$$)/512
+dd (f21-f20)/512
 enddiskfileindex:
 

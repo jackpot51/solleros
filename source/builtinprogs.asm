@@ -731,6 +731,23 @@ notbatch: jmp nwcmd
 	jmp nwcmd
 
 	db 255,44,"system",0
+getcpuspeed:
+	mov eax, 0xFE
+	out 0x21, al ;mask off all but timer interrupt
+	mov al, 0x20
+	out 0x20, al
+	xor eax, eax
+	hlt
+	mov byte [testingcpuspeed], 1
+cpuspeedloop:	;wait until next timer interrupt, then inc eax until the next
+	inc eax
+	jmp cpuspeedloop
+cpuspeedloopend:
+	xor eax, eax
+	out 0x21, al
+	mov al, 0x20
+	out 0x20, al
+	
 	mov esi, systeminfomsg
 	call printquiet
 	mov ecx, osend
@@ -756,7 +773,7 @@ notbatch: jmp nwcmd
 	mov esi, cpuspeedmsg
 	call printquiet
 	mov ecx, [memoryspace]
-	shr ecx, 10
+	shr ecx, 20
 	call showdec
 	mov esi, memoryspacemsg
 	call print
