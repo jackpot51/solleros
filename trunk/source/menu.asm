@@ -14,7 +14,7 @@ guiload:
 	int 16h
 	cmp al, "y"
 	jne near guiload2
-	mov si, line
+	mov si, crlf
 	call printrm
 guiloadagain:
 	mov ax, 04F00h

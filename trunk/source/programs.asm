@@ -229,6 +229,8 @@ db 255,44,"show",0
 		add edi, 5
 		mov esi, 0x400000
 		call loadfile
+		cmp edx, 404
+		je near filenotfound
 		mov esi, 0x400000
 		cmp word [esi], "BM"
 		je bmpfound
@@ -267,10 +269,19 @@ filenotfound:
 		mov esi, filenf
 		call print
 		mov esi, buftxt
-		add esi, 8
+findfilenotfoundzero:
+		mov al, [esi]
+		inc esi
+		cmp al, 0
+		je nofilenamenotfound
+		cmp esi, buftxtend
+		jae nofilenamenotfound
+		cmp al, " "
+		jne findfilenotfoundzero
 		call print
 		mov esi, filenf2
 		call print
+nofilenamenotfound:
 		jmp nwcmd
 filenf db "The file ",34,0
 filenf2 db 34," could not be found.",10,0
