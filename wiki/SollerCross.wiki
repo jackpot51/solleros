@@ -4,7 +4,7 @@
   # Run the firstbuild.sh script as root.
 ===Using===
   # Make a .c file.
-  # Run /SollerOS/cross/bin/i586-pc-solleros-gcc (name of the .c file) -o (name of the output executable)
+  # Run "/SollerOS/cross/bin/i586-pc-solleros-gcc (name of the .c file) -o (name of the output executable)" or run "./cross (name of the .c file)"
   # Copy the output file to the svn trunk/included
   # Run the testhd.sh script in the svn trunk
   # Login to SollerOS
