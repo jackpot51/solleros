@@ -1,8 +1,8 @@
 #!/bin/bash
-if [[ $UID -ne 0 ]]; then
-	echo "$0 must be run as root"
-	exit 1
-fi
+#if [[ $UID -ne 0 ]]; then
+#	echo "$0 must be run as root"
+#	exit 1
+#fi
 svndir=$PWD
 cd /SollerOS/src || exit 0
 rm -rf build-gcc-full build-newlib || exit 0

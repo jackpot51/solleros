@@ -153,6 +153,35 @@ clearkernelbuffers:
 	cmp esi, bssend
 	jb clearkernelbuffers
 	sti
+
+getmemoryspace:
+	mov esi, memlistbuf
+	xor edi, edi
+	mov di, [memlistend]
+	add edi, esi
+	xor eax, eax
+memoryspaceaddition:
+	cmp esi, edi
+	jae getcpuspeed
+	add esi, 8
+	mov ecx, [esi]
+	add esi, 8
+	mov ebx, [esi]
+	add esi, 8
+	cmp ebx, 3
+	jne memoryspaceaddition
+	add eax, ecx
+	jmp memoryspaceaddition
+	
+getcpuspeed:
+	mov [memoryspace], eax
+	xor eax, eax
+	hlt
+	mov byte [testingcpuspeed], 1
+cpuspeedloop:	;wait until next timer interrupt, then inc eax until the next
+	inc eax
+	jmp cpuspeedloop
+cpuspeedloopend:
 	cmp byte [guinodo], 1
 	jne near guistartup
 	jmp os
@@ -162,6 +191,9 @@ guistartup:	;this prevents weird issues
 basecache dd 0
 newcodecache dd 0x100000
 
+testingcpuspeed db 0
+cpuspeedperint dd 0
+memoryspace dd 0
 pitdiv dw 5370
 timeseconds dd 0
 timenanoseconds dd 0
@@ -170,9 +202,19 @@ soundon db 0
 soundrepititions dw 0
 soundpos dd 0
 soundendpos dd 0
+
+cpuspeedend:
+	mov byte [testingcpuspeed], 0
+	mov [cpuspeedperint], eax
+	mov eax, cpuspeedloopend
+	mov [esp], eax
+	jmp handled
+
 					;if using the rtc, the default frequency yeilds a period of 976562.5ns
 					;if using the pit, div=451 is 377981.0004, div=5370 is 4500572.00007ns, div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
 pitinterrupt: ;this controls threading
+	cmp byte [testingcpuspeed], 1	;check to see if the cpu speed test is running
+	je cpuspeedend
 	call timekeeper
 	cmp byte [soundon], 1
 	jne timerinterrupt

@@ -18,6 +18,7 @@ void _start()
 	while(addr<=endaddr){
 		c = *(char*)(void*)(addr);
 		if(c==' '){
+			args[i][n]=0;
 			n=0;
 			i++;
 		}else{
@@ -25,6 +26,7 @@ void _start()
 			n++;
 		}
 		if(c==0){
+			args[i][n]=0;
 			addr=endaddr;
 		}
 		addr++;

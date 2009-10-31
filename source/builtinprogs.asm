@@ -744,12 +744,29 @@ notbatch: jmp nwcmd
 	shr ecx, 10
 	call showdec
 	mov esi, membytemsg
+	call printquiet
+	xor edx, edx
+	xor eax, eax
+	mov eax, [cpuspeedperint]
+	mov ebx, [timeinterval]
+	shr ebx, 10 ;divide the interval by 1024
+	div ebx	;quotient in eax, remainder in edx
+	mov ecx, eax
+	call showdec
+	mov esi, cpuspeedmsg
+	call printquiet
+	mov ecx, [memoryspace]
+	shr ecx, 10
+	call showdec
+	mov esi, memoryspacemsg
 	call print
 	jmp nwcmd
 
 systeminfomsg db "Kernel Information:",10,0
-diskbytemsg db "KB Disk Space",10,0
-membytemsg db "KB Memory",10,0
+diskbytemsg db "KB Disk Space Used",10,0
+membytemsg db "KB Memory Space Used",10,"System Information:",10,0
+cpuspeedmsg db "MHz",10,0
+memoryspacemsg db "MB Memory Space Free",10,0
 	
 	db 255,44,"beep",0
 	mov eax, beepstart

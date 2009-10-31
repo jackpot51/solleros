@@ -9,6 +9,7 @@
 	location db " "
 	locationname db "/",0
 	endprompt db "]$ ",0
+	crlf 	db 13
 	line	db	10,0
 	dirtab 	db " ",9,0
 	userlst:
