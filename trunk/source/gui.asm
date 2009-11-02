@@ -96,7 +96,7 @@ guiclearloop2:
 	
 	call cursorgui
 guistart:
-	call guistartin
+	call getkey
 	mov byte [copygui], 0
 	jmp guistart
 	

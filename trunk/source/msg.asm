@@ -1,4 +1,3 @@
-	shushmsg db "Welcome to the SollerOS Hardly Unix-Compatible Shell!",10,0
 	exitmsg db	"exit",0
 	notfound1 db "Program ",34,0
 	notfound2 db  34," not found.",10,0

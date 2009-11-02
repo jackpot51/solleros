@@ -347,43 +347,7 @@ cndtestfalse:
 cndtestalmost:
 	mov al, 2
 	ret
-currentdir db 0
-dir:	mov esi, fileindex
-	dirnxt:	mov al, [esi]
-		xor ah, ah
-		cmp al, 255
-		je dirfnd
-		inc esi
-		cmp esi,  fileindexend
-		jae dirdn
-		jmp dirnxt
-	dirfnd3:
-		inc esi
-		cmp esi, fileindexend
-		jbe dirnxt
-		dec esi
-	dirfnd:	inc esi
-		mov al, [esi]
-		xor ah, ah
-		cmp al, 44
-		je dirfnd2
-		inc esi
-		cmp esi,  fileindexend
-		jae dirdn
-		jmp dirnxt
-	dirfnd2: add esi, 1
-		call printquiet
-		mov [esidir], esi
-		mov esi, dirtab
-		call printquiet
-		mov esi, [esidir]
-		cmp esi,  fileindexend
-		jae dirdn
-		jmp dirnxt
-	dirdn:	mov esi, line
-			call print
-			jmp nwcmd
-esidir dd 0
+	
 array:				;arraystart in si, arrayend in bx, arrayseperator in cx
 		                ;ends if array seperator is found backwards after 0
 	arnxt:	      
