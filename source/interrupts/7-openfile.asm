@@ -1,0 +1,2 @@
+	call loadfile
+	jmp timerinterrupt

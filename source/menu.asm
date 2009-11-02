@@ -199,62 +199,12 @@ ten0rm:	inc si
 tendnrm:
 	ret
 
-
-
-
     char: 		    ;char must be in al
        mov bx, 07
 	   mov ah, 0Eh
 	   int 10h
 	   ret
 
-		shutdown:
-				mov eax, cr0
-				and al,0xFE     ; back to realmode
-				mov  cr0, eax   ; by toggling bit again
-				sti
-			MOV AX, 5300h	; Shuts down APM-Machines.
-			XOR BX, BX	; Newer machines automatically
-			INT 15h		; shut down
-			MOV AX, 5304h
-			XOR BX, BX
-			INT 15h		; Interrupt 15h originally was
-			MOV AX, 5301h	; used for Cartridges (cassettes)
-			XOR BX, BX	; but is still in use for
-			INT 15h		; diverse things
-			MOV AX, 5307h
-			MOV BX, 1
-			MOV CX, 3
-			INT 15h
-			IRET
-
-	coldboot:
-			   mov eax, cr0
-			   and al,0xFE     ; back to realmode
-			   mov  cr0, eax   ; by toggling bit again
-			   sti
-			MOV AX, 0040h
-			MOV ES, AX
-			MOV WORD [ES:00072h], 0h
-			JMP 0FFFFh:0000h
-			IRET
-
-		warmboot:
-			call realmode
-			MOV AX, 0040h
-			MOV ES, AX
-			MOV WORD [ES:00072h], 01234h
-			JMP 0FFFFh:0000h
-			IRET
-
-
-realmode:
-   mov eax, cr0
-   and al,0xFE     ; back to realmode
-   mov  cr0, eax   ; by toggling bit again
-   sti
-   xor eax, eax
-   ret
 
 getmemorysize:
 	mov di, memlistbuf

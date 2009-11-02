@@ -6,7 +6,6 @@
     %include 'source/ints.asm'
     %include 'source/dosints.asm'
     %include 'source/solleros.asm'
-    %include 'source/builtinprogs.asm'
     %include 'source/programs.asm'
     %include 'source/input.asm'
     %include 'source/gui.asm'

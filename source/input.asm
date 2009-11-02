@@ -76,7 +76,7 @@ YCOORD  db 0x00	;	the moved distance  (vertical)
 mousedisabled db 0
 specialkey db 0
 charregion db 0
-guistartin2:		;;this is basically the idle process
+waitforinput:		;;this is basically the idle process
 					;;this halts the cpu for a small amount of time and then sees if there was a keypress
 					;;this lets the cpu stay at close to 0% instead of 100%
 	;mov ax, 0xA000	;;this is the divider for the PIT
@@ -88,27 +88,27 @@ guistartin2:		;;this is basically the idle process
 	sti
 	hlt
 	mov [threadson], al
-	cmp al, 2
-	je guistartin
-guistartin:
+;	cmp al, 2
+;	je guistartin
+getkey:
 		xor eax, eax
 		mov [specialkey], al
 		mov [lastkey], ax
 		in al, 64h ; Status
 		test al, 20h ; PS2-Mouse?
-		jnz near maincall2
+		jnz near moused
 		test al, 1 
-		jz guistartin2 ; if output buffer full or no keypress, jump to idle process (only works when it is jz guistartin2, use jz guistartin to disable)
-	guigetkey:
+		jz waitforinput ; if output buffer full or no keypress, jump to idle process (only works when it is jz guistartin2, use jz guistartin to disable)
+	calckey:
 		in al, 60h
 		mov ah, al
 		xor al, al
 		mov [lastkey + 1], ah
 		mov al, ah
 		mov edi, scancode
-	guisearchscan: 
+	searchscan: 
 		cmp al, 3Ah
-		jae guiscanother
+		jae scanother
 		xor ah, ah
 		shl al, 2
 		add edi, eax
@@ -117,93 +117,87 @@ guistartin:
 		shr al, 1
 		mov ah, [edi]
 		cmp ah, 0
-		je guiscanother
-		jmp guiscanfound
-guiupper db 0
-guiscanother:
+		je scanother
+		jmp scanfound
+uppercase db 0
+scanother:
 		mov ah, al
 		xor al, al
 		mov [lastkey], ax
 		cmp ah, 0E0h
-		je near guigetkeyspecial
+		je near getkeyspecial
 		cmp byte [specialkey], 0xE0
 		jne nospecialkey
 		cmp ah, 38h
-		je near guialton
+		je near alton
 		cmp ah, 0B8h
-		je near guialtoff
+		je near altoff
 		cmp ah, 1Dh
-		je near guictron
+		je near ctron
 		cmp ah, 9Dh
-		je near guictroff
+		je near ctroff
 		mov [lastkey], ax
 		ret
 nospecialkey:
-		;cmp ah, 4Dh
-		;je near nextimage
 		cmp ah, 2Ah
-		je near guishifton
+		je near shifton
 		cmp ah, 36h
-		je near guishifton
+		je near shifton
 		cmp ah, 1Ch
-		je near guientdown
+		je near entdown
 		cmp ah, 0AAh
-		je near guishiftoff
+		je near shiftoff
 		cmp ah, 0B6h
-		je near guishiftoff
+		je near shiftoff
 		cmp ah, 3Ah
-		je near guicaps
+		je near capslock
 		cmp ah, 0x45
-		je near guinumlock
+		je near numlock
 		cmp ah, 0x46
-		je near guiscrolllock
+		je near scrolllock
 		ret
-	guigetkeyspecial:
+	getkeyspecial:
 		mov byte [specialkey], 0xE0
-		jmp guigetkey
-	guishift:
-		mov al, [guiupper]
+		jmp calckey
+	shift:
+		mov al, [uppercase]
 		cmp al, 1
-		jae guishiftoff
-	guishifton:
-		mov byte [guiupper], 1
+		jae shiftoff
+	shifton:
+		mov byte [uppercase], 1
 		ret
-		;jmp guistartin
-	guishiftoff:
-		mov byte [guiupper], 0
+	shiftoff:
+		mov byte [uppercase], 0
 		ret
-		;jmp guistartin
-	guictron:
-		mov byte [guictr], 1
+	ctron:
+		mov byte [ctrkey], 1
 		ret
-	guictroff:
-		mov byte [guictr], 0
+	ctroff:
+		mov byte [ctrkey], 0
 		ret
-	guialton:
-		mov byte [guialt], 1
+	alton:
+		mov byte [altkey], 1
 		ret
-		;jmp guistartin
-	guialtoff:
-		mov byte [guialt], 0
+	altoff:
+		mov byte [altkey], 0
 		ret
-		;jmp guistartin
-	guientdown:
+	entdown:
 		ret
-	guiscanfound:
+	scanfound:
 		add edi, 4
-		cmp byte [guictr], 1
-		jae altguiin
+		cmp byte [ctrkey], 1
+		jae altin
 		sub edi, 4
 		add edi, 2
-		cmp byte [guialt], 1
-		jae altguiin
+		cmp byte [altkey], 1
+		jae altin
 		sub edi, 2
-altguiin:
+altin:
 		add edi, 1
-		cmp byte [guiupper], 1
-		jae uppercasegui
+		cmp byte [uppercase], 1
+		jae uppercaseon
 		sub edi, 1
-uppercasegui:
+uppercaseon:
 		mov al,[edi]
 		mov [lastkey], al
 		ret
@@ -211,24 +205,24 @@ uppercasegui:
 keyboardstatus db 0
 numlockstatus db 0
 scrolllockstatus db 0
-guialt db 0
-guictr db 0
-	guicaps:
+altkey db 0
+ctrkey db 0
+	capslock:
 		xor byte [keyboardstatus], 00000100b
 		call updatekblights
-		jmp guishift
+		jmp shift
 		
-	guinumlock:
+	numlock:
 		xor byte [keyboardstatus], 00000010b
 		xor byte [numlockstatus], 1
 		call updatekblights
-		jmp guistartin
+		jmp getkey
 	
-	guiscrolllock:
+	scrolllock:
 		xor byte [keyboardstatus], 00000001b
 		xor byte [scrolllockstatus], 1
 		call updatekblights
-		jmp guistartin
+		jmp getkey
 		
 	updatekblights:
 		mov al, 0xED
@@ -244,9 +238,9 @@ guictr db 0
 	
 	cursorgui:
 		cmp byte [mouseon], 1
-		je near maincall2
+		je near moused
 		cmp byte [guion], 0
-		je guientdown
+		je entdown
 	initmouse:
 		cmp byte [guion], 0
 		je noswmsposinit
@@ -258,10 +252,10 @@ guictr db 0
 		call GETB 	;;Get the responce byte of the mouse (like: Hey i am active)
 				;;If the bytes are mixed up,
 				;;remove this line or add another of this line.
-		;call GETB
+		call GETB
 	nomouse:
 		ret
-	maincall2:
+	moused:
 		cmp byte [mousedisabled], 1
 		je nomouse
 		  cmp byte [mouseon], 1
