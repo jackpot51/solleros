@@ -1,9 +1,9 @@
-	call int302
+	call rdcharint
 	jmp timerinterrupt
 	
 getchar:
 	xor al, al
-	int302:		;;get char, if al is 0, wait for key
+	rdcharint:		;;get char, if al is 0, wait for key
 		mov byte [trans], 1
 		cmp al, 0
 		jne transcheck
@@ -13,7 +13,7 @@ getchar:
 		mov bh, [trans]
 		mov ax, [lastkey]
 		cmp ah, 1Ch
-		je int302enter
+		je rdenter
 		cmp byte [specialkey], 0xE0
 		jne nospecialtrans
 		mov bl, al
@@ -22,10 +22,10 @@ getchar:
 		or bh, al
 		cmp bh, 0
 		je transcheck
-		jmp int302end
-	int302enter:
+		jmp rdend
+	rdenter:
 		mov al, 10
-	int302end:
+	rdend:
 		ret
 		
 lastkey db 0,0

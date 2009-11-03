@@ -1,77 +1,77 @@
-call int305
+call rdprint
 jmp timerinterrupt
 
 readline:
   mov al, 10
   mov bl, 7
-	int305:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=bufferend
+	rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=bufferend
 		mov [buftxtloc], esi
-		mov [endkey305], al
-		mov [modkey305], bl
-		mov [firstesi305], esi
-		mov [endbuffer305], edi
-	int305b:
+		mov [endkeyrdpr], al
+		mov [modkeyrdpr], bl
+		mov [firstesirdpr], esi
+		mov [endbufferrdpr], edi
+	rdprintb:
 		push esi
 		mov al, 1
-		call int302	;then get it
+		call rdcharint
 		pop esi
 		cmp ah, 0x48
-		je near int305up
+		je near rdprup
 		cmp ah, 0x50
-		je near int305down
+		je near rdprdown
 		cmp ah, 0x4D
-		je near int305right
+		je near rdprright
 		cmp ah, 0x4B
-		je near int305left
+		je near rdprleft
 		cmp al, 8
-		je near int305bscheck
+		je near rdprbscheck
 		cmp al, 0
-		je int305b
+		je rdprintb
 		cmp ah, 0
-		je int305b
+		je rdprintb
 		mov [esi], al
 		inc esi
 	bscheckequal:
-		mov bl, [modkey305]
+		mov bl, [modkeyrdpr]
 		mov bh, [txtmask]
 		cmp bh, 0
 		je nomasktxt
 		mov al, bh
 	nomasktxt:
-		call int301
+		call prcharint
 		push esi
-		mov [int305axcache], ax
-		mov ah, [endkey305]
+		mov [axcache], ax
+		mov ah, [endkeyrdpr]
 		cmp al, ah
 		je nobackprintbuftxt2
 		mov esi, buftxt2
 		call printquiet
 		mov al, " "
-		call int301prnt
+		call prcharq
 		mov al, 8
 		cmp esi, buftxt2
 		je nobackprintbuftxt2
 	backprintbuftxt2:
-		call int301prnt
+		call prcharq
 		dec esi
 		cmp esi, buftxt2
 		ja backprintbuftxt2
 	nobackprintbuftxt2:
 		cmp al, 10
 		je nonobackprint
-		call int301
+		call prcharint
 	nonobackprint:
 		pop esi
-		cmp esi, [endbuffer305]
-		jae near doneint305inc
-		mov ax, [int305axcache]
-		mov ah, [endkey305]
+		cmp esi, [endbufferrdpr]
+		jae near donerdprinc
+		mov ax, [axcache]
+		mov ah, [endkeyrdpr]
 		cmp al, ah
-		jne int305b
-		jmp doneint305
-	doneint305inc:
+		jne rdprintb
+		jmp donerdprint
+	donerdprinc:
 		inc esi
-	doneint305:
+	donerdprint:
 		dec esi
 		mov edi, buftxt2
 	copylaterstuff:
@@ -86,7 +86,7 @@ readline:
 		mov byte [esi], 0
 		call clearbuftxt2
 		mov ecx, esi
-		mov edi, [firstesi305]
+		mov edi, [firstesirdpr]
 		sub ecx, edi
 		ret
 	
@@ -100,15 +100,13 @@ readline:
 		jne clearbuftxt2lp
 		ret
 	
-	int305b2:
+	rdprintb2:
 		call termcopy
-		jmp int305b
-	
-	int305axcache dw 0
+		jmp rdprintb
 		
-	int305left:
+	rdprleft:
 		cmp esi, [buftxtloc]
-		je near int305b
+		je near rdprintb
 		mov edi, buftxt2
 		mov al, [edi]
 	shiftbuftxt2:
@@ -126,14 +124,14 @@ readline:
 		mov [edi], al
 		mov byte [esi], 0
 		mov al, 8
-		call int301
-		jmp int305b
+		call prcharint
+		jmp rdprintb
 		
-	int305right:
+	rdprright:
 		mov edi, buftxt2
 		mov al, [edi]
 		cmp al, 0
-		je near int305b
+		je near rdprintb
 		mov [esi], al
 	shiftbuftxt2lft:
 		cmp al, 0
@@ -145,49 +143,49 @@ readline:
 	noshiftbuftxt2lft:
 		mov al, [esi]
 		inc esi
-		mov bl, [modkey305]
-		call int301
-		jmp int305b
+		mov bl, [modkeyrdpr]
+		call prcharint
+		jmp rdprintb
 		
-	int305downbck:
+	rdprdownbck:
 		dec ah
 		mov [commandedit], ah
-		call int305bckspc
-		jmp int305b
+		call rdprbckspc
+		jmp rdprintb
 	
-	int305down:
+	rdprdown:
 		mov ah, [commandedit]
 		cmp ah, 1
-		jbe near int305b
+		jbe near rdprintb
 		cmp ah, 2
-		je int305downbck
+		je rdprdownbck
 		sub ah, 2
 		mov [commandedit], ah
 		
-	int305up:
+	rdprup:
 		xor al, al
 		cmp [commandedit], al
-		je near int305b
-		call int305bckspc
+		je near rdprintb
+		call rdprbckspc
 		jmp getcurrentcommandstr
-	int305bckspc:
+	rdprbckspc:
 		cmp esi, [buftxtloc]
-		je noint305upbck
-	int305upbckspclp:
+		je nordprupbck
+	rdprupbckspclp:
 		mov al, 8
-		mov bl, [modkey305]
-		call int301prnt
+		mov bl, [modkeyrdpr]
+		call prcharq
 		mov al, " "
-		call int301prnt
+		call prcharq
 		mov al, 8
-		call int301prnt
+		call prcharq
 		dec esi
 		cmp esi, [buftxtloc]
-		je noint305upbck2
-		jmp int305upbckspclp
-	noint305upbck2:
+		je nordprupbck2
+		jmp rdprupbckspclp
+	nordprupbck2:
 		call termcopy
-	noint305upbck:
+	nordprupbck:
 		mov edi, [currentcommandpos]
 		add edi, commandbuf
 		dec edi
@@ -202,7 +200,7 @@ readline:
 		jb getcmdresetcommandbuf
 		sub edi, commandbuf
 		cmp edi, [currentcommandpos]
-		je near int305b
+		je near rdprintb
 		add edi, commandbuf
 		cmp al, 0
 		jne getccmdlp
@@ -211,51 +209,52 @@ readline:
 		ja getccmdlp
 		inc edi
 		cmp edi, commandbufend
-		ja fixcmdbufb4moreint305
-		jmp moreint305up
+		ja fixcmdbufb4morerdpr
+		jmp morerdprup
 	getcmdresetcommandbuf:
 		mov edi, commandbufend
 		inc edi
 		jmp getccmdlp
-	fixcmdbufb4moreint305:
+	fixcmdbufb4morerdpr:
 		dec edi
 		sub edi, commandbufend
 		add edi, commandbuf
-	moreint305up:
+	morerdprup:
 		mov al, [edi]
 		inc edi
 		sub edi, commandbuf
 		cmp al, 0
-		je near int305b2
+		je near rdprintb2
 		cmp edi, [currentcommandpos]
-		jae near int305b2
+		jae near rdprintb2
 		add edi, commandbuf
 		mov [esi], al
 		inc esi
 		push edi
-		mov bl, [modkey305]
-		call int301prnt
+		mov bl, [modkeyrdpr]
+		call prcharq
 		pop edi
 		cmp edi, commandbufend
-		jbe moreint305up
+		jbe morerdprup
 		mov edi, commandbuf
-		jmp moreint305up
-	int305bscheck:
-		cmp esi, [firstesi305]
+		jmp morerdprup
+	rdprbscheck:
+		cmp esi, [firstesirdpr]
 		ja goodbscheck
-		jmp int305b
+		jmp rdprintb
 	goodbscheck:
 		dec esi
 		mov byte [esi], 0
-		mov bl, [modkey305]
+		mov bl, [modkeyrdpr]
 		mov al, 8
 		jmp bscheckequal
 		
-endkey305 db 0
-modkey305 db 0
-firstesi305 dd 0
+axcache dw 0
+endkeyrdpr db 0
+modkeyrdpr db 0
+firstesirdpr dd 0
 commandedit db 0
 txtmask db 0
 buftxtloc dd 0
-endbuffer305 dd 0
+endbufferrdpr dd 0
 backcursor db 8," ",0

@@ -1,3 +1,4 @@
+[BITS 16]
 [ORG 0x100]
 	mov dl, 0
 	mov cx, 100h

@@ -19,8 +19,6 @@ db 255,44,"time",0
 	mov [timeseconds], ecx
 	xor ecx, ecx
 	mov [timenanoseconds], ecx
-	mov esi, line
-	call print
 	mov byte [istimeset], 1
 timeisset:
 	mov ecx, [timeseconds]

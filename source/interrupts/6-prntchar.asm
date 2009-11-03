@@ -1,13 +1,13 @@
-call int301
+call prcharint
 jmp timerinterrupt
 	
-int301:	;;print char, char in al, modifier in bl, will run videobufcopy if called as is
-	call int301prnt
+prcharint:	;;print char, char in al, modifier in bl, will run videobufcopy if called as is
+	call prcharq
 	call termcopy
 	ret
 termguion db 0
 termcopyon db 0
-int301prnt:
+prcharq:
 	mov ah, bl
 	mov [charbuf], ax
 	xor ebx, ebx
@@ -22,13 +22,13 @@ int301prnt:
 	xor ecx, ecx
 	mov cx, [charxy]
 	cmp al, 9
-	je near int301tab
+	je near prtab
 	cmp al, 13		;I am phasing this out-it is used by windows but not unix based systems
-	je near int301cr
+	je near prcr
 	cmp al, 10
-	je near int301nlcr
+	je near prnlcr
 	cmp al, 8
-	je near int301bs
+	je near prbs
 	cmp al, 255		;;null character
 	je near donescr
 	mov [edi], ax
@@ -36,10 +36,10 @@ int301prnt:
 	inc dl
 donecrnl:
 	cmp dl, cl
-	jae near int301eol
+	jae near preol
 doneeol:
 	cmp dh, ch
-	jae near int301scr	
+	jae near prscr	
 donescr:
 	mov ebx, edi
 	mov ax, [edi]
@@ -51,7 +51,7 @@ donescr:
 	mov bl, ah
 	ret
 	
-	int301tab:
+	prtab:
 		inc edi
 		shr edi, 4
 		shl edi, 4
@@ -62,7 +62,7 @@ donescr:
 		dec edi
 		jmp donecrnl
 	
-	int301cr:
+	prcr:
 		xor dl, dl
 		xor ebx, ebx
 		mov edi, videobuf
@@ -70,22 +70,22 @@ donescr:
 		add edi, ebx
 		jmp donecrnl
 			
-	int301bs:
+	prbs:
 		cmp dl, 0
-		je int301backline
-	int301nobmr:
+		je prbackline
+	prnobmr:
 		dec dl
 		xor ax, ax
 		sub edi, 2
 		jmp donecrnl
-	int301backline:
+	prbackline:
 		mov dl, cl
 		cmp dh, 0
-		je int301nobmr
+		je prnobmr
 		dec dh
-		jmp int301nobmr
+		jmp prnobmr
 		
-	int301nlcr:
+	prnlcr:
 		inc dh
 		xor ebx, ebx
 		xor dl, dl
@@ -97,7 +97,7 @@ donescr:
 		add edi, ebx
 		jmp donecrnl
 		
-	int301eol:
+	preol:
 		xor dl, dl
 		inc dh
 		xor ebx, ebx
@@ -106,7 +106,7 @@ donescr:
 		add bx, [linebeginpos]
 		mov [linebeginpos], bx
 		jmp doneeol
-	int301scr:
+	prscr:
 		dec dh
 		mov edi, videobuf
 		xor ebx, ebx

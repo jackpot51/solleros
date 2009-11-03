@@ -1,7 +1,7 @@
 	cmp al, 0
-	jne intx9B
+	jne num2strb
 	call showdec
 	jmp timerinterrupt
-intx9B:
+num2strb:
 	call showhex
 	jmp timerinterrupt
