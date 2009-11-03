@@ -39,14 +39,13 @@ backtodos:
 	iret
 
 dosgchar:
-	xor al, al
-	call int302
+	call getchar
 	jmp backtodos
 	
 doswchar:
 	mov al, dl
 	mov bl, 7
-	call int301
+	call prcharint
 	jmp backtodos
 	
 dosprintstr:
@@ -55,7 +54,7 @@ dosprintstr:
 	add esi, dosprogloc
 	mov al, "$"
 	mov bl, 7
-	call int303
+	call printint
 	jmp backtodos
 	
 dosgetstr:
@@ -70,7 +69,7 @@ dosgetstr:
 	add edi, ecx
 	mov al, 10
 	mov bl, 7
-	call int305
+	call rdprint
 	mov ecx, esi
 	sub ecx, [stringstart]
 	mov esi, [stringstart]

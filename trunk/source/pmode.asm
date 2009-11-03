@@ -349,14 +349,14 @@ gdtdos:	dw 256	;give it 1 MB
 	dw 0
 	db 0
 	db 0x9A
-	db 0xCF
+	db 0x8F ;16 bit
 	db 0
 DOS_DATA_SEL 	equ $-gdt
 gdtdos2:	dw 256
 	dw 0
 	db 0
 	db 0x92
-	db 0xCF
+	db 0x8F ;16 bit
 	db 0
 gdt_end:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

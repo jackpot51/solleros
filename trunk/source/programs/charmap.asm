@@ -1,27 +1,27 @@
 db 255,44,"chars",0
 	mov bx, 7
 	mov al, " "
-	call int301prnt
-	call int301prnt
-	call int301prnt
-	call int301prnt
+	call prcharq
+	call prcharq
+	call prcharq
+	call prcharq
 	mov al, "0"
 charmapnumprnt:
-	call int301prnt
+	call prcharq
 	inc al
 	push ax
 	mov al, " "
-	call int301prnt
+	call prcharq
 	pop ax
 	cmp al, "9"
 	jbe charmapnumprnt
 	mov al, "A"
 charmapnumprnt2:
-	call int301prnt
+	call prcharq
 	inc al
 	push ax
 	mov al, " "
-	call int301prnt
+	call prcharq
 	pop ax
 	cmp al, "G"
 	jb charmapnumprnt2
@@ -47,9 +47,9 @@ charmapcopy:
 	je charmapnocopy
 	cmp al, 0
 	je nomorecharmap
-	call int301prnt
+	call prcharq
 	mov al, " "
-	call int301prnt
+	call prcharq
 	pop ax
 charmapcopycheck:
 	inc ah
@@ -71,7 +71,7 @@ nomorecharmap:
 charmapnocopy:
 	push ax
 	mov al, " "
-	call int301prnt
-	call int301prnt
+	call prcharq
+	call prcharq
 	pop ax
 	jmp charmapcopycheck

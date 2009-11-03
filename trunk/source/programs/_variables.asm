@@ -35,7 +35,7 @@ readvar:
 	mov bx, 7
 	mov byte [commandedit], 0
 	mov edi, buftxtend
-	call int305
+	call rdprint
 	jmp var
 seek:	mov ax, [ebx]
 	mov cl, 5

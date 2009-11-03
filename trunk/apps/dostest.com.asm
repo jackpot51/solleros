@@ -1,4 +1,4 @@
-[BITS 32]
+[BITS 16]
 [ORG 0x100]
 start:
 ;finding out the ways to emulate certain dos calls.

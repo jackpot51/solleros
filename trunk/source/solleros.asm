@@ -13,7 +13,7 @@ usercheck:
 	mov esi, buftxt
 	mov edi, buftxtend
 	mov al, 10
-	call int305
+	call rdprint
 	push esi
 	mov esi, pwdask
 	call print
@@ -21,8 +21,7 @@ usercheck:
 	inc esi
 	mov [esipass], esi
 passcheck:
-	xor al, al
-	call int302
+	call getchar
 	cmp al, 10
 	je near gotpass
 	cmp al, 8
@@ -30,7 +29,7 @@ passcheck:
 	mov [esi], al
 	inc esi
 	mov al, '*'
-	call int301
+	call prcharint
 	jmp passcheck
 backcursor2 db 8," ",8,0
 backpass:
@@ -101,10 +100,6 @@ retbufclr: ret
 
 full:	jmp nwcmd
 
-;nwcmd2:
-;	mov esi, line
-;	call print
-
 shush:	;SollerOS Hardly Unix-compatible Shell
 nwcmd:	
 	cmp byte [threadson], 0
@@ -121,7 +116,7 @@ cancel:	xor al, al
 	mov al, '['
 	mov ah, 6
 	mov bx, 7
-	call int301prnt
+	call prcharq
 	mov esi, [usercache]
 	call printquiet
 	mov esi, computer
@@ -136,7 +131,7 @@ cancel:	xor al, al
 	mov al, 10
 	mov bx, 7
 	mov edi, buftxtend
-	call int305
+	call rdprint
 	mov byte [commandedit], 0
 	cmp byte [buftxt], 0
 	je near nwcmd
@@ -169,8 +164,7 @@ input:	call buftxtclear
 	mov edi, buftxtend
 stdin:	mov al, 10
 	mov bl, 7
-	mov ah, 4
-	int 30h
+	call rdprint
 	ret
 
 replacevariable:

@@ -1,34 +1,34 @@
-call int303
+call printint
 jmp timerinterrupt
 
 	printquiet:
 		xor ax, ax
-		mov [endkey303], al
+		mov [endkeyprint], al
 		mov bx, 7
-		call int303b
+		call printintb
 		ret
     print:
 		xor ax, ax
 		mov bx, 7
-	int303:	;;print line, al=last key,bl=modifier, esi=buffer
-		mov [startesi303], esi
-		mov [endkey303], al
-		call int303b
+	printint:	;;print line, al=last key,bl=modifier, esi=buffer
+		mov [startesiprint], esi
+		mov [endkeyprint], al
+		call printintb
 		mov ecx, esi
-		sub ecx, [startesi303]
+		sub ecx, [startesiprint]
 		push ecx
 		call termcopy
 		pop ecx
 		ret
-	int303b:
+	printintb:
 		mov al, [esi]
-		cmp al, [endkey303]
-		je doneint303
-		call int301prnt
+		cmp al, [endkeyprint]
+		je doneprintint
+		call prcharq
 		inc esi
-		jmp int303b
-	doneint303:
+		jmp printintb
+	doneprintint:
 		ret
 
-endkey303 db 0
-startesi303 dd 0
+endkeyprint db 0
+startesiprint dd 0

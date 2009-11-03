@@ -1,23 +1,23 @@
-call int304
+call readint
 jmp timerinterrupt
 
-	int304:	;;get line, al=last key, esi = buffer, edi = endbuffer
-		mov [endkey304], al
-		mov [endbuffer304], edi
-	int304b:
+	readint:	;;get line, al=last key, esi = buffer, edi = endbuffer
+		mov [endkeyread], al
+		mov [endbufferread], edi
+	readintb:
 		push esi
 		xor al, al
-		call int302
+		call rdcharint
 		pop esi
 		mov [esi], al
 		inc esi
-		cmp esi, [endbuffer304]
-		jae int304done
-		cmp al, [endkey304]
-		jne int304b
-	int304done:
+		cmp esi, [endbufferread]
+		jae readdone
+		cmp al, [endkeyread]
+		jne readintb
+	readdone:
 		dec esi
 		mov byte [esi], 0
 	ret
-endkey304 db 0
-endbuffer304 dd 0
+endkeyread db 0
+endbufferread dd 0

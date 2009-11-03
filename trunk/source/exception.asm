@@ -100,7 +100,7 @@ guibacktomsg:
 	call showstring2
 backtomsgdone:
 	xor al, al
-	call int302
+	call rdcharint
 	cmp byte [intprob], 3
 	jne nodebugint
 	cmp byte [guion], 0

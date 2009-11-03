@@ -1,7 +1,6 @@
-call int306
+call clear
 jmp timerinterrupt
 clear:		
-	int306:	;;clear screen
 		mov cx, [charxy]
 		mov edi, videobuf
 		xor ax, ax
@@ -9,16 +8,16 @@ clear:
 		mov [videobufpos], ax
 		xor dx, dx
 		mov [charpos], ax
-	int306b:
+	clearb:
 		mov [edi], ax
 		add edi, 2
 		dec cl
 		cmp cl, 0
-		jne int306b
+		jne clearb
 		mov cl, [charxy]
 		dec ch
 		cmp ch, 0
-		jne int306b
+		jne clearb
 		call termcopy
 		ret
 		
