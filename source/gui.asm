@@ -1139,7 +1139,6 @@ nostopshowfont:
 	je near goodvesafontx
 	xor ecx, ecx
 	mov cx, [resolutionx2]
-	sub cx, 16
 	cmp dx, cx
 	jbe goodvesafontx
 	xor dx, dx

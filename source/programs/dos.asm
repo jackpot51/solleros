@@ -1,5 +1,4 @@
-
-	db 255,44,"dos",0
+db 255,44,"dos",0
 rundosprog:
 	mov edi, buftxt
 	add edi, 4
@@ -12,8 +11,8 @@ rundosprog:
 	mov ebx, 0x81 + dosprogloc
 	xor ecx, ecx
 finddosparams:
-	mov al, [edi]
 	inc edi
+	mov al, [edi]
 	cmp al, " "
 	jne finddosparams
 copydosparams:

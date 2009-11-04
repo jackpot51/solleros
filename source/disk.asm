@@ -29,12 +29,12 @@ getebxzero:
 	cmp ah, 0
 	jne getebxzero
 nextfilename:
-	add ebx, 8		;;next descriptor
+	add ebx, 8		;next descriptor
 	mov edi, edx
 	cmp ebx, enddiskfileindex
 	jb nextnamechar
 nofileload:
-	mov edx, 404	;;indicate not found error
+	mov edx, 404	;indicate not found error
 	ret
 equalfilenames2:
 	sub ebx, 2
@@ -47,47 +47,38 @@ eqfilefind:
 	jne eqfilefind
 	inc ebx
 equalfilenames:
-	mov eax, [ebx + 4] 	;;put file size in eax
-	mov ebx, [ebx]		;;put file beginning in ebx
-	add ebx, [lbaad]	;;add offset to solleros
+	mov eax, [ebx + 4] 	;put file size in eax
+	mov ebx, [ebx]		;put file beginning in ebx
+	add ebx, [lbaad]	;add offset to solleros
 	xor ecx, ecx
-	mov cl, al			;;get excess number of sectors
+	mov cl, al			;get excess number of sectors
 	shl cl, 1
-	shr cl, 1			;;cut off at 128
-	sub eax, ecx		;;get rid of excess sectors
-	mov ch, 0			;;drive 0
-	shr eax, 7			;;get number of 128 sector tracks
-loaddiskfile:		;;tracks in eax, excess sectors in cl, drive in ch, buffer in esi, address in ebx
+	shr cl, 1			;cut off at 128
+	sub eax, ecx		;get rid of excess sectors
+	mov ch, 0			;drive 0
+	shr eax, 7			;get number of 128 sector tracks
+loaddiskfile:		;tracks in eax, excess sectors in cl, drive in ch, buffer in esi, address in ebx
 	mov [filetracks], eax
 	mov edi, esi		;;just in case cl is 0
 	mov edx, ebx
 	cmp cl, 0
 	je copytracksforfile
-	call diskr		;;take care of excess sectors
+	call diskr	;;take care of excess sectors
 copytracksforfile:
 	mov eax, [filetracks]
 	cmp eax, 0
 	je donecopyfile
 	dec eax
 	mov [filetracks], eax
-	mov ebx, edx	;;get end lba
+	mov ebx, edx	;get end lba
 	mov cl, 0x80
 	mov ch, [DriveNumber]
-	mov esi, edi	;;reset buffer
+	mov esi, edi	;reset buffer
 	call diskr
 	jmp copytracksforfile
 donecopyfile:
-	mov edx, 0	;;no error
+	mov edx, 0	;no error
 	ret
-	
-filetracks dd 0
-lbad1 db 0
-lbad2 db 0
-lbad3 db 0
-lbad4 db 0
-lbad5 db 0
-lbad6 db 0
-segments dw 100
 
 diskr:		;read from disk
 			;sector count in cl
@@ -236,5 +227,88 @@ diskaddresssetup:
 	mov al, [lbad3]
 	inc dx
 	out dx, al
+	ret
+
+oldesireal dd 0
+filetracks dd 0
+lbad1 db 0
+lbad2 db 0
+lbad3 db 0
+lbad4 db 0
+lbad5 db 0
+lbad6 db 0
+segments dw 100
+
+diskrreal:
+			;read from disk using real mode-it does not work with large files
+			;sector count in cl
+			;disk number in ch
+			;48 bit address with last 32 bits in ebx
+			;buffer in esi
+			;puts end of buffer in edi and end lba address in edx
+
+	mov [oldesireal], esi
+	mov si, readdiskreal
+	mov [realmodeptr], si
+	mov esi, backfromrealread
+	mov [realmodereturn], esi
+	jmp realmode
+
+[BITS 16]
+readdiskreal:
+	mov word [dlen], 0x10
+	mov word [daddress], 0
+	mov word [dsegm], 0x100
+	mov [dlbaad], ebx
+	mov [dreadlen], cl
+ReadHardDisk:
+	mov si, diskaddresspacket
+	xor ax, ax
+	mov ah, 0x42
+	mov dl, [dnumber]
+	int 0x13
+	jc ReadHardDisk
+	ret
+
+dnumber db 0x80
+diskaddresspacket:
+dlen:	db 0x10 ;size of packet
+		db 0
+dreadlen:	dw 0x7F	;blocks to read=maximum
+daddress:	dw 0x0	;address 0
+dsegm:		dw 0x100	;segment
+		;start with known value for hd
+dlbaad:
+	dd 0	;lba address
+	dd 0
+[BITS 32]
+backfromrealread:
+	mov esi, [oldesireal]
+	mov ebx, [gs:dlbaad]
+	xor ecx, ecx
+	mov cl, [gs:dreadlen]
+	add ebx, ecx
+	mov ax, LINEAR_SEL
+	mov fs, ax
+	mov edi, 0x1000
+	mov dl, 0xFF
+copyfromrmodedisk:
+	mov al, [fs:edi]
+	mov [esi], al
+	inc edi
+	inc esi
+	dec dl
+	cmp dl, 0
+	jne copyfromrmodedisk
+	dec cl
+	mov dl, 0xFF
+	cmp cl, 0
+	jne copyfromrmodedisk
+	mov ax, NEW_DATA_SEL
+	mov fs, ax
+	mov edi, esi
+	mov esi, [oldesireal]
+	mov edx, ebx
+	mov ebx, [gs:dlbaad]
 	ret
 	

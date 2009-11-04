@@ -1,6 +1,7 @@
 [BITS 16]
     %include 'source/menu.asm'
     %include 'source/pmode.asm'
+	%include 'source/realmode.asm'
 [BITS 32]
     %include 'source/exception.asm'
     %include 'source/ints.asm'
