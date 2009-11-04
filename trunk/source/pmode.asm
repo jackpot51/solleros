@@ -23,11 +23,17 @@ pmode:
 	mov eax, [newcodecache]
 	mov [gdt4 + 2],ax
 	mov [gdt5 + 2],ax
+	mov [gdtv8086 + 2], ax
+	mov [gdtv80862 + 2], ax
 	shr eax,16
 	mov [gdt4 + 4],al
 	mov [gdt5 + 4],al
+	mov [gdtv8086 + 4],al
+	mov [gdtv80862 + 4],al
 	mov [gdt4 + 7],ah
 	mov [gdt5 + 7],ah
+	mov [gdtv8086 + 7],ah
+	mov [gdtv80862 + 7],ah
 	
 	mov eax, dosprogloc
 	add eax, [newcodecache]
@@ -322,13 +328,6 @@ gdt3:	dw 0xFFFF
 	db 0x92			; present, ring 0, data, expand-up, writable
 	db 0xCF
 	db 0
-;STACK_SEL	equ	$-gdt	;;this is no longer used for various reasons
-;gdts:	dw 1
-;	dw 0			; (base gets set above)
-;	db 0
-;	db 0x92			; present, ring 0, data, expand-up, writable
-;	db 0xC0
-;	db 0
 NEW_CODE_SEL	equ	$-gdt
 gdt4:	dw 0xFFFF
 	dw 0			; (base gets set above)
@@ -343,6 +342,20 @@ gdt5:	dw 0xFFFF
 	db 0
 	db 0x92			; present, ring 0, data, expand-up, writable
 	db 0xCF
+	db 0
+V8086_CODE_SEL	equ $-gdt
+gdtv8086: dw 0xFFFF
+	dw 0
+	db 0
+	db 0x9A
+	db 0x8F
+	db 0
+V8086_DATA_SEL	equ $-gdt
+gdtv80862: dw 0xFFFF
+	dw 0
+	db 0
+	db 0x92
+	db 0x8F
 	db 0
 DOS_CODE_SEL	equ $-gdt	;this gives dos programs complete access to one megabyte at the beginning of memory
 gdtdos:	dw 256	;give it 1 MB
