@@ -252,7 +252,6 @@ ctrkey db 0
 		call GETB 	;;Get the responce byte of the mouse (like: Hey i am active)
 				;;If the bytes are mixed up,
 				;;remove this line or add another of this line.
-		call GETB
 	nomouse:
 		ret
 	moused:
