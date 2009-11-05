@@ -590,6 +590,7 @@ loadedgraphic:  mov edi, [grpctblpos]
 		jae donereloadgraphics
 		jmp reloadgraphicsloop
 windowgraphic:	call showwindow2
+		call cleardouble
 		jmp loadedgraphic
 icongraphic:	and bl, 1
 		mov [iconselected], bl
@@ -963,17 +964,18 @@ wincopyendpos dd 0
 		mov [windowbufloc], edi
 	windowvideocopyset:
 		xor cx, cx
+		dec cx
 		mov [charposline], cx
-		mov esi, videobuf
-		mov [charposvbuf], esi
-		mov bl, [esi + 1]
-		mov [colorcache], bl
-		mov bl, [esi]
-		xor bh, bh
-		shl bx, 4
-		mov dh, [fonts + bx]
-		ror dh, 1
 		mov esi, edi
+		sub esi, 16
+		xor edx, edx
+		mov dx, [resolutionx2]
+		shl edx, 4
+		add esi, edx
+		mov edi, videobuf
+		sub edi, 2
+		mov [charposvbuf], edi
+		jmp nextcharwin
 	copywindow:
 		mov dl, 1
 		rol dh, 1
@@ -1010,15 +1012,46 @@ wincopyendpos dd 0
 		inc ch
 		cmp ch, 16
 		jne copywindow
+	nextcharwin:
 		xor cx, cx
 		mov edi, [charposvbuf]
 		add edi, 2
 		cmp edi, [wincopyendpos]
 		jae near donewincopynow
-		mov bl, [edi + 1]
-		mov [colorcache], bl
+		mov bh, [edi + 1]
+		cmp bh, 0
+		jne nofixcolorwin
+		mov bh, 7
+		mov [edi + 1], bh
+	nofixcolorwin:
+		mov [colorcache], bh
 		mov bl, [edi]
 		mov [charposvbuf], edi
+		sub edi, videobuf
+		add edi, videobuf2
+		mov ah, [edi + 1]
+		mov al, [edi]
+		cmp ax, bx
+		jne noskipcharcopy
+	skipcharcopy:
+		add esi, 16
+		mov cx, [charposline]
+		inc cx
+		mov [charposline], cx
+		cmp cx, [termcol]
+		jb nextcharwin
+		xor cx, cx
+		mov [charposline], cx
+		xor edx, edx
+		mov dx, [resolutionx2]
+		shl edx, 4
+		sub dx, [winvcopydx]
+		add esi, edx
+		jmp nextcharwin
+	noskipcharcopy:
+		mov [edi], bl
+		mov [edi + 1], bh
+		mov edi, [charposvbuf]
 		xor bh, bh
 		shl bx, 4
 		xor edx, edx
@@ -1046,7 +1079,6 @@ fixwindowcopy:
 		ror dh, 1
 		jmp copywindow
 donewincopynow:
-		call switchtermcursor
 		cmp byte [termcopyon], 1
 		jne forgetresetstuff
 		popa

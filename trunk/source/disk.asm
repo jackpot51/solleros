@@ -1,5 +1,5 @@
-;;disk.asm - new - using lba
-loadfile:	;;loads a file with the name buffer's location in edi into location in esi
+;disk.asm - new - using lba
+loadfile:	;loads a file with the name buffer's location in edi into location in esi
 	cmp byte [edi], 0
 	je near nofileload
 	mov edx, edi
@@ -52,18 +52,18 @@ equalfilenames:
 	add ebx, [lbaad]	;add offset to solleros
 	xor ecx, ecx
 	mov cl, al			;get excess number of sectors
-	shl cl, 1
-	shr cl, 1			;cut off at 128
+	shl cl, 2
+	shr cl, 2			;cut off at 64
 	sub eax, ecx		;get rid of excess sectors
 	mov ch, 0			;drive 0
-	shr eax, 7			;get number of 128 sector tracks
-loaddiskfile:		;tracks in eax, excess sectors in cl, drive in ch, buffer in esi, address in ebx
+	shr eax, 6			;get number of 64 sector tracks
+loaddiskfile:			;tracks in eax, excess sectors in cl, drive in ch, buffer in esi, address in ebx
 	mov [filetracks], eax
-	mov edi, esi		;;just in case cl is 0
+	mov edi, esi		;just in case cl is 0
 	mov edx, ebx
 	cmp cl, 0
 	je copytracksforfile
-	call diskr	;;take care of excess sectors
+	call diskrreal	;take care of excess sectors
 copytracksforfile:
 	mov eax, [filetracks]
 	cmp eax, 0
@@ -71,10 +71,10 @@ copytracksforfile:
 	dec eax
 	mov [filetracks], eax
 	mov ebx, edx	;get end lba
-	mov cl, 0x80
+	mov cl, 0x40 ;for compatability with BIOS it uses 64 instead of 128
 	mov ch, [DriveNumber]
 	mov esi, edi	;reset buffer
-	call diskr
+	call diskrreal
 	jmp copytracksforfile
 donecopyfile:
 	mov edx, 0	;no error
@@ -246,13 +246,16 @@ diskrreal:
 			;48 bit address with last 32 bits in ebx
 			;buffer in esi
 			;puts end of buffer in edi and end lba address in edx
-
+	mov [sdlength], cl
+	mov [sdaddress], ebx
 	mov [oldesireal], esi
 	mov si, readdiskreal
 	mov [realmodeptr], si
 	mov esi, backfromrealread
 	mov [realmodereturn], esi
 	jmp realmode
+sdlength db 0
+sdaddress dd 0
 
 [BITS 16]
 readdiskreal:
@@ -284,14 +287,15 @@ dlbaad:
 [BITS 32]
 backfromrealread:
 	mov esi, [oldesireal]
-	mov ebx, [gs:dlbaad]
+	mov ebx, [sdaddress]
 	xor ecx, ecx
-	mov cl, [gs:dreadlen]
+	mov cl, [sdlength]
 	add ebx, ecx
 	mov ax, LINEAR_SEL
 	mov fs, ax
 	mov edi, 0x1000
-	mov dl, 0xFF
+	mov dl, 0
+	shl cl, 1
 copyfromrmodedisk:
 	mov al, [fs:edi]
 	mov [esi], al
@@ -301,7 +305,7 @@ copyfromrmodedisk:
 	cmp dl, 0
 	jne copyfromrmodedisk
 	dec cl
-	mov dl, 0xFF
+	mov dl, 0
 	cmp cl, 0
 	jne copyfromrmodedisk
 	mov ax, NEW_DATA_SEL
@@ -309,6 +313,6 @@ copyfromrmodedisk:
 	mov edi, esi
 	mov esi, [oldesireal]
 	mov edx, ebx
-	mov ebx, [gs:dlbaad]
+	mov ebx, [sdaddress]
 	ret
 	

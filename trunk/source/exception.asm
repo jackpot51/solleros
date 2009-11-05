@@ -139,8 +139,8 @@ nodebugint:
 	jmp gui
 returnunhandgui:
 	jmp nwcmd
-backtoosmsg db "Please post any problems in the Issues section at solleros.googlecode.com",10,13
-			db "Press any key to return to SollerOS",10,13,0
+backtoosmsg db "Please post any problems in the Issues section at solleros.googlecode.com",10
+			db "Press any key to return to SollerOS",10,0
 expdump:
 	mov esi, [esiloc]
 	mov edi, esi
