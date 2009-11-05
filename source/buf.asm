@@ -26,7 +26,9 @@ buftxtend:
 buf2:	resb 20
 numbuf: resb 1 
 videobuf 		resb (160*64*2)	;1280x1024pixels in characters
-videobufend		resb 160
+videobufend		resb 160*2
+videobuf2 		resb (160*64*2)	;1280x1024pixels in characters
+videobuf2end		resb 160*2
 lastcommandpos: resb 4
 currentcommandpos: resb 4
 commandbuf: resb 1024

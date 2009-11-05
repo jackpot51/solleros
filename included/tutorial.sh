@@ -2,10 +2,6 @@ clear
 echo Would you like a tour of the SollerOS system?
 echo If so, you can type yes and press enter.
 $a=
-if $a=no
-echo Fine then.
-stop
-fi
 if $a=yes
 clear
 echo These are the available commands.
