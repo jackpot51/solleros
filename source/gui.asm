@@ -1014,13 +1014,13 @@ wincopyendpos dd 0
 		mov edi, [charposvbuf]
 		add edi, 2
 		cmp edi, [wincopyendpos]
-		jae donewincopynow
+		jae near donewincopynow
 		mov bl, [edi + 1]
 		mov [colorcache], bl
 		mov bl, [edi]
+		mov [charposvbuf], edi
 		xor bh, bh
 		shl bx, 4
-		mov [charposvbuf], edi
 		xor edx, edx
 		mov dx, [resolutionx2]
 		shl edx, 4
@@ -1030,7 +1030,7 @@ wincopyendpos dd 0
 		mov cx, [charposline]
 		inc cx
 		cmp cx, [termcol]
-		jae near fixwindowcopy
+		jae fixwindowcopy
 		mov [charposline], cx
 		xor cx, cx
 		mov dh, [fonts + bx]
@@ -1053,7 +1053,7 @@ donewincopynow:
 forgetresetstuff:
 		mov byte [termcopyon], 0
 		ret
-
+		
 charposline dw 0
 charposvbuf dw 0,0
 iconcolor dw 0

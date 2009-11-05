@@ -126,26 +126,44 @@
     int write(int file, char *ptr, int len){
 		int i;
 		if(file==1){
-			for(i=0;i<len;i++){
+			for(i=1;i<len;i++){ //the i=1 instead of i=0 makes sure it is printed quietly
 		        asm("movb $6, %%ah\n\t"
 					"movb $7, %%bl\n\t"
+					"movb %%bl, %%bh\n\t" 
 					"int $0x30"
 					:
 					: "a" (*ptr++)
 					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
 					);
 			}
+			asm("movb $6, %%ah\n\t"
+				"movb $7, %%bl\n\t"
+				"xorb %%bh, %%bh\n\t" 
+				"int $0x30"
+				:
+				: "a" (*ptr++)
+				: "%esi", "%edi", "%ebx", "%edx", "%ecx"
+				);
 		}
 		if(file==2){
-			for(i=0;i<len;i++){
+			for(i=1;i<len;i++){
 		        asm("movb $6, %%ah\n\t"
 					"movb $0xF0, %%bl\n\t"
+					"movb %%bl, %%bh\n\t"
 					"int $0x30"
 					:
 					: "a" (*ptr++)
 					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
 					);
 			}
+		        asm("movb $6, %%ah\n\t"
+					"movb $0xF0, %%bl\n\t"
+					"xorb %%bh, %%bh\n\t"
+					"int $0x30"
+					:
+					: "a" (*ptr++)
+					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
+					);
 		}
         return i;
     }

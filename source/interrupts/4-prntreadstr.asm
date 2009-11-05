@@ -37,6 +37,7 @@ readline:
 		cmp bh, 0
 		je nomasktxt
 		mov al, bh
+		xor bh, bh
 	nomasktxt:
 		call prcharint
 		push esi

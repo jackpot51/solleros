@@ -1,7 +1,9 @@
 call prcharint
 jmp timerinterrupt
 	
-prcharint:	;;print char, char in al, modifier in bl, will run videobufcopy if called as is
+prcharint:	;;print char, char in al, modifier in bl, if bh = bl then termcopy will not happen, will run videobufcopy if called as is
+	cmp bl, bh
+	je prcharq
 	call prcharq
 	call termcopy
 	ret

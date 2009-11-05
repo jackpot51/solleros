@@ -1,9 +1,10 @@
-	db 255,44,"reboot",0	
-		mov bx, warmboot
-		mov [realmodeptr], bx
-		mov ebx, halt
-		mov [realmodereturn], ebx
-		jmp realmode
+	db 255,44,"reboot",0
+		lidt [idtreboot]
+		int 0
+		hlt
+	
+	idtreboot dw 0
+			  dd 0
 
 	coldboot:
 		MOV AX, 0040h
