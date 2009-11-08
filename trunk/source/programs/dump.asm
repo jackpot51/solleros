@@ -1,5 +1,5 @@
 db 255,44,"dump",0
-	mov esi, buftxt
+	mov esi, [currentcommandloc]
 	add esi, 5
 	xor ecx, ecx
 	mov ax, "0x"

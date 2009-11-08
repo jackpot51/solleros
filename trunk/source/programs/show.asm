@@ -1,5 +1,5 @@
 db 255,44,"show",0
-		mov edi, buftxt
+		mov edi, [currentcommandloc]
 		add edi, 5
 		mov esi, 0x400000
 		call loadfile
@@ -27,7 +27,7 @@ bmpfound:
 		call guiclear
 		call clearmousecursor
 		call reloadallgraphics
-		mov esi, buftxt
+		mov esi, [currentcommandloc]
 		add esi, 5
 		call print
 		mov esi, loadedbmpmsg
@@ -42,7 +42,7 @@ warnguibmp db "This can not be done without the gui.",10,0
 filenotfound:
 		mov esi, filenf
 		call print
-		mov esi, buftxt
+		mov esi, [currentcommandloc]
 findfilenotfoundzero:
 		mov al, [esi]
 		inc esi

@@ -101,10 +101,18 @@ retbufclr: ret
 full:	jmp nwcmd
 
 shush:	;SollerOS Hardly Unix-compatible Shell
-nwcmd:	
-	cmp byte [threadson], 0
+nwcmd:
+	xor eax, eax
+	cmp [nextcommandloc], eax
+	je nomultiplecommand
+	mov esi, [nextcommandloc]
+	mov [thiscommandloc], esi
+	jmp fixvariables
+nomultiplecommand:
+	mov [thiscommandloc], eax
+	cmp [threadson], al
 	je noclinwcmd
-	mov byte [threadson], 0
+	mov [threadson], al
 noclinwcmd:
 	mov al, 1
 	cmp [BATCHISON], al
@@ -222,24 +230,34 @@ expandbuftxtlp:
 	je near fixvariables
 	inc esi
 	jmp expandbuftxt
+multipleprogline:
+	xor ah, ah
+	mov [esi], ah
+	inc esi
+	mov [nextcommandloc], esi
+	jmp donefixvariables
 	
-	
+nextcommandloc dd 0
+thiscommandloc dd 0	
 run:
-progtest2:
 	mov esi, buftxt
 fixvariables:
 	inc esi
 	mov al, [esi]
 	cmp al, '$'
 	je near replacevariable
+	cmp al, ';'
+	je multipleprogline
 	cmp al, 0
 	jne fixvariables
-
+	xor eax, eax
+	mov [nextcommandloc], eax
+donefixvariables:
 	cmp byte [indexdone], 0
 	jne progtest
 	call indexfiles
 progtest:
-	mov esi, buftxt
+	xor eax, eax
 	mov ebx, fileindex
 prgnxt:	mov ax, [ebx]
 	mov cl, 255
@@ -251,35 +269,46 @@ prgnxt:	mov ax, [ebx]
 	jae prgnf
 	jmp prgnxt
 fndprg: add ebx, 2
+	xor ecx, ecx
 	mov esi, buftxt
-	xor cx, cx
+	cmp [thiscommandloc], ecx
+	je noprgtstmultiple
+	mov esi, [thiscommandloc]
+noprgtstmultiple:
 	call cndtest
 	cmp al, 1
 	jae prggood
 	jmp prgnxt
 prggood: cmp ebx, fileindexend
 	jae prgdn
+	xor eax, eax
+	mov esi, buftxt
+	cmp [thiscommandloc], eax
+	je noprggoodmul
+	mov esi, [thiscommandloc]
+noprggoodmul:
+	mov [currentcommandloc], esi
 	add ebx, 3
 	mov edi, [ebx]
 	mov byte [threadson], 2
-	mov al, 0x20
-	out 0x20, al
-	;sti
 	jmp edi
 prgnf:	
-	mov al, [buftxt]
+	mov esi, [currentcommandloc]
+	mov al, [esi]
 	cmp al, 0
 	je prgdn
 	mov esi, notfound1
 	call print
-	mov esi, buftxt
+	mov esi, [currentcommandloc]
 	call print
 	mov esi, notfound2
 	call print
 prgdn:	jmp nwcmd
 
+currentcommandloc dd 0
+
 tester:			;si=user bx=prog returns 1 in al if true
-	xor al, al
+	xor ax, ax
 retest:	mov al, [esi]
 	mov ah, [ebx]
 	cmp al, 0

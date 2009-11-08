@@ -1,4 +1,3 @@
-
 	db 255,44,"system",0
 getcpuspeed:
 	mov eax, 0xFE

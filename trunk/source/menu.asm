@@ -47,8 +47,8 @@ nextvmode:
 	cmp al, 16
 	jne nextvmode
 	mov [videomodecache], si
-	cmp ah, 0
-	je near setvesamode
+	test ah, ah
+	jz near setvesamode
 	jmp nextvmode
 isthisvideook db 10,13,"Is this video mode OK?(y/n)",13,10,0
 setvesamode:

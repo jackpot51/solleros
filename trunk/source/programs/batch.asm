@@ -1,6 +1,6 @@
 db 255,44,"batch",0
 	batchst: 
-		mov edi, buftxt
+		mov edi, [currentcommandloc]
 		add edi, 6
 		cmp byte [edi], 0
 		je near nonamefound

@@ -1,5 +1,7 @@
 	db 255,44,"else",0
 elsecmd:	xor eax, eax
+	cmp [BATCHISON], al
+	je near notbatch
 	mov al, [IFON]
 	mov esi, IFTRUE
 	add esi, eax

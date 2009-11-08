@@ -2,7 +2,7 @@
 	elfstart db 0x7F,"ELF"
 	db 255,44,"./",0
 rundiskprog:
-	mov edi, buftxt
+	mov edi, [currentcommandloc]
 	add edi, 2
 	mov esi, 0x400000
 	call loadfile
@@ -15,7 +15,7 @@ rundiskprog:
 	cmp word [ebx], "EX"
 	jne progbatchfound
 	add ebx, 2
-	mov edi, buftxt
+	mov edi, [currentcommandloc]
 	add edi, 2
 findspaceprog:
 	mov al, [edi]
@@ -30,14 +30,14 @@ findnonspaceprog:
 	dec edi
 	jmp ebx
 runelf:
-	mov edi, buftxt
+	mov edi, [currentcommandloc]
 	add edi, 2
 	add ebx, 0x80
 	jmp ebx
 noprogfound:
 	mov esi, notfound1
 	call print
-	mov esi, buftxt
+	mov esi, [currentcommandloc]
 	add esi, 2
 	call print
 	mov esi, notfound2
@@ -49,6 +49,7 @@ progbatchfound:
 	batchrunloop:
 		call buftxtclear
 		mov esi, buftxt
+		mov [currentcommandloc], esi
 	batchrunloop2:
 		mov cl, 10
 		mov ch, 13
@@ -82,7 +83,7 @@ progbatchfound:
 	doneiftest:
 		cmp byte [runnextline], 0
 		je near noruniftest
-		call progtest2
+		call run
 	noruniftest:
 		mov byte [runnextline], 1
 		mov edi, [batchedi]
@@ -105,7 +106,7 @@ batchedi dd 0
 		jmp batchrunloop
 	elsetestbatch:
 		mov byte [esi], 1
-		add edi, 6
+		add edi, 5
 		jmp batchrunloop
 	fifindbatch:
 		mov cx, "if"
@@ -119,10 +120,9 @@ batchedi dd 0
 		mov eax, "else"
 		cmp [edi], eax
 		je near elsetestbatch
-		add edi, 2
-		jmp fifindbatch
+		jmp noruniftest
 	fifoundbatch:
-		inc edi
+		add edi, 2
 		mov al, 10
 		cmp [edi], al
 		je near goodfibatch
@@ -136,7 +136,7 @@ batchedi dd 0
 		mov bl, [iffalsebuf]
 		cmp al, bl
 		ja fifindbatch
-		mov esi, buftxt
+		mov esi, [currentcommandloc]
 		sub edi, 2
 		mov byte [runnextline], 0
 		jmp batchrunloop

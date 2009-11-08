@@ -2,9 +2,9 @@
 ifcmd:	xor al, al
 	cmp [BATCHISON], al
 	je near notbatch
-	mov esi, buftxt
-	mov ebx, buftxt
+	mov ebx, [currentcommandloc]
 	add ebx, 3
+	mov esi, ebx
 chkeqsn: mov al, [esi]
 	cmp al, 0
 	je near notbatch
@@ -15,13 +15,7 @@ chkeqsn: mov al, [esi]
 chkeqdn: mov al, 0 
 	mov [esi], al
 	inc esi
-	mov al, [esi]
-	cmp al, '$'
-	je near ifvar1
-ifvar2: mov al, [ebx]
-	cmp al, '$'
-	je near ifvar3
-ifvar4:	call tester
+	call tester
 	cmp al, 1
 	je near trueif
 	jmp falseif
@@ -45,19 +39,3 @@ falseif: xor eax, eax
 	xor ah, ah
 	mov [esi], ah
 	jmp nwcmd
-ifvar1: mov edi, esi
-	sub edi, buftxt
-	inc edi
-	mov ebx, variables
-	call nxtvrech
-	mov ebx, buftxt
-	add ebx, 3
-	jmp ifvar2
-ifvar3: mov [esiif], esi
-	mov edi, 4
-	mov ebx, variables
-	call nxtvrech
-	mov esi, [esiif]
-	jmp ifvar4
-
-esiif dd 0

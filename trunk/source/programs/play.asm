@@ -1,5 +1,5 @@
 db 255,44,"play",0
-	mov edi, buftxt
+	mov edi, [currentcommandloc]
 	add edi, 5
 	mov esi, 0x400000
 	call loadfile
@@ -18,7 +18,7 @@ db 255,44,"play",0
 nosoundfound:
 	mov esi, notfoundsound
 	call print
-	mov esi, buftxt
+	mov esi, [currentcommandloc]
 	add esi, 5
 	call print
 	mov esi, notfound2

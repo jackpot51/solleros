@@ -8,7 +8,7 @@ db 255,44,"%",0
 		jmp nwcmd
 		
 db 255,44,"$",0
-var: mov esi, buftxt
+var: mov esi, [currentcommandloc]
 	mov ebx, variables
 lkeq:	mov al, [esi]
 	cmp al, '='
@@ -27,7 +27,7 @@ eqfnd:	inc esi
 	mov al, [esi]
 	cmp al, 0
 	je readvar
-	mov esi, buftxt
+	mov esi, [currentcommandloc]
 	mov ebx, variables
 	jmp seek
 readvar:
@@ -46,7 +46,7 @@ seek:	mov ax, [ebx]
 	je skfnd
 	inc ebx
 	jmp seek
-skfnd:	mov esi, buftxt
+skfnd:	mov esi, [currentcommandloc]
 	inc esi
 	add ebx, 2
 	mov edi, ebx
@@ -55,7 +55,7 @@ skfnd:	mov esi, buftxt
 	cmp al, 1	
 	je varfnd
 	mov ebx, edi
-	mov esi, buftxt
+	mov esi, [currentcommandloc]
 	mov ax, [ebx]
 	cmp ax, 0
 	je near save
@@ -80,7 +80,7 @@ remove: mov al, [ebx]
 	mov [ebx], al
 	inc ebx
 	jmp remove	;do not need for now-need defragmentation
-save:	mov esi, buftxt
+save:	mov esi, [currentcommandloc]
 	inc ebx
 	mov al, 5
 	mov ah, 4
