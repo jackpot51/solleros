@@ -1,10 +1,9 @@
-		
 db 255,44,"#",0
 	num:	
 		call clearbuffer
 		mov byte [decimal], 0
 		mov byte [decimal2], 0
-		mov esi, buftxt
+		mov esi, [currentcommandloc]
 		xor eax, eax
 		xor ecx, ecx
 		xor ebx, ebx
@@ -29,8 +28,6 @@ db 255,44,"#",0
 		mov edi, esi
 		inc esi
 		mov al, [esi]
-		;cmp al, '$'
-		;je near varnum1	;;unnecessary
 		cmp al, '%'
 		je near resultnum1
 	varnum2: 
@@ -42,7 +39,7 @@ db 255,44,"#",0
 		mov ebx, ecx
 		push ebx
 		call clearbuffer
-		mov esi, buftxt
+		mov esi, [currentcommandloc]
 		mov edi, esi
 		inc esi
 		mov al, [esi]

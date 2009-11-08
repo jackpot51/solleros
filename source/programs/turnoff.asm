@@ -7,11 +7,13 @@ db 255,44,"rmode",0
 [BITS 16]
 rmodetest:
 	mov si, rmodestr
+	xor bx, bx
 rmodeprnt:
 	lodsb
 	or al, al
 	jz .done
 	mov ah, 0xE
+	inc bx
 	int 0x10
 	jmp rmodeprnt
 .done: ret

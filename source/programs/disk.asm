@@ -1,4 +1,3 @@
-
 db 255,44,"disk",0
 		mov esi, diskmsg
 		call printquiet

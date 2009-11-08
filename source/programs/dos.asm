@@ -1,6 +1,6 @@
 db 255,44,"dos",0
 rundosprog:
-	mov edi, buftxt
+	mov edi, [currentcommandloc]
 	add edi, 4
 	mov esi,  0x100 + dosprogloc	;this should be the beginning of memory
 	call loadfile
@@ -42,7 +42,7 @@ nomoredosparams:
 dosnoprogfound:
 	mov esi, notfound1
 	call print
-	mov esi, buftxt
+	mov esi, [currentcommandloc]
 	add esi, 4
 	call print
 	mov esi, notfound2

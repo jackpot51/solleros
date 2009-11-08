@@ -2,7 +2,7 @@ clear
 echo Would you like a tour of the SollerOS system?
 echo If so, you can type yes and press enter.
 $a=
-if $a=yes
+if yes=$a
 clear
 echo These are the available commands.
 ls
@@ -25,8 +25,8 @@ echo % gives back the last answer from #
 echo the dollar sign is used to denote and set variables
 echo ./ runs batch files and programs
 echo while, if, else, loop, and fi are used in batch files
-echo they use the syntax if $var=$var, else, fi
-echo and while $var=$var, loop
+echo they use the syntax if var=var, else, fi
+echo and while var=var, loop
 echo stop is used to exit the batch before the end
 echo pci shows a list of information about pci devices
 echo batch creates a new batch file
@@ -34,4 +34,6 @@ echo show shows text files and batch files
 echo dump dumps a location in memory
 echo time shows the current system time
 echo cpuid shows information about the cpu
+else
+echo Fine then.
 fi

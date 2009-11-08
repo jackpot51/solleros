@@ -1,6 +1,7 @@
 
 db 255,44,"echo",0
-	echo:	mov esi, buftxt
+	echoprog:
+		mov esi, [currentcommandloc]
 		add esi, 5
 		mov al, [esi]
 		call print
@@ -18,14 +19,14 @@ db 255,44,"echo",0
 		je nxtvrech
 		cmp al, '='
 		je nxtvrechb1
-		mov esi, buftxt
+		mov esi, [currentcommandloc]
 		add esi, edi
 		call cndtest
 		cmp al, 2
 		je prntvr
 		cmp al, 1
 		je prntvr
-		mov esi, buftxt
+		mov esi, [currentcommandloc]
 		add esi, edi
 		jmp nxtvrech
 	nxtvrechb1:
