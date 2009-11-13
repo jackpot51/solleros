@@ -1,23 +1,22 @@
 %include "include.asm"
-forktest:		;;this program will test multithreading by "forking" the program
+forktest:		;;this program will test multithreading by forking the program
 	mov esi, forkstart
-	mov al, 0
-	mov ah, 10
+	mov ah, 11
 	int 0x30
 	mov esi, fork1
-	mov al, 0
-	mov ah, 1
-	int 0x30
-	call exit
-	jmp $
+	call print
+fork2rantest:
+	mov al, [fork2ran]
+	cmp al, 0
+	je fork2rantest
+	jmp exit
 
 forkstart:
 	mov esi, fork2
-	mov al, 0
-	mov ah, 1
-	int 0x30
-	call exit
+	call print
+	mov byte [fork2ran], 1
 	jmp $
-	
-fork1 db "This is the main thread.",10,13,0
-fork2 db "This is the forked thread.",10,13,0
+
+fork2ran db 0	
+fork1 db "This is the main thread.",10,0
+fork2 db "This is the forked thread.",10,0

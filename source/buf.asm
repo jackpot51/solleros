@@ -11,17 +11,18 @@ mousecolorbuf: ;where the gui under the mouse is stored
 mcolorend:
 fileindex: resb 1024
 fileindexend:
+uid resb 4
 IFON resb 1
 IFTRUE resb 100
 BATCHPOS resb 4
 BATCHISON resb 1
 LOOPON resb 1
 LOOPPOS	resb 4
-variables: resb 1024
+variables: resb 4096
 varend: resb 1
 buftxt2: resb 256
 resb 10
-buftxt: resb 512
+buftxt: resb 1024
 buftxtend:
 buf2:	resb 20
 numbuf: resb 1 

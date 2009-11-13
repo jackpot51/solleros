@@ -10,20 +10,10 @@ nwcmdst:
 	jmp nwcmd
 	
 modelthread:
-	mov bx, [currentthread]
 	mov al, 1
 	mov ah, 9
-	xor ecx, ecx
-	mov cx, bx
+	mov ecx, [currentthread]
 	int 0x30
-	mov ecx, 0xC0DE0000
-	mov cx, bx
-	int 0x30
-	mov ecx, 0xDEAD0000
-	mov cx, bx
-	int 0x30
-	call timerinterrupt	;;skip this thread three times to ensure that all threads run
-	call timerinterrupt
 	call timerinterrupt
 	jmp nwcmdst
 	
@@ -47,7 +37,6 @@ threadfork:
 	or ecx, 0x200
 	mov ebx, esp
 	mov esp, stackdummy
-	nop
 	
 	pushad
 	mov eax, mainthread
@@ -63,7 +52,6 @@ threadfork:
 	shl ebx, 10
 	add esp, ebx
 	shr ebx, 10
-	nop
 	pushad
 	mov [esp + 32], eax
 	mov [esp + 36], edx
@@ -89,12 +77,11 @@ startthreads:
 	or ecx, 0x200
 	mov ebx, esp
 	mov esp, stackdummy
-	nop
 	
 	pushad
 	mov eax, mainthread
-	mov [esp + 32], eax
-	mov [esp + 36], edx
+	mov [esp + 32], eax	;used to be 32
+	mov [esp + 36], edx ;used to be 36
 	mov [esp + 40], ecx
 	mov [threadlist], esp
 
@@ -145,10 +132,9 @@ threadswitch:
 	cli
 	pushad
 	mov edi, threadlist
-	xor eax, eax
-	mov ax, [currentthread]
-	inc ax
-	mov [currentthread], ax
+	mov eax, [currentthread]
+	inc eax
+	mov [currentthread], eax
 	dec ax
 	shl eax, 2
 	add edi, eax
@@ -161,8 +147,8 @@ threadswitch:
 	jne near okespthread
 nookespthread:
 	mov edi, threadlist
-	xor ax, ax
-	mov [currentthread], ax
+	xor eax, eax
+	mov [currentthread], eax
 	mov eax, [edi]
 	cmp eax, 0
 	je near nwcmdst
@@ -172,6 +158,6 @@ okespthread:
 	out 0x20, al
 	popad
 	sti
-	iretd
+	ret
 	
-currentthread dw 0
+currentthread dd 0

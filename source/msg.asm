@@ -10,12 +10,11 @@
 	endprompt db "]$ ",0
 	crlf 	db 13
 	line	db	10,0
-	dirtab 	db " ",9,0
 	userlst:
-			db "user",0
-			db "password",0
 			db "root",0
 			db "awesomepower",0
+			db "user",0
+			db "password",0
 			db "n",0	;;abuse for quick entry-a quick double n followed by a double enter will get you in
 			db 0
 	userlstend:

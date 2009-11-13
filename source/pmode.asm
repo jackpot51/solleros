@@ -227,9 +227,9 @@ pitinterrupt: ;this controls threading
 	mov bx, [esi + 2]
 	mov [soundrepititions], cx
 	add esi, 4
+	mov [soundpos], esi
 	cmp esi, [soundendpos]
 	ja stopsound
-	mov [soundpos], esi
 	cmp bx, 0
 	je nosoundplay
 	call setpitch

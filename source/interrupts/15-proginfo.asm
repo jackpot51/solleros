@@ -16,5 +16,7 @@ getcommandzeroes:
 nomorezeroes:
 	inc ecx
 	dec edi
+	mov ebx, [uid]
+	mov edx, [currentthread]
 	iret
 	

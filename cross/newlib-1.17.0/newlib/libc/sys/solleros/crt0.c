@@ -7,9 +7,9 @@ void _start()
 	int argc;
 	asm("movb $15, %%ah\n\t"
 		"int $0x30"
-		: "=D" (endaddr), "=S" (addr), "=c" (argc), "=b" (variables)
+		: "=D" (endaddr), "=S" (addr), "=c" (argc), "=a" (variables)
 		:
-		: "%eax"
+		: "%ebx", "%edx"
 		);
     char args[argc][256];
 	int i = 0;
