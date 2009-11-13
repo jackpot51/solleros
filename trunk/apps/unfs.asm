@@ -1,5 +1,6 @@
 %include "include.asm"
-	;this program will at least try to load files from unfs-eventually it will be rolled into the os
+	;this program will at least try to load files from an unfs image file
+	;eventually it will be rolled into the os
 	push edi
 	call load_fs
 	call check_fs
@@ -39,31 +40,31 @@ read_super:
 	ret
 	
 check_fs:
-		mov esi, versionsize
-		mov eax, [esi]
-		mov ebx, [esi + 4]
-		mov esi, filesystem
-		mov ecx, [esi]
-		mov edx, [esi + 4]
-		cmp eax, ecx
-		je noerr1
-		int 3
-	noerr1:
-		cmp ebx, edx
-		je noerr2
-		int 3
-	noerr2:
-		ret
+	mov esi, versionsize
+	mov eax, [esi]
+	mov ebx, [esi + 4]
+	mov esi, filesystem
+	mov ecx, [esi]
+	mov edx, [esi + 4]
+	cmp eax, ecx
+	je noerr1
+	int 3
+noerr1:
+	cmp ebx, edx
+	je noerr2
+	int 3
+noerr2:
+	ret
 
 load_fs:
-		mov esi, filesystem
-		mov edi, systemlocation
-		mov ah, 7
-		int 0x30
-		mov eax, edx
-		cmp edx, 0
-		jne near exit
-		ret
+	mov esi, filesystem
+	mov edi, systemlocation
+	mov ah, 7
+	int 0x30
+	mov eax, edx
+	cmp edx, 0
+	jne near exit
+	ret
 		
 filenamelocation dd 0
 showfiles:

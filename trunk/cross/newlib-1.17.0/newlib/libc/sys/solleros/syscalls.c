@@ -51,8 +51,26 @@
 	}
 
     int getpid() {
-      return 1;
+		int pid;
+		asm("movb $15, %%ah\n\t"
+			"int $0x30"
+			:
+			: "d" (pid)
+			: "%eax", "%ebx", "%ecx", "%edi", "%esi"
+			);
+		return pid;
     }
+	
+	int getuid(){
+		int uid;
+		asm("movb $15, %%ah\n\t"
+			"int $0x30"
+			:
+			: "b" (uid)
+			: "%eax", "%ecx", "%edx", "%edi", "%esi"
+			);
+		return uid;
+	}
 
     int isatty(int file){
        return 1;
@@ -80,9 +98,15 @@
 		int i = 0;
 		if(file==0){
 			    asm("movb $4, %%ah\n\t"
-					"movb $0, %%al\n\t"
+					"movb $10, %%al\n\t"
 					"movb $7, %%bl\n\t"
-					"int $0x30"
+					"int $0x30\n\t"
+					"movb $10,%%al\n\t"
+					"movb %%al, (%%esi)\n\t"
+					"addl $1, %%esi\n\t"
+					"xorb %%al, %%al\n\t"
+					"movb %%al, (%%esi)\n\t"
+					"addl $1, %%ecx"
 					: "=c" (i)
 					: "S" (ptr), "D" (ptr + len)
 					: "%eax", "%ebx", "%edx"
@@ -108,7 +132,7 @@
       st->st_mode = S_IFCHR;
       return 0;
     }
-
+	
     int _times(struct tms *buf){
       return -1;
     }

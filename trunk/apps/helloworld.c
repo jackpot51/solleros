@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <time.h>
+#include <errno.h>
+#include <stdlib.h>
 void main(){
 	printf("Hello world!\n");
 	time_t begin;
@@ -18,7 +20,18 @@ void main(){
 	}
 	time_t end;
 	time(&end);
-	printf("It took you %d seconds to type that.\n", end - begin);
+	int duration = end - begin;
+	printf("It took you %d seconds to type that.\n", duration);
+	if(duration>1){
+		errno=EPERM;
+		perror("You are a loser.");
+		errno=ECHILD;
+		perror("You will never have children.");
+		errno=EFAULT;
+		perror("You are homeless.");
+		errno=EOWNERDEAD;
+		perror("And you just killed someone.");
+	}
 	printf("The first key was %d in decimal, 0x%x in hex, and \"%c\" in ASCII\n", n[0], n[0], s);
 	printf("Goodbye world!\n");
 }

@@ -54,14 +54,18 @@ donescr:
 	ret
 	
 	prtab:
-		inc edi
+		xor ebx, ebx
+		mov bx, [linebeginpos]
+		sub edi, videobuf
+		sub edi, ebx
 		shr edi, 4
 		shl edi, 4
 		add edi, 16
 		shr dl, 3
 		shl dl, 3
 		add dl, 8
-		dec edi
+		add edi, videobuf
+		add edi, ebx
 		jmp donecrnl
 	
 	prcr:

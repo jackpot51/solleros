@@ -51,18 +51,12 @@ f16:
 incbin "included/tely"
 align 512,db 0
 f17:
-incbin "included/testif.sh"
-align 512,db 0
-f18:
-incbin "included/testio.elf"
-align 512,db 0
-f19:
 incbin "included/tutorial.sh"
 align 512,db 0
-f20:
+f18:
 incbin "included/unfs"
 align 512,db 0
-f21:
+f19:
 incbin "included/unfs-system"
 align 512,db 0
-f22:
+f20:

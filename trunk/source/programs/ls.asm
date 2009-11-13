@@ -1,6 +1,9 @@
 db 255,44,"ls",0
-	lscmd:	mov esi, progstart
-			mov ebx, progend
+lscmd:	
+		mov al, 13
+		call prcharq
+		mov esi, progstart
+		mov ebx, progend
 dir:	mov esi, fileindex
 	dirnxt:	mov al, [esi]
 		xor ah, ah
@@ -24,11 +27,11 @@ dir:	mov esi, fileindex
 		cmp esi,  fileindexend
 		jae dirdn
 		jmp dirnxt
-	dirfnd2: add esi, 1
+	dirfnd2: inc esi
 		call printquiet
 		push esi
-		mov esi, dirtab
-		call printquiet
+		mov al, 9
+		call prcharq
 		pop esi
 		cmp esi,  fileindexend
 		jae dirdn

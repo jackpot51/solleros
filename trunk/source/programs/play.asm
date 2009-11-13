@@ -1,4 +1,7 @@
 db 255,44,"play",0
+	call playasync
+	jmp nwcmd
+playasync:
 	mov edi, [currentcommandloc]
 	add edi, 5
 	mov esi, 0x400000
@@ -14,7 +17,7 @@ db 255,44,"play",0
 	mov [soundendpos], ebx
 	mov word [soundrepititions], 0
 	mov byte [soundon], 1
-	jmp nwcmd
+	ret
 nosoundfound:
 	mov esi, notfoundsound
 	call print
@@ -23,5 +26,5 @@ nosoundfound:
 	call print
 	mov esi, notfound2
 	call print
-	jmp nwcmd
+	ret
 notfoundsound db "Sound ",34,0

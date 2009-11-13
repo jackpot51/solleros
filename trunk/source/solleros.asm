@@ -43,7 +43,8 @@ backpass:
 	pop esi
 	jmp passcheck
 gotpass:
-	mov al,0
+	xor al, al
+	xor ecx, ecx
 	mov [esi], al
 	mov ebx, userlst
 userfind:
@@ -55,11 +56,12 @@ userfind:
 	call tester
 	cmp al, 1
 	je pwdtest
+	inc ecx
 nxtuser:
-	inc ebx
 	mov al, [ebx]
+	inc ebx
 	cmp al, 0
-	je userfind
+	jne nxtuser
 	cmp ebx, userlstend
 	jae near os
 	jmp userfind
@@ -70,9 +72,13 @@ pwdtest:
 	cmp al, 1
 	je pwdrgt
 	jmp nxtuser
-pwdrgt:	call clear
+pwdrgt:
+	shr ecx, 1
+	mov [uid], ecx
+	call clear
 	mov cx, 200h
 	mov esi, buftxt
+	mov [currentcommandpos], esi
 	xor al, al
 bufclr:	mov [esi], al
 	inc esi
@@ -102,6 +108,7 @@ full:	jmp nwcmd
 
 shush:	;SollerOS Hardly Unix-compatible Shell
 nwcmd:
+	sti
 	xor eax, eax
 	cmp [nextcommandloc], eax
 	je nomultiplecommand
@@ -164,7 +171,6 @@ copycommand:
 donecopy:
 	sub esi, commandbuf
 	mov [currentcommandpos], esi
-	sti
 	jmp run
 
 input:	call buftxtclear
