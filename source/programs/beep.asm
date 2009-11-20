@@ -7,5 +7,5 @@
 	jmp nwcmd
 	
 beepstart:
-	dw 15, 4561
+	dw 50, 4561
 beepend:

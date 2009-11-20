@@ -10,7 +10,6 @@ initcard:	;;should find card, get mac, and initialize card
 initnic:		;;;;Here i tried the rtl8139 interface, fuck it
 	mov [basenicaddr], edx
 	mov ecx, edx
-	mov byte [firsthexshown], 3
 	call showhex	;;for debugging, please remove
 	mov esi, rbuffstart
 	mov ecx, 8192

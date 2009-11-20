@@ -53,9 +53,9 @@ findfilenotfoundzero:
 		cmp al, " "
 		jne findfilenotfoundzero
 		call print
+nofilenamenotfound:
 		mov esi, filenf2
 		call print
-nofilenamenotfound:
 		jmp nwcmd
 filenf db "The file ",34,0
 filenf2 db 34," could not be found.",10,0

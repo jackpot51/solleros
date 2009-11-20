@@ -42,6 +42,7 @@ cpuspeedloopend:
 	call printquiet
 	mov ecx, [memoryspace]
 	shr ecx, 20
+	inc ecx	;the reading is one MB behind
 	call showdec
 	mov esi, memoryspacemsg
 	call print

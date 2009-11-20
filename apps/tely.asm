@@ -15,7 +15,7 @@
 		mov esi, noportnum
 		call print
 		jmp exit
-	noportnum db "You must enter a port number from 1 to 4.",10,13,0
+	noportnum db "You must enter a port number from 1 to 4.",10,0
 	nofix:
 		mov ecx, 0
 		mov edx, 0
@@ -47,27 +47,25 @@
 		add dx, 4
 		out dx, al		;IRQs enabled, RTS/DSR set
 	telyreceive:
-		mov ax, 0
-		mov dx, [BASEADDRSERIAL]		;;wait until char received or keyboard pressed
-		add dx, 5
-		in al, dx
-		cmp al, 1
-		je testin
+		hlt
+		xor ax, ax
 		mov dx, [BASEADDRSERIAL]
 		in al, dx
 		cmp al, 0
 		je testin
+		cmp al, 13
+		je printline
 		mov bx, 7
 		mov ah, 6
 		int 30h
 	testin:
-		mov al, 23
+		mov al, 1
 		mov ah, 5
 		int 30h
 		cmp al, 0
-		je near telyreceive
+		je telyreceive
 		mov ah, al
-		mov al, 0
+		xor al, al
 		mov cx, 100
 		cmp ah, 10
 		jne telysend
@@ -91,6 +89,9 @@
 		je near telyreceive
 		mov dx, [BASEADDRSERIAL]
 		out dx, al
-		jmp telyreceive
+		cmp al, 13
+		jne telyreceive
+		mov ah, 10
+		jmp telysend
 
 BASEADDRSERIAL dw 03f8h
