@@ -79,17 +79,15 @@ charregion db 0
 waitforinput:		;;this is basically the idle process
 					;;this halts the cpu for a small amount of time and then sees if there was a keypress
 					;;this lets the cpu stay at close to 0% instead of 100%
-	;mov ax, 0xA000	;;this is the divider for the PIT
-	;out 0x40, al
-	;rol ax, 8
-	;out 0x40, al
+	xor ax, ax
 	mov al, [threadson]
-	mov byte [threadson], 0
+	mov [threadson], ah
 	sti
 	hlt
 	mov [threadson], al
-;	cmp al, 2
-;	je guistartin
+	cmp ah, [trans]
+	je getkey
+	ret
 getkey:
 		xor eax, eax
 		mov [specialkey], al

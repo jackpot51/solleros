@@ -193,10 +193,10 @@ newcodecache dd 0x100000
 testingcpuspeed db 0
 cpuspeedperint dd 0
 memoryspace dd 0
-pitdiv dw 5370
+pitdiv dw 2685
 timeseconds dd 0
 timenanoseconds dd 0
-timeinterval dd 4500572
+timeinterval dd 2250286;4500572
 soundon db 0
 soundrepititions dw 0
 soundpos dd 0
