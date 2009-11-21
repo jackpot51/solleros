@@ -51,5 +51,5 @@ cpuspeedloopend:
 systeminfomsg db "Kernel Information:",10,0
 diskbytemsg db "KB Disk Space Used",10,0
 membytemsg db "KB Memory Space Used",10,"System Information:",10,0
-cpuspeedmsg db "MHz",10,0
+cpuspeedmsg db "MIPS",10,0
 memoryspacemsg db "MB Memory Space Free",10,0

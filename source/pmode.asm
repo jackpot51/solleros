@@ -201,6 +201,9 @@ soundon db 0
 soundrepititions dw 0
 soundpos dd 0
 soundendpos dd 0
+WAVSamplingRate dw 0
+WAVFileSize         dd 0
+EnableDigitized     db 0
 
 cpuspeedend:
 	mov byte [testingcpuspeed], 0
@@ -209,12 +212,31 @@ cpuspeedend:
 	mov [esp], eax
 	jmp handled
 
-					;if using the rtc, the default frequency yeilds a period of 976562.5ns
-					;if using the pit, div=451 is 377981.0004, div=5370 is 4500572.00007ns, div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
+;if using the rtc, the default frequency yeilds a period of 976562.5ns
+;if using the pit, div=451 is 377981.0004, div=5370 is 4500572.00007ns
+;div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
+
 pitinterrupt: ;this controls threading
 	cmp byte [testingcpuspeed], 1	;check to see if the cpu speed test is running
 	je cpuspeedend
-	call timekeeper
+	
+	cmp byte [EnableDigitized],1	;If it's set to 1, process next lines of code
+	jne NoDigitizedSound	;If not, do the standard irq0 routine
+	cmp al,80h	;If the byte taken from the memory is less than 80h,
+				;turn off the speaker to prevent "unwanted" sounds,
+	jb TurnOffBeeper	;like: ASCII strings (e.g. "WAVEfmt" signature etc).
+	call Sound_On
+	jmp Sound_Done
+TurnOffBeeper:
+	call Sound_Off
+Sound_Done:
+	inc esi	;Increment ESI to load the next byte
+	jmp keyinterrupt
+NoDigitizedSound: 
+	
+	
+	call timekeeper ;this updates the internal time
+	
 	cmp byte [soundon], 1
 	jne timerinterrupt
 	pusha
@@ -260,6 +282,22 @@ keyinterrupt:		;checks for escape, if pressed, it quits the program currently ru
 	je userint
 	jmp handled2
 userint:
+	;UNMASK ALL INTS
+	xor al, al
+	out 0x21, al
+	xor al, al
+	out 0xA1, al
+	mov al, 0x20
+	out 0xA0, al
+	out 0x20, al
+	;RESET PIT DIVISOR
+	mov ax, [pitdiv]
+	out 0x40, al
+	rol ax, 8
+	out 0x40, al
+	;RESET PIC
+	mov al, 0x20
+	out 0x20, al
 	popa
 	sti
 	jmp nwcmd

@@ -10,8 +10,11 @@
 	je near listfiles
 	cmp eax, "show"
 	je near showfiles
+	mov esi, infomsg
+	call print
 	jmp exit	;there are no other commands yet
-systemlocation db "unfs-system",0
+infomsg db "list-list included files",10,"show-display a file",10,0
+systemlocation db "_unfs-system",0
 
 read_super:
 	mov esi, filesystem

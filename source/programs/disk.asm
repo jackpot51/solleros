@@ -9,6 +9,8 @@ db 255,44,"disk",0
 		call printquiet
 		mov esi, diskfileindex
 	diskindexdir:
+		cmp byte [esi], '_'
+		je nextdiskindexdir
 		call printquiet
 		push esi
 		mov esi, disktab
@@ -21,6 +23,15 @@ db 255,44,"disk",0
 		mov esi, line
 		call printquiet
 		pop esi
+		add esi, 9
+		cmp esi, enddiskfileindex
+		jb diskindexdir
+		call termcopy
+		jmp nwcmd
+	nextdiskindexdir:
+		inc esi
+		cmp byte [esi], 0
+		jne nextdiskindexdir
 		add esi, 9
 		cmp esi, enddiskfileindex
 		jb diskindexdir
