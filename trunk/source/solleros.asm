@@ -78,7 +78,7 @@ pwdrgt:
 	call clear
 	mov cx, 200h
 	mov esi, buftxt
-	mov [currentcommandpos], esi
+	mov [currentcommandloc], esi
 	xor al, al
 bufclr:	mov [esi], al
 	inc esi

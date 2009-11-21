@@ -15,6 +15,15 @@ readline:
 		mov al, 1
 		call rdcharint
 		pop esi
+		cmp byte [specialkey], 0xE0
+		jne notspecialrdprnt
+		cmp ah, 0x53
+		je near rdprdel
+		cmp ah, 0x47
+		je near rdprhome
+		cmp ah, 0x4F
+		je near rdprend
+	notspecialrdprnt:
 		cmp ah, 0x48
 		je near rdprup
 		cmp ah, 0x50
@@ -105,11 +114,33 @@ readline:
 		call termcopy
 		jmp rdprintb
 		
+	rdprhome:
+		cmp esi, [buftxtloc]
+		je near rdprintb2
+		mov edi, buftxt2
+		mov al, [edi]
+		call shiftbuftxt2
+		call prcharq
+		jmp rdprhome
+		
+	rdprend:
+		mov edi, buftxt2
+		mov al, [edi]
+		cmp al, 0
+		je near rdprintb2
+		mov [esi], al
+		call shiftbuftxt2lft
+		call prcharq
+		jmp rdprend
+	
 	rdprleft:
 		cmp esi, [buftxtloc]
 		je near rdprintb
 		mov edi, buftxt2
 		mov al, [edi]
+		call shiftbuftxt2
+		call prcharint
+		jmp rdprintb
 	shiftbuftxt2:
 		cmp al, 0
 		je noshiftbuftxt2
@@ -125,8 +156,7 @@ readline:
 		mov [edi], al
 		mov byte [esi], 0
 		mov al, 8
-		call prcharint
-		jmp rdprintb
+		ret
 		
 	rdprright:
 		mov edi, buftxt2
@@ -134,6 +164,9 @@ readline:
 		cmp al, 0
 		je near rdprintb
 		mov [esi], al
+		call shiftbuftxt2lft
+		call prcharint
+		jmp rdprintb
 	shiftbuftxt2lft:
 		cmp al, 0
 		je noshiftbuftxt2lft
@@ -145,8 +178,7 @@ readline:
 		mov al, [esi]
 		inc esi
 		mov bl, [modkeyrdpr]
-		call prcharint
-		jmp rdprintb
+		ret
 		
 	rdprdownbck:
 		dec ah
@@ -239,6 +271,15 @@ readline:
 		jbe morerdprup
 		mov edi, commandbuf
 		jmp morerdprup
+		
+	rdprdel:
+		mov edi, buftxt2
+		mov al, [edi]
+		cmp al, 0
+		je near rdprintb
+		mov [esi], al
+		call shiftbuftxt2lft
+		call prcharq
 	rdprbscheck:
 		cmp esi, [firstesirdpr]
 		ja goodbscheck

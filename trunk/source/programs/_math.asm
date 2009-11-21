@@ -120,12 +120,12 @@ db 255,44,"#",0
 		call decaddfix
 		xor al, al
 		mov [decimal], al
-		mov ax, cx
-		cmp bl, 0
+		xor edx, edx
+		mov eax, ecx
+		cmp ebx, 0
 		je near retnum
-		div bl
-		xor ecx, ecx
-		mov cl, al
+		div ebx
+		mov ecx, eax
 		jmp retnum
 	expnum:
 		mov dl, [decimal]

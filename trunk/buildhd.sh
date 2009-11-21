@@ -17,6 +17,7 @@ read maybe
 if [ $maybe == y ]
 then
 sudo dd if=SollerOS.bin bs=512 of=$doneit
+sudo sync
 fi
 echo "Press enter."
 read isdone
