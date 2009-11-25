@@ -38,8 +38,6 @@ db 255,44,"batch",0
 		je endbatchcreate
 		cmp al, 2
 		je endbatchcreate
-		mov esi, line
-		call print
 		mov esi, [esicache2]
 		mov al, 10
 		mov [esi], al
@@ -49,8 +47,6 @@ db 255,44,"batch",0
 		mov esi, [esicache3]
 		xor eax, eax
 		mov [esi], al
-		mov esi, line
-		call print
 		mov esi, 0x400000
 		call print
 		jmp nwcmd

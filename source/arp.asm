@@ -1,5 +1,4 @@
-;;let's try something else
-;;arp.asm
+;ARP TESTING
 arpinit:
 	mov esi, arptable
 	mov edi, sysmac
@@ -16,7 +15,7 @@ arptest:
 	cmp byte [arpconfig], 1
 	je arptest2
 	call arpinit
-arptest2:	;;try to reach 192.168.0.1
+arptest2:	;try to reach 192.168.0.1
 	mov ecx, [sysmac]
 	mov bx, [sysmac + 4]
 	mov [sourcemac], ecx
@@ -25,12 +24,12 @@ arptest2:	;;try to reach 192.168.0.1
 	mov [arpsenderinfo + 4], bx
 	mov edi, frame
 	mov esi, framend
-	call sendframe
+	call rtl8139.sendframe
 	mov esi, line
 	call print
 	ret
 	
-;;example frame
+;example frame
 frame:
 destinationmac:	db 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
 sourcemac:		db 0,0,0,0,0,0

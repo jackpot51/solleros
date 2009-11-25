@@ -1,7 +1,7 @@
 db 255,44,"play",0
-	call playasync
+	call playsync
 	jmp nwcmd
-playasync:
+playsync:
 	mov edi, [currentcommandloc]
 	add edi, 5
 	mov esi, 0x400000
@@ -19,6 +19,10 @@ playasync:
 	mov [soundendpos], ebx
 	mov word [soundrepititions], 0
 	mov byte [soundon], 1
+waitforsoundendplay:
+	mov al, [soundon]
+	cmp al, 0
+	jne waitforsoundendplay
 	ret
 nosoundfound:
 	mov esi, notfoundsound
@@ -31,7 +35,31 @@ nosoundfound:
 	ret
 notfoundsound db "Sound ",34,0
 
+sbplay:
+		mov esi, 0x400000
+		mov ebx, esi
+		add esi, 44
+		sub edi, esi
+		mov [Length1], di
+		shr edi, 16
+		mov [Length0], di
+		mov ecx, [ebx + 24]
+		mov [Freq], ecx
+		xor eax, eax
+		mov	edx, 0x400000 ;location of sound
+		add edx, 2048
+		add	eax,edx
+		xor ebx, ebx
+		mov bx, [Length1]
+		add ebx, eax
+		mov [NextMemLoc], ebx
+		mov	[MemLoc],eax
+		call DMAPlay
+		ret
+
 wave_player:
+	cmp byte [SoundBlaster], 1
+	je near sbplay
 	mov esi, 0x400000
 	mov ecx, [esi + 24]
 	mov [WAVSamplingRate], cx
@@ -55,11 +83,11 @@ wave_player:
 	rol ax, 8
 	out 0x40, al
 	;GET WAVEDIV
-   mov bx, [WAVSamplingRate]
-   mov ax,0x34dd	; The sound lasts until NoSound is called
-   mov dx,0x0012             
-   div bx               
-   mov [WAVEDIV],ax
+	mov bx, [WAVSamplingRate]
+	mov ax,0x34dd	; The sound lasts until NoSound is called
+	mov dx,0x0012             
+	div bx               
+	mov [WAVEDIV],ax
 	;PLAY WAVE
 	add esi, 44
 	call PlayWAV
@@ -78,34 +106,6 @@ wave_player:
 	out 0x40, al
 	ret
 	
-;this is code that I got from
-;http://forum.osdev.org/viewtopic.php?f=13&t=17293
-;that plays wave files
-WAVEDIV dw 0
-
-Sound_On:	; A routine to make sounds with BX = frequency in Hz
-   mov bx, [WAVEDIV]
-   in al,0x61
-   test al,3
-   jnz A99               
-   or al,3	;Turn on the speaker itself
-   out 0x61,al               
-   mov al,0xb6
-   out 0x43,al
-A99:   
-   mov al,bl
-   out 0x42,al             
-   mov al,bh
-   out 0x42,al
-Done1:
-   ret
-
-Sound_Off:
-   in al,0x61                 
-   and al,11111100b                               ;Turn off the speaker
-   out 0x61,al
-   ret
-
 PlayWAV:
    mov ecx,[WAVFileSize]                         ;Sets the loop point
    mov byte [EnableDigitized],1	;Tells the irq0 handler to process the routines

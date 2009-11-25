@@ -20,7 +20,7 @@ LOOPON resb 1
 LOOPPOS	resb 4
 variables: resb 4096
 varend: resb 1
-buftxt2: resb 256
+buftxt2: resb 1024
 resb 10
 buftxt: resb 1024
 buftxtend:
@@ -32,11 +32,11 @@ videobuf2 		resb (160*64*2)	;1280x1024pixels in characters
 videobuf2end		resb 160*2
 lastcommandpos: resb 4
 currentcommandpos: resb 4
-commandbuf: resb 1024
+commandbuf: resb 4096
 commandbufend:	;this is where kernel space only ends, the rest is for threading
 
 rbuffstart: ;for use with networking
-;resb 8212
+	resb 8212
 threadlist:	;;this buffer will hold the stack locations of all of the threads, up to 2048
 	resb 2050*4
 threadlistend:

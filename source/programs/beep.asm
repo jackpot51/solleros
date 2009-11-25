@@ -4,6 +4,10 @@
 	mov eax, beepend
 	mov [soundendpos], eax
 	mov byte [soundon], 1
+waitforsoundendbeep:
+	mov al, [soundon]
+	cmp al, 0
+	jne waitforsoundendbeep
 	jmp nwcmd
 	
 beepstart:
