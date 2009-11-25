@@ -1,4 +1,5 @@
 @echo off
+set CYGWIN=nodosfilewarning
 javac "filecopy.java"
 java filecopy
 nasm source\sector.asm -f bin -o sector.bin

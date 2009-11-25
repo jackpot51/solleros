@@ -90,57 +90,8 @@ done_copy:
 	mov ax, SYS_DATA_SEL
 	mov gs, ax
 	
-;Now I will initialise the interrupt controllers and remap irq's
-	mov al, 0x11
-	out 0x20, al
-	out 0xA0, al
-	mov al, 0x40	;interrupt for master
-	out 0x21, al
-	mov al, 0x48	;interrupt for slave
-	out 0xA1, al
-	mov al, 4
-	out 0x21, al
-	mov al, 2
-	out 0xA1, al
-	mov al, 0x1
-	out 0x21, al
-	mov al, 0x1
-	out 0xA1, al
-	;masks are set to zero so as not to mask
-	xor al, al
-	out 0x21, al
-	xor al, al
-	out 0xA1, al
-	mov al, 0x20
-	out 0xA0, al
-	out 0x20, al
-	;initialize the PIT
-	mov ax, [pitdiv] ;this is the divider for the PIT
-	out 0x40, al
-	rol ax, 8
-	out 0x40, al
-	;enable rtc interrupt
-	mov al, 0xB
-	out 0x70, al
-	rol ax, 8
-	in al, 0x71
-	rol ax, 8
-	out 0x70, al
-	rol ax, 8
-	or al, 0x40
-	out 0x71, al
-
-	;And now to initialize the fpu
-	mov eax, cr4
-	or eax, 0x200
-	mov cr4, eax
-	mov eax, 0xB7F
-	push eax
-	fldcw [esp]
-	pop eax
-	xor eax, eax
-	xor ecx, ecx
-
+	call initialize	;initialize drivers
+	
 	mov eax, [newcodecache]
 	shr eax, 4
 	mov [basecache], eax
@@ -217,58 +168,17 @@ cpuspeedend:
 ;div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
 
 pitinterrupt: ;this controls threading
+	cli
 	cmp byte [testingcpuspeed], 1	;check to see if the cpu speed test is running
 	je cpuspeedend
 	
-	cmp byte [EnableDigitized],1	;If it's set to 1, process next lines of code
-	jne NoDigitizedSound	;If not, do the standard irq0 routine
-	cmp al,80h	;If the byte taken from the memory is less than 80h,
-				;turn off the speaker to prevent "unwanted" sounds,
-	jb TurnOffBeeper	;like: ASCII strings (e.g. "WAVEfmt" signature etc).
-	call Sound_On
-	jmp Sound_Done
-TurnOffBeeper:
-	call Sound_Off
-Sound_Done:
-	inc esi	;Increment ESI to load the next byte
-	jmp keyinterrupt
-NoDigitizedSound: 
-	
+	cmp byte [EnableDigitized], 1
+	je near PCSpeakerPWM
 	
 	call timekeeper ;this updates the internal time
 	
 	cmp byte [soundon], 1
-	jne timerinterrupt
-	pusha
-	mov esi, [soundpos]
-	xor ecx, ecx
-	mov cx, [soundrepititions]
-	cmp cx, 0
-	jne donesetpitch
-	mov cx, [esi]
-	mov bx, [esi + 2]
-	mov [soundrepititions], cx
-	add esi, 4
-	mov [soundpos], esi
-	cmp esi, [soundendpos]
-	ja stopsound
-	cmp bx, 0
-	je nosoundplay
-	call setpitch
-	call startsound
-	jmp donesetpitch
-nosoundplay:
-	call killsound
-donesetpitch:
-	dec cx
-	mov [soundrepititions], cx
-	popa
-	jmp timerinterrupt
-stopsound:
-	call killsound
-	mov word [soundrepititions], 0
-	mov byte [soundon], 0
-	popa
+	je near PCSpeakerRAW
 timerinterrupt:	;put this into the interrupt handler that controls threading
 	cmp byte [threadson], 1
 	je near threadswitch
@@ -301,6 +211,13 @@ userint:
 	popa
 	sti
 	jmp nwcmd
+	
+sblasterirq:
+	cli
+	pusha
+	cmp byte [SoundBlaster], 1
+	je near sblastercont
+	jmp handled2
 	
 timekeeper:
 	push eax
@@ -436,11 +353,22 @@ idt:
 %endrep
 ;and here we are at 0x40
 ;here are all the irq's
-		dw pitinterrupt,NEW_CODE_SEL,0x8E00,0
-		dw keyinterrupt,NEW_CODE_SEL,0x8E00,0
-%rep 14
-		dw handled,NEW_CODE_SEL,0x8E00,0
-%endrep
+		dw pitinterrupt,NEW_CODE_SEL,0x8E00,0 ;IRQ 0 = PIT
+		dw keyinterrupt,NEW_CODE_SEL,0x8E00,0 ;IRQ 1 = keyboard
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 2
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 3
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 4
+		dw sblasterirq,NEW_CODE_SEL,0x8E00,0 ;IRQ 5 = default SoundBlaster
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 6
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 7
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 8 = RTC
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 9
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 10
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 11
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 12
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 13
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 14
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 15
 ;This brings me up to 0x50
 %assign i 0x50
 %rep 176

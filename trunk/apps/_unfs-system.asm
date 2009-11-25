@@ -15,7 +15,7 @@ filesys:
 	db 2		;size of user/group id's
 	db 9		;filesystem allocation block size in exponent of 2(2^9=512 bytes)
 	db 0		;character encoding(0=ASCII), this will probably be removed or changed to unicode version when everything goes unicode
-			;the filesystem node collection will act like one big file as will the index, what follows is their nodes
+	;the filesystem node collection will act like one big file as will the index, what follows is their nodes
 	dd nodecollectionnode
 	dd indexcollectionnode
 nodecollectionnode:	dd nodecollectionend
@@ -119,25 +119,6 @@ align 512, db 0
 fsend:	
 					
 indexstart:		;this will basically contain all of the names/metadata/dates/other stuff needed to search properly and quickly
-
-				;now we can talk about time. time will be done with a 48-bit number compiled as such:
-				;4 bits-month
-				;5 bits-day
-				;1 bit-a sign bit for the year
-				;9 bits-an offset up to 512 from 2000CE
-				;5 bits-hour
-				;6 bits-minute
-				;6 bits-second
-				;10 bits-millisecond
-				;2 bit denoting if another package exists(0=none, 1=precision, 2=length, 3=overkill)
-				
-				;24 bits-add these to address 100 picosecond (1/10 nanosecond) intervals
-				
-				;24 bits-add these to the year to address time back or forward 8 billion years
-				
-				;the overkill package is major overkill
-				;20 bits-add these to address 100 attosecond intervals (the interval ever measured is 100 attoseconds)
-				;4 bits-add these to address time back or forward 137.44 billion years-all the way forward to the big rip
 				
 
 		rootindexname:	dd rootnode - fsstart		;points back to the root node
