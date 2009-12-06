@@ -38,7 +38,7 @@ print:
 	ret
 	
 read:
-	mov al, 13
+	mov al, 10
 	mov ah, 4
 	mov bl, 7
 	int 0x30

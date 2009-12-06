@@ -11,7 +11,7 @@ db 255,44,"batch",0
 		je goodbatchname
 		mov esi, badbatchname
 		call print
-		jmp nwcmd
+		ret
 		badbatchname db "This file already exists!",10,0
 		namenotfoundbatch db "You have to type a name after the command.",10,0
 		esicache3 dd 0
@@ -19,7 +19,7 @@ db 255,44,"batch",0
 	nonamefound:
 		mov esi, namenotfoundbatch
 		call print
-		jmp nwcmd
+		ret
 	goodbatchname:
 		mov esi, 0x400000
 	batchcreate:
@@ -49,7 +49,7 @@ db 255,44,"batch",0
 		mov [esi], al
 		mov esi, 0x400000
 		call print
-		jmp nwcmd
+		ret
 	
 	exitword db "\x",0
 	wordmsg db "Type \x to exit.",10,0

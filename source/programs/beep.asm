@@ -8,7 +8,7 @@ waitforsoundendbeep:
 	mov al, [soundon]
 	cmp al, 0
 	jne waitforsoundendbeep
-	jmp nwcmd
+	ret
 	
 beepstart:
 	dw 50, 4561

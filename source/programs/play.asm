@@ -1,6 +1,6 @@
 db 255,44,"play",0
 	call playsync
-	jmp nwcmd
+	ret
 playsync:
 	mov edi, [currentcommandloc]
 	add edi, 5

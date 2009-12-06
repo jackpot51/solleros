@@ -23,4 +23,4 @@ dumphexloop:
 	cmp edi, esi
 	jb dumphexloop
 	call termcopy
-	jmp nwcmd
+	ret 

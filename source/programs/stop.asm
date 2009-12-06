@@ -4,4 +4,4 @@ stop:	xor al, al
 	mov [IFON], al
 	mov [IFTRUE], al
 	mov [LOOPON], al
-	jmp nwcmd
+	ret 

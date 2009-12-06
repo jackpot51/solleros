@@ -4,4 +4,4 @@
 	je near notbatch
 fi:	mov al, 1
 	sub [IFON],al
-	jmp nwcmd
+	ret 

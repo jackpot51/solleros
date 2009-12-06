@@ -1,6 +1,12 @@
 %include "source/drivers/sound/pcspkr.asm"
 %include "source/drivers/sound/sblaster.asm"
 %include "source/drivers/network/rtl8139.asm"
+%include "source/drivers/input/mouse.asm"
+%include "source/drivers/input/keyboard.asm"
+;drivers will soon be handled intelligently
+;every driver's source will be scanned for a .init function
+;that will be called and if it returns 0
+;the hardware was found and the driver initialized properly
 initialize:
 ;Now I will initialise the interrupt controllers and remap irq's
 	mov al, 0x11
@@ -53,7 +59,6 @@ initialize:
 	xor eax, eax
 	xor ecx, ecx
 	
-	call sblasterinit
-	
+	call sblaster.init
 	ret
 	

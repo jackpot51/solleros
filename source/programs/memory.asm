@@ -21,5 +21,5 @@ printmemmap:
 	pop edi
 	cmp esi, edi
 	jb printmemmap
-	jmp nwcmd
+	ret
 	

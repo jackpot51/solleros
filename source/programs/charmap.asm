@@ -67,7 +67,7 @@ charmapcopycheck:
 	xor ah, ah
 	jmp charmapcopy
 nomorecharmap:
-	jmp nwcmd
+	ret
 charmapnocopy:
 	push ax
 	mov al, " "

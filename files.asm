@@ -33,18 +33,21 @@ f10:
 incbin "included/songotime.snd"
 align 512,db 0
 f11:
-incbin "included/tely"
+incbin "included/stdiotest.elf"
 align 512,db 0
 f12:
-incbin "included/tutorial.sh"
+incbin "included/tely"
 align 512,db 0
 f13:
-incbin "included/unfs"
+incbin "included/tutorial.sh"
 align 512,db 0
 f14:
-incbin "included/victory.wav"
+incbin "included/unfs"
 align 512,db 0
 f15:
-incbin "included/_unfs-system"
+incbin "included/victory.wav"
 align 512,db 0
 f16:
+incbin "included/_unfs-system"
+align 512,db 0
+f17:

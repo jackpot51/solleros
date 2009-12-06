@@ -8,7 +8,7 @@
 	location db " "
 	locationname db "/",0
 	endprompt db "]$ ",0
-	crlf 	db 13
+	crlf 	db  13
 	line	db	10,0
 	userlst:
 			db "root",0

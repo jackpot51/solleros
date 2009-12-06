@@ -8,7 +8,8 @@
 	;/etc/tutorial
 	;/home/user/
 filesys:
-	db 2		;version size is in two bytes-this may not even be necessary, the ext filesystem only has 4 versions
+	db 4		;length of signature
+	db "UnFS"
 	dw 1		;version 1
 	db 6		;filesystem block pointer size in bytes
 	db 4		;filesystem memory pointer size in bytes			

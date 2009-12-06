@@ -89,10 +89,7 @@ time:
 	call tstackget1
 	ret
 	mov esi, timeshow
-	mov bx, 7
-	mov ah, 1
-	xor al, al
-	int 30h
+	call print
 ;;get day of week
 ;;add these:
 ;;century value
@@ -134,13 +131,8 @@ findday:
 	shl edx, 2
 	add edx, day
 	mov esi, [edx]
-	mov bx, 7
-	mov ah, 1
-	xor al, al
-	int 30h
-	xor ax, ax
-	int 30h
-	hlt
+	call print
+	ret
 	
 converttohex:
 	mov ah, al

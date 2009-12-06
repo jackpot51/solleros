@@ -5,7 +5,7 @@ db 255,44,"%",0
 		call convert
 		mov esi, buf2
 		call chkadd
-		jmp nwcmd
+		ret
 		
 db 255,44,"$",0
 var: mov esi, [currentcommandloc]
@@ -22,7 +22,7 @@ echovars: mov esi, variables
 	mov cl, 5
 	mov ch, 4
 	call array
-	jmp nwcmd
+	ret
 eqfnd:	inc esi
 	mov al, [esi]
 	cmp al, 0
@@ -123,4 +123,4 @@ ansfnd:	inc esi
 	ret
 svdone:	xor al, al
 	mov [ebx], al
-	jmp nwcmd
+	ret

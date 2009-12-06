@@ -27,7 +27,7 @@ db 255,44,"disk",0
 		cmp esi, enddiskfileindex
 		jb diskindexdir
 		call termcopy
-		jmp nwcmd
+		ret
 	nextdiskindexdir:
 		inc esi
 		cmp byte [esi], 0
@@ -36,7 +36,7 @@ db 255,44,"disk",0
 		cmp esi, enddiskfileindex
 		jb diskindexdir
 		call termcopy
-		jmp nwcmd
+		ret
 		
 		diskmsg db "Disk ",0
 		disktab db 13,9,9,9,0
