@@ -38,5 +38,5 @@ dir:	mov esi, fileindex
 		jmp dirnxt
 	dirdn:	mov esi, line
 			call print
-			jmp nwcmd
+			ret
 currentdir db 0

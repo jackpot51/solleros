@@ -32,20 +32,23 @@ dd (f10-f9)/512
 db "songotime.snd",0
 dd (f10-$$)/512
 dd (f11-f10)/512
-db "tely",0
+db "stdiotest.elf",0
 dd (f11-$$)/512
 dd (f12-f11)/512
-db "tutorial.sh",0
+db "tely",0
 dd (f12-$$)/512
 dd (f13-f12)/512
-db "unfs",0
+db "tutorial.sh",0
 dd (f13-$$)/512
 dd (f14-f13)/512
-db "victory.wav",0
+db "unfs",0
 dd (f14-$$)/512
 dd (f15-f14)/512
-db "_unfs-system",0
+db "victory.wav",0
 dd (f15-$$)/512
 dd (f16-f15)/512
+db "_unfs-system",0
+dd (f16-$$)/512
+dd (f17-f16)/512
 enddiskfileindex:
 

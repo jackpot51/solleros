@@ -50,7 +50,7 @@ cpuspeedloopend:
 	je near nwcmd
 	mov esi, soundblastermsg
 	call print
-	jmp nwcmd
+	ret
 
 systeminfomsg db "Kernel Information:",10,0
 diskbytemsg db "KB Disk Space Used",10,0

@@ -38,7 +38,8 @@ nomoredosparams:
 	xor edx, edx
 	xor edi, edi
 	xor esi, esi
-	jmp DOS_CODE_SEL:0x100
+	call DOS_CODE_SEL:0x100
+	jmp nwcmd
 dosnoprogfound:
 	mov esi, notfound1
 	call print

@@ -9,7 +9,8 @@ RTL_CONFIG1 equ 0x52
 RTL_TSD0 equ 0x10
 RTL_TSAD0 equ 0x20
 
-rtl8139.initcard:	;should find card, get mac, and initialize card
+rtl8139:
+.initcard:	;should find card, get mac, and initialize card
 	xor eax, eax
 	mov [pcifunction], al
 	mov [pcibus], al
@@ -17,33 +18,33 @@ rtl8139.initcard:	;should find card, get mac, and initialize card
 	mov al, 0x02 ;;type code
 	mov [pcitype], al
 	call getpciport
-rtl8139.initnic:	;Here i tried the rtl8139 interface, fuck it
+.initnic:	;Here i tried the rtl8139 interface, fuck it
 	mov [basenicaddr], edx
 	mov ecx, edx
 	call showhex	;for debugging, please remove
 	mov esi, rbuffstart
 	mov ecx, 8192
 	xor eax, eax
-rtl8139.clearrbuff:		;clear receive buffer which starts at rbuffstart
+.clearrbuff:		;clear receive buffer which starts at rbuffstart
 	mov [esi], al
 	inc esi
 	dec cx
 	cmp cx, 0
-	jne rtl8139.clearrbuff
-rtl8139.findmac:
+	jne .clearrbuff
+.findmac:
 	mov edx, [basenicaddr]
 	mov edi, sysmac
 	mov ecx, 6
-rtl8139.macputloop:
+.macputloop:
 	in al, dx
 	mov [edi], al
 	inc edi
 	inc edx
 	dec ecx
-	jnz rtl8139.macputloop
+	jnz .macputloop
 	mov ecx, sysmac
 	call showmac
-rtl8139.resetnic:
+.resetnic:
 	mov edx, [basenicaddr]
 	add edx, RTL_CONFIG1
 	xor al, al
@@ -52,13 +53,13 @@ rtl8139.resetnic:
 	add edx, RTL_CMD
 	mov al, 0x10
 	out dx, al	;Reset
-rtl8139.resetnicwait:
+.resetnicwait:
 	mov edx, [basenicaddr]
 	add edx, RTL_CMD
 	in al, dx
 	and al, 0x10
 	cmp al, 0x10
-	je near rtl8139.resetnicwait
+	je near .resetnicwait
 	mov edx, [basenicaddr]
 	add edx, RTL_RBSTART
 	mov eax, rbuffstart
@@ -78,16 +79,16 @@ rtl8139.resetnicwait:
 	mov byte [nicconfig], 1
 	ret
 	
-rtl8139.sendframe:	;padded frame with beginning in edi and end in esi
+.sendframe:	;padded frame with beginning in edi and end in esi
 	push esi
 	push edi
-rtl8139.nic2:		;here come the low level drivers :(
+.nic2:		;here come the low level drivers :(
 			;frame begins at esi, ends at edi
  			;0x0200 is the class code for ethernet cards
 	cmp byte [nicconfig], 1
-	je rtl8139.sendcachedata
-	call rtl8139.initcard
-rtl8139.sendcachedata:
+	je .sendcachedata
+	call .initcard
+.sendcachedata:
 	mov edx, [basenicaddr]
 	add edx, RTL_TSAD0
 	pop edi
@@ -102,20 +103,20 @@ rtl8139.sendcachedata:
 	mov eax, esi ;add length to tsd
 	and eax, 0xFFFFDFFF ;clear own bit
 	out dx, eax
-rtl8139.checknicownbit:
+.checknicownbit:
 	mov edx, [basenicaddr]
 	add edx, RTL_TSD0
 	in eax, dx
 	and eax, 0x2000 ;check own bit
 	cmp eax, 0x2000
-	jne rtl8139.checknicownbit
-rtl8139.checknictokbit:
+	jne .checknicownbit
+.checknictokbit:
 	mov edx, [basenicaddr]
 	add edx, RTL_TSD0
 	in eax, dx
 	and eax, 0x8000	;check tok bit
 	cmp eax, 0x8000
-	jne rtl8139.checknictokbit
+	jne .checknictokbit
 	ret
 	
 showmac:	;mac begins in [ecx]

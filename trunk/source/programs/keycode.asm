@@ -15,4 +15,4 @@ nospecialkeycode:
 	call showhexsmall
 	cmp ah, 1
 	jne keycode
-	jmp nwcmd
+	ret 

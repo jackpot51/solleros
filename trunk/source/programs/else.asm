@@ -8,4 +8,4 @@ elsecmd:	xor eax, eax
 	mov al, [esi]
 	xor al, 1
 	mov [esi], al
-	jmp nwcmd
+	ret 

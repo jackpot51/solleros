@@ -11,7 +11,7 @@ db 255,44,"show",0
 		call print
 		mov esi, line
 		call print
-		jmp nwcmd
+		ret
 bmpfound:
 		cmp byte [guion], 0
 		je near noguibmp
@@ -32,11 +32,11 @@ bmpfound:
 		call print
 		mov esi, loadedbmpmsg
 		call print
-		jmp nwcmd
+		ret
 noguibmp:
 		mov esi, warnguibmp
 		call print
-		jmp nwcmd
+		ret
 warnguibmp db "This can not be done without the gui.",10,0
 
 filenotfound:
@@ -56,7 +56,7 @@ findfilenotfoundzero:
 nofilenamenotfound:
 		mov esi, filenf2
 		call print
-		jmp nwcmd
+		ret
 filenf db "The file ",34,0
 filenf2 db 34," could not be found.",10,0
 		

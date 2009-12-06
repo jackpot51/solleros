@@ -1,14 +1,15 @@
 ;Sound Blaster Drivers
-sblasterinit:
+sblaster:
+.init:
 		call ResetDSP			;If the system is Sound Blaster 16 compatible, reset the DSP
 		mov [SoundBlaster], al	;if the reset worked, show an available card
 		cmp al, 0
-		je nosblasterinit
+		je .noinit
 		mov	al,0D1h 		; turn speaker(s) on
 		call WriteDSP
 		mov	al,088h 		; Left = 8, Right = 8 (15-highest)
 		call MstrVol 		; L = Hi Nibble, R = Lo Nibble
-nosblasterinit:
+.noinit:
 		ret
 		
 sblastercont: ;this function goes to the next available portion of a sound, if necessary

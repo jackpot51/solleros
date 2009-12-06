@@ -297,7 +297,8 @@ noprggoodmul:
 	add ebx, 3
 	mov edi, [ebx]
 	mov byte [threadson], 2
-	jmp edi
+	call edi
+	jmp nwcmd
 prgnf:	
 	mov esi, [currentcommandloc]
 	mov al, [esi]

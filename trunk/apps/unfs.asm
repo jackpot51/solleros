@@ -14,11 +14,11 @@
 	call print
 	jmp exit	;there are no other commands yet
 infomsg db "list-list included files",10,"show-display a file",10,0
-systemlocation db "_unfs-system",0
+systemlocation db "system-image",0
 
 read_super:
 	mov esi, filesystem
-	add esi, 8
+	add esi, 12
 	mov eax, [esi]
 	mov [nodecollectionnode], eax
 	mov eax, [esi + 4]
@@ -43,7 +43,7 @@ read_super:
 	ret
 	
 check_fs:
-	mov esi, versionsize
+	mov esi, typelength
 	mov eax, [esi]
 	mov ebx, [esi + 4]
 	mov esi, filesystem
@@ -113,7 +113,7 @@ showfiles:
 			jb near testfilesloop
 			jmp exit
 	
-listfiles:
+listfiles: ;this should list the files by parsing folder inodes
 	call read_super
 listfilesloop:
 	mov [edibuf], edi
@@ -149,7 +149,8 @@ ebxbuf dd 0
 edibuf dd 0
 esibuf dd 0
 ;expected settings
-versionsize 	db 2
+typelength db 4
+filesystemtype db "UnFS"
 version 	dw 1
 fsblockpoint 	db 6
 fsmempoint	db 4

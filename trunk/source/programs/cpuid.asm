@@ -18,7 +18,7 @@ db 255,44,"cpuid",0
 	mov ecx, eax
 	mov byte [firsthexshown], 2
 	call showhex
-	jmp nwcmd
+	ret
 	
 cpuidbuf times 13 db 0
 cpuidvendorend:

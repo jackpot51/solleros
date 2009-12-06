@@ -28,12 +28,14 @@ findnonspaceprog:
 	cmp al, " "
 	je findnonspaceprog
 	dec edi
-	jmp ebx
+	call ebx
+	ret
 runelf:
 	mov edi, [currentcommandloc]
 	add edi, 2
 	add ebx, 0x80
-	jmp ebx
+	call ebx
+	ret
 noprogfound:
 	mov esi, notfound1
 	call print
@@ -42,7 +44,7 @@ noprogfound:
 	call print
 	mov esi, notfound2
 	call print
-	jmp nwcmd
+	ret
 progbatchfound:
 		mov edi, 0x400000
 		mov byte [BATCHISON], 1
@@ -91,7 +93,7 @@ progbatchfound:
 		jne near batchrunloop
 	nobatchfoundrun:
 		mov byte [BATCHISON], 0
-		jmp nwcmd
+		ret
 	
 batchedi dd 0	
 	
@@ -153,4 +155,4 @@ batchedi dd 0
 runnextline db 1
 iffalsebuf db 0
 
-notbatch: jmp nwcmd
+notbatch: ret 

@@ -28,7 +28,7 @@ trueif:	xor eax, eax
 	add esi, eax
 	mov ah, 1
 	mov [esi], ah
-	jmp nwcmd
+	ret 
 falseif: xor eax, eax
 	mov al, [IFON]
 	inc al
@@ -38,4 +38,4 @@ falseif: xor eax, eax
 	add esi, eax
 	xor ah, ah
 	mov [esi], ah
-	jmp nwcmd
+	ret 

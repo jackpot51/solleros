@@ -7,7 +7,7 @@ db 255,44,"echo",0
 		call print
 		mov esi, line
 		call print
-		jmp nwcmd
+		ret
 	echovr:	mov ebx, variables
 		mov edi, 6
 		call nxtvrech
@@ -50,4 +50,4 @@ db 255,44,"echo",0
 	prntvr2: call print
 		mov esi, line
 		call print
-		jmp nwcmd
+		ret 

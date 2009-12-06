@@ -91,6 +91,15 @@ nowincopy:
 	xor ecx, ecx
 	mov cx, [charxy]
 nowincopy2:
+	mov ax, [edi]
+	add edi, (videobuf2 - videobuf)
+	mov bx, [edi]
+	mov [edi], ax
+	sub edi, (videobuf2 - videobuf)
+	inc edi
+	cmp ax, bx
+	je nopresentwinfont
+	dec edi
 	mov ebx, fonts
 	xor eax, eax
 	mov al, [edi]
