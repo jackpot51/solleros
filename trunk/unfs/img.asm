@@ -37,7 +37,7 @@ align 512, db 0
 .NCEnd:
 .IC:
 .root.Name: dd .root.Node - .NC
-	db 0
+	db "UnFS:",0
 %include "img-index.asm"
 align 512, db 0
 .ICEnd:
