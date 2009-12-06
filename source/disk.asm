@@ -7,6 +7,8 @@ loadfile:	;loads a file with the name buffer's location in edi into location in 
 	mov ebx, diskfileindex
 nextnamechar:
 	mov al, [edi]
+	cmp al, '&'
+	je nullfile
 	mov ah, [ebx]
 	inc edi
 	inc ebx
@@ -36,6 +38,7 @@ nextfilename:
 	jb nextnamechar
 nofileload:
 	mov edx, 404	;indicate not found error
+nullfile:
 	ret
 equalfilenames2:
 	sub ebx, 2

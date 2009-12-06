@@ -11,7 +11,6 @@ sblaster:
 		call MstrVol 		; L = Hi Nibble, R = Lo Nibble
 .noinit:
 		ret
-		
 sblastercont: ;this function goes to the next available portion of a sound, if necessary
 	cmp word [Length0], 0
 	je near handled2

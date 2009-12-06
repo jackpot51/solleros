@@ -90,6 +90,7 @@ wave_player:
 	mov [WAVEDIV],ax
 	;PLAY WAVE
 	add esi, 44
+	add esi, [newcodecache]
 	call PlayWAV
 	;UNMASK ALL INTS
 	xor al, al

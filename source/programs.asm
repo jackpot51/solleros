@@ -75,6 +75,7 @@ indexdone db 0
 %include 'source/programs/reboot.asm'
 %include 'source/programs/reg.asm'
 %include 'source/programs/rem.asm'
+%include 'source/programs/rmode.asm'
 %include 'source/programs/show.asm'
 %include 'source/programs/shush.asm'
 %include 'source/programs/stop.asm'

@@ -48,6 +48,9 @@ f15:
 incbin "included/victory.wav"
 align 512,db 0
 f16:
-incbin "included/_unfs-system"
+incbin "included/_img.bin"
 align 512,db 0
 f17:
+incbin "included/_unfs-demo"
+align 512,db 0
+f18:

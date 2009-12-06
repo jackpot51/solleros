@@ -354,7 +354,7 @@ idt:
 ;and here we are at 0x40
 ;here are all the irq's
 		dw pitinterrupt,NEW_CODE_SEL,0x8E00,0 ;IRQ 0 = PIT
-		dw keyinterrupt,NEW_CODE_SEL,0x8E00,0 ;IRQ 1 = keyboard
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 1 = keyboard
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 2
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 3
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 4

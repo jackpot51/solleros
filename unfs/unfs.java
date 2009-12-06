@@ -77,7 +77,7 @@ public class unfs {
             br.write(".NCEnd:\n");
             br.write(".IC:\n");
             br.write(".root.Name: dd .root.Node - .NC\n");
-            br.write("\tdb 0\n");
+            br.write("\tdb \"UnFS:\",0\n");
             br.write("%include \"" + imgIndex.getName() + "\"\n");
             br.write("align 512, db 0\n");
             br.write(".ICEnd:\n");

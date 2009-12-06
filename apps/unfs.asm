@@ -14,7 +14,7 @@
 	call print
 	jmp exit	;there are no other commands yet
 infomsg db "list-list included files",10,"show-display a file",10,0
-systemlocation db "system-image",0
+systemlocation db "_img.bin",0
 
 read_super:
 	mov esi, filesystem
@@ -33,6 +33,7 @@ read_super:
 	shl ebx, 9
 	add ebx, ecx
 	mov esi, eax
+	mov [indexloc], esi
 	mov edi, ebx
 	mov ebx, [nodecollectionnode]
 	add ebx, ecx
@@ -92,7 +93,11 @@ showfiles:
 			je testfilenofind
 			mov ebx, [ebxbuf]
 			add ebx, [nodeloc]
-			add ebx, 9
+			add ebx, 4
+			mov al, [ebx]
+			cmp al, 0
+			je testfilefolderfound
+			add ebx, 5
 			mov eax, [ebx]
 			add eax, [nodeloc]
 			add eax, 6
@@ -103,28 +108,59 @@ showfiles:
 			mov esi, line
 			call print
 			jmp exit
+	testfilefolderfound:
+			mov esi, foldermsg
+			call print
+			jmp exit
 	testfilenofind:
 			mov esi, [esibuf]
 			mov edi, [edibuf]
 			inc esi
 			cmp byte [esi], 0
-			je near exit
+			je near nonodefound
 			cmp esi, edi
 			jb near testfilesloop
+	nonodefound:
+			mov esi, nonodemsg
+			call print
 			jmp exit
 	
 listfiles: ;this should list the files by parsing folder inodes
 	call read_super
 listfilesloop:
-	mov [edibuf], edi
-	mov ebx, [esi]
-	mov [ebxbuf], ebx
-	add esi, 4
+	push edi
+	call listnode
+	push esi
+	mov esi, line
 	call print
-	mov [esibuf], esi
-	mov ebx, [ebxbuf]
+	pop esi
+	pop edi
+	inc esi
+	cmp byte [esi], 0
+	je near exit
+	cmp esi, edi
+	jb near listfilesloop
+	jmp exit
+listnode:	;esi is the index location
+	mov ebx, [esi]
+	add esi, 4
 	add ebx, [nodeloc]
 	add ebx, 4
+	push ebx
+	push esi
+	add ebx, 9 ;jump to the parent node pointer
+	mov ebx, [ebx]
+	cmp ebx, 0
+	je noparentnodelist
+	add ebx, [nodeloc]
+	mov esi, [ebx]
+	add esi, [indexloc]
+	call listnode
+noparentnodelist:
+	pop esi
+	call print
+	pop ebx
+	push esi
 	mov al, [ebx]
 	cmp al, 1
 	je fileprint
@@ -133,18 +169,13 @@ listfilesloop:
 	mov bx, 7
 	int 30h
 fileprint:
-	mov esi, line
-	call print
-	mov esi, [esibuf]
-	mov edi, [edibuf]
-	inc esi
-	cmp byte [esi], 0
-	je near exit
-	cmp esi, edi
-	jb near listfilesloop
-	jmp exit
-	
+	pop esi
+	ret
+
+nonodemsg db "The requested node could not be found.",10,0
+foldermsg db "The requested node is a folder.",10,0
 nodeloc dd 0
+indexloc dd 0
 ebxbuf dd 0
 edibuf dd 0
 esibuf dd 0
