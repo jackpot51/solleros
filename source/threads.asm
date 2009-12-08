@@ -7,7 +7,7 @@ mainthread:
 	
 nwcmdst:
 	mov byte [threadson], 0
-	ret
+	jmp nwcmd
 	
 modelthread:
 	mov al, 1

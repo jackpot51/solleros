@@ -43,6 +43,7 @@ dumpconts1lp:
 	mov cl, [gs:bx]
 	cmp cl, [si]
 	jne nodumpconts
+jmp skipcontsdump ;remove this to reenable the dump
 	inc bx
 	inc si
 	cmp si, signatureend
@@ -66,6 +67,7 @@ dumpconts2:
 	add bx, 4
 	cmp bx, 700
 	jbe dumpconts2
+skipcontsdump:
 	mov cx, [DriveNumber]
 	mov edx, [lbaad]
     jmp 0x1000:(signatureend - signature)

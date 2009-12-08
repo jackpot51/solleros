@@ -35,6 +35,23 @@ inrealmode:
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
+	
+	mov al, 0x11
+	out 0x20, al
+	out 0xA0, al
+	mov al, 0x8		;interrupt for master
+	out 0x21, al
+	mov al, 0x70	;interrupt for slave
+	out 0xA1, al
+	mov al, 4
+	out 0x21, al
+	mov al, 2
+	out 0xA1, al
+	mov al, 0x1
+	out 0x21, al
+	mov al, 0x1
+	out 0xA1, al
+	
 	lidt [idt_real]
 	sti
 
@@ -72,14 +89,7 @@ rmcopyfromfirstmbyte:
 	cmp ebx, realmodeptr
 	jbe rmcopyfromfirstmbyte
 
-	xor al, al	;unmask interrupts
-	out 0x21, al
-	xor al, al
-	out 0xA1, al
-	mov al, 0x20
-	out 0xA0, al
-	out 0x20, al
-
+	call initialize.pic ;reset irq's and masks
 	sti
 	mov eax, [realmodeeax]
 	mov ebx, [realmodeebx]

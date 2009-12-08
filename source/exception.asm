@@ -1,6 +1,6 @@
 unhand:	
 	%assign i 0
-	%rep 0x40
+	%rep 0x50
 	cli
 	mov byte [intprob], i
 	jmp unhand2

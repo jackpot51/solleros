@@ -67,8 +67,8 @@ winfuncptr       	times  4 db 0	;pointer to window function
 bytesperscanline 	times  2 db 0	;Bytes per scan line
 
 ;Mandatory information for VBE 1.2 and above
-xresolution     	times  2 db 0	;Horizontal resolution in pixel or chars
-yresolution	    	times  2 db 0	;Vertical resolution in pixel or chars
+resolutionx     	times  2 db 0	;Horizontal resolution in pixel or chars
+resolutiony	    	times  2 db 0	;Vertical resolution in pixel or chars
 xcharsize       	times  1 db 0	;Character cell width in pixel
 ycharsize       	times  1 db 0	;Character cell height in pixel
 numberofplanes  	times  1 db 0	;Number of memory planes
@@ -95,4 +95,8 @@ physbaseptr 		times  4 db 0	;Physical address for flat frame buffer
 offscreenmemoffset 	times  4 db 0	;Pointer to start of off screen memory
 offscreenmemsize 	times  2 db 0    ;Amount of off screen memory in 1Kb units
 reserved2 			times  206 db 0  ;Remainder of ModeInfoBlock
+
+resolutionx2 dw 0	;this is not part of the VBE but is necessary GUI info
+guion db 0
+VBEEND:
 osend:	;this is the end of the operating system's space on disk

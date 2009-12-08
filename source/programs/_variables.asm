@@ -1,8 +1,5 @@
 db 255,44,"%",0
-	ans:	call clearbuffer
-		mov ecx, [result]
-		mov esi, buf2
-		call convert
+	ans:
 		mov esi, buf2
 		call chkadd
 		ret
@@ -115,11 +112,14 @@ ansnf:	pop esi
 	mov [ebx], al
 	jmp svhere
 ansfnd:	inc esi
+	cmp esi, numbuf - 1
+	je fndans
 	mov al, [esi]
 	cmp al, 0
 	je ansnf
 	cmp al, '0'
 	je ansfnd
+fndans:
 	ret
 svdone:	xor al, al
 	mov [ebx], al

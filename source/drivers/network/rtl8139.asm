@@ -1,15 +1,13 @@
 ;RTL8139 NIC DRIVER
-
-RTL_RBSTART equ 0x30
-RTL_IMR equ 0x3C
-RTL_ISR equ 0x3E
-RTL_CMD equ 0x37
-RTL_RCR equ 0x44
-RTL_CONFIG1 equ 0x52
-RTL_TSD0 equ 0x10
-RTL_TSAD0 equ 0x20
-
 rtl8139:
+.RBSTART equ 0x30
+.IMR equ 0x3C
+.ISR equ 0x3E
+.CMD equ 0x37
+.RCR equ 0x44
+.CONFIG1 equ 0x52
+.TSD0 equ 0x10
+.TSAD0 equ 0x20
 .initcard:	;should find card, get mac, and initialize card
 	xor eax, eax
 	mov [pcifunction], al
@@ -46,40 +44,43 @@ rtl8139:
 	call showmac
 .resetnic:
 	mov edx, [basenicaddr]
-	add edx, RTL_CONFIG1
+	add edx, .CONFIG1
 	xor al, al
 	out dx, al	;WAKE UP!!!!
 	mov edx, [basenicaddr]
-	add edx, RTL_CMD
+	add edx, .CMD
 	mov al, 0x10
 	out dx, al	;Reset
 .resetnicwait:
 	mov edx, [basenicaddr]
-	add edx, RTL_CMD
+	add edx, .CMD
 	in al, dx
 	and al, 0x10
 	cmp al, 0x10
 	je near .resetnicwait
 	mov edx, [basenicaddr]
-	add edx, RTL_RBSTART
+	add edx, .RBSTART
 	mov eax, rbuffstart
+	add eax, 0x100000 ;change virtual to physical address
 	out dx, eax	;give nic receive buffer location
 	mov edx, [basenicaddr]
-	add edx, RTL_IMR
-	mov ax, 0x0005
+	add edx, .IMR
+	in ax, dx
+	or ax, 0xE07F ;set all possible interrupts to enabled
 	out dx, ax	;set TOK and ROK
 	mov edx, [basenicaddr]
-	add edx, RTL_RCR
+	add edx, .RCR
 	mov eax, 0xf
+	add eax, 128 ;enable wrap option
 	out dx, eax	;recieve packets from all matches
 	mov edx, [basenicaddr]
-	add edx, RTL_CMD
+	add edx, .CMD
 	mov al, 0x0C
 	out dx, al	;use transmit and receive
 	mov byte [nicconfig], 1
 	ret
 	
-.sendframe:	;padded frame with beginning in edi and end in esi
+.sendpacket:	;packet with beginning in edi and end in esi
 	push esi
 	push edi
 .nic2:		;here come the low level drivers :(
@@ -90,7 +91,7 @@ rtl8139:
 	call .initcard
 .sendcachedata:
 	mov edx, [basenicaddr]
-	add edx, RTL_TSAD0
+	add edx, .TSAD0
 	pop edi
 	mov eax, edi
 	add eax, 0x100000 ;base address
@@ -98,21 +99,22 @@ rtl8139:
 	pop esi
 	sub esi, edi
 	mov edx, [basenicaddr]
-	add edx, RTL_TSD0
+	add edx, .TSD0
 	in eax, dx ;get tsd
-	mov eax, esi ;add length to tsd
+	and eax, 0xFFFFE000 ;clear off thirteen bits
+	add eax, esi ;add length to tsd
 	and eax, 0xFFFFDFFF ;clear own bit
 	out dx, eax
 .checknicownbit:
 	mov edx, [basenicaddr]
-	add edx, RTL_TSD0
+	add edx, .TSD0
 	in eax, dx
 	and eax, 0x2000 ;check own bit
 	cmp eax, 0x2000
 	jne .checknicownbit
 .checknictokbit:
 	mov edx, [basenicaddr]
-	add edx, RTL_TSD0
+	add edx, .TSD0
 	in eax, dx
 	and eax, 0x8000	;check tok bit
 	cmp eax, 0x8000

@@ -9,8 +9,8 @@ cmp eax, "char"
 je near charex
 cmp eax, "read"
 je near readex
-cmp eax, "time"
-je near timeex
+;cmp eax, "time"
+;je near timeex
 cmp eax, "exit"
 je near exitnogood
 
@@ -24,7 +24,13 @@ exitnogood:
 	mov ax, 0x4C10 ;exit with an error level of 0x10
 	int 21h
 
-helpmsg db "print - print a string",10,13,"char - print a character",10,13,"read - read and print string",10,13,"help - never!",10,13,"exit - exit with a bad error number",10,13,"$"
+helpmsg:
+		db "char - print a character",13,10
+		db "print - print a string",13,10
+		db "read - read and print string",13,10
+		db "help - never!",13,10
+		db "exit - exit with a bad error number",13,10
+		db "$"
 
 printex:
 	mov dx, dosmsg
@@ -57,8 +63,8 @@ readex:
 timeex:
 	int 20h
 
-dosmsg db "Hello from dos!",10,13,"$"
-line db 10,13,"$"
+dosmsg db "Hello from dos!",13,10,"$"
+line db 13,10,"$"
 dosbuf db 30,0,0
 	   times 30 db 0
 	   db "$"

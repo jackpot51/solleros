@@ -181,7 +181,6 @@ graphicspos db 0,0
 showcursorfonton db 0
 savefonton db 0
 mouseselecton db 0
-guion db 0
 
 		
 clearmousecursor:
@@ -1152,9 +1151,6 @@ iconcolor dw 0
 		xor eax, eax
 		ret
 
-resolutiony dw 0
-resolutionx dw 0
-resolutionx2 dw 0
 resolutionbytes db 2
 posxvesa dw 0
 posyvesa dw 0

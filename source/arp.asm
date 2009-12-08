@@ -24,7 +24,7 @@ arptest2:	;try to reach 192.168.0.1
 	mov [arpsenderinfo + 4], bx
 	mov edi, frame
 	mov esi, framend
-	call rtl8139.sendframe
+	call rtl8139.sendpacket
 	mov esi, line
 	call print
 	ret

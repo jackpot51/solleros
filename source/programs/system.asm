@@ -1,4 +1,18 @@
 	db 255,44,"system",0
+	mov esi, systeminfomsg
+	call printquiet
+	mov ecx, osend
+	shr ecx, 10
+	call showdec
+	mov esi, diskbytemsg
+	call printquiet
+	mov ecx, osend
+	add ecx, commandbufend
+	sub ecx, bssstart	;add the extra buffer space
+	shr ecx, 10
+	call showdec
+	mov esi, membytemsg
+	call printquiet
 getcpuspeed:
 	mov eax, 0xFE
 	out 0x21, al ;mask off all but timer interrupt
@@ -15,21 +29,6 @@ cpuspeedloopend:
 	out 0x21, al
 	mov al, 0x20
 	out 0x20, al
-	
-	mov esi, systeminfomsg
-	call printquiet
-	mov ecx, osend
-	shr ecx, 10
-	call showdec
-	mov esi, diskbytemsg
-	call printquiet
-	mov ecx, osend
-	add ecx, commandbufend
-	sub ecx, bssstart	;add the extra buffer space
-	shr ecx, 10
-	call showdec
-	mov esi, membytemsg
-	call printquiet
 	xor edx, edx
 	xor eax, eax
 	mov eax, [cpuspeedperint]

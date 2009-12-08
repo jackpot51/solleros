@@ -64,6 +64,7 @@ indexdone db 0
 %include 'source/programs/echo.asm'
 %include 'source/programs/else.asm'
 %include 'source/programs/fi.asm'
+%include 'source/programs/gui.asm'
 %include 'source/programs/if.asm'
 %include 'source/programs/keycode.asm'
 %include 'source/programs/logout.asm'
@@ -85,6 +86,5 @@ indexdone db 0
 %include 'source/programs/turnoff.asm'
 %include 'source/programs/wait.asm'
 %include 'source/programs/while.asm'
-
 progend:		;programs end here	
 batchprogend:
