@@ -132,7 +132,7 @@ memoryspaceaddition:
 finishedmemspacecalc:
 	mov [memoryspace], eax
 	
-	cmp byte [guinodo], 1
+	cmp byte [guion], 0
 	jne near guistartup
 	jmp os
 guistartup:	;this prevents weird issues
@@ -211,8 +211,21 @@ userint:
 	popa
 	sti
 	jmp nwcmd
-	
-sblasterirq:
+
+rtl8139.irq:
+	cli
+	pusha
+	mov edx, [basenicaddr]
+	add edx, rtl8139.ISR
+	xor eax, eax
+	in ax, dx
+	mov ecx, eax
+	call showhex
+	mov esi, rtl8139.irq.msg
+	call print
+	jmp handled2
+.msg db 10,"ZOMG TEH RTL8139 REZPONDED",10,0
+sblaster.irq:
 	cli
 	pusha
 	cmp byte [SoundBlaster], 1
@@ -358,13 +371,13 @@ idt:
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 2
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 3
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 4
-		dw sblasterirq,NEW_CODE_SEL,0x8E00,0 ;IRQ 5 = default SoundBlaster
+		dw sblaster.irq,NEW_CODE_SEL,0x8E00,0 ;IRQ 5 = default SoundBlaster
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 6
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 7
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 8 = RTC
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 9
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 10
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 11
+		dw rtl8139.irq,NEW_CODE_SEL,0x8E00,0 ;IRQ 11 = default RTL8139
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 12
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 13
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 14

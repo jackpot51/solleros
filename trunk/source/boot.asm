@@ -7,6 +7,19 @@ menustart:
 	mov ss, ax
 	mov [DriveNumber], cl
 	mov [lbaad], edx
+	call guiload2	;make users switch using a command-this leads to very fast boots
+	call getmemorysize ;get the memory map after the video is initialized
+	xor ebx, ebx
+	xor ecx, ecx
+	xor edx, edx
+	xor esi, esi
+	xor edi, edi
+	jmp pmode
+guiswitch:
+	mov ax, 12h
+	xor bx, bx
+	int 10h
+	jmp guiloadagain
 guiload:
 	mov si, bootmsg
 	call printrm
@@ -52,11 +65,11 @@ nextvmode:
 	jmp nextvmode
 isthisvideook db 10,13,"Is this video mode OK?(y/n)",13,10,0
 setvesamode:
-	mov cx, [xresolution]
+	mov cx, [resolutionx]
 	call decshow
 	mov al, "x"
 	call char
-	mov cx, [yresolution]
+	mov cx, [resolutiony]
 	call decshow
 	mov al, "@"
 	call char
@@ -69,10 +82,7 @@ setvesamode:
 	mov si, [videomodecache]
 	cmp al, "y"
 	jne near nextvmode
-	mov dx, [xresolution]
-	mov cx, [yresolution]
-	mov [resolutionx], dx
-	mov [resolutiony], cx
+	mov dx, [resolutionx]
 	add dx, dx
 	mov [resolutionx2], dx
 	xor dx, dx
@@ -80,16 +90,8 @@ setvesamode:
 	mov ax, 04F02h
 	mov bx, [vesamode]
 	int 10h		;;enter VESA mode
-	mov byte [guinodo], 0
 	mov byte [guion], 1
-	call getmemorysize ;get the memory map after vesa is initialized
-	xor eax, eax
-	xor ebx, ebx
-	xor ecx, ecx
-	xor edx, edx
-	xor esi, esi
-	xor edi, edi	;;reset registers
-	jmp pmode
+	ret
 guiload2:
 	mov cx, 480
 	mov dx, 640
@@ -100,14 +102,8 @@ guiload2:
 	mov ax, 12h
 	xor bx, bx
 	int 10h
-	mov byte [guinodo], 1
-	call getmemorysize ;get the memory map after the video is initialized
-	xor ebx, ebx
-	xor ecx, ecx
-	xor edx, edx
-	xor esi, esi
-	xor edi, edi
-	jmp pmode
+	mov byte [guion], 0
+	ret
 
 DriveNumber db 0
 lbaad dd 0
@@ -115,7 +111,6 @@ lbaad dd 0
 vesamode dw 0
 videomodecache dw 0
 
-guinodo db 0
 tests:
 	mov bx, 7
 	mov ah, 0Eh

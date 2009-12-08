@@ -9,6 +9,15 @@
 ;the hardware was found and the driver initialized properly
 initialize:
 ;Now I will initialise the interrupt controllers and remap irq's
+	call .pic
+	call .pit
+	call .fpu
+	xor eax, eax
+	xor ecx, ecx
+	call sblaster.init
+	ret
+	
+.pic:
 	mov al, 0x11
 	out 0x20, al
 	out 0xA0, al
@@ -32,6 +41,8 @@ initialize:
 	mov al, 0x20
 	out 0xA0, al
 	out 0x20, al
+	ret
+.pit:
 	;initialize the PIT
 	mov ax, [pitdiv] ;this is the divider for the PIT
 	out 0x40, al
@@ -47,7 +58,8 @@ initialize:
 	rol ax, 8
 	or al, 0x40
 	out 0x71, al
-
+	ret
+.fpu:
 	;And now to initialize the fpu
 	mov eax, cr4
 	or eax, 0x200
@@ -56,9 +68,5 @@ initialize:
 	push eax
 	fldcw [esp]
 	pop eax
-	xor eax, eax
-	xor ecx, ecx
-	
-	call sblaster.init
 	ret
 	

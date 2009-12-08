@@ -1,0 +1,21 @@
+   <script type="text/javascript" src="http://java.com/js/deployJava.js"></script>
+   <script type="text/javascript">
+
+    deployJava.setInstallerType('online');
+    if (deployJava.versionCheck('1.5+'))
+    {
+       var attributes = {id:'JPC',
+       code:'org.jpc.j2se.JPCApplet.class',
+       archive:'JPC/JPCApplet.jar, JPC/classes.jar, JPC/monkeyclasses.jar',
+       boot: 'hda',
+       hda: 'SollerOS.bin',
+       preloadJars: '',
+       width:'775', height:'620'};
+       var parameters = {java_arguments:'-Xmx300m', separate_jvm:
+      'true', draggable: 'true', mayscript: 'true', boot: 'hda', hda: 'SollerOS.bin', preloadJars: ''};
+       deployJava.runApplet(attributes, parameters, '1.5');
+    } else {
+       document.write("You need to update your browser's Java");
+       deployJava.installLatestJRE();
+    }
+   </script> 
