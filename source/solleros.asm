@@ -1,5 +1,6 @@
 	;SOLLEROS.ASM
 os:
+setdefenv:
 	call clear
 	mov esi, signature
 	call print
@@ -182,6 +183,11 @@ stdin:	mov al, 10
 	ret
 
 replacevariable:
+	mov al, [esi + 1]
+	mov byte [esi + 1], 255
+	cmp al, "$"
+	je near fixvariables
+	mov [esi + 1], al
 	push esi
 	sub esi, buftxt
 	mov edi, esi
@@ -242,6 +248,15 @@ multipleprogline:
 	inc esi
 	mov [nextcommandloc], esi
 	jmp donefixvariables
+inlinecomment:	;if the following char is #, include a #, otherwise end the line
+	inc esi
+	mov al, [esi]
+	mov byte [esi], 255
+	cmp al, '#'
+	je fixvariables
+	dec esi
+	mov byte [esi], 0
+	jmp fixvariables
 	
 nextcommandloc dd 0
 thiscommandloc dd 0	
@@ -250,9 +265,11 @@ run:
 fixvariables:
 	inc esi
 	mov al, [esi]
-	cmp al, '$'
+	cmp al, '#'	;inline comment
+	je inlinecomment
+	cmp al, '$' ;variable
 	je near replacevariable
-	cmp al, ';'
+	cmp al, ';' ;program list
 	je multipleprogline
 	cmp al, 0
 	jne fixvariables

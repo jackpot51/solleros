@@ -48,7 +48,8 @@ indexloopdone: 	mov byte [indexdone], 1
 		ret
 
 indexdone db 0
-%include 'source/programs/_math.asm' ; #
+%include 'source/programs/_comment.asm' ;#
+%include 'source/programs/_math.asm' ;!
 %include 'source/programs/_variables.asm' ;% and $
 %include 'source/programs/_run.asm' ;./
 
@@ -58,13 +59,13 @@ indexdone db 0
 %include 'source/programs/charmap.asm'
 %include 'source/programs/clear.asm'
 %include 'source/programs/cpuid.asm'
-%include 'source/programs/disk.asm'
 %include 'source/programs/dos.asm'
 %include 'source/programs/dump.asm'
 %include 'source/programs/echo.asm'
 %include 'source/programs/else.asm'
 %include 'source/programs/fi.asm'
 %include 'source/programs/gui.asm'
+%include 'source/programs/help.asm'
 %include 'source/programs/if.asm'
 %include 'source/programs/keycode.asm'
 %include 'source/programs/logout.asm'
@@ -75,7 +76,6 @@ indexdone db 0
 %include 'source/programs/play.asm'
 %include 'source/programs/reboot.asm'
 %include 'source/programs/reg.asm'
-%include 'source/programs/rem.asm'
 %include 'source/programs/rmode.asm'
 %include 'source/programs/show.asm'
 %include 'source/programs/shush.asm'

@@ -240,7 +240,7 @@ err1	db "Single-step/Breakpoint:",10
 		db "A breakpoint fault, breakpoint trap, or single-step trap was triggered.",10,0
 		
 err2	db "Nonmaskable interrupt:",10
-		db "A hardware interrupt was triggered that could not be masked",10,0
+		db "A hardware interrupt was triggered that could not be masked.",10,0
 		
 err3	db "Breakpoint:",10
 		db "This interrupt is used in programs to show the stack and registers and can be",10
