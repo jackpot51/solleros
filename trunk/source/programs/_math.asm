@@ -1,4 +1,4 @@
-db 255,44,"#",0
+db 255,44,"!",0
 	num:	
 		call clearbuffer
 		mov byte [decimal], 0

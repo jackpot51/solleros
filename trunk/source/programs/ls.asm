@@ -1,42 +1,34 @@
 db 255,44,"ls",0
-lscmd:	
-		mov al, 13
-		call prcharq
-		mov esi, progstart
-		mov ebx, progend
-dir:	mov esi, fileindex
-	dirnxt:	mov al, [esi]
-		xor ah, ah
-		cmp al, 255
-		je dirfnd
-		inc esi
-		cmp esi,  fileindexend
-		jae dirdn
-		jmp dirnxt
-	dirfnd3:
-		inc esi
-		cmp esi, fileindexend
-		jbe dirnxt
-		dec esi
-	dirfnd:	inc esi
-		mov al, [esi]
-		xor ah, ah
-		cmp al, 44
-		je dirfnd2
-		inc esi
-		cmp esi,  fileindexend
-		jae dirdn
-		jmp dirnxt
-	dirfnd2: inc esi
+		mov esi, diskfileindex
+	diskindexdir:
+		cmp byte [esi], '_'
+		je nextdiskindexdir
 		call printquiet
 		push esi
-		mov al, 9
-		call prcharq
+		mov esi, disktab
+		call printquiet
 		pop esi
-		cmp esi,  fileindexend
-		jae dirdn
-		jmp dirnxt
-	dirdn:	mov esi, line
-			call print
-			ret
-currentdir db 0
+		mov ecx, [esi + 5]
+		mov byte [firsthexshown], 5
+		call showdec
+		push esi
+		mov esi, line
+		call printquiet
+		pop esi
+		add esi, 9
+		cmp esi, enddiskfileindex
+		jb diskindexdir
+		call termcopy
+		ret
+	nextdiskindexdir:
+		inc esi
+		cmp byte [esi], 0
+		jne nextdiskindexdir
+		add esi, 9
+		cmp esi, enddiskfileindex
+		jb diskindexdir
+		call termcopy
+		ret
+		
+		diskmsg db "Disk ",0
+		disktab db 13,9,9,9,0
