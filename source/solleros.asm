@@ -3,6 +3,13 @@ os:
 setdefenv:
 	call clear
 	mov esi, signature
+.sigcopyloop	;this prevents an odd error
+	mov al, [gs:esi]
+	mov [esi], al
+	inc esi
+	cmp esi, signatureend
+	jb .sigcopyloop
+	mov esi, signature
 	call print
 	mov ecx, [signatureend - 4]
 	call showdec
