@@ -16,10 +16,35 @@ menustart:
 	xor edi, edi
 	jmp pmode
 guiswitch:
+	cmp cx, 0
+	jne guiswitchdefnum
 	mov ax, 12h
 	xor bx, bx
 	int 10h
 	jmp guiloadagain
+guiswitchnocando:
+	ret	;return without switching as mode number is bad
+guiswitchdefnum:	;switch to a defined mode number
+	mov ax, 0x4F00
+	mov di, VBEMODEBLOCK
+	int 10h
+	mov si, reserved
+	sub si, 2
+.loop:
+	add si, 2
+	cmp si, oemdata
+	je guiswitchnocando
+	cmp word [si], 0xFFFF
+	je guiswitchnocando
+	cmp [si], cx
+	jne .loop
+	mov [videomodecache], si
+	or cx, 0x4000	;make sure linear frame buffer is selected
+	mov ax, 0x4F01
+	mov di, VBEMODEINFOBLOCK
+	mov [vesamode], cx
+	int 10h
+	jmp selectedvesa
 guiload:
 	mov si, bootmsg
 	call printrm
@@ -73,6 +98,7 @@ setvesamode:
 	call decshow
 	mov al, "@"
 	call char
+	xor cx, cx
 	mov cl, [bitsperpixel]
 	call decshow
 	mov si, isthisvideook
@@ -82,6 +108,7 @@ setvesamode:
 	mov si, [videomodecache]
 	cmp al, "y"
 	jne near nextvmode
+selectedvesa:
 	mov dx, [resolutionx]
 	add dx, dx
 	mov [resolutionx2], dx

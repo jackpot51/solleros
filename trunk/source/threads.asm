@@ -124,6 +124,7 @@ nmts	db "teh colonel no can haz moar treds",10,0
 nomorestackspace:
 	mov esi, nmss
 	call print
+	mov esp, stackend
 	mov byte [threadson], 0
 	jmp nwcmd
 nmss	db "teh colonel no can haz moar staqz",10,0

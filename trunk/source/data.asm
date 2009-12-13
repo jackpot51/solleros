@@ -1,4 +1,5 @@
 	exitmsg db	"exit",0
+	bootfilename db "boot.sh",0
 	notfound1 db "Program ",34,0
 	notfound2 db  34," not found.",10,0
 	userask db "username:",0

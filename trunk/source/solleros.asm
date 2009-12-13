@@ -2,8 +2,20 @@
 os:
 setdefenv:
 	call clear
+bootfilecheck:
+	cmp byte [ranboot], 1
+	je near nobootfile
+	mov byte [ranboot], 1
+	mov edi, bootfilename
+	mov esi, 0x400000
+	call loadfile
+	cmp edx, 404
+	je near nobootfile
+	call progbatchfound
+nobootfile:	
+
 	mov esi, signature
-.sigcopyloop	;this prevents an odd error
+.sigcopyloop:	;this prevents an odd error
 	mov al, [gs:esi]
 	mov [esi], al
 	inc esi
@@ -87,11 +99,22 @@ pwdrgt:
 	mov cx, 200h
 	mov esi, buftxt
 	mov [currentcommandloc], esi
+	call bufclr
+clearolddata:
+	xor eax, eax
+	mov [IFON], al
+	mov [IFTRUE], al
+	mov [BATCHISON], al
+	mov [BATCHPOS], eax
+	mov [LOOPON], al
+	mov [LOOPPOS], eax
+	jmp nwcmd
+bufclr:	
 	xor al, al
-bufclr:	mov [esi], al
+	mov [esi], al
 	inc esi
 	loop bufclr
-	jmp nwcmd
+	ret
 
 esipass dd 0
 usercache dd userlst
@@ -702,32 +725,41 @@ cnvrthextxt:
 	xor edx, edx
 	xor ebx, ebx
 	dec esi
-cnvrthexendtxt:
+.end:
 	inc esi
 	mov al, [esi]
 	cmp al, 0
-	jne cnvrthexendtxt
-cnvrthextxtlp:
+	jne .end
+.loop:
 	dec esi
 	mov al, [esi]
+	cmp al, "A"
+	jae .char
 	sub al, 48
 	cmp al, 16
-	ja donecnvrthx
+	ja .done
+.donechar:
 	cmp edx, 0
-	je noshlhextxt
+	je .noshl
 	mov ebx, edx
-shlhextxt:
+.shl:
 	shl eax, 4
 	dec ebx
 	cmp ebx, 0
-	jne shlhextxt
-noshlhextxt:
+	jne .shl
+.noshl:
 	inc edx
 	add ecx, eax
 	cmp edx, 8
-	jb cnvrthextxtlp
-donecnvrthx:
+	jb .loop
+.done:
 	ret
+.char:
+	cmp al, "F"
+	ja .done
+	sub al, "A"
+	add al, 0xA
+	jmp .donechar
 	
 	
 cnvrttxt: 

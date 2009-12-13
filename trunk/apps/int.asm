@@ -57,6 +57,8 @@ exceptions:
 	dd exception14
 	db "1","5"
 	dd exception15
+	db "1","6"
+	dd exception16
 exceptionsend:
 	exception0:	
 		int 0
@@ -106,4 +108,7 @@ exceptionsend:
 		jmp exit
 	exception15:
 		int 15
+		jmp exit
+	exception16:
+		int 16
 		jmp exit
