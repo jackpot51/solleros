@@ -1,6 +1,15 @@
 db 255,44,"gui",0
 guiswitcher:
+	mov esi, [currentcommandloc]
+	add esi, 4
+	xor ecx, ecx
+	cmp byte [esi], 0
+	je .nomodepref
+	call cnvrthextxt ;switches arg on cline to vesa mode in ecx
+.nomodepref:
+	push ecx
 	call clear
+	pop ecx
 	mov bx, guiswitch
 	mov [realmodeptr], bx
 	mov ebx, guiswitchret
@@ -8,7 +17,7 @@ guiswitcher:
 	jmp realmode
 guiswitchret:
 	mov edi, VBEMODEBLOCK
-.loop
+.loop:
 	mov eax, [gs:edi]
 	mov [edi], eax
 	inc edi
@@ -20,9 +29,12 @@ guiswitchret:
 	mov byte [termguion], 0
 	mov esi, graphicstable
 	xor al, al
-.clear
+.clear:
 	mov [esi], al
 	inc esi
 	cmp esi, graphicstableend
 	jb .clear
-	jmp gui
+	cmp byte [guion], 1
+	je near gui
+	ret
+	

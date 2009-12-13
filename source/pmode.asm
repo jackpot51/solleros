@@ -19,6 +19,13 @@ pmode:
 	mov [gdt3 + 4],al
 	mov [gdt2 + 7],ah
 	mov [gdt3 + 7],ah
+
+	mov eax, stack
+	add eax, [newcodecache]
+	mov [gdts + 2],ax
+	shr eax, 16
+	mov [gdts + 4],al
+	mov [gdts + 7], ah
 	
 	mov eax, [newcodecache]
 	mov [gdt4 + 2],ax
@@ -64,11 +71,12 @@ pmode:
 do_pm:
 	xor eax, eax
 	mov ax, SYS_DATA_SEL
-	mov ds,ax
-	mov ss,ax	;;can switch back to STACK_SEL later
-	mov esp, stackend	;;can switch back to 4096 later
+	mov ds, ax
 	mov es, ax
 	mov fs, ax
+	mov ax, STACK_SEL
+	mov ss, ax
+	mov esp, 8192
 	mov ax, NEW_DATA_SEL
 	mov gs, ax
 	
@@ -83,10 +91,11 @@ copykernel:
 done_copy:
 	mov ax, NEW_DATA_SEL	;;these MUST be setup AFTER the kernel switches places!!!
 	mov ds, ax
-	mov ss, ax
-	mov esp, stackend
 	mov es, ax
 	mov fs, ax
+	mov ax, STACK_SEL
+	mov ss, ax
+	mov esp, 8192
 	mov ax, SYS_DATA_SEL
 	mov gs, ax
 	
@@ -279,6 +288,13 @@ LINEAR_SEL	equ	$-gdt
 	db 0
 	db 0x92			; present, ring 0, data, expand-up, writable
 	db 0xCF			; page-granular, 32-bit
+	db 0
+STACK_SEL	equ $-gdt
+gdts:	dw (stackend)/4096
+	dw 0
+	db 0
+	db 0x92
+	db 0xCF
 	db 0
 ; code segment descriptor
 SYS_CODE_SEL	equ	$-gdt

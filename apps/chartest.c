@@ -23,7 +23,7 @@ void main(int argc, char *argv[]){
 			gettimeofday(&end, NULL);
 			int uduration = (end.tv_sec - begin.tv_sec)*1000000 + end.tv_usec - begin.tv_usec;
 			float duration = (float)(uduration)/1000000;
-			printf("Printed %d characters in %f seconds.\n", number, duration);
+			printf("\nPrinted %d characters in %f seconds.\n", number, duration);
 			float speed = (float)(number)/duration;
 			printf("This is at a rate of %f characters per second.\n",speed);
 		}

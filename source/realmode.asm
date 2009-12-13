@@ -21,7 +21,7 @@ protected16bit:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov ss, ax
+	;mov ss, ax
 	mov eax, cr0
 	mov [cr0old], eax
 	and eax, 0x7FFFFFFE
@@ -34,7 +34,7 @@ inrealmode:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov ss, ax
+	;mov ss, ax
 	
 	mov al, 0x11
 	out 0x20, al
@@ -77,7 +77,7 @@ returntopmode:
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
-	mov ss, ax
+	;mov ss, ax
 	mov ax, SYS_DATA_SEL
 	mov gs, ax
 
