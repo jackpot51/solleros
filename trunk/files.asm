@@ -6,7 +6,7 @@ f1:
 incbin "included/bc"
 align 512,db 0
 f2:
-incbin "included/boot.sh"
+incbin "included/boot"
 align 512,db 0
 f3:
 incbin "included/chartest.elf"
@@ -45,18 +45,18 @@ f14:
 incbin "included/tely"
 align 512,db 0
 f15:
-incbin "included/tutorial.sh"
+incbin "included/timetest.elf"
 align 512,db 0
 f16:
-incbin "included/unfs"
+incbin "included/tutorial.sh"
 align 512,db 0
 f17:
-incbin "included/victory.wav"
+incbin "included/unfs"
 align 512,db 0
 f18:
-incbin "included/_img.bin"
+incbin "included/victory.wav"
 align 512,db 0
 f19:
-incbin "included/_unfs-demo"
+incbin "included/_img.bin"
 align 512,db 0
 f20:

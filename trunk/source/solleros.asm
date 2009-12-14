@@ -471,69 +471,69 @@ doneclearbuff:
 convert:
 	dec esi
 	mov ebx, esi		;place to convert into must be in esi, number to convert must be in ecx
-cnvrt:
+.lp:
 	mov esi, ebx
 	sub esi, 9
 	cmp ecx, 1000000000
-	jb ten8
+	jb .8
 	sub ecx, 1000000000
 	inc byte [esi]
-	jmp cnvrt
-ten8:	inc esi
+	jmp .lp
+.8:	inc esi
 	cmp ecx, 100000000
-	jb ten7
+	jb .7
 	sub ecx, 100000000
 	inc byte [esi]
-	jmp cnvrt
-ten7:	inc esi
+	jmp .lp
+.7:	inc esi
 	cmp ecx, 10000000
-	jb ten6
+	jb .6
 	sub ecx, 10000000
 	inc byte [esi]
-	jmp cnvrt
-ten6:	inc esi
+	jmp .lp
+.6:	inc esi
 	cmp ecx, 1000000
-	jb ten5
+	jb .5
 	sub ecx, 1000000
 	inc byte [esi]
-	jmp cnvrt
-ten5:	inc esi
+	jmp .lp
+.5:	inc esi
 	cmp ecx, 100000
-	jb ten4
+	jb .4
 	sub ecx, 100000
 	inc byte [esi]
-	jmp cnvrt
-ten4:	inc esi
+	jmp .lp
+.4:	inc esi
 	cmp ecx, 10000
-	jb ten3
+	jb .3
 	sub ecx, 10000
 	inc byte [esi]
-	jmp cnvrt
-ten3:	inc esi
+	jmp .lp
+.3:	inc esi
 	cmp ecx, 1000
-	jb ten2
+	jb .2
 	sub ecx, 1000
 	inc byte [esi]
-	jmp cnvrt
-ten2:	inc esi
+	jmp .lp
+.2:	inc esi
 	cmp ecx, 100
-	jb ten1
+	jb .1
 	sub ecx, 100
 	inc byte [esi]
-	jmp cnvrt
-ten1:	inc esi
+	jmp .lp
+.1:	inc esi
 	cmp ecx, 10
-	jb ten0
+	jb .0
 	sub ecx, 10
 	inc byte [esi]
-	jmp cnvrt
-ten0:	inc esi
+	jmp .lp
+.0:	inc esi
 	cmp ecx, 1
-	jb tendn
+	jb .dn
 	sub ecx, 1
 	inc byte [esi]
-	jmp cnvrt
-tendn:
+	jmp .lp
+.dn:
 	ret
 
 	
@@ -541,70 +541,50 @@ tendn:
 hexnumber times 8 db 0
 hexnumberend db "  ",0
 
-
-sibuf dw 0,0
-dibuf dw 0,0
-
 converthex:
-clearbufferhex:
-	mov al, '0'
-	mov [sibuf], esi
-	mov [dibuf], edi
-clearbufhex: cmp esi, edi
-	jae doneclearbuffhex
+.clear:	;place to convert to in esi, end of buffer in edi number in ecx
+	push esi
+	mov al, "0"
+.clearlp: cmp esi, edi
+	jae .doneclear
 	mov [esi], al
 	inc esi
-	jmp clearbufhex
-doneclearbuffhex:
-	mov esi, [dibuf]
-	mov edx, ecx
-	cmp edx, 0
-	je donenxtephx
-nxtexphx:	;0x10^x
-	dec esi
-	mov edi, esi		;;location of 0x10^x
-	mov ecx, edx
-	and ecx, 0xF		;;just this digit
-	call cnvrtexphx		;;get this digit
-	mov esi, edi
-	shr edx, 4		;;next digit
-	cmp edx, 0
-	je donenxtephx
-	jmp nxtexphx
-donenxtephx:
-	mov esi, [sibuf]
-	mov edi, [dibuf]
+	jmp .clearlp
+.doneclear:
+	sub esi, 2
+	mov eax, ecx
+.loop:
+	xor bh, bh
+	mov bl, al
+	shl bx, 4
+	shr bl, 4
+	xchg bl, bh ;they are backwards
+	add bl, 48
+	cmp bl, "9"
+	jbe .goodbl
+	sub bl, 48
+	sub bl, 0xA
+	add bl, "A"
+.goodbl:
+	add bh, 48
+	cmp bh, "9"
+	jbe .goodbh
+	sub bh, 48
+	sub bh, 0xA
+	add bh, "A"
+.goodbh:
+	shr eax, 8
+	mov [esi], bx
+	sub esi, 2
+	cmp esi, [esp]
+	jb .done
+	cmp eax, 0
+	jne .loop
+.done:
+	pop esi
 	ret
-cnvrtexphx:			;;convert this number
-	mov ebx, esi		;place to convert to must be in si, number to convert must be in cx
-	cmp ecx, 0
-	je zerohx
-cnvrthx:  mov al, [esi]
-	cmp al, '9'
-	je lettershx
-lttrhxdn: cmp al, 'F'
-	je zerohx
-	mov al, [esi]
-	inc al
-	mov [esi], al
-	mov esi, ebx
-cnvrtlphx: sub ecx, 1
-	cmp ecx, 0
-	jne cnvrthx
-	ret
-lettershx:
-	mov al, 'A'
-	sub al, 1
-	mov [esi], al
-	jmp lttrhxdn
-zerohx:	mov al, '0'
-	mov [esi], al
-	dec esi
-	mov al, [esi]
-	cmp al, 'F'
-	je zerohx
-	inc ecx
-	jmp cnvrtlphx
+	
+	
 smallhex db 0
 firsthexshown db 1
 showhexsmall:
@@ -618,47 +598,52 @@ showhex:
 	mov edi, hexnumberend
 	call converthex
 	cmp byte [firsthexshown], 1
-	jne showthathex
+	jne .show
 	xor dx, dx
-showthathex:
+.show:
 	cmp byte [firsthexshown], 3
-	jne nonewhexline
+	jne .nonewhexline
 	mov esi, line
 	call print
-nonewhexline:
+.nonewhexline:
 	cmp byte [firsthexshown], 4
-	jne notabfixhex
+	jne .notab
 	mov cl, 160
 	sub cl, dl
 	shr cl, 5
 	shl cl, 5
 	cmp cl, 0
-	jne nonewlinetabfixhex
+	jne .nonewline
 	mov esi, line
 	call print
-	jmp notabfixhex
-nonewlinetabfixhex:
+	jmp .notab
+.nonewline:
 	add dl, 15
 	shr dl, 4
 	shl dl, 4
-notabfixhex:
+.notab:
 	mov esi, hexnumber
 	cmp byte [smallhex],1
-	jne printnosmallhex
+	jne .nosmall
 	add esi, 6
-printnosmallhex:
+.nosmall:
 	cmp byte [firsthexshown], 5
-	jne noquietprinthex
+	jne .noquiet
 	call printquiet
-	jmp donequiethex
-noquietprinthex:
+	jmp .donequiet
+.noquiet:
+	cmp byte [firsthexshown], 6
+	jne .normal
+	call printhighlight
+	jmp .donequiet
+.normal:
 	call print
-donequiethex:
+.donequiet:
 	cmp byte [firsthexshown], 2
-	jne hexshown
+	jne .shown
 	mov esi, line
 	call print
-hexshown:
+.shown:
 	mov byte [firsthexshown], 0
 	popa
 	ret
@@ -671,50 +656,50 @@ showdec: ;;same as showhex, just uses decimal conversion
 	pusha
 	mov edi, decnumber
 	mov esi, decnumberend
-cleardecbuf:
+.clear:
 	mov byte [edi], '0'
 	inc edi
 	cmp edi, esi
-	jb cleardecbuf
+	jb .clear
 	mov edi, decnumber
 	call convert
 	cmp byte [firsthexshown], 1
-	jne showthatdec
+	jne .show
 	xor dx, dx
-showthatdec:
+.show:
 	cmp byte [firsthexshown], 3
-	jne nonewdecline
+	jne .nonewdecline
 	mov esi, line
 	call print
-nonewdecline:
+.nonewdecline:
 	cmp byte [firsthexshown], 4
-	jne notabfixdec
+	jne .notab
 	mov cl, 160
 	sub cl, dl
 	shr cl, 5
 	shl cl, 5
 	cmp cl, 0
-	jne nonewlinetabfixdec
+	jne .nonewline
 	mov esi, line
 	call print
-	jmp notabfixdec
-nonewlinetabfixdec:
+	jmp .notab
+.nonewline:
 	add dl, 15
 	shr dl, 4
 	shl dl, 4
-notabfixdec:
+.notab:
 	mov esi, decnumber
 	dec esi
-sifind:
+.sifind:
 	inc esi
 	cmp byte [esi], '0'
-	je sifind
+	je .sifind
 	call print
 	cmp byte [firsthexshown], 2
-	jne decshown
+	jne .shown
 	mov esi, line
 	call print
-decshown:
+.shown:
 	mov byte [firsthexshown], 0
 	popa
 	ret
@@ -768,48 +753,48 @@ cnvrttxt:
 	xor edx, edx
 	xor ebx, ebx
 	dec esi
-cnvrtlptxt:
+.lp:
 	inc esi
 	mov al, [esi]
 	cmp al, 0
-	jne cnvrtlptxt
+	jne .lp
 	dec esi
 	mov al, [esi]
 	cmp al, '.'
-	jne nocnvrtdot
+	jne .dot
 	inc esi
-	jmp cnvrtlptxt
-nocnvrtdot:
+	jmp .lp
+.dot:
 	cmp al, ' '
-	je zerotest
+	je .zero
 	cmp al, '0'
-	jne txtlp
-zerotest: 
+	jne .txtlp
+.zero: 
 		cmp esi, edi
-		je donecnvrt
-txtlp:	
+		je .done
+.txtlp:
 	xor eax, eax
 	mov al, [esi]
 	cmp al, '='
-	je donecnvrt
+	je .done
 	cmp al, 48
-	jb donecnvrt
+	jb .done
 	cmp al, '#'
-	je donecnvrt
+	je .done
 	cmp esi, edi
-	jb donecnvrt
+	jb .done
 	cmp ecx, 0
-	ja exp
-noexp:	sub al, 48
+	ja .exp
+.noexp:	sub al, 48
 	add edx, eax
 	dec esi
 	inc ecx
-	jmp txtlp
-exp:	cmp ecx, 0
-	je noexp
+	jmp .txtlp
+.exp:	cmp ecx, 0
+	je .noexp
 	sub al, 48
 	push ecx
-expmul:	mov ebx, eax
+.expmul:	mov ebx, eax
 	add eax, ebx
 	add eax, ebx
 	add eax, ebx
@@ -821,11 +806,11 @@ expmul:	mov ebx, eax
 	add eax, ebx
 	sub ecx, 1
 	cmp ecx, 0
-	ja expmul
+	ja .expmul
 	add edx, eax
 	pop ecx
 	dec esi
 	inc ecx
-	jmp txtlp
-donecnvrt: mov ecx, edx
+	jmp .txtlp
+.done: mov ecx, edx
 	ret

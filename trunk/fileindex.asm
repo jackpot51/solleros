@@ -5,7 +5,7 @@ dd (f1-f0)/512
 db "bc",0
 dd (f1-$$)/512
 dd (f2-f1)/512
-db "boot.sh",0
+db "boot",0
 dd (f2-$$)/512
 dd (f3-f2)/512
 db "chartest.elf",0
@@ -44,19 +44,19 @@ dd (f14-f13)/512
 db "tely",0
 dd (f14-$$)/512
 dd (f15-f14)/512
-db "tutorial.sh",0
+db "timetest.elf",0
 dd (f15-$$)/512
 dd (f16-f15)/512
-db "unfs",0
+db "tutorial.sh",0
 dd (f16-$$)/512
 dd (f17-f16)/512
-db "victory.wav",0
+db "unfs",0
 dd (f17-$$)/512
 dd (f18-f17)/512
-db "_img.bin",0
+db "victory.wav",0
 dd (f18-$$)/512
 dd (f19-f18)/512
-db "_unfs-demo",0
+db "_img.bin",0
 dd (f19-$$)/512
 dd (f20-f19)/512
 enddiskfileindex:

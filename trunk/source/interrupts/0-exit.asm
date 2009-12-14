@@ -1,4 +1,5 @@
 exitprog:
+	mov esp, stackend	;for now i need to use this
 	mov bx, NEW_DATA_SEL
 	mov ds, bx
 	mov es, bx
@@ -11,15 +12,15 @@ exitprog:
 	
 warnexitstatus:
 	mov cl, al
-	mov al, 0
+	mov al, 6
 	mov [firsthexshown], al
 	push cx
 	mov esi, exitstatus1msg
-	call print
+	call printhighlight
 	pop cx
 	call showhexsmall
 	mov esi, exitstatus2msg
-	call print
+	call printhighlight
 	jmp nwcmd
 	
 exitstatus1msg db "An exit status of 0x",0

@@ -3,6 +3,7 @@ realmode:	;make sure the real mode program's address is in realmodeptr
 	cli
 	mov [realmodeeax], eax
 	mov [realmodeebx], ebx
+	mov [pmodeesp], esp
 
 	mov ebx, cr0old
 rmcopytofirstmbyte:
@@ -21,7 +22,8 @@ protected16bit:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	;mov ss, ax
+	mov ss, ax
+	mov esp, stackend
 	mov eax, cr0
 	mov [cr0old], eax
 	and eax, 0x7FFFFFFE
@@ -34,7 +36,8 @@ inrealmode:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	;mov ss, ax
+	mov ss, ax
+	mov sp, stackend ;because this is at 0x1000: and not 0x10000: it works
 	
 	mov al, 0x11
 	out 0x20, al
@@ -77,7 +80,8 @@ returntopmode:
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
-	;mov ss, ax
+	mov ss, ax
+	mov esp, [pmodeesp]
 	mov ax, SYS_DATA_SEL
 	mov gs, ax
 
@@ -94,7 +98,8 @@ rmcopyfromfirstmbyte:
 	mov eax, [realmodeeax]
 	mov ebx, [realmodeebx]
 	jmp dword [realmodereturn]
-
+	
+pmodeesp dd 0
 idt_real:
 	dw 0x3FF
 	dd 0

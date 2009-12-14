@@ -8,7 +8,6 @@ menustart:
 	mov [DriveNumber], cl
 	mov [lbaad], edx
 	call guiload2	;make users switch using a command-this leads to very fast boots
-	call getmemorysize ;get the memory map after the video is initialized
 	xor ebx, ebx
 	xor ecx, ecx
 	xor edx, edx
@@ -21,7 +20,7 @@ guiswitch:
 	mov ax, 12h
 	xor bx, bx
 	int 10h
-	jmp guiloadagain
+	call guiloadagain
 guiswitchnocando:
 	ret	;return without switching as mode number is bad
 guiswitchdefnum:	;switch to a defined mode number
@@ -76,7 +75,7 @@ nextvmode:
 	mov cx, [si]
 	cmp cx, 0xFFFF
 	je near nextvmode
-	add cx, 0x4000 		;;Linear Frame Buffer
+	or cx, 0x4000 		;;Linear Frame Buffer
 	mov ax, 04F01h
 	mov di, VBEMODEINFOBLOCK
 	mov [vesamode], cx
@@ -118,6 +117,7 @@ selectedvesa:
 	mov bx, [vesamode]
 	int 10h		;;enter VESA mode
 	mov byte [guion], 1
+	call getmemorysize;get the memory map after the video is initialized
 	ret
 guiload2:
 	mov cx, 480
@@ -130,6 +130,7 @@ guiload2:
 	xor bx, bx
 	int 10h
 	mov byte [guion], 0
+	call getmemorysize;get the memory map after the video is initialized
 	ret
 
 DriveNumber db 0
@@ -137,17 +138,6 @@ lbaad dd 0
 	
 vesamode dw 0
 videomodecache dw 0
-
-tests:
-	mov bx, 7
-	mov ah, 0Eh
-	inc al
-	cmp al, 2
-	jne cnttest
-	ret
-cnttest:
-	int 10h
-	jmp tests
 
     printrm:			; 'si' comes in with string address
 	    mov bx,07		; write to display

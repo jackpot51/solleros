@@ -1,11 +1,11 @@
 db 255,44,"show",0
 		mov edi, [currentcommandloc]
 		add edi, 5
-		mov esi, 0x400000
+		mov esi, 0x800000
 		call loadfile
 		cmp edx, 404
 		je near filenotfound
-		mov esi, 0x400000
+		mov esi, 0x800000
 		cmp word [esi], "BM"
 		je bmpfound
 		call print
@@ -15,7 +15,7 @@ db 255,44,"show",0
 bmpfound:
 		cmp byte [guion], 0
 		je near noguibmp
-		mov esi, 0x400000
+		mov esi, 0x800000
 		xor ecx, ecx
 		xor edx, edx
 		xor eax, eax

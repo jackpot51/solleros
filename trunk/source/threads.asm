@@ -1,11 +1,16 @@
 ;;THIS IS MY FIRST ATTEMPT AT IMPLEMENTING THREADS
+espstart dd 0
 threadstarttest:
+    mov [espstart], esp
     jmp startthreads
 mainthread:
 	hlt		;;this does not work properly
 	jmp mainthread
 	
 nwcmdst:
+	mov esp, [espstart]
+	;mov ax, STACK_SEL
+	;mov ss, ax
 	mov byte [threadson], 0
 	jmp nwcmd
 	
@@ -14,7 +19,7 @@ modelthread:
 	mov ah, 9
 	mov ecx, [currentthread]
 	int 0x30
-	call timerinterrupt
+	call timerinterrupt	;this emulates an interrupt call
 	jmp nwcmdst
 	
 	
@@ -69,14 +74,15 @@ threadfork:
 
 startthreads:
 	mov byte [threadson], 1
-	pushad
-	
+
 	mov eax, cs
 	mov edx, eax
 	mov ecx, [esp + 40]
 	or ecx, 0x200
 	mov ebx, esp
 	mov esp, stackdummy
+	mov ax, NEW_DATA_SEL
+	mov ss, ax
 	
 	pushad
 	mov eax, mainthread
@@ -124,9 +130,7 @@ nmts	db "teh colonel no can haz moar treds",10,0
 nomorestackspace:
 	mov esi, nmss
 	call print
-	mov esp, stackend
-	mov byte [threadson], 0
-	jmp nwcmd
+	jmp nwcmdst
 nmss	db "teh colonel no can haz moar staqz",10,0
 	
 threadswitch:
