@@ -2,7 +2,7 @@
 #include <time.h>
 #include <errno.h>
 #include <stdlib.h>
-void main(){
+int main(int argc, char *argv[]){
 	printf("Hello world!\n");
 	time_t begin;
 	time(&begin);
@@ -31,7 +31,10 @@ void main(){
 		perror("You are homeless.");
 		errno=EOWNERDEAD;
 		perror("And you just killed someone.");
+		return 1;
+	}else{
+		printf("The first key was %d in decimal, 0x%x in hex, and \"%c\" in ASCII\n", n[0], n[0], s);
+		printf("Goodbye world!\n");
+		return 0;
 	}
-	printf("The first key was %d in decimal, 0x%x in hex, and \"%c\" in ASCII\n", n[0], n[0], s);
-	printf("Goodbye world!\n");
 }

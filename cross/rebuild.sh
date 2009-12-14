@@ -24,7 +24,7 @@ cp -r --remove-destination $svndir/*/ . || exit 0
 
 echo Rebuilding autoconf caches for g++
 cd gcc-4.4.2/libstdc++-v3 || exit 0
-autoconf || exit 0
+#autoconf || exit 0
 cd ../../
 echo Rebuilding autoconf caches for newlib
 cd newlib-1.17.0/newlib/libc/sys || exit 0
@@ -37,7 +37,7 @@ cd ../../../../../build-binutils
 ../binutils-2.20/configure --target=$TARGET --prefix=$PREFIX --disable-nls || exit 0
 make all || exit 0
 make install || exit 0
-export PATH=$PATH:$PREFIX/bin
+export PATH=$PREFIX/bin:/bin:/usr/bin:$PATH
 
 echo Building GCC
 cd ../build-gcc

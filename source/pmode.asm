@@ -20,7 +20,7 @@ pmode:
 	mov [gdt2 + 7],ah
 	mov [gdt3 + 7],ah
 
-	mov eax, stack
+	mov eax, initialstack
 	add eax, [newcodecache]
 	mov [gdts + 2],ax
 	shr eax, 16
@@ -74,9 +74,6 @@ do_pm:
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
-	mov ax, STACK_SEL
-	mov ss, ax
-	mov esp, 8192
 	mov ax, NEW_DATA_SEL
 	mov gs, ax
 	
@@ -93,9 +90,9 @@ done_copy:
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
-	mov ax, STACK_SEL
+	;mov ax, STACK_SEL
 	mov ss, ax
-	mov esp, 8192
+	mov esp, stackend
 	mov ax, SYS_DATA_SEL
 	mov gs, ax
 	
@@ -140,7 +137,6 @@ memoryspaceaddition:
 	jmp memoryspaceaddition
 finishedmemspacecalc:
 	mov [memoryspace], eax
-	
 	cmp byte [guion], 0
 	jne near guistartup
 	jmp os
@@ -219,6 +215,7 @@ userint:
 	out 0x20, al
 	popa
 	sti
+	mov esp, stackend ;reset stack
 	jmp nwcmd
 
 rtl8139.irq:
@@ -290,7 +287,7 @@ LINEAR_SEL	equ	$-gdt
 	db 0xCF			; page-granular, 32-bit
 	db 0
 STACK_SEL	equ $-gdt
-gdts:	dw (stackend)/4096
+gdts:	dw 2;(stackend)/4096
 	dw 0
 	db 0
 	db 0x92

@@ -1,5 +1,8 @@
 bssstart: equ $
-graphicstable equ bssstart;w type, dw datalocation, w locationx, w locationy, w selected, dw code
+initialstack equ bssstart
+stackend equ initialstack + 8192
+graphicstable equ stackend;add some room for stack underflows
+	;w type, dw datalocation, w locationx, w locationy, w selected, dw code
 	graphicstableend equ graphicstable + 200h
 mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
 mcolorend equ mousecolorbuf + 256
@@ -31,10 +34,8 @@ commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the 
 rbuffstart: equ commandbufend ;for use with networking
 threadlist: equ rbuffstart + 8212 ;this buffer will hold the stack locations of all of the threads, up to 2048
 threadlistend: equ threadlist + 2050*4
-stack equ threadlistend
-stacks:	equ 0 ;i use SS now for proper stack management. This makes sure stacks never screw with other memory
+stacks:	equ threadlistend ;i use SS now for proper stack management. This makes sure stacks never screw with other memory
 stackdummy: equ stacks + 1024
 stack1: equ stackdummy + 1024  ;woah, thats a lot of space for stacks
-stackend: equ stack1 + 1024*2048	;from here on, it is not kernel space so apps can be loaded here.
-bssend equ stackend + stack
-dosprogloc equ 0x400000
+bssend equ stack1 + 1024*1024
+dosprogloc equ 0x400000 ;from here on, it is not kernel space so apps can be loaded here.

@@ -1,6 +1,7 @@
 ;This loads files using the methods in the loaded driver
 %include "source/drivers/disk/realmode.asm"
 loadfile:	;loads a file with the name buffer's location in edi into location in esi
+			;returns with err code in edx and file end in edi
 	cmp byte [edi], 0
 	je near nofileload
 	mov edx, edi

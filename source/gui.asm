@@ -22,6 +22,15 @@ gui:	;Let's see what I can do, I am going to try to make this as freestanding as
 	xor ebx, ebx
 	xor ecx, ecx
 	xor edx, edx
+	call guisetup
+guiloop:
+	call cursorgui
+guistart:
+	call getkey
+	mov byte [copygui], 0
+	jmp guistart
+	jmp guistart
+guisetup:
 	mov edi, [physbaseptr]
 	mov dx, [resolutionx]
 	mov cx, [resolutiony]
@@ -93,12 +102,7 @@ guiclearloop2:
 	mov al, 00010000b
 	mov ebx, winblows
 	call showstring
-	
-	call cursorgui
-guistart:
-	call getkey
-	mov byte [copygui], 0
-	jmp guistart
+	ret
 	
 ;guicopy:	;;for double buffering
 ;	mov byte [copygui], 1

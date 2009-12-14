@@ -1,4 +1,4 @@
-extern void main(int argc, char *argv[]);
+extern int main(int argc, char *argv[]);
 void _start()
 {
 	unsigned int addr;
@@ -35,6 +35,5 @@ void _start()
 	for(i=0;i<argc;i++){
 		argv[i]=(char *)args[i];
 	}
-	main(argc, argv);
-    exit();
+	exit(main(argc, argv));
 }

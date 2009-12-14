@@ -4,7 +4,7 @@ rundosprog:
 	add edi, 4
 	mov esi,  0x100 + dosprogloc	;this should be the beginning of memory
 	call loadfile
-	mov edi, buftxt
+	mov edi, [currentcommandloc]
 	add edi, 4
 	cmp edx, 404
 	je near dosnoprogfound
@@ -39,6 +39,8 @@ nomoredosparams:
 	xor edi, edi
 	xor esi, esi
 	call DOS_CODE_SEL:0x100
+	cmp al, 0
+	jne near warnexitstatus
 	jmp nwcmd
 dosnoprogfound:
 	mov esi, notfound1
@@ -48,4 +50,5 @@ dosnoprogfound:
 	call print
 	mov esi, notfound2
 	call print
-	jmp nwcmd
+	ret
+	

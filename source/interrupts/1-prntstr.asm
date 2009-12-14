@@ -1,6 +1,10 @@
 call printint
 jmp timerinterrupt
 
+	printhighlight:
+		xor ax, ax
+		mov bx, 0xF0
+		jmp printint
 	printquiet:
 		xor ax, ax
 		mov [endkeyprint], al

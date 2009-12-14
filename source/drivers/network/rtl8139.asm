@@ -132,7 +132,19 @@ showmacloop:
 	shl ah, 4
 	shr ah, 4
 	add al, 48
+	cmp al, "9"
+	jbe .goodal
+	sub al, 48
+	sub al, 0xA
+	add al, "A"
+.goodal:
 	add ah, 48
+	cmp ah, "9"
+	jbe .goodah
+	sub ah, 48
+	sub ah, 0xA
+	add ah, "A"
+.goodah:
 	mov [esi], ax
 	add esi, 3
 	inc edi

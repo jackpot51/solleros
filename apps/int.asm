@@ -18,8 +18,8 @@ nofoundexception:
 foundexception:
 	mov eax, 0xD15EA5ED
 	add edi, 2
-	mov ebx, [edi]
-	jmp ebx
+	mov edi, [edi]
+	jmp edi
 	
 numbuf dw 0
 exceptions:
@@ -69,8 +69,7 @@ exceptionsend:
 	exception2:	
 		int 2
 		jmp exit
-	exception3:	
-		mov eax, 0xD15EA5ED
+	exception3:
 		int 3
 		jmp exit
 	exception4:	

@@ -1,3 +1,4 @@
+[map symbols kernel.map]
 [BITS 16]
     %include 'source/boot.asm'
     %include 'source/pmode.asm'

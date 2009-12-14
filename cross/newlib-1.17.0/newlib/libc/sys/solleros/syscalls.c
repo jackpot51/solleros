@@ -9,9 +9,13 @@
   #undef errno
   extern int errno;
 	
-    void _exit(){
-    asm("xorl %eax, %eax\n\t"
-		"int $0x30");
+    void _exit(int code){
+	unsigned int _errcode = code;
+    asm("xorb %%ah, %%ah\n\t"
+		"int $0x30"
+		:
+		: "a" (_errcode)
+		);
     }
 
     int close(int file){
@@ -41,8 +45,8 @@
 		suseconds_t _usec;
 		asm("movb $12, %%ah\n\t"
 			"int $0x30"
+			: "=a" (_sec), "=c" (_usec)
 			:
-			: "a" (_sec), "c" (_usec)
 			: "%ebx"
 			);
 		p->tv_sec = _sec;
@@ -54,8 +58,8 @@
 		int pid;
 		asm("movb $15, %%ah\n\t"
 			"int $0x30"
+			: "=d" (pid)
 			:
-			: "d" (pid)
 			: "%eax", "%ebx", "%ecx", "%edi", "%esi"
 			);
 		return pid;
@@ -65,8 +69,8 @@
 		int uid;
 		asm("movb $15, %%ah\n\t"
 			"int $0x30"
+			: "=b" (uid)
 			:
-			: "b" (uid)
 			: "%eax", "%ecx", "%edx", "%edi", "%esi"
 			);
 		return uid;

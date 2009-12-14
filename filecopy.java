@@ -40,11 +40,19 @@ public class filecopy {
                 System.out.println(s);
             }
         }
+		String ccomp = "";
 		if(new File("/SollerOS/cross/bin/i586-pc-solleros-gcc").exists()){
+			ccomp = "/SollerOS/cross/bin/i586-pc-solleros-gcc";
+		}
+		if(new File("\\cygwin\\SollerOS\\cross\\bin\\i586-pc-solleros-gcc.exe").exists()){
+			ccomp="\\cygwin\\SollerOS\\cross\\bin\\i586-pc-solleros-gcc.exe";
+		}
+		if(ccomp!=""){
+			System.out.println("GCC: " + ccomp);
 			String[] cfiles = apps.list(cfilter);
 			for(int i=0; i<cfiles.length; i++){
 				String s = null;
-				String[] command = new String[]{"/SollerOS/cross/bin/i586-pc-solleros-gcc", "-o", includeddir + cfiles[i].substring(0, cfiles[i].length() - 2) + ".elf", appsdir + cfiles[i]};
+				String[] command = new String[]{ccomp, "-o", includeddir + cfiles[i].substring(0, cfiles[i].length() - 2) + ".elf", appsdir + cfiles[i]};
 				Process child = Runtime.getRuntime().exec(command);
 				BufferedReader stdError = new BufferedReader(new InputStreamReader(child.getErrorStream()));
 				BufferedReader stdInput = new BufferedReader(new InputStreamReader(child.getInputStream()));
@@ -55,12 +63,22 @@ public class filecopy {
 					System.out.println(s);
 				}
 			}
+		}else{
+			System.out.println("Could not find GCC");
 		}
+		String cppcomp = "";
 		if(new File("/SollerOS/cross/bin/i586-pc-solleros-g++").exists()){
+			cppcomp = "/SollerOS/cross/bin/i586-pc-solleros-g++";
+		}
+		if(new File("\\cygwin\\SollerOS\\cross\\bin\\i586-pc-solleros-g++.exe").exists()){
+			cppcomp="\\cygwin\\SollerOS\\cross\\bin\\i586-pc-solleros-g++.exe";
+		}
+		if(cppcomp!=""){
+			System.out.println("G++: " + cppcomp);
 			String[] cppfiles = apps.list(cppfilter);
 			for(int i=0; i<cppfiles.length; i++){
 				String s = null;
-				String[] command = new String[]{"/SollerOS/cross/bin/i586-pc-solleros-g++", "-o", includeddir + cppfiles[i].substring(0, cppfiles[i].length() - 4) + ".elf", appsdir + cppfiles[i]};
+				String[] command = new String[]{cppcomp, "-o", includeddir + cppfiles[i].substring(0, cppfiles[i].length() - 4) + ".elf", appsdir + cppfiles[i]};
 				Process child = Runtime.getRuntime().exec(command);
 				BufferedReader stdError = new BufferedReader(new InputStreamReader(child.getErrorStream()));
 				BufferedReader stdInput = new BufferedReader(new InputStreamReader(child.getInputStream()));
@@ -71,6 +89,8 @@ public class filecopy {
 					System.out.println(s);
 				}
 			}
+		}else{
+			System.out.println("Could not find G++");
 		}
 
         FilenameFilter filter = new FilenameFilter() {
