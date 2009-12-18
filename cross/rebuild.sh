@@ -22,10 +22,10 @@ export PREFIX=/SollerOS/cross
 mkdir build-binutils build-newlib build-gcc build-gcc-full build-ncurses
 cp -r --remove-destination $svndir/*/ . || exit 0
 
-echo Rebuilding autoconf caches for g++
-cd gcc-4.4.2/libstdc++-v3 || exit 0
+#echo Rebuilding autoconf caches for g++
+#cd gcc-4.4.2/libstdc++-v3 || exit 0
 #autoconf || exit 0
-cd ../../
+#cd ../../
 echo Rebuilding autoconf caches for newlib
 cd newlib-1.17.0/newlib/libc/sys || exit 0
 autoconf || exit 0
@@ -41,7 +41,8 @@ export PATH=$PREFIX/bin:/bin:/usr/bin:$PATH
 
 echo Building GCC
 cd ../build-gcc
-../gcc-4.4.2/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++ --without-headers || exit 0
+#../gcc-4.4.2/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++ --without-headers || exit 0
+../gcc-4.4.2/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c --without-headers || exit 0
 make all-gcc || exit 0
 make install-gcc || exit 0
 
@@ -51,14 +52,16 @@ cd ../build-newlib
 make || exit 0
 make install || exit 0
 
-echo Building G++
-cd ../build-gcc
-make || exit 0
-make install || exit 0
+#
+#echo Building G++
+#cd ../build-gcc
+#make || exit 0
+#make install || exit 0
 
 echo Building GCC with Newlib
 cd ../build-gcc-full
-../gcc-4.4.2/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++ --with-headers || exit 0
+#../gcc-4.4.2/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++ --with-headers || exit 0
+../gcc-4.4.2/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c --with-headers || exit 0
 make all-gcc || exit 0
 make install-gcc || exit 0
 make all-target-libgcc || exit 0

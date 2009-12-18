@@ -97,6 +97,9 @@ dosgettime:
 	
 dosexit:
 	popa
-	cmp al, 0
+	mov esp, stackend
+	xor ebx, ebx
+	mov bl, al
+	cmp bl, 0
 	jne near warnexitstatus
-	jmp nwcmd	;go back to the dos supervisor program
+	jmp nwcmd

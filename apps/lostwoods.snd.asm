@@ -1,3 +1,4 @@
+%include 'music.inc'
 db "SN"
 dd soundend
 	dw 60,F4
@@ -21,4 +22,3 @@ dd soundend
 	dw 100,G4
 	dw 400,E4
 soundend:
-%include 'music.asm'

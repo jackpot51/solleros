@@ -10,11 +10,11 @@
   extern int errno;
 	
     void _exit(int code){
-	unsigned int _errcode = code;
+		unsigned int _errcode = code;
     asm("xorb %%ah, %%ah\n\t"
 		"int $0x30"
 		:
-		: "a" (_errcode)
+		: "b" (_errcode)
 		);
     }
 
@@ -94,10 +94,10 @@
         return 0;
     }
 
-    int _open(const char *name, int flags, int mode){
-       return -1;
-    }
-	
+	int open(const char *name, int flags, int mode){
+		return -1;
+	}
+
     int read(int file, char *ptr, int len){
 		int i = 0;
 		if(file==0){

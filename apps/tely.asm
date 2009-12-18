@@ -1,4 +1,4 @@
-%include "include.asm"
+%include "include.inc"
 	tely:
 		mov word [BASEADDRSERIAL], 3F8h
 		cmp byte [edi], "1"

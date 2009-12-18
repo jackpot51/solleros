@@ -1,4 +1,4 @@
-%include "include.asm"
+%include "include.inc"
 	;this program will at least try to load files from an unfs image file
 	;eventually it will be rolled into the os
 	push edi
@@ -51,14 +51,19 @@ check_fs:
 	mov ecx, [esi]
 	mov edx, [esi + 4]
 	cmp eax, ecx
-	je noerr1
-	int 3
-noerr1:
+	je .noerr1
+	jmp .error
+.noerr1:
 	cmp ebx, edx
-	je noerr2
-	int 3
-noerr2:
+	je .noerr2
+	jmp .error
+.noerr2:
 	ret
+.error:
+	mov esi, fsnogood
+	call print
+	jmp exit
+fsnogood: db "The filesystem signature was invalid.",10,0
 
 load_fs:
 	mov esi, filesystem

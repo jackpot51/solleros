@@ -7,13 +7,13 @@ unhand:
 	%assign i i+1
 	%endrep
 unhand2:
-	cli
 	push ds
 	push es
 	push fs
 	push gs
 	push ss
 	pushad
+%ifdef gui.included
 	cmp byte [guion], 0
 	je near noguiunhandstuff
 	mov word [locunhandy], 8
@@ -24,6 +24,7 @@ unhand2:
 	mov bx, 1111100000000000b
 	mov [background], bx
 noguiunhandstuff:
+%endif
 	mov esi, esp
 	mov [espfirst], esi
 	add esi, ((unhndrgend - unhndrg)/15)*4
@@ -40,6 +41,7 @@ noguiunhandstuff:
 	mov ebx, errortypesend
 gooderrortype:
 	mov esi, [ebx]
+%ifdef gui.included
 	cmp byte [guion], 0
 	je near errortext
 	mov cx, [locunhandy]
@@ -50,6 +52,7 @@ gooderrortype:
 	mov [locunhandy], cx
 	mov [locunhandx], dx
 	jmp errortextdone
+%endif
 errortext:
 	call print		;;get the error message and print it
 errortextdone:
@@ -88,21 +91,25 @@ dumpcodeloop:
 	cmp edi, [codelocend]
 	jb dumpcodeloop
 	mov esi, backtoosmsg
+%ifdef gui.included
 	cmp byte [guion], 0
-	jne guibacktomsg
-	call print
-	jmp backtomsgdone
+	je backtomsg
 guibacktomsg:
 	mov dx, [locunhandx]
 	mov cx, [locunhandy]
 	mov ax, 1
 	xor bx, bx
 	call showstring2
+	jmp backtomsgdone
+backtomsg:
+%endif
+	call print
 backtomsgdone:
 	xor al, al
 	call rdcharint
 	cmp byte [intprob], 3
 	jne nodebugint
+%ifdef gui.included
 	cmp byte [guion], 0
 	je nodebuggui
 	mov bx, [backgroundcache]
@@ -112,6 +119,7 @@ backtomsgdone:
 	call guiclear
 	call reloadallgraphics
 nodebuggui:
+%endif
 	mov esi, [espfirst]
 	mov esp, esi
 	popad
@@ -128,6 +136,7 @@ nodebugint:
 	pop fs
 	pop es
 	pop ds
+%ifdef gui.included
 	cmp byte [guion], 0
 	je returnunhandgui
 	mov bx, [backgroundcache]
@@ -136,7 +145,8 @@ nodebugint:
 	mov byte [mousedisabled], 0
 	call guiclear
 	call reloadallgraphics
-	jmp gui
+	jmp guiboot
+%endif
 returnunhandgui:
 	jmp nwcmd
 backtoosmsg db "Please post any problems in the Issues section at solleros.googlecode.com",10
@@ -150,6 +160,7 @@ expdump:
 	sub edi, 3
 	call converthex
 	sub esi, 4
+%ifdef gui.included
 	cmp byte [guion], 0
 	je near expdumptext
 	mov cx, [locunhandy]
@@ -160,6 +171,7 @@ expdump:
 	mov [locunhandy], cx
 	mov [locunhandx], dx
 	ret
+%endif
 expdumptext:
 	call print
 	ret

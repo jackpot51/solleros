@@ -1,7 +1,10 @@
+%ifdef gui.included
+%include "source/drivers/video/vesa.asm"
+%include "source/drivers/input/mouse.asm"
+%endif
 %include "source/drivers/sound/pcspkr.asm"
 %include "source/drivers/sound/sblaster.asm"
 %include "source/drivers/network/rtl8139.asm"
-%include "source/drivers/input/mouse.asm"
 %include "source/drivers/input/keyboard.asm"
 ;drivers will soon be handled intelligently
 ;every driver's source will be scanned for a .init function

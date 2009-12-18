@@ -1,4 +1,4 @@
-diskrreal:
+diskr:
 			;read from disk using real mode-it does not work with large files
 			;sector count in cl
 			;disk number in ch

@@ -1,4 +1,5 @@
 db 255,44,"gui",0
+%ifdef gui.included
 guiswitcher:
 	mov esi, [currentcommandloc]
 	add esi, 4
@@ -56,4 +57,9 @@ guiswitchret:
 	call cursorgui
 	call clear
 	ret
+%else
+	mov esi, warnguimsg
+	call print
+	ret
+%endif
 	

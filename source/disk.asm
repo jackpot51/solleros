@@ -1,5 +1,11 @@
 ;This loads files using the methods in the loaded driver
+%ifdef disk.real
 %include "source/drivers/disk/realmode.asm"
+%else
+	%ifdef disk.protected
+	%include "source/drivers/disk/pata.asm"
+	%endif
+%endif
 loadfile:	;loads a file with the name buffer's location in edi into location in esi
 			;returns with err code in edx and file end in edi
 	cmp byte [edi], 0
@@ -68,7 +74,7 @@ loaddiskfile:			;tracks in eax, excess sectors in cl, drive in ch, buffer in esi
 	mov edx, ebx
 	cmp cl, 0
 	je copytracksforfile
-	call diskrreal	;take care of excess sectors
+	call diskr	;take care of excess sectors
 copytracksforfile:
 	mov eax, [filetracks]
 	cmp eax, 0
@@ -79,7 +85,7 @@ copytracksforfile:
 	mov cl, 0x40 ;for compatability with BIOS it uses 64 instead of 128
 	mov ch, [DriveNumber]
 	mov esi, edi	;reset buffer
-	call diskrreal
+	call diskr
 	jmp copytracksforfile
 donecopyfile:
 	mov edx, 0	;no error

@@ -102,12 +102,6 @@ done_copy:
 	shr eax, 4
 	mov [basecache], eax
 	
-	mov ebx, eax
-	shl ebx, 4
-	mov edi, [physbaseptr]
-	sub edi, ebx
-	mov [physbaseptr], edi
-	
 	mov esi, bssstart
 	xor eax, eax
 clearkernelbuffers:
@@ -138,10 +132,17 @@ memoryspaceaddition:
 finishedmemspacecalc:
 	mov [memoryspace], eax
 	cmp byte [guion], 0
-	jne near guistartup
+	je near normalstartup
+%ifdef gui.included
+	mov ebx, [basecache]
+	shl ebx, 4
+	mov edi, [physbaseptr]
+	sub edi, ebx
+	mov [physbaseptr], edi
+	jmp guiboot
+%endif
+normalstartup:
 	jmp os
-guistartup:	;this prevents weird issues
-	jmp gui
 	
 basecache dd 0
 newcodecache dd 0x100000
