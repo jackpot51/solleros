@@ -3,10 +3,10 @@
 ;%define gui.included
 ;Turn on the gui
 
-%define disk.protected
+;%define disk.protected
 ;Use PATA instead of real mode for disk access
 
-;%define disk.real
+%define disk.real
 ;Use real mode for disk access
 
 ;%define sound.included
