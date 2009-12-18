@@ -158,9 +158,6 @@ soundon db 0
 soundrepititions dw 0
 soundpos dd 0
 soundendpos dd 0
-WAVSamplingRate dw 0
-WAVFileSize         dd 0
-EnableDigitized     db 0
 
 cpuspeedend:
 	mov byte [testingcpuspeed], 0
@@ -177,10 +174,7 @@ pitinterrupt: ;this controls threading
 	cli
 	cmp byte [testingcpuspeed], 1	;check to see if the cpu speed test is running
 	je cpuspeedend
-	
-	cmp byte [EnableDigitized], 1
-	je near PCSpeakerPWM
-	
+		
 	call timekeeper ;this updates the internal time
 	
 	cmp byte [soundon], 1
@@ -218,7 +212,7 @@ userint:
 	sti
 	mov esp, stackend ;reset stack
 	jmp nwcmd
-
+%ifdef rtl8139.included
 rtl8139.irq:
 	cli
 	pusha
@@ -228,16 +222,16 @@ rtl8139.irq:
 	in ax, dx
 	mov ecx, eax
 	call showhex
-	mov esi, rtl8139.irq.msg
-	call print
 	jmp handled2
-.msg db 10,"ZOMG TEH RTL8139 REZPONDED",10,0
+%endif
+%ifdef sound.included
 sblaster.irq:
 	cli
 	pusha
 	cmp byte [SoundBlaster], 1
 	je near sblastercont
 	jmp handled2
+%endif
 	
 timekeeper:
 	push eax
@@ -385,13 +379,21 @@ idt:
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 2
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 3
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 4
+	%ifdef sound.included
 		dw sblaster.irq,NEW_CODE_SEL,0x8E00,0 ;IRQ 5 = default SoundBlaster
+	%else
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 5
+	%endif
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 6
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 7
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 8 = RTC
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 9
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 10
+	%ifdef rtl8139.included
 		dw rtl8139.irq,NEW_CODE_SEL,0x8E00,0 ;IRQ 11 = default RTL8139
+	%else
+		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 11
+	%endif
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 12
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 13
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 14

@@ -9,5 +9,11 @@
 ;%define disk.real
 ;Use real mode for disk access
 
+;%define sound.included
+;This includes the sound drivers
+
+;%define rtl8139.included
+;This includes the RTL8139 drivers
+
 ;%define sector.debug
 ;Dump the contents of the first sector of SollerOS

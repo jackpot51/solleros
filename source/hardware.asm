@@ -1,10 +1,14 @@
 %ifdef gui.included
-%include "source/drivers/video/vesa.asm"
-%include "source/drivers/input/mouse.asm"
+	%include "source/drivers/video/vesa.asm"
+	%include "source/drivers/input/mouse.asm"
 %endif
 %include "source/drivers/sound/pcspkr.asm"
-%include "source/drivers/sound/sblaster.asm"
-%include "source/drivers/network/rtl8139.asm"
+%ifdef sound.included
+	%include "source/drivers/sound/sblaster.asm"
+%endif
+%ifdef rtl8139.included
+	%include "source/drivers/network/rtl8139.asm"
+%endif
 %include "source/drivers/input/keyboard.asm"
 ;drivers will soon be handled intelligently
 ;every driver's source will be scanned for a .init function
@@ -17,7 +21,9 @@ initialize:
 	call .fpu
 	xor eax, eax
 	xor ecx, ecx
+%ifdef sound.included
 	call sblaster.init
+%endif
 	ret
 	
 .pic:
