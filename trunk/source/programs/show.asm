@@ -13,6 +13,7 @@ db 255,44,"show",0
 		call print
 		ret
 bmpfound:
+%ifdef gui.included
 		cmp byte [guion], 0
 		je near noguibmp
 		mov esi, 0x800000
@@ -33,11 +34,12 @@ bmpfound:
 		mov esi, loadedbmpmsg
 		call print
 		ret
+%endif
 noguibmp:
-		mov esi, warnguibmp
+		mov esi, warnguimsg
 		call print
 		ret
-warnguibmp db "This can not be done without the gui.",10,0
+warnguimsg db "This can not be done without the GUI.",10,0
 
 filenotfound:
 		mov esi, filenf

@@ -34,8 +34,8 @@ runelf:
 	mov edi, [currentcommandloc]
 	add edi, 2
 	add ebx, 0x80
-	mov ebp, esp
-	jmp ebx
+	call ebx
+	jmp nwcmd
 noprogfound:
 	mov esi, notfound1
 	call print

@@ -75,12 +75,14 @@ termcopy:
 	add edi, ebx
 	mov [termcursorpos], edi
 	call switchtermcursor
-	mov byte [mouseselecton], 0
-	mov byte [termcopyon], 1
 	cmp byte [guion], 0
 	je near nowincopy
+%ifdef gui.included
+	mov byte [mouseselecton], 0
+	mov byte [termcopyon], 1
 	cmp byte [termguion], 1
 	je near windowvideocopy
+%endif
 	jmp nocopytermatall
 nowincopy:
 	mov esi, 0xA0000

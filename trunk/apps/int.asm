@@ -1,4 +1,4 @@
-%include "include.asm"
+%include "include.inc"
 	mov ax, [edi]
 	mov [numbuf], ax
 	mov ecx, 0xB100D015
