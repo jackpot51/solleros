@@ -11,7 +11,6 @@
     %include "source/solleros.asm"
     %include "source/programs.asm"
 	%include "source/hardware.asm"
-    %include "source/arp.asm"
     %include "source/pci.asm"
     %include "source/disk.asm"
     %include "source/threads.asm"

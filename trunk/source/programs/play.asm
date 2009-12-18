@@ -35,6 +35,7 @@ nosoundfound:
 	ret
 notfoundsound db "Sound ",34,0
 
+%ifdef sound.included
 sbplay:
 		mov esi, 0x400000
 		mov ebx, esi
@@ -60,51 +61,8 @@ sbplay:
 wave_player:
 	cmp byte [SoundBlaster], 1
 	je near sbplay
-	mov esi, 0x400000
-	mov ecx, [esi + 24]
-	mov [WAVSamplingRate], cx
-	sub edi, esi
-	sub edi, 44
-	mov [WAVFileSize], edi
-	;MASK ALL INTS EXCEPT IRQ 0
-	mov al, 0xFE
-	out 0x21, al
-	inc al
-	out 0xA1, al
-	mov al, 0x20
-	out 0xA0, al
-	out 0x20, al
-	;SET PIT DIVISOR
-	xor edx, edx
-	mov ecx, [esi + 24]
-	mov eax, 1193182
-	div ecx ;al should be the proper sample divisor
-	out 0x40, al
-	rol ax, 8
-	out 0x40, al
-	;GET WAVEDIV
-	mov bx, [WAVSamplingRate]
-	mov ax,0x34dd	; The sound lasts until NoSound is called
-	mov dx,0x0012             
-	div bx               
-	mov [WAVEDIV],ax
-	;PLAY WAVE
-	add esi, 44
-	add esi, [newcodecache]
-	call PlayWAV
-	;UNMASK ALL INTS
-	xor al, al
-	out 0x21, al
-	xor al, al
-	out 0xA1, al
-	mov al, 0x20
-	out 0xA0, al
-	out 0x20, al
-	;RESET PIT DIVISOR
-	mov ax, [pitdiv]
-	out 0x40, al
-	rol ax, 8
-	out 0x40, al
+	mov esi, nosoundblaster
+	call print
 	ret
 	
 PlayWAV:
@@ -117,4 +75,10 @@ Play_Repeat:
    mov byte [EnableDigitized],0	;Tells the irq0 handler to disable the digitized functions
    call Sound_Off	;Turn the speaker off just in case
    ret
-   
+%else
+	wave_player:
+		mov esi, nosoundblaster
+		call print
+		ret
+	nosoundblaster db "No Sound Blaster detected.",10,0
+%endif
