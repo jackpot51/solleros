@@ -41,8 +41,3 @@ nomoregetmemsize:
 	mov [memlistend], di
 	ret
 	
-guion db 0
-DriveNumber db 0
-lbaad dd 0
-memlistbuf times 576 db 0
-memlistend dw 0

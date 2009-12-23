@@ -56,8 +56,10 @@ indexdone db 0
 %ifdef rtl8139.included
 	%include 'source/programs/arp.asm'
 %endif
+
 %include 'source/programs/batch.asm'
 %include 'source/programs/beep.asm'
+%include 'source/programs/cd.asm'
 %include 'source/programs/charmap.asm'
 %include 'source/programs/clear.asm'
 %include 'source/programs/cpuid.asm'
@@ -76,6 +78,7 @@ indexdone db 0
 %include 'source/programs/memory.asm'
 %include 'source/programs/pci.asm'
 %include 'source/programs/play.asm'
+%include 'source/programs/pwd.asm'
 %include 'source/programs/reboot.asm'
 %include 'source/programs/reg.asm'
 %include 'source/programs/rmode.asm'

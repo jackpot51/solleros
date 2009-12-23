@@ -101,5 +101,5 @@ dosexit:
 	xor ebx, ebx
 	mov bl, al
 	cmp bl, 0
-	jne near warnexitstatus
+	jne near exitprog.error
 	jmp nwcmd

@@ -64,21 +64,10 @@ wave_player:
 	mov esi, nosoundblaster
 	call print
 	ret
-	
-PlayWAV:
-   mov ecx,[WAVFileSize]                         ;Sets the loop point
-   mov byte [EnableDigitized],1	;Tells the irq0 handler to process the routines
-Play_Repeat:
-   mov al, [esi]	;Loads a byte from ESI to AL
-   hlt	;Wait for IRQ to fire
-   loop Play_Repeat	;and the whole procedure is looped ECX times
-   mov byte [EnableDigitized],0	;Tells the irq0 handler to disable the digitized functions
-   call Sound_Off	;Turn the speaker off just in case
-   ret
 %else
 	wave_player:
 		mov esi, nosoundblaster
 		call print
 		ret
-	nosoundblaster db "No Sound Blaster detected.",10,0
 %endif
+nosoundblaster db "No Sound Blaster detected.",10,0

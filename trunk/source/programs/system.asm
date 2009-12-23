@@ -2,14 +2,12 @@
 	mov esi, systeminfomsg
 	call printquiet
 	mov ecx, osend
-	shr ecx, 10
 	call showdec
 	mov esi, diskbytemsg
 	call printquiet
 	mov ecx, osend
 	add ecx, commandbufend
 	sub ecx, bssstart	;add the extra buffer space
-	shr ecx, 10
 	call showdec
 	mov esi, membytemsg
 	call printquiet
@@ -55,8 +53,8 @@ cpuspeedloopend:
 	ret
 
 systeminfomsg db "Kernel Information:",10,0
-diskbytemsg db "KB Disk Space Used",10,0
-membytemsg db "KB Memory Space Used",10,"System Information:",10,0
+diskbytemsg db "Bytes Disk Space Used",10,0
+membytemsg db "Bytes Memory Space Used",10,"System Information:",10,0
 %ifdef sound.included
 	soundblastermsg db "Soundblaster Detected.",10,0
 %endif

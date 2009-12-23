@@ -1,4 +1,5 @@
 	db 255,44,"turnoff",0
+	turnoff:
 			mov bx, shutdown
 			mov [realmodeptr], bx
 			mov ebx, halt

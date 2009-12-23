@@ -81,7 +81,7 @@ copykernel:
 	mov eax, [fs:esi]
 	mov [gs:esi], eax
 	add esi, 4
-	cmp esi, bssstart
+	cmp esi, bsscopy
 	jb copykernel
 	jmp NEW_CODE_SEL:done_copy
 	
@@ -102,13 +102,13 @@ done_copy:
 	shr eax, 4
 	mov [basecache], eax
 	
-	mov esi, bssstart
+	mov esi, bssend
 	xor eax, eax
 clearkernelbuffers:
 	mov [esi], eax
-	add esi, 4
-	cmp esi, bssend
-	jb clearkernelbuffers
+	sub esi, 4
+	cmp esi, bsscopy
+	ja clearkernelbuffers
 	sti
 
 getmemoryspace:
@@ -131,9 +131,9 @@ memoryspaceaddition:
 	jmp memoryspaceaddition
 finishedmemspacecalc:
 	mov [memoryspace], eax
+%ifdef gui.included
 	cmp byte [guion], 0
 	je near normalstartup
-%ifdef gui.included
 	mov ebx, [basecache]
 	shl ebx, 4
 	mov edi, [physbaseptr]
@@ -153,7 +153,7 @@ memoryspace dd 0
 pitdiv dw 2685
 timeseconds dd 0
 timenanoseconds dd 0
-timeinterval dd 2250286;4500572
+timeinterval dd 2250286
 soundon db 0
 soundrepititions dw 0
 soundpos dd 0

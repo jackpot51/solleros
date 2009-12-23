@@ -35,35 +35,35 @@ newints:	;;for great justice
 	
 ;;the jmp timerinterrupt's ensure that task switches occur
 intx0:
-	%include 'source/interrupts/0-exit.asm'
+	%include 'source/interrupts/0_exit.asm'
 intx1:
-	%include 'source/interrupts/1-prntstr.asm'
+	%include 'source/interrupts/1_prntstr.asm'
 intx2:
-	%include 'source/interrupts/2-readstr.asm'
+	%include 'source/interrupts/2_readstr.asm'
 intx3:
-	%include 'source/interrupts/3-clearscrn.asm'
+	%include 'source/interrupts/3_clearscrn.asm'
 intx4:
-	%include 'source/interrupts/4-prntreadstr.asm'
+	%include 'source/interrupts/4_prntreadstr.asm'
 intx5:
-	%include 'source/interrupts/5-readchar.asm'
+	%include 'source/interrupts/5_readchar.asm'
 intx6:
-	%include 'source/interrupts/6-prntchar.asm'
+	%include 'source/interrupts/6_prntchar.asm'
 intx7:
-	%include 'source/interrupts/7-openfile.asm'
+	%include 'source/interrupts/7_openfile.asm'
 intx9:
-	%include 'source/interrupts/9-num2str.asm'
+	%include 'source/interrupts/9_num2str.asm'
 intx10:
-	%include 'source/interrupts/10-str2num.asm'
+	%include 'source/interrupts/10_str2num.asm'
 intx11:
-	%include 'source/interrupts/11-forkthread.asm'
+	%include 'source/interrupts/11_forkthread.asm'
 intx12:
-	%include 'source/interrupts/12-gettime.asm'
+	%include 'source/interrupts/12_gettime.asm'
 intx13:
-	%include 'source/interrupts/13-settime.asm'
+	%include 'source/interrupts/13_settime.asm'
 intx14:
-	%include 'source/interrupts/14-runcmd.asm'
+	%include 'source/interrupts/14_runcmd.asm'
 intx15:
-	%include 'source/interrupts/15-proginfo.asm'
+	%include 'source/interrupts/15_proginfo.asm'
 		
 	termcursorpos dd 0
 	removedvideo dw 0

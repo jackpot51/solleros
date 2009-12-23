@@ -4,9 +4,7 @@
 	userask db "username:",0
 	pwdask	db	"password:",0
 	computer db "@"
-	computername	db	"SollerOS",0
-	location db " "
-	locationname db "/",0
+	computername	db	"SollerOS ",0
 	endprompt db "]$ ",0
 	crlf 	db  13
 	line	db	10,0
@@ -19,6 +17,6 @@
 			db 0
 	userlstend:
 	
-fonts:	incbin 'source/precompiled/fonts.pak'
+fonts:	incbin "source/precompiled/fonts.pak"
 fontend:
 osend:	;this is the end of the operating system's space on disk

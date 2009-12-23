@@ -1,4 +1,6 @@
 %include "include.inc"
+;This program is designed to test the exception handler of SollerOS
+;by generating exceptions with buggy code.
 	mov ax, [edi]
 	mov [numbuf], ax
 	mov ecx, 0xB100D015
@@ -60,54 +62,60 @@ exceptions:
 	db "1","6"
 	dd exception16
 exceptionsend:
-	exception0:	
-		int 0
+	exception0:	;division by 0
+		mov edi, 0
+		div edi
 		jmp exit
-	exception1:	
+	exception1: ;debug
 		int 1
 		jmp exit
-	exception2:	
+	exception2:	;non maskable interrupt
 		int 2
 		jmp exit
-	exception3:
-		int 3
+	exception3: ;breakpoint
+		int3
 		jmp exit
-	exception4:	
-		int 4
+	exception4:	;into instruction is run if overflow is set
+		mov edi, 0xFFFFFFFF
+		inc edi
+		into
 		jmp exit
-	exception5:	
-		int 5
+bounds:	dd 0
+		dd 2
+	exception5: ;bounds exceeded
+		mov edi, 3
+		bound edi, [bounds]
 		jmp exit
-	exception6:	
+	exception6:	;invalid opcode
 		int 6
 		jmp exit
-	exception7:	
+	exception7:	;fpu not available
 		int 7
 		jmp exit
-	exception8:
+	exception8: ;double fault
 		int 8
 		jmp exit
-	exception9:	
+	exception9:	;coprocessor overrun
 		int 9
 		jmp exit
-	exception10:  
+	exception10: ;invalid tss
 		int 10
 		jmp exit
-	exception11:	
+	exception11: ;segment not present
 		int 11
 		jmp exit
-	exception12:		
+	exception12: ;stack segment fault
 		int 12
 		jmp exit
-	exception13:	
+	exception13: ;general protection fault
 		int 13
 		jmp exit
-	exception14:
+	exception14: ;page fault
 		int 14
 		jmp exit
-	exception15:
+	exception15: ;reserved
 		int 15
 		jmp exit
-	exception16:
+	exception16: ;anything above 15
 		int 16
 		jmp exit

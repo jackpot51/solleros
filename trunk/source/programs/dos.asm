@@ -1,5 +1,5 @@
 db 255,44,"dos",0
-rundosprog:
+dosrunner:
 	mov edi, [currentcommandloc]
 	add edi, 4
 	mov esi,  0x100 + dosprogloc	;this should be the beginning of memory
@@ -7,25 +7,25 @@ rundosprog:
 	mov edi, [currentcommandloc]
 	add edi, 4
 	cmp edx, 404
-	je near dosnoprogfound
+	je near .noprogfound
 	mov ebx, 0x81 + dosprogloc
 	xor ecx, ecx
-finddosparams:
+.findparams:
 	inc edi
 	mov al, [edi]
 	cmp al, " "
-	jne finddosparams
-copydosparams:
+	jne .findparams
+.copyparams:
 	mov al, [edi]
 	mov [ebx], al
 	inc ebx
 	inc edi
 	inc ecx
 	cmp ebx, 0x100 + dosprogloc
-	jae nomoredosparams
+	jae .nomoreparams
 	cmp al, 0
-	jne copydosparams
-nomoredosparams:
+	jne .copyparams
+.nomoreparams:
 	mov [0x80 + dosprogloc], cl
 	mov ax, DOS_DATA_SEL
 	mov ds, ax
@@ -40,9 +40,9 @@ nomoredosparams:
 	xor esi, esi
 	call DOS_CODE_SEL:0x100
 	cmp al, 0
-	jne near warnexitstatus
+	jne near exitprog.error
 	jmp nwcmd
-dosnoprogfound:
+.noprogfound:
 	mov esi, notfound1
 	call print
 	mov esi, [currentcommandloc]

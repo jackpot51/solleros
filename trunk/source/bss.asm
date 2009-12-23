@@ -1,9 +1,20 @@
+align 4, nop
 bssstart: equ $
-initialstack equ bssstart
+guion equ bssstart
+DriveNumber equ guion + 1
+lbaad equ DriveNumber + 1
+memlistbuf equ lbaad + 4
+memlistend equ memlistbuf + 576
+bsscopy equ memlistend
+initialstack equ bsscopy
 stackend equ initialstack + 4000
 fileindex: equ stackend + 96
 fileindexend: equ fileindex + 1024
-uid equ fileindexend
+lastfolderloc equ fileindexend
+currentfolderloc equ lastfolderloc + 4
+currentfolder equ currentfolderloc + 4
+currentfolderend equ currentfolder + 512
+uid equ currentfolderend
 ranboot equ uid + 4
 IFON equ ranboot + 1
 IFTRUE equ IFON + 1
@@ -34,11 +45,17 @@ numbuf: equ buf2 + 20
 	videobuf2end equ videobuf2 + 160*64*2
 %endif
 lastcommandpos: equ videobuf2end
-currentcommandpos: equ lastcommandpos + 4
-commandbuf: equ currentcommandpos + 4
+commandbufpos: equ lastcommandpos + 4
+commandbuf: equ commandbufpos + 4
 commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
-rbuffstart: equ commandbufend ;for use with networking
-threadlist: equ rbuffstart + 8212 ;this buffer will hold the stack locations of all of the threads, up to 2048
+%ifdef rtl8139.included
+	rbuffstart: equ commandbufend ;for use with networking
+	rbuffend equ rbuffstart + 8212
+%else
+	rbuffstart equ commandbufend
+	rbuffend equ commandbufend
+%endif
+threadlist: equ rbuffend ;this buffer will hold the stack locations of all of the threads, up to 2048
 threadlistend: equ threadlist + 1024*4
 stacks:	equ threadlistend ;i use SS now for proper stack management. This makes sure stacks never screw with other memory
 stackdummy: equ stacks + 1024

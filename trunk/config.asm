@@ -1,6 +1,6 @@
 ;These flags are used to configure options as on, put a simicolon in front of it to not configure it
 
-;%define gui.included
+%define gui.included
 ;Turn on the gui
 
 ;%define disk.protected
@@ -9,7 +9,7 @@
 %define disk.real
 ;Use real mode for disk access
 
-;%define sound.included
+%define sound.included
 ;This includes the sound drivers
 
 ;%define rtl8139.included

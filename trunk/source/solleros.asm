@@ -1,6 +1,10 @@
 	;SOLLEROS.ASM
 os:
 setdefenv:
+	mov al, '/'
+	mov [currentfolder], al
+	mov eax, 1
+	mov [currentfolderloc], eax
 	call clear
 bootfilecheck:
 	cmp byte [ranboot], 1
@@ -160,14 +164,14 @@ cancel:	xor al, al
 	mov [IFON], al
 	mov [BATCHISON], al
 	mov al, '['
-	mov ah, 6
 	mov bx, 7
 	call prcharq
 	mov esi, [usercache]
 	call printquiet
 	mov esi, computer
 	call printquiet
-	mov esi, location
+	mov esi, currentfolder
+	add esi, [lastfolderloc]
 	call printquiet
 	mov esi, endprompt
 	call print
@@ -181,7 +185,7 @@ cancel:	xor al, al
 	mov byte [commandedit], 0
 	cmp byte [buftxt], 0
 	je near nwcmd
-gotcmd:	mov esi, [currentcommandpos]
+gotcmd:	mov esi, [commandbufpos]
 	mov [lastcommandpos], esi
 	mov edi, buftxt
 	add esi, commandbuf
@@ -201,7 +205,7 @@ copycommand:
 	jmp copycommand
 donecopy:
 	sub esi, commandbuf
-	mov [currentcommandpos], esi
+	mov [commandbufpos], esi
 	jmp run
 
 input:	call buftxtclear
