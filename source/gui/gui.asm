@@ -1365,10 +1365,10 @@ endedbmp:
 	mouseon db 0
 	start	db "start",0
 	gotomenu db "SollerOS",0
+	turnoffmsg db "Power Off",0
 	boomsg db "Boo!",0
 	pacmsg	db "Pacman was easy to draw.",0
 	pacnom  db "Om nom nom nom",0
-	winmsg	db "windows sucks",0
 	xmsg db "X",0
 	icon dw 0	;pointer to icon
 	codepointer dw 0,0 ;pointer to code
@@ -1421,13 +1421,13 @@ endedbmp:
 		;ret
 
 	winblows:
-		mov esi, winmsg
-		xor dx, dx
+		mov esi, turnoffmsg
+		mov ebx, turnoff
 		mov cx, [resolutiony]
 		sub cx, 32
-		xor ebx, ebx
+		xor dx, dx
 		xor ah, ah
-		mov al, 00010001b
+		mov al, 00010000b
 		call showstring
 		mov esi, gotomenu
 		mov cx, [resolutiony]

@@ -150,7 +150,6 @@ MemLoc	dd  0
 Page1	db  0
 Freq	dd	0
 WAVEMode db 14h
-
 PgPort	equ 83h
 AddPort	equ 02h
 LenPort	equ 03h

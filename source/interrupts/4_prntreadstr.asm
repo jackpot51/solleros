@@ -219,7 +219,7 @@ readline:
 	nordprupbck2:
 		call termcopy
 	nordprupbck:
-		mov edi, [currentcommandpos]
+		mov edi, [commandbufpos]
 		add edi, commandbuf
 		dec edi
 		ret
@@ -232,7 +232,7 @@ readline:
 		cmp edi, commandbuf
 		jb getcmdresetcommandbuf
 		sub edi, commandbuf
-		cmp edi, [currentcommandpos]
+		cmp edi, [commandbufpos]
 		je near rdprintb
 		add edi, commandbuf
 		cmp al, 0
@@ -258,7 +258,7 @@ readline:
 		sub edi, commandbuf
 		cmp al, 0
 		je near rdprintb2
-		cmp edi, [currentcommandpos]
+		cmp edi, [commandbufpos]
 		jae near rdprintb2
 		add edi, commandbuf
 		mov [esi], al

@@ -3,7 +3,7 @@ f0:
 incbin "included/argtest.elf"
 align 512,db 0
 f1:
-incbin "included/boot.sh"
+incbin "included/boot"
 align 512,db 0
 f2:
 incbin "included/chartest.elf"
@@ -54,3 +54,6 @@ f17:
 incbin "included/victory.wav"
 align 512,db 0
 f18:
+incbin "included/_img.bin"
+align 512,db 0
+f19:

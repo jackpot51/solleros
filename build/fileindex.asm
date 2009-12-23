@@ -2,7 +2,7 @@ diskfileindex:
 db "argtest.elf",0
 dd (f0-$$)/512
 dd (f1-f0)/512
-db "boot.sh",0
+db "boot",0
 dd (f1-$$)/512
 dd (f2-f1)/512
 db "chartest.elf",0
@@ -53,5 +53,8 @@ dd (f17-f16)/512
 db "victory.wav",0
 dd (f17-$$)/512
 dd (f18-f17)/512
+db "_img.bin",0
+dd (f18-$$)/512
+dd (f19-f18)/512
 enddiskfileindex:
 
