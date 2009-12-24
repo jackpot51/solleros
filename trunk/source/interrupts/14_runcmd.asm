@@ -1,8 +1,10 @@
 	mov edi, buftxt
-cpccmd:
+cpcmd:
 	mov al, [esi]
 	mov [edi], al
 	inc esi
 	inc edi
-	loop cpccmd
-	jmp run
+	cmp al, 0
+	jne cpcmd
+	call run
+	iret

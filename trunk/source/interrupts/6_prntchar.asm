@@ -1,5 +1,10 @@
+cmp bl, bh
+je prchar.notimer
 call prcharint
 jmp timerinterrupt
+prchar.notimer:
+	call prcharq
+	iret
 	
 prcharint:	;;print char, char in al, modifier in bl, if bh = bl then termcopy will not happen, will run videobufcopy if called as is
 	cmp bl, bh

@@ -1,137 +1,26 @@
-;;THIS IS MY FIRST ATTEMPT AT IMPLEMENTING THREADS
-espstart dd 0
-threadstarttest:
-    mov [espstart], esp
-    jmp startthreads
-mainthread:
-	hlt		;;this does not work properly
-	jmp mainthread
-	
+%ifdef threads.included	
 nwcmdst:
-	mov esp, [espstart]
-	;mov ax, STACK_SEL
-	;mov ss, ax
-	mov byte [threadson], 0
-	jmp nwcmd
-	
-modelthread:
-	mov al, 1
-	mov ah, 9
-	mov ecx, [currentthread]
-	int 0x30
-	call timerinterrupt	;this emulates an interrupt call
-	jmp nwcmdst
-	
-	
-threadson db 0
-lastthread dd 4
-
-thrdtst:
-times 256 dd modelthread	;;could go up to 2048, but that takes too long
-thrdtstend:
-
-	espold dd 0
-
-threadfork:
-	mov byte [threadson], 1
-	pushad
-	
-	mov eax, cs
-	mov edx, eax
-	mov ecx, [esp + 40]
-	or ecx, 0x200
-	mov ebx, esp
-	mov esp, stackdummy
-	
-	pushad
-	mov eax, mainthread
-	mov [esp + 32], eax
-	mov [esp + 36], edx
-	mov [esp + 40], ecx
-	mov [threadlist], esp
-	
-	mov [espold], ebx
-	mov eax, esi
-	mov esp, stack1
-	mov ebx, [lastthread]
-	shl ebx, 10
-	add esp, ebx
-	shr ebx, 10
-	pushad
-	mov [esp + 32], eax
-	mov [esp + 36], edx
-	mov [esp + 40], ecx
-	mov [threadlist + ebx], esp
-	mov esp, [espold]
-	add ebx, 4
-	mov [threadlist + ebx], esp
-	add ebx, 4
-	mov [lastthread], ebx
-	mov al, 0x20
-	out 0x20, al
-	popad
-	ret
-
-startthreads:
-	mov byte [threadson], 1
-
-	mov eax, cs
-	mov edx, eax
-	mov ecx, [esp + 40]
-	or ecx, 0x200
-	mov ebx, esp
-	mov esp, stackdummy
-	mov ax, NEW_DATA_SEL
-	mov ss, ax
-	
-	pushad
-	mov eax, mainthread
-	mov [esp + 32], eax	;used to be 32
-	mov [esp + 36], edx ;used to be 36
-	mov [esp + 40], ecx
-	mov [threadlist], esp
-
-			;;that above setup the dummy thread which for some reason does not run
-			;;this below will setup the threads found in thrdtst
-
-testthreads:
-	mov esi, thrdtst
-	mov esp, stack1
-	mov edi, threadlist
-	add edi, 4
-nxtthreadld:
-	pushad
-	mov eax, [esi]
-	mov [esp + 32], eax
-	mov [esp + 36], edx
-	mov [esp + 40], ecx
-	mov [edi], esp
-	add esp, 1024
-	add esi, 4
-	add edi, 4
-	cmp edi, threadlistend
-	jae near nomorethreadspace
-	cmp esp, bssend
-	jae near nomorestackspace
-	cmp esi, thrdtstend
-	jb nxtthreadld
-	mov esp, ebx
-	popad
+	xor eax, eax
+	mov esp, stackend
+	mov [threadson], al
+	mov [currentthread], eax
+	add eax, 4
+	mov [lastthread], eax
 	sti
-	jmp $	;;wait for the irq to hook
-	
+	jmp nwcmd
+
 nomorethreadspace:
 	mov esi, nmts
 	call print
 	mov byte [threadson], 0
 	jmp nwcmd
-nmts	db "teh colonel no can haz moar treds",10,0
+nmts	db "Thread Overflow",10,0
 
 nomorestackspace:
 	mov esi, nmss
 	call print
 	jmp nwcmdst
-nmss	db "teh colonel no can haz moar staqz",10,0
+nmss	db "Stack Overflow",10,0
 	
 threadswitch:
 	cli
@@ -163,6 +52,9 @@ okespthread:
 	out 0x20, al
 	popad
 	sti
-	ret
-	
-currentthread dd 0
+	iret
+
+	lastthread dd 4
+%endif
+	threadson db 0
+	currentthread dd 0

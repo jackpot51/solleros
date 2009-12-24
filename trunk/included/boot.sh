@@ -1,2 +1,2 @@
 #!/bin/shush
-gui 11A
+#gui 11A

@@ -180,8 +180,10 @@ pitinterrupt: ;this controls threading
 	cmp byte [soundon], 1
 	je near PCSpeakerRAW
 timerinterrupt:	;put this into the interrupt handler that controls threading
+%ifdef threads.included
 	cmp byte [threadson], 1
 	je near threadswitch
+%endif
 keyinterrupt:		;checks for escape, if pressed, it quits the program currently running
 	cmp byte [threadson], 0
 	je near handled
@@ -355,21 +357,21 @@ gdt_end:
 idt:	
 %assign i 0
 %rep    32
-		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+		dw unhand + i*12,NEW_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep
 		dw int20h,NEW_CODE_SEL,0x8E00,0
 		dw int21h,NEW_CODE_SEL,0x8E00,0
 %assign i 0x22
 %rep 14
-		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+		dw handled,NEW_CODE_SEL,0x8E00,0
 %assign i +1
 %endrep
 ;INT 30h for os use and 3rd party use:
 		dw newints,NEW_CODE_SEL,0x8E00,0
 %assign i 0x31
 %rep 15
-		dw unhand + i*13,NEW_CODE_SEL,0x8E00,0
+		dw handled,NEW_CODE_SEL,0x8E00,0
 %assign i +1
 %endrep
 ;and here we are at 0x40
@@ -402,7 +404,7 @@ idt:
 %assign i 0x50
 %rep 176
 		dw handled, NEW_CODE_SEL,0x8E00,0
-		;dw unhand + i*13, NEW_CODE_SEL,0x8E00,0
+		;dw unhand + i*12, NEW_CODE_SEL,0x8E00,0
 %assign i +1
 %endrep
 idt_end:

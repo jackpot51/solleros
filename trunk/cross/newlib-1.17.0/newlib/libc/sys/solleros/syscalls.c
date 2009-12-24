@@ -31,8 +31,15 @@
     }
 
     int fork() {
-      errno=EAGAIN;
-      return -1;
+		int pid;
+		asm("movb $11, %%ah\n\t"
+			"xorl %%esi, %%esi\n\t"
+			"int $0x30"
+			: "=b" (pid)
+			:
+			: "%esi"
+			);
+		return pid;
     }
 
     int fstat(int file, struct stat *st) {
@@ -153,6 +160,7 @@
 
     int write(int file, char *ptr, int len){
 		int i;
+		asm("cli");
 		if(file==1){
 			for(i=1;i<len;i++){ //the i=1 instead of i=0 makes sure it is printed quietly
 		        asm("movb $6, %%ah\n\t"
@@ -167,7 +175,7 @@
 			asm("movb $6, %%ah\n\t"
 				"movb $7, %%bl\n\t"
 				"xorb %%bh, %%bh\n\t" 
-				"int $0x30"
+				"int $0x30\n\t"
 				:
 				: "a" (*ptr++)
 				: "%esi", "%edi", "%ebx", "%edx", "%ecx"
@@ -193,5 +201,6 @@
 					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
 					);
 		}
+		asm("sti");
         return i;
     }

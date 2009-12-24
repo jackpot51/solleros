@@ -86,7 +86,6 @@ indexdone db 0
 %include 'source/programs/shush.asm'
 %include 'source/programs/stop.asm'
 %include 'source/programs/system.asm'
-%include 'source/programs/thread.asm'
 %include 'source/programs/time.asm'
 %include 'source/programs/turnoff.asm'
 %include 'source/programs/wait.asm'

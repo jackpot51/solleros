@@ -1,5 +1,6 @@
 db 255,44,"dos",0
 dosrunner:
+	mov [previousstack], esp
 	mov edi, [currentcommandloc]
 	add edi, 4
 	mov esi,  0x100 + dosprogloc	;this should be the beginning of memory
@@ -39,9 +40,14 @@ dosrunner:
 	xor edi, edi
 	xor esi, esi
 	call DOS_CODE_SEL:0x100
-	cmp al, 0
-	jne near exitprog.error
-	jmp nwcmd
+	mov bx, NEW_DATA_SEL
+	mov dx, bx
+	mov es, bx
+	mov fs, bx
+	mov bx, SYS_DATA_SEL
+	mov gs, bx
+	mov esp, [previousstack]
+	ret
 .noprogfound:
 	mov esi, notfound1
 	call print

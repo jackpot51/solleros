@@ -52,7 +52,7 @@ public class fsmaker {
 			if(new File("\\cygwin\\SollerOS\\cross\\bin\\i586-pc-solleros-gcc.exe").exists()){
 				ccomp="\\cygwin\\SollerOS\\cross\\bin\\i586-pc-solleros-gcc.exe";
 			}
-			if(ccomp!=""){
+			if(!ccomp.equals("")){
 				System.out.println("GCC: " + ccomp);
 				String[] cfiles = apps.list(cfilter);
 				for(int i=0; i<cfiles.length; i++){
@@ -78,7 +78,7 @@ public class fsmaker {
 			if(new File("\\cygwin\\SollerOS\\cross\\bin\\i586-pc-solleros-g++.exe").exists()){
 				cppcomp="\\cygwin\\SollerOS\\cross\\bin\\i586-pc-solleros-g++.exe";
 			}
-			if(cppcomp!=""){
+			if(!cppcomp.equals("")){
 				System.out.println("G++: " + cppcomp);
 				String[] cppfiles = apps.list(cppfilter);
 				for(int i=0; i<cppfiles.length; i++){
@@ -97,18 +97,17 @@ public class fsmaker {
 			}else{
 				System.out.println("Could not find G++");
 			}
-
-			FilenameFilter filter = new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return !name.startsWith(".");
+			FileFilter filter = new FileFilter() {
+				public boolean accept(File f) {
+					return !f.getName().startsWith(".") && f.isFile();
 				}
 			};
 			File dir = new File("../included");
-			String[] files = dir.list(filter);
+			File[] files = dir.listFiles(filter);
 			br.write("diskfileindex:\n");
 			for(int i=0; i<files.length; i++)
 			{
-				br.write("db \"" + files[i] + "\",0\n");
+				br.write("db \"" + files[i].getName() + "\",0\n");
 				br.write("dd (f" + i + "-$$)/512\n");
 				br.write("dd (f" + (i + 1) + "-f" + i + ")/512\n");
 			}
@@ -118,7 +117,7 @@ public class fsmaker {
 			for(int i=0; i<files.length; i++)
 			{
 				br2.write("f" + i + ":\n");
-				br2.write("incbin " + "\"included/" + files[i] + "\"\n");
+				br2.write("incbin " + "\"included/" + files[i].getName() + "\"\n");
 				br2.write("align 512,db 0\n");
 			}
 			br2.write("f" + files.length + ":\n");
