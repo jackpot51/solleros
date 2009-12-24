@@ -97,9 +97,9 @@ dosgettime:
 	
 dosexit:
 	popa
-	mov esp, stackend
+	mov esp, [previousstack]
 	xor ebx, ebx
 	mov bl, al
 	cmp bl, 0
 	jne near exitprog.error
-	jmp nwcmd
+	ret

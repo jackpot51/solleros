@@ -1,12 +1,13 @@
+%ifdef exceptions.included
 unhand:	
 	%assign i 0
-	%rep 0x50
-	cli
+	%rep 32
 	mov byte [intprob], i
 	jmp unhand2
 	%assign i i+1
 	%endrep
 unhand2:
+	cli
 	push ds
 	push es
 	push fs
@@ -299,3 +300,20 @@ err15	db "Reserved for Plan R:",10
 		
 unknownerror db "What the hell just happened? Is everyone okay? Hard drive? Video card?",10
 			db	"Memory? Are you there?",10,0
+%else
+unhand:	
+	%assign i 0
+	%rep 32
+	mov byte [intprob], i
+	jmp unhand2
+	%assign i i+1
+	%endrep
+unhand2:
+	cmp byte [intprob], 3
+	je handled	;if it is a debug interrupt, it is auto handled
+	mov ebx, 0xDEADCD00 ;this shows that an exception occured even though more detailed info cannot be shown
+						;CD stands for the interrupt code, DEAD shows that the program died because of the int
+	mov bl, [intprob]
+	jmp exitprog
+intprob db 0
+%endif

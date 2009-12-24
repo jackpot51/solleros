@@ -28,14 +28,18 @@ findnonspaceprog:
 	cmp al, " "
 	je findnonspaceprog
 	dec edi
+	mov [previousstack], esp
 	call ebx
+	mov esp, [previousstack]
 	ret
 runelf:
 	mov edi, [currentcommandloc]
 	add edi, 2
 	add ebx, 0x80
+	mov [previousstack], esp
 	call ebx
-	jmp nwcmd
+	mov esp, [previousstack]
+	ret
 noprogfound:
 	mov esi, notfound1
 	call print

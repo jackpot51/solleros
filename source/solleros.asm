@@ -206,7 +206,8 @@ copycommand:
 donecopy:
 	sub esi, commandbuf
 	mov [commandbufpos], esi
-	jmp run
+	call run
+	jmp nwcmd
 
 input:	call buftxtclear
 	mov esi, buftxt		;puts input into buftxt AND onto screen
@@ -349,7 +350,7 @@ noprggoodmul:
 	mov edi, [ebx]
 	mov byte [threadson], 2
 	call edi
-	jmp nwcmd
+	ret
 prgnf:	
 	mov esi, [currentcommandloc]
 	mov al, [esi]
@@ -361,7 +362,7 @@ prgnf:
 	call print
 	mov esi, notfound2
 	call print
-prgdn:	jmp nwcmd
+prgdn:	ret
 
 currentcommandloc dd 0
 

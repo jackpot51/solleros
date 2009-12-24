@@ -10,7 +10,8 @@ initialstack equ bsscopy
 stackend equ initialstack + 4000
 fileindex: equ stackend + 96
 fileindexend: equ fileindex + 1024
-lastfolderloc equ fileindexend
+previousstack equ fileindexend
+lastfolderloc equ previousstack + 4
 currentfolderloc equ lastfolderloc + 4
 currentfolder equ currentfolderloc + 4
 currentfolderend equ currentfolder + 512
@@ -55,10 +56,13 @@ commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the 
 	rbuffstart equ commandbufend
 	rbuffend equ commandbufend
 %endif
-threadlist: equ rbuffend ;this buffer will hold the stack locations of all of the threads, up to 2048
-threadlistend: equ threadlist + 1024*4
-stacks:	equ threadlistend ;i use SS now for proper stack management. This makes sure stacks never screw with other memory
-stackdummy: equ stacks + 1024
-stack1: equ stackdummy + 1024  ;woah, thats a lot of space for stacks
-bssend equ stack1 + 1024*1024
+%ifdef threads.included
+	threadlist: equ rbuffend ;this buffer will hold the stack locations of all of the threads, up to 2048
+	threadlistend: equ threadlist + 1024*4
+	stacks:	equ threadlistend ;i use SS now for proper stack management. This makes sure stacks never screw with other memory
+	stack1: equ stacks + 1024  ;woah, thats a lot of space for stacks
+	bssend equ stack1 + 1024*1024
+%else
+	bssend equ rbuffend
+%endif
 dosprogloc equ 0x400000 ;from here on, it is not kernel space so apps can be loaded here.

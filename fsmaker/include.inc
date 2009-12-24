@@ -43,6 +43,11 @@ read:
 	mov bl, 7
 	int 0x30
 	ret
+
+run:
+	mov ah, 14
+	int 0x30
+	ret
 	
 exit:
 	xor eax, eax
@@ -68,6 +73,16 @@ exit:
 	mov bl, 7
 	int 0x30
 	mov esi, %%stringread
+%endmacro
+
+%macro RUN 1+
+	section .data
+%%stringrun:
+	db %1,0
+	section .text
+	mov esi, %%stringrun
+	mov ah, 14
+	int 0x30
 %endmacro
 
 %macro PRINT 1+

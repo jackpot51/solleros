@@ -76,9 +76,7 @@ exceptionsend:
 		int3
 		jmp exit
 	exception4:	;into instruction is run if overflow is set
-		mov edi, 0xFFFFFFFF
-		inc edi
-		into
+		int 4
 		jmp exit
 bounds:	dd 0
 		dd 2

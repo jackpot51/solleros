@@ -3,7 +3,7 @@ f0:
 incbin "included/argtest.elf"
 align 512,db 0
 f1:
-incbin "included/boot"
+incbin "included/boot.sh"
 align 512,db 0
 f2:
 incbin "included/chartest.elf"
@@ -12,48 +12,54 @@ f3:
 incbin "included/dostest.com"
 align 512,db 0
 f4:
-incbin "included/finalcount.snd"
+incbin "included/execl"
 align 512,db 0
 f5:
-incbin "included/helloworld.elf"
+incbin "included/finalcount.snd"
 align 512,db 0
 f6:
-incbin "included/int"
+incbin "included/fork"
 align 512,db 0
 f7:
-incbin "included/lostwoods.snd"
+incbin "included/helloworld.elf"
 align 512,db 0
 f8:
-incbin "included/mario.snd"
+incbin "included/int"
 align 512,db 0
 f9:
-incbin "included/solleros.bmp"
+incbin "included/lostwoods.snd"
 align 512,db 0
 f10:
-incbin "included/solleros.txt"
+incbin "included/mario.snd"
 align 512,db 0
 f11:
-incbin "included/songotime.snd"
+incbin "included/solleros.bmp"
 align 512,db 0
 f12:
-incbin "included/stdiotest.elf"
+incbin "included/solleros.txt"
 align 512,db 0
 f13:
-incbin "included/tely"
+incbin "included/songotime.snd"
 align 512,db 0
 f14:
-incbin "included/timetest.elf"
+incbin "included/stdiotest.elf"
 align 512,db 0
 f15:
-incbin "included/tutorial.sh"
+incbin "included/tely"
 align 512,db 0
 f16:
-incbin "included/unfs"
+incbin "included/timetest.elf"
 align 512,db 0
 f17:
-incbin "included/victory.wav"
+incbin "included/tutorial.sh"
 align 512,db 0
 f18:
-incbin "included/_img.bin"
+incbin "included/unfs"
 align 512,db 0
 f19:
+incbin "included/victory.wav"
+align 512,db 0
+f20:
+incbin "included/_img.bin"
+align 512,db 0
+f21:
