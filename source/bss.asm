@@ -30,25 +30,31 @@ buftxt: equ buftxt2 + 1024
 buftxtend: equ buftxt + 1024
 buf2: equ buftxtend
 numbuf: equ buf2 + 20
-%ifdef gui.included
-	graphicstable equ numbuf + 1 ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
-	graphicstableend equ graphicstable + 200h
-	mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
-	mcolorend equ mousecolorbuf + 256
-	videobuf equ mcolorend + 1	;1280x1024pixels in characters
-	videobufend	equ videobuf + 160*64*2
-	videobuf2 equ videobufend
-	videobuf2end equ videobuf2 + 160*64*2
+%ifdef io.serial
+	lastcommandpos: equ numbuf + 1
+	commandbufpos: equ lastcommandpos + 4
+	commandbufend equ commandbufpos
 %else
-	videobuf equ numbuf + 1
-	videobufend equ videobuf + 80*30*2
-	videobuf2 equ videobufend
-	videobuf2end equ videobuf2 + 160*64*2
+	%ifdef gui.included
+		graphicstable equ numbuf + 1 ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
+		graphicstableend equ graphicstable + 200h
+		mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
+		mcolorend equ mousecolorbuf + 256
+		videobuf equ mcolorend + 1	;1280x1024pixels in characters
+		videobufend	equ videobuf + 160*64*2
+		videobuf2 equ videobufend
+		videobuf2end equ videobuf2 + 160*64*2
+	%else
+		videobuf equ numbuf + 1
+		videobufend equ videobuf + 80*30*2
+		videobuf2 equ videobufend
+		videobuf2end equ videobuf2 + 160*64*2
+	%endif
+	lastcommandpos: equ videobuf2end
+	commandbufpos: equ lastcommandpos + 4
+	commandbuf: equ commandbufpos + 4
+	commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
 %endif
-lastcommandpos: equ videobuf2end
-commandbufpos: equ lastcommandpos + 4
-commandbuf: equ commandbufpos + 4
-commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
 %ifdef rtl8139.included
 	rbuffstart: equ commandbufend ;for use with networking
 	rbuffend equ rbuffstart + 8212

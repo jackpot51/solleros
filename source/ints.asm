@@ -69,6 +69,10 @@ intx14:
 intx15:
 	%include 'source/interrupts/15_proginfo.asm'
 		
+%ifdef io.serial
+termcopy:
+		ret
+%else
 	termcursorpos dd 0
 	removedvideo dw 0
 termcopy:	
@@ -171,3 +175,4 @@ movedcursorterm:
 	mov [edi], ah
 fixednocursorterm:
 	ret
+%endif

@@ -108,17 +108,6 @@ selectedvesa:
 vesamode dw 0
 videomodecache dw 0
 
-    printrm:			; 'si' comes in with string address
-	    mov bx,07		; write to display
-	    mov ah,0Eh		; screen function
-    prs2:    mov al,[si]         ; get next character
-	    cmp al,0		; look for terminator 
-            je finpr2		; zero byte at end of string
-	    int 10h		; write character to screen.    
-     	    inc si	     	; move to next character
-	    jmp prs2		; loop
-    finpr2: ret
-
 dcnm db 0,0,0,0,0
 dcnmend db 0,0
 

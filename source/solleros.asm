@@ -99,6 +99,10 @@ pwdtest:
 pwdrgt:
 	shr ecx, 1
 	mov [uid], ecx
+%ifdef io.serial
+	mov esi, line
+	call print
+%endif
 	call clear
 	mov cx, 200h
 	mov esi, buftxt
@@ -187,6 +191,8 @@ cancel:	xor al, al
 	je near nwcmd
 gotcmd:	mov esi, [commandbufpos]
 	mov [lastcommandpos], esi
+%ifdef io.serial
+%else
 	mov edi, buftxt
 	add esi, commandbuf
 	cmp esi, commandbufend
@@ -206,6 +212,7 @@ copycommand:
 donecopy:
 	sub esi, commandbuf
 	mov [commandbufpos], esi
+%endif
 	call run
 	jmp nwcmd
 

@@ -9,7 +9,11 @@
 %ifdef rtl8139.included
 	%include "source/drivers/network/rtl8139.asm"
 %endif
-%include "source/drivers/input/keyboard.asm"
+%ifdef io.serial
+	%include "source/drivers/input/serial.asm"
+%else
+	%include "source/drivers/input/keyboard.asm"
+%endif
 ;drivers will soon be handled intelligently
 ;every driver's source will be scanned for a .init function
 ;that will be called and if it returns 0
@@ -23,6 +27,9 @@ initialize:
 	xor ecx, ecx
 %ifdef sound.included
 	call sblaster.init
+%endif
+%ifdef io.serial
+	call serial.init
 %endif
 	ret
 	

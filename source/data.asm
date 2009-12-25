@@ -17,6 +17,9 @@
 			db 0
 	userlstend:
 	
+%ifdef io.serial
+%else
 fonts:	incbin "source/precompiled/fonts.pak"
 fontend:
+%endif
 osend:	;this is the end of the operating system's space on disk

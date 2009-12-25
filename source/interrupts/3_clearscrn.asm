@@ -1,5 +1,9 @@
 call clear
 jmp timerinterrupt
+%ifdef io.serial
+clear:
+	ret
+%else
 clear:		
 		mov cx, [charxy]
 		mov edi, videobuf
@@ -36,4 +40,5 @@ clear:
 		jne clearc
 		call termcopy
 		ret
+%endif
 		
