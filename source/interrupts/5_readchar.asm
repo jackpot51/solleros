@@ -10,8 +10,6 @@ getchar:
 	transcheck:
 	%ifdef io.serial
 		call serial.receive
-		mov ah, 0xFF
-		mov [lastkey], ax
 		cmp al, 13
 		je rdenter
 	%else

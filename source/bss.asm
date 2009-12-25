@@ -31,19 +31,17 @@ buftxtend: equ buftxt + 1024
 buf2: equ buftxtend
 numbuf: equ buf2 + 20
 %ifdef io.serial
-	lastcommandpos: equ numbuf + 1
-	commandbufpos: equ lastcommandpos + 4
-	commandbufend equ commandbufpos
+	lastcommandpos equ numbuf + 1
 %else
 	%ifdef gui.included
 		graphicstable equ numbuf + 1 ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
 		graphicstableend equ graphicstable + 200h
 		mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
 		mcolorend equ mousecolorbuf + 256
-		videobuf equ mcolorend + 1	;1280x1024pixels in characters
-		videobufend	equ videobuf + 160*64*2
+		videobuf equ mcolorend + 1	;1680x1050 pixels in characters
+		videobufend	equ videobuf + 210*65*2
 		videobuf2 equ videobufend
-		videobuf2end equ videobuf2 + 160*64*2
+		videobuf2end equ videobuf2 + 210*65*2
 	%else
 		videobuf equ numbuf + 1
 		videobufend equ videobuf + 80*30*2
@@ -51,10 +49,10 @@ numbuf: equ buf2 + 20
 		videobuf2end equ videobuf2 + 160*64*2
 	%endif
 	lastcommandpos: equ videobuf2end
+%endif
 	commandbufpos: equ lastcommandpos + 4
 	commandbuf: equ commandbufpos + 4
 	commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
-%endif
 %ifdef rtl8139.included
 	rbuffstart: equ commandbufend ;for use with networking
 	rbuffend equ rbuffstart + 8212

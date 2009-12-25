@@ -1439,7 +1439,7 @@ endedbmp:
 		jmp showstring
 
 	termwindow:	dw 800,600	;;window size
-	termmsg:	db "SuperTerminal",0	;;window title
+	termmsg:	db "SHUSh",0	;;window title
 	
 interneticon: 	incbin 'source/gui/icons/internet'
 wordicon: 	incbin 'source/gui/icons/word'

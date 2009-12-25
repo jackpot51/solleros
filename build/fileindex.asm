@@ -11,7 +11,7 @@ dd (f3-f2)/512
 db "dostest.com",0
 dd (f3-$$)/512
 dd (f4-f3)/512
-db "execl",0
+db "exec",0
 dd (f4-$$)/512
 dd (f5-f4)/512
 db "finalcount.snd",0

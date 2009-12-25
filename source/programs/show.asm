@@ -6,14 +6,16 @@ db 255,44,"show",0
 		cmp edx, 404
 		je near filenotfound
 		mov esi, 0x800000
+%ifdef gui.included
 		cmp word [esi], "BM"
 		je bmpfound
+%endif
 		call print
 		mov esi, line
 		call print
 		ret
-bmpfound:
 %ifdef gui.included
+bmpfound:
 		cmp byte [guion], 0
 		je near noguibmp
 		mov esi, 0x800000
@@ -34,12 +36,12 @@ bmpfound:
 		mov esi, loadedbmpmsg
 		call print
 		ret
-%endif
 noguibmp:
 		mov esi, warnguimsg
 		call print
 		ret
 warnguimsg db "This can not be done without the GUI.",10,0
+%endif
 
 filenotfound:
 		mov esi, filenf
