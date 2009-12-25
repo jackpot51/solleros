@@ -4,7 +4,11 @@
 	userask db "username:",0
 	pwdask	db	"password:",0
 	computer db "@"
+%ifdef io.serial
+	computername	db	"SollerOS.",io.serial," ",0
+%else
 	computername	db	"SollerOS ",0
+%endif
 	endprompt db "]$ ",0
 	crlf 	db  13
 	line	db	10,0

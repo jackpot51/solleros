@@ -1,4 +1,4 @@
-db 255,44,"chars",0
+db 255,44,"charmap",0
 	mov bx, 7
 	mov al, " "
 	call prcharq

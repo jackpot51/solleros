@@ -30,6 +30,8 @@ cpuspeedloopend:
 	xor edx, edx
 	xor eax, eax
 	mov eax, [cpuspeedperint]
+	shl eax, 1	;the cpu speed loop actually contains 2 commands so multiply the
+				;result by 2
 	mov ebx, [timeinterval]
 	shr ebx, 10 ;divide the interval by 1024
 	div ebx	;quotient in eax, remainder in edx

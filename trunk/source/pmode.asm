@@ -156,9 +156,9 @@ testingcpuspeed db 0
 cpuspeedperint dd 0
 memoryspace dd 0
 pitdiv dw 2685
+timeinterval dd 2250286
 timeseconds dd 0
 timenanoseconds dd 0
-timeinterval dd 2250286
 soundon db 0
 soundrepititions dw 0
 soundpos dd 0
@@ -192,6 +192,9 @@ timerinterrupt:	;put this into the interrupt handler that controls threading
 keyinterrupt:		;checks for escape, if pressed, it quits the program currently running
 	cmp byte [threadson], 0
 	je near handled
+%ifdef io.serial
+	jmp handled
+%else
 	cli
 	pusha
 	in al, 60h
@@ -219,6 +222,7 @@ userint:
 	sti
 	mov esp, stackend ;reset stack
 	jmp nwcmd
+%endif
 %ifdef rtl8139.included
 rtl8139.irq:
 	cli

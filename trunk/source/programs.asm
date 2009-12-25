@@ -68,13 +68,12 @@ indexdone db 0
 %include 'source/programs/echo.asm'
 %include 'source/programs/else.asm'
 %include 'source/programs/fi.asm'
-%include 'source/programs/gui.asm'
+%ifdef gui.included
+	%include 'source/programs/gui.asm'
+%endif
 %include 'source/programs/help.asm'
 %include 'source/programs/if.asm'
-%ifdef io.serial
-%else
-	%include 'source/programs/keycode.asm'
-%endif
+%include 'source/programs/keycode.asm'
 %include 'source/programs/logout.asm'
 %include 'source/programs/loop.asm'
 %include 'source/programs/ls.asm'
@@ -84,7 +83,6 @@ indexdone db 0
 %include 'source/programs/pwd.asm'
 %include 'source/programs/reboot.asm'
 %include 'source/programs/reg.asm'
-%include 'source/programs/rmode.asm'
 %include 'source/programs/show.asm'
 %include 'source/programs/shush.asm'
 %include 'source/programs/stop.asm'

@@ -3,8 +3,8 @@
 ;%define gui.included
 ;Turn on the gui
 
-;%define io.serial
-;Use the serial port for input and output instead of the keyboard and screen
+;%define io.serial "1"
+;Use the specified serial port for input and output instead of the keyboard and screen
 ;If the gui is included this should not be enabled
 
 %define threads.included
@@ -22,7 +22,7 @@
 ;%define sound.included
 ;This includes the sound drivers
 
-%define rtl8139.included
+;%define rtl8139.included
 ;This includes the RTL8139 drivers
 
 ;%define sector.debug

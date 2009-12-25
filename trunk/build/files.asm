@@ -12,7 +12,7 @@ f3:
 incbin "included/dostest.com"
 align 512,db 0
 f4:
-incbin "included/execl"
+incbin "included/exec"
 align 512,db 0
 f5:
 incbin "included/finalcount.snd"

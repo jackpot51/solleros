@@ -67,6 +67,8 @@ backpass:
 	pop esi
 	jmp passcheck
 gotpass:
+	mov al, 10
+	call prcharint
 	xor al, al
 	xor ecx, ecx
 	mov [esi], al
@@ -99,10 +101,6 @@ pwdtest:
 pwdrgt:
 	shr ecx, 1
 	mov [uid], ecx
-%ifdef io.serial
-	mov esi, line
-	call print
-%endif
 	call clear
 	mov cx, 200h
 	mov esi, buftxt
@@ -153,7 +151,8 @@ nwcmd:
 	je nomultiplecommand
 	mov esi, [nextcommandloc]
 	mov [thiscommandloc], esi
-	jmp fixvariables
+	call fixvariables
+	jmp nwcmd
 nomultiplecommand:
 	mov [thiscommandloc], eax
 	cmp [threadson], al
@@ -191,8 +190,6 @@ cancel:	xor al, al
 	je near nwcmd
 gotcmd:	mov esi, [commandbufpos]
 	mov [lastcommandpos], esi
-%ifdef io.serial
-%else
 	mov edi, buftxt
 	add esi, commandbuf
 	cmp esi, commandbufend
@@ -212,7 +209,6 @@ copycommand:
 donecopy:
 	sub esi, commandbuf
 	mov [commandbufpos], esi
-%endif
 	call run
 	jmp nwcmd
 
