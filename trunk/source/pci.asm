@@ -79,10 +79,13 @@ dumppcidevicelp:
 	cmp al, 0x3C
 	jb dumppcidevicelp
 dumppcidn:
+%ifdef io.serial
+%else
 	cmp byte [charpos], 0
 	je near searchpciret
 	mov esi, line
 	call print
+%endif
 	jmp searchpciret
 nextpcibus:
 	xor al, al

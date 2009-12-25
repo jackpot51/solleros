@@ -26,8 +26,13 @@
     char **environ = __env;
 
     int execve(char *name, char **argv, char **env){
-      errno=ENOMEM;
-      return -1;
+      asm("movb $14, %%ah\n\t"
+	  "int $0x30"
+	  :
+	  : "S" (name)
+	  : "%eax", "%ebx", "%ecx", "%edx", "%edi"
+	  );
+      return 0;
     }
 
     int fork() {
@@ -101,7 +106,7 @@
         return 0;
     }
 
-	int open(const char *name, int flags, int mode){
+    int _open(const char *name, int flags, int mode){
 		return -1;
 	}
 

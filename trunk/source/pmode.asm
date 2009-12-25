@@ -4,11 +4,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 pmode:
+	xor eax, eax
+	xor ebx, ebx
+	xor ecx, ecx
+	xor edx, edx
+	xor esi, esi
+	xor edi, edi
 	mov dx, 0x92
 	in al, dx	;;A20
 	or al, 2
 	out dx, al
-	xor ebx, ebx
 	mov bx,cs		; EBX=segment
 	shl ebx,4		;	<< 4
 	lea eax,[ebx]		; EAX=linear address of segment base

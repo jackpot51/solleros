@@ -7,13 +7,16 @@ menustart:
 	mov ss, ax
 	mov [DriveNumber], cl
 	mov [lbaad], edx
-	call vgaset	;make users switch using a command-this leads to very fast boots
-	xor ebx, ebx
-	xor ecx, ecx
-	xor edx, edx
-	xor esi, esi
-	xor edi, edi
+%ifdef io.serial
+	call getmemorysize
+	mov si, serialmsg
+	call printrm
 	jmp pmode
+serialmsg: db "Using serial port 1 for I/O.",0
+%else
+	call vgaset	;make users switch using a command-this leads to very fast boots
+	jmp pmode
+%endif
 	
 vgaset:
 	mov ax, 12h
@@ -41,3 +44,13 @@ nomoregetmemsize:
 	mov [memlistend], di
 	ret
 	
+printrm:			; 'si' comes in with string address
+    mov bx,07		; write to display
+    mov ah,0Eh		; screen function
+   .lp:    mov al,[si]         ; get next character
+    cmp al,0		; look for terminator 
+    je .done		; zero byte at end of string
+    int 10h		; write character to screen.    
+	inc si	     	; move to next character
+    jmp .lp		; loop
+.done: ret

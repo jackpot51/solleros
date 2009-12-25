@@ -71,7 +71,10 @@ indexdone db 0
 %include 'source/programs/gui.asm'
 %include 'source/programs/help.asm'
 %include 'source/programs/if.asm'
-%include 'source/programs/keycode.asm'
+%ifdef io.serial
+%else
+	%include 'source/programs/keycode.asm'
+%endif
 %include 'source/programs/logout.asm'
 %include 'source/programs/loop.asm'
 %include 'source/programs/ls.asm'

@@ -1,6 +1,5 @@
 	call rdcharint
 	jmp timerinterrupt
-	
 getchar:
 	xor al, al
 	rdcharint:		;;get char, if al is 0, wait for key
@@ -9,11 +8,19 @@ getchar:
 		jne transcheck
 		mov byte [trans], 0
 	transcheck:
-		call getkey
-		mov bh, [trans]
-		mov ax, [lastkey]
-		cmp ah, 1Ch
+	%ifdef io.serial
+		call serial.receive
+		mov ah, 0xFF
+		mov [lastkey], ax
+		cmp al, 13
 		je rdenter
+	%else
+		call getkey
+		mov ax, [lastkey]
+		cmp ah, 0x1C
+		je rdenter
+	%endif
+		mov bh, [trans]
 		cmp byte [specialkey], 0xE0
 		jne nospecialtrans
 		mov bl, al
@@ -24,7 +31,9 @@ getchar:
 		je transcheck
 		jmp rdend
 	rdenter:
+		mov ah, 0x1C
 		mov al, 10
+		mov [lastkey], ax
 	rdend:
 		ret
 		

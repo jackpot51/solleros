@@ -54,7 +54,7 @@ okespthread:
 	sti
 	iret
 
-	lastthread dd 4
 %endif
+	lastthread dd 4
 	threadson db 0
 	currentthread dd 0

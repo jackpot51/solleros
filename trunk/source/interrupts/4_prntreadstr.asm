@@ -15,6 +15,8 @@ readline:
 		mov al, 1
 		call rdcharint
 		pop esi
+	%ifdef io.serial
+	%else
 		cmp byte [specialkey], 0xE0
 		jne notspecialrdprnt
 		cmp ah, 0x53
@@ -32,6 +34,7 @@ readline:
 		je near rdprright
 		cmp ah, 0x4B
 		je near rdprleft
+	%endif
 		cmp al, 8
 		je near rdprbscheck
 		cmp al, 0
@@ -113,6 +116,9 @@ readline:
 	rdprintb2:
 		call termcopy
 		jmp rdprintb
+		
+%ifdef io.serial
+%else
 		
 	rdprhome:
 		cmp esi, [buftxtloc]
@@ -280,6 +286,7 @@ readline:
 		mov [esi], al
 		call shiftbuftxt2lft
 		call prcharq
+%endif
 	rdprbscheck:
 		cmp esi, [firstesirdpr]
 		ja goodbscheck

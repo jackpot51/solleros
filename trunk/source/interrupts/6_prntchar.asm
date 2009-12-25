@@ -1,3 +1,12 @@
+%ifdef io.serial
+	cmp bl, bh
+	call prcharint
+	jmp timerinterrupt
+prcharint:	
+prcharq:
+	call serial.send
+	ret
+%else
 cmp bl, bh
 je prchar.notimer
 call prcharint
@@ -6,7 +15,7 @@ prchar.notimer:
 	call prcharq
 	iret
 	
-prcharint:	;;print char, char in al, modifier in bl, if bh = bl then termcopy will not happen, will run videobufcopy if called as is
+prcharint:	;;print char, char in al, modifier in bl, if bh = bl then termcopy will not happen, will run termcopy if called as is
 	cmp bl, bh
 	je prcharq
 	call prcharq
@@ -158,3 +167,4 @@ videobufpos: dw 0
 charpos db 0,0
 charxy db 80,30
 charbuf dw 0
+%endif
