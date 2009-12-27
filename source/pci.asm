@@ -80,6 +80,8 @@ dumppcidevicelp:
 	jb dumppcidevicelp
 dumppcidn:
 %ifdef io.serial
+	mov esi, line
+	call print
 %else
 	cmp byte [charpos], 0
 	je near searchpciret

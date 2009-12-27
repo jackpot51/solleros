@@ -23,6 +23,7 @@ initialize:
 	call .pic
 	call .pit
 	call .fpu
+	call .sse
 	xor eax, eax
 	xor ecx, ecx
 %ifdef sound.included
@@ -86,3 +87,12 @@ initialize:
 	pop eax
 	ret
 	
+.sse:
+	mov eax, cr0
+	and al, 11111011b
+	or al, 00000010b
+	mov cr0, eax
+	mov eax, cr4
+	or ax, 0000011000000000b
+	mov cr4, eax
+	ret

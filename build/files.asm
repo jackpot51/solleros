@@ -42,24 +42,27 @@ f13:
 incbin "included/songotime.snd"
 align 512,db 0
 f14:
-incbin "included/stdiotest.elf"
+incbin "included/sse"
 align 512,db 0
 f15:
-incbin "included/tely"
+incbin "included/stdiotest.elf"
 align 512,db 0
 f16:
-incbin "included/timetest.elf"
+incbin "included/tely"
 align 512,db 0
 f17:
-incbin "included/tutorial.sh"
+incbin "included/timetest.elf"
 align 512,db 0
 f18:
-incbin "included/unfs"
+incbin "included/tutorial.sh"
 align 512,db 0
 f19:
-incbin "included/victory.wav"
+incbin "included/unfs"
 align 512,db 0
 f20:
-incbin "included/_img.bin"
+incbin "included/victory.wav"
 align 512,db 0
 f21:
+incbin "included/_img.bin"
+align 512,db 0
+f22:

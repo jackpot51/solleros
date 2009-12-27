@@ -44,6 +44,18 @@ read:
 	int 0x30
 	ret
 
+showdec:
+	xor al, al
+	mov ah, 9
+	int 0x30
+	ret
+
+showhex:
+	mov al, 1
+	mov ah, 9
+	int 0x30
+	ret
+
 run:
 	mov ah, 14
 	int 0x30

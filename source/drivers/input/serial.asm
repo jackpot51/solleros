@@ -43,6 +43,8 @@ serial:
 	.nowait:
 		cmp al, 0x1B
 		je .special
+		cmp al, 0x5B
+		je .special2
 		cmp al, 127
 		je .del
 		cmp al, 0x7E
@@ -73,6 +75,7 @@ serial:
 		in al, dx
 		cmp al, 0x5B
 		jne .exitcode
+	.special2:
 		mov byte [specialkey], 0x1B
 		in al, dx
 		mov ah, al
@@ -80,6 +83,8 @@ serial:
 		jmp .done
 
 	.send:
+		cmp al, 255
+		je .nosend
 		mov ecx, 256
 		xchg al, ah
 	.send1:

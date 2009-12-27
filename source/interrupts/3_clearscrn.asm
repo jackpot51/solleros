@@ -14,8 +14,7 @@ clear:
 		mov [charpos], ax
 		mov ah, 7
 	clearb:
-		mov [edi], al
-		mov [edi + 1], ah
+		mov [edi], ax
 		add edi, 2
 		dec cl
 		cmp cl, 0
@@ -27,11 +26,11 @@ clear:
 	cleardouble:
 		mov edi, videobuf2
 		mov cx, [charxy]
-		xor eax, eax
+		pxor xmm0, xmm0
 	clearc:
-		mov [edi], ax
-		add edi, 2
-		dec cl
+		movdqa [edi], xmm0
+		add edi, 16
+		sub cl, 8
 		cmp cl, 0
 		jne clearc
 		mov cl, [charxy]

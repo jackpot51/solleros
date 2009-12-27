@@ -26,6 +26,10 @@ readline:
 		je near rdprleft
 		cmp ah, 0x31
 		je near rdprhome
+		cmp ah, 0x48
+		je near rdprhome
+		cmp ah, 0x46
+		je near rdprend
 		cmp ah, 0x33
 		je near rdprdel
 		cmp ah, 0x34
@@ -225,7 +229,7 @@ readline:
 		mov al, 8
 		mov bl, [modkeyrdpr]
 		call prcharq
-		mov al, " "
+		mov al, ' '
 		call prcharq
 		mov al, 8
 		call prcharq

@@ -138,7 +138,7 @@ finishedmemspacecalc:
 	mov [memoryspace], eax
 %ifdef gui.included
 	cmp byte [guion], 0
-	je near normalstartup
+	je normalstartup
 	mov ebx, [basecache]
 	shl ebx, 4
 	mov edi, [physbaseptr]
