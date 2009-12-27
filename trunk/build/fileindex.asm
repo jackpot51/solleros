@@ -41,26 +41,29 @@ dd (f13-f12)/512
 db "songotime.snd",0
 dd (f13-$$)/512
 dd (f14-f13)/512
-db "stdiotest.elf",0
+db "sse",0
 dd (f14-$$)/512
 dd (f15-f14)/512
-db "tely",0
+db "stdiotest.elf",0
 dd (f15-$$)/512
 dd (f16-f15)/512
-db "timetest.elf",0
+db "tely",0
 dd (f16-$$)/512
 dd (f17-f16)/512
-db "tutorial.sh",0
+db "timetest.elf",0
 dd (f17-$$)/512
 dd (f18-f17)/512
-db "unfs",0
+db "tutorial.sh",0
 dd (f18-$$)/512
 dd (f19-f18)/512
-db "victory.wav",0
+db "unfs",0
 dd (f19-$$)/512
 dd (f20-f19)/512
-db "_img.bin",0
+db "victory.wav",0
 dd (f20-$$)/512
 dd (f21-f20)/512
+db "_img.bin",0
+dd (f21-$$)/512
+dd (f22-f21)/512
 enddiskfileindex:
 

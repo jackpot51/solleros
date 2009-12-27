@@ -2,11 +2,14 @@ guiclear:
 	mov edi, [physbaseptr]
 	mov dx, [resolutionx]
 	mov cx, [resolutiony]
-	mov ax, [background]
+	cmp dword [backgroundimage], 0
+	jne loadbackground
+	movhpd xmm0, [background]
+	movlpd xmm0, [background]
 guiclearloop:
-	mov [edi], ax
-	add edi, 2
-	dec dx
+	movdqa [edi], xmm0
+	add edi, 16
+	sub dx, 8
 	cmp dx, 0
 	ja guiclearloop
 	dec cx
@@ -15,7 +18,23 @@ guiclearloop:
 	ja guiclearloop
 	ret
 
-background dw 0111101111001111b
+loadbackground:
+	mov esi, [backgroundimage]
+.lp:
+	movdqa xmm0, [esi]
+	movdqa [edi], xmm0
+	add edi, 16
+	sub dx, 8
+	cmp dx, 0
+	ja .lp
+	dec cx
+	mov dx, [resolutionx]
+	cmp cx, 0
+	ja .lp
+	ret
+
+backgroundimage dd 0
+background times 4 dw 0111101111001111b
 
 guiboot:	;Let's see what I can do, I am going to try to make this as freestanding as possible
 	xor eax, eax

@@ -9,12 +9,18 @@ keycode:
 	in al, dx
 	cmp al, 0
 	je .noserial
-	mov ah, al
-	mov [lastkey], ax
-.noswitchserial:
+	mov cl, al
+	call showhexsmall
+	cmp al, 0x1B
+	jne .noserial
+	in al, dx
+	mov cl, al
+	call showhexsmall
+	cmp cl, 0x5B
+	je .noserial
+	ret
 %else
 	call getkey
-%endif
 	xor eax, eax
 	xor ecx, ecx
 	mov cl, [specialkey]
@@ -27,4 +33,5 @@ keycode:
 	call showhexsmall
 	cmp ah, 1
 	jne keycode
-	ret 
+	ret
+%endif
