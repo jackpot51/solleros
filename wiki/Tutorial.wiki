@@ -13,7 +13,7 @@
   # Navigate to the folder where you unzipped the archive
   # Run "./testhd.sh" or "sh testhd.sh"
 
- `*`For Mac OS X you should go to macports.org and download and install macports which will let you download qemu and nasm. [http://svn.macports.org/repository/macports/downloads/MacPorts-1.7.1/MacPorts-1.7.1-10.5-Leopard.dmg Here is the newest version for Leopard.] You will also need GCC-the best way to obtain it is to sign up at the Apple Developer Center [http://developer.apple.com here] and download and install Xcode.
+ `*`For Mac OS X you should go to macports.org and download and install macports which will let you download qemu and nasm. [http://www.macports.org/install.php Here is the link to the download page.] You will also need GCC-the best way to obtain it is to sign up at the Apple Developer Center [http://developer.apple.com here] and download and install Xcode.
 
 ===In order to develop apps/test the filesystem of SollerOS===
 You will need to install the latest JDK(Java Development Kit) and look at my programming
