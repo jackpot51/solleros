@@ -6,7 +6,7 @@ f1:
 incbin "included/background.bmp"
 align 512,db 0
 f2:
-incbin "included/boot"
+incbin "included/boot.sh"
 align 512,db 0
 f3:
 incbin "included/chartest.elf"

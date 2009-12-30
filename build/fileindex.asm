@@ -5,7 +5,7 @@ dd (f1-f0)/512
 db "background.bmp",0
 dd (f1-$$)/512
 dd (f2-f1)/512
-db "boot",0
+db "boot.sh",0
 dd (f2-$$)/512
 dd (f3-f2)/512
 db "chartest.elf",0

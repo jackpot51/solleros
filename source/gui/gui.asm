@@ -77,42 +77,48 @@ guiclearloop2:
 	xor edx, edx
 	
 	mov esi, pacmsg
-	xor ax, ax
+	xor ah, ah
+	mov al, 00010000b
 	xor ebx, ebx
 	mov cx, 144
 	mov dx, 4
 	call showstring
 	
 	mov esi, interneticon
-	xor ax, ax
+	xor ah, ah
+	mov al, 00010000b
 	mov ebx, noie
 	mov cx, 24
 	mov dx, 4
 	call showicon
 	
 	mov esi, wordicon
-	xor ax, ax
+	xor ah, ah
+	mov al, 00010000b
 	xor ebx, ebx
 	mov cx, 24
 	mov dx, 48
 	call showicon
 	
 	mov esi, pacmanpellet
-	xor ax, ax
+	xor ah, ah
+	mov al, 00010000b
 	xor ebx, ebx
 	mov cx, 64
 	mov dx, 4
 	call showicon
 	
 	mov esi, pacman
-	xor ax, ax
+	xor ah, ah
+	mov al, 00010000b
 	mov ebx, pacmannomnom
 	mov cx, 64
 	mov dx, 48
 	call showicon
 	
 	mov esi, ghostie
-	xor ax, ax
+	xor ah, ah
+	mov al, 00010000b
 	mov ebx, boo
 	mov cx, 108
 	mov dx, 4
@@ -128,75 +134,75 @@ guiclearloop2:
 	call showstring
 	ret
 	
-;guicopy:	;;for double buffering
-;	mov byte [copygui], 1
-;	mov edi, [offscreenmemoffset]
-;	xor edx, edx
-;	xor ecx, ecx
-;	mov dx, [mousecursorposition]
-;	mov cx, [mousecursorposition + 2]
-;	add edi, edx
-;	mov dx, [resolutionx2]
-;	inc cx
-;guicp2:
-;	add edi, edx
-;	dec cx
-;	cmp cx, 0
-;	jne guicp2
-;	sub edi, edx
-;	mov [cursorloc], edi
-;	mov ebx, cursorbmp
-;	mov cx, [resolutiony]
-;	rol ecx, 16
-;	mov cx, [resolutionx]
-;	mov esi, [physbaseptr]
-;	mov edi, [offscreenmemoffset]
-;guicp1:
-;	mov ax, [esi]
-;	mov [edi], ax
-;	add esi, 2
-;	add edi, 2
-;	cmp edi, [cursorloc]
-;	je copycursor
-;dncopycursor:
-;	dec cx
-;	cmp cx, 0
-;	jne guicp1
-;	mov cx, [resolutionx]
-;	rol ecx, 16
-;	dec cx
-;	cmp cx, 0
-;	rol ecx, 16
-;	jne guicp1
-;	mov byte [copygui], 0
-;	ret
-;copycursor:
-;	cmp ebx, cursorbmpend
-;	jae dncopycursor
-;	mov dx, [resolutionx2]
-;	add edi, edx
-;	mov [cursorloc], edi
-;	sub edi, edx
-;	dec ebx
-;	sub edi, 2
-;	sub esi, 2
-;	mov dx, 9
-;curscplp:
-;	inc ebx
-;	add esi, 2
-;	add edi, 2
-;	mov ax, [esi]
-;	mov [edi], ax
-;	mov al, [ebx]
-;	cmp al, 0
-;	je curscplp2
-;	mov word [edi], 1110011110011100b
-;curscplp2:
-;	dec cx
-;	cmp cx, 0
-;	je dncopycursor
-;	dec dx
-;	cmp dx, 0
+; guicopy:	;;for double buffering
+	; mov byte [copygui], 1
+	; mov edi, [offscreenmemoffset]
+	; xor edx, edx
+	; xor ecx, ecx
+	; mov dx, [mousecursorposition]
+	; mov cx, [mousecursorposition + 2]
+	; add edi, edx
+	; mov dx, [resolutionx2]
+	; inc cx
+; guicp2:
+	; add edi, edx
+	; dec cx
+	; cmp cx, 0
+	; jne guicp2
+	; sub edi, edx
+	; mov [cursorloc], edi
+	; mov ebx, cursorbmp
+	; mov cx, [resolutiony]
+	; rol ecx, 16
+	; mov cx, [resolutionx]
+	; mov esi, [physbaseptr]
+	; mov edi, [offscreenmemoffset]
+; guicp1:
+	; mov ax, [esi]
+	; mov [edi], ax
+	; add esi, 2
+	; add edi, 2
+	; cmp edi, [cursorloc]
+	; je copycursor
+; dncopycursor:
+	; dec cx
+	; cmp cx, 0
+	; jne guicp1
+	; mov cx, [resolutionx]
+	; rol ecx, 16
+	; dec cx
+	; cmp cx, 0
+	; rol ecx, 16
+	; jne guicp1
+	; mov byte [copygui], 0
+	; ret
+; copycursor:
+	; cmp ebx, cursorbmpend
+	; jae dncopycursor
+	; mov dx, [resolutionx2]
+	; add edi, edx
+	; mov [cursorloc], edi
+	; sub edi, edx
+	; dec ebx
+	; sub edi, 2
+	; sub esi, 2
+	; mov dx, 9
+; curscplp:
+	; inc ebx
+	; add esi, 2
+	; add edi, 2
+	; mov ax, [esi]
+	; mov [edi], ax
+	; mov al, [ebx]
+	; cmp al, 0
+	; je curscplp2
+	; mov word [edi], 1110011110011100b
+; curscplp2:
+	; dec cx
+	; cmp cx, 0
+	; je dncopycursor
+	; dec dx
+	; cmp dx, 0
 ;	jne curscplp
 ;	jmp dncopycursor
 	
@@ -543,6 +549,7 @@ windowselect:
 		ja near killwin
 		jmp nodragwin
 	dragwin:
+		mov byte [windrag], 1
 		cmp [lastmouseposition], ax
 		jb near nexticonsel
 		add ax, [edi]
@@ -599,12 +606,16 @@ windowselect:
 		mov [pRBUTTON], al
 		cmp word [dragging], 1
 		jbe near noreloadgraphicsclick
-call clearmousecursor
-call reloadallgraphics
+		cmp byte [windrag], 1
+		je noclearcursorcl
+		call clearmousecursor
+noclearcursorcl:
+		call reloadallgraphics
 noreloadgraphicsclick:
 		xor ecx, ecx
 		xor edx, edx
 		xor ah, ah
+		mov [windrag], ah
 		mov al, 254
 		mov dx, [mousecursorposition]
 		mov cx, [mousecursorposition + 2]
@@ -613,6 +624,7 @@ noreloadgraphicsclick:
 		call showfontvesa
 		mov byte [showcursorfonton], 0
 		ret
+windrag db 0
 lastdrag dw 0,0
 grpctblpos dw 0,0
 
@@ -989,6 +1001,8 @@ wincopyendpos dd 0
 		mov byte [mouseselecton], 1
 		call showfontvesa
 	winvcpst:
+		cmp byte [windrag], 1
+		je near forgetresetstuff
 		mov edi, [windowbufloc]
 		jmp windowvideocopyset
 
@@ -1017,12 +1031,10 @@ wincopyendpos dd 0
 		cmp ecx, 0
 		je windowvideocopyset
 	yrescopylp:
-		xor edx, edx
-		mov dx, [resolutionx2]
-		add edi, edx
-		dec cx
-		cmp cx, 0
-		jne yrescopylp
+		xor eax, eax
+		mov ax, [resolutionx2]
+		mul ecx
+		add edi, eax
 		mov [windowbufloc], edi
 	windowvideocopyset:
 		xor cx, cx
@@ -1231,10 +1243,16 @@ iconcolor dw 0
 		mov cx, [resolutiony]
 		sub cx, 32
 	screenygood:
+		push eax
+		push edx
+		xor eax, eax
 		xor ebx, ebx
 		mov bx, [resolutionx2]
-		add edi, ebx
-		loop screenygood
+		mov ax, cx
+		mul ebx
+		add edi, eax
+		pop edx
+		pop eax
 	noscreenygoodchk:
 		xor ebx, ebx
 		mov bx, dx
@@ -1312,12 +1330,16 @@ goodvesafontx:
 	je vesaposloopdn
 	mov bx, [resolutionx2]
 vesaposloop:
-	add edx, ebx
-	sub cx, 1
-	cmp cx, 0
-	jne vesaposloop
-vesaposloopdn:
+	push edx
+	push eax
+	xor eax, eax
+	mov ax, cx
+	mul ebx
+	add edi, eax
+	pop eax
+	pop edx
 	add edi, edx
+vesaposloopdn:
 	mov esi, fonts
 findfontvesa:
 	xor ah, ah
@@ -1440,12 +1462,14 @@ showbmp:
 	add edi, edx
 	xor edx, edx
 	mov dx, [resolutionx2]
-;	inc ecx
 	add ecx, [esi + 22]
 bmplocloop:
-	add edi, edx
-	loop bmplocloop
-	sub edi, edx
+	push edx
+	xor eax, eax
+	mov ax, dx
+	mul ecx
+	pop edx
+	add edi, eax
 	mov edx, [esi + 18]
 	mov ecx, [esi + 22]
 	mov eax, [esi + 10]
@@ -1478,6 +1502,100 @@ endedbmp:
 	ret
 	
 	bmpend dd 0
+	
+drawline:	;from (bx,ax) to (dx,cx), color in si
+	mov [.color], si
+	mov byte [.steep], 0
+	mov byte [.yreversed], 0
+	jmp .notsteep
+.steeploop:
+	mov byte [.steep], 1
+.notsteep:
+	xor edi, edi
+	xor esi, esi
+	cmp dx, bx
+	ja .noreversex
+	xchg dx, bx
+	xchg cx, ax
+.noreversex:
+	mov di, dx
+	sub di, bx
+	
+	cmp cx, ax
+	jb .reversey
+	mov si, cx
+	sub si, ax
+	jmp .normal
+.reversey:
+	mov byte [.yreversed], 1
+	mov si, ax
+	sub si, cx	
+.normal:
+	xchg cx, dx
+	xchg ax, bx
+	cmp si, di
+	ja .steeploop
+	xchg cx, dx
+	xchg ax, bx
+	
+	xchg ax, cx
+	xchg bx, dx
+	xor eax, eax
+	mov ax, di
+	shr ax, 1
+.lp:
+	pusha
+	xchg cx, dx
+	cmp byte [.steep], 1
+	je .xchg
+	xchg dx, cx
+.xchg:
+	mov si, [.color]
+	call putpixel
+	popa
+	cmp ax, si
+	jae .noaddx
+	cmp byte [.yreversed], 1
+	jne .nodecy
+	sub cx, 2
+.nodecy:
+	inc cx
+	add ax, di
+.noaddx:
+	sub ax, si
+	
+	inc dx
+	cmp dx, bx
+	jb .lp
+	
+.done:
+	ret
+	
+.color dw 0
+.steep db 0
+.yreversed db 0
+	
+putpixel: ;color in si, point is (dx,cx)
+	mov edi, [physbaseptr]
+	xor eax, eax
+	xor ebx, ebx
+	mov bx, [resolutiony]
+	mov ax, [resolutionx2]
+	shl dx, 1
+	cmp dx, ax
+	ja .doneput
+	cmp cx, bx
+	ja .doneput
+	mov bx, cx
+	mov cx, dx
+	mul ebx
+	mov bx, cx
+	add eax, ebx
+	add edi, eax
+	mov [edi], si
+.doneput:
+	ret
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Here are some vars;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	showstringesi dw 0,0
@@ -1515,7 +1633,7 @@ endedbmp:
 		mov esi, termwindow
 		mov dx, 16
 		mov cx, 16
-		mov ebx, os
+		xor ebx, ebx
 		xor ax, ax
 		call showwindow
 		jmp os
@@ -1533,7 +1651,7 @@ endedbmp:
 		mov esi, termwindow
 		xor dx, dx
 		xor cx, cx
-		mov ebx, os
+		xor ebx, ebx
 		xor ax, ax
 		call showwindow
 		jmp os
