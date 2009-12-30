@@ -2,14 +2,36 @@ guiclear:
 	mov edi, [physbaseptr]
 	mov dx, [resolutionx]
 	mov cx, [resolutiony]
+%ifdef gui.background
 	cmp dword [backgroundimage], 0
-	jne loadbackground
-	movhpd xmm0, [background]
-	movlpd xmm0, [background]
+	je guiclear.noback
+		mov esi, [backgroundimage]
+	.lp:
+		;movdqa xmm0, [esi]	;the next 4 lines are for SSE
+		;movdqa [edi], xmm0
+		;add esi, 16
+		;add edi, 16
+		;sub dx, 8
+		mov eax, [esi]
+		mov [edi], eax
+		add esi, 4
+		add edi, 4
+		sub dx, 2
+		cmp dx, 0
+		ja .lp
+		dec cx
+		mov dx, [resolutionx]
+		cmp cx, 0
+		ja .lp
+		ret
+	backgroundimage dd 0
+%endif
+guiclear.noback:
+	mov eax, [background]
 guiclearloop:
-	movdqa [edi], xmm0
-	add edi, 16
-	sub dx, 8
+	mov [edi], eax
+	add edi, 4
+	sub dx, 2
 	cmp dx, 0
 	ja guiclearloop
 	dec cx
@@ -18,23 +40,7 @@ guiclearloop:
 	ja guiclearloop
 	ret
 
-loadbackground:
-	mov esi, [backgroundimage]
-.lp:
-	movdqa xmm0, [esi]
-	movdqa [edi], xmm0
-	add edi, 16
-	sub dx, 8
-	cmp dx, 0
-	ja .lp
-	dec cx
-	mov dx, [resolutionx]
-	cmp cx, 0
-	ja .lp
-	ret
-
-backgroundimage dd 0
-background times 4 dw 0111101111001111b
+background times 2 dw 0111101111001111b
 
 guiboot:	;Let's see what I can do, I am going to try to make this as freestanding as possible
 	xor eax, eax
@@ -47,7 +53,6 @@ guiloop:
 guistart:
 	call getkey
 	mov byte [copygui], 0
-	jmp guistart
 	jmp guistart
 guisetup:
 	mov edi, [physbaseptr]
@@ -217,12 +222,34 @@ clearmousecursor:
 		xor edx, edx
 		mov dx, [resolutionx2]
 		cmp cx, 0
-		je noyclr
-yclr:	add edi, edx
+		je .noyclr
+.yclr:	add edi, edx
 		dec cx
 		cmp cx, 0
-		jne yclr
-noyclr:	mov ax, [esi]
+		jne .yclr
+%ifdef gui.background
+		cmp dword [backgroundimage], 0
+		je .noyclr
+		mov esi, [backgroundimage]
+		sub edi, [physbaseptr]
+		add esi, edi
+		add edi, [physbaseptr]
+.backlp:
+		xor ebx, ebx
+.noyback:
+		mov eax, [esi + ebx]
+		mov [edi + ebx], eax
+		add ebx, 4
+		cmp ebx, 16
+		jne .noyback
+		add edi, edx
+		add esi, edx
+		inc cx
+		cmp cx, 16
+		jb .backlp
+		ret
+%endif
+.noyclr:	mov ax, [esi]
 		rol eax, 16
 		mov ax, [esi]
 		mov [edi], eax
@@ -232,7 +259,7 @@ noyclr:	mov ax, [esi]
 		add edi, edx
 		inc cx
 		cmp cx, 16
-		jb noyclr
+		jb .noyclr
 		ret
 
 switchmousepos:		;;switch were the mouse is located
@@ -563,7 +590,7 @@ windowselect:
 		cmp dword [codepointer], 0
 		je doneiconsel2
 		mov ebx, [codepointer]
-		call ebx 
+		call ebx
 		ret
 	doneiconsel2:
 		mov al, [LBUTTON]
@@ -748,6 +775,18 @@ grphbuf times 16 db 0
 		add cx, 16
 		mov ax, [background]
 	clearwindow:
+		%ifdef gui.background
+			cmp dword [backgroundimage], 0
+			je .noback
+			push esi
+			mov esi, [backgroundimage]
+			sub edi, [physbaseptr]
+			add esi, edi
+			add edi, [physbaseptr]
+			mov ax, [esi]
+			pop esi
+		.noback:
+		%endif
 		mov [edi], ax
 		add edi, 2
 		sub edx, 2
@@ -828,7 +867,8 @@ winvcopystx dw 0
 winvcopysty dw 0
 winvcopydx dw 0
 winvcopycx dw 0
-windowcolor dw 0xFFFF,0x0
+windowcolor dw 0xFFFF,0
+;alpha blend white w/ background, black w/ background
 windowbufloc: dw 0,0
 windowinfobuf dd 0
 termcol dw 0
@@ -998,6 +1038,66 @@ wincopyendpos dd 0
 		sub edi, 2
 		mov [charposvbuf], edi
 		jmp nextcharwin
+	win.write:	;adjusted this to use alpha
+				;5R, 6G, 5B
+%ifdef gui.alphablending
+		push esi
+		push bx
+		push cx
+		push dx
+%ifdef gui.background
+		mov esi, edi
+		sub esi, [physbaseptr]
+		add esi, [backgroundimage]
+		cmp dword [backgroundimage], 0
+		jne .red
+%endif
+		mov esi, background
+	.red:
+		mov cx, [esi]
+		shr cx, 11
+		mov bx, ax
+		shr bx, 11
+		add cx, bx
+		add cx, bx
+		add cx, bx
+		shr cx, 2
+		shl cx, 11
+		mov dx, cx
+	.green:
+		mov cx, [esi]
+		shl cx, 5
+		shr cx, 10
+		mov bx, ax
+		shl bx, 5
+		shr bx, 10
+		add cx, bx
+		add cx, bx
+		add cx, bx
+		shr cx, 2
+		shl cx, 5
+		add dx, cx
+	.blue:
+		mov cx, [esi]
+		shl cx, 11
+		shr cx, 11
+		mov bx, ax
+		shl bx, 11
+		shr bx, 11
+		add cx, bx
+		add cx, bx
+		add cx, bx
+		shr cx, 2
+		add dx, cx
+		mov [edi], dx
+		pop dx
+		pop cx
+		pop bx
+		pop esi
+%else
+		mov [edi], ax
+%endif
+		ret
 	copywindow:
 		mov dl, 1
 		rol dh, 1
@@ -1005,19 +1105,19 @@ wincopyendpos dd 0
 		cmp byte [colorcache], 0x10
 		jae switchwincolors
 		mov ax, [windowcolor + 2]
-		mov [edi], ax
+		call win.write
 		cmp dl, 0
 		je nowritewin
 		mov ax, [windowcolor]
-		mov [edi], ax
+		call win.write
 		jmp nowritewin
 	switchwincolors:
 		mov ax, [windowcolor]
-		mov [edi], ax
+		call win.write
 		cmp dl, 0
 		je nowritewin
 		mov ax, [windowcolor + 2]
-		mov [edi], ax
+		call win.write
 	nowritewin:
 		add edi, 2
 		inc cl
@@ -1340,7 +1440,7 @@ showbmp:
 	add edi, edx
 	xor edx, edx
 	mov dx, [resolutionx2]
-	inc ecx
+;	inc ecx
 	add ecx, [esi + 22]
 bmplocloop:
 	add edi, edx
@@ -1437,7 +1537,6 @@ endedbmp:
 		xor ax, ax
 		call showwindow
 		jmp os
-		;ret
 
 	winblows:
 		mov esi, turnoffmsg

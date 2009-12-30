@@ -1,7 +1,13 @@
 ;These flags are used to configure options as on, put a simicolon in front of it to not configure it
 
-;%define gui.included
+%define gui.included
 ;Turn on the gui
+
+%define gui.alphablending
+;Make the terminal in the GUI 25% transparent
+
+%define gui.background
+;Make the GUI have a loadable background
 
 ;%define io.serial "1"
 ;Use the specified serial port for input and output instead of the keyboard and screen
@@ -19,7 +25,7 @@
 %define disk.real
 ;Use real mode for disk access
 
-;%define sound.included
+%define sound.included
 ;This includes the sound drivers
 
 ;%define rtl8139.included
@@ -30,7 +36,10 @@
 
 ;FIX DEPENDANCIES
 %ifdef gui.included
-%undef io.serial
+	%undef io.serial
+%else
+	%undef gui.alphablending
+	%undef gui.background
 %endif
 %ifdef disk.protected
 %undef disk.real

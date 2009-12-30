@@ -52,12 +52,13 @@ indexdone db 0
 %include 'source/programs/_math.asm' ;!
 %include 'source/programs/_variables.asm' ;% and $
 %include 'source/programs/_run.asm' ;./
-
 %ifdef rtl8139.included
 	%include 'source/programs/arp.asm'
 %endif
-
 %include 'source/programs/batch.asm'
+%ifdef gui.background
+	%include 'source/programs/background.asm'
+%endif
 %include 'source/programs/beep.asm'
 %include 'source/programs/cd.asm'
 %include 'source/programs/charmap.asm'

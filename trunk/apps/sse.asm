@@ -69,6 +69,8 @@ clearsse:
 	pxor xmm0, xmm0
 	mov esi, clearme
 sse.lp:
+	shr esi, 4
+	shl esi, 4
 	movdqa [esi], xmm0
 	add esi, 16
 	cmp esi, clearmeend
@@ -92,9 +94,7 @@ norm.lp:
 previouss dd 0
 previousns dd 0
 align 16, nop
-[section .data]
 pattern times 4 dd 0xFFFFFFFF
 [section .bss]
-clearme:
-	resb 16*1024*1024*4 ;clear an entire 64 megabytes
+clearme: resb 16*1024*1024*4 ;clear an entire 64 megabytes
 clearmeend:

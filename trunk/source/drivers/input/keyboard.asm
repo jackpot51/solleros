@@ -17,12 +17,12 @@ getkey:
 		mov [specialkey], al
 		mov [lastkey], ax
 		in al, 64h ; Status
-%ifdef gui.included
+	%ifdef gui.included
 		test al, 20h ; PS2-Mouse?
 		jnz near moused
-%endif
+	%endif
 		test al, 1 
-		jz waitforinput ; if output buffer full or no keypress, jump to idle process (only works when it is jz guistartin2, use jz guistartin to disable)
+		jz waitforinput ; if output buffer full or no keypress, jump to idle process
 	calckey:
 		in al, 60h
 		mov ah, al

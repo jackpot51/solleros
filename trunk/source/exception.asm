@@ -78,6 +78,16 @@ donedump:
 	call expdump
 	mov ecx, cr4
 	call expdump
+	str ecx
+	call expdump
+	sidt [igdtcache]
+	mov ecx, [igdtcache + 2]
+	call expdump
+	sgdt [igdtcache]
+	mov ecx, [igdtcache + 2]
+	call expdump
+	sldt ecx
+	call expdump
 	mov esi, [esploc]
 	mov edi, [ss:esp + 52]
 	add edi, 16
@@ -186,6 +196,7 @@ backgroundcache dw 0
 intprob db 0
 codeloc dd 0
 codelocend dd 0
+igdtcache dw 0,0,0
 	unhandmsg:	
 			db "INT=00000000 ",10,0
 unhndrg:
@@ -218,6 +229,10 @@ unhndrgend:	db "EDI=00000000 ",10,0
 			db "CR2=00000000  ",0
 			db "CR3=00000000  ",0
 			db "CR4=00000000 ",10,0
+			db "TR:=00000000  ",0
+			db "IDT=00000000  ",0
+			db "GDT=00000000  ",0
+			db "LDT=00000000 ",10,0
 unhandcode: times 2 db 255,255,255,255,"00000000  ",0	;;this dumps the code before and after the interrupt in question
 			db 255,255,255,255,"00000000 ",255,0
 			db 255,255,255,"[00000000] ",0

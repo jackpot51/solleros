@@ -36,7 +36,12 @@ numbuf: equ buf2 + 20
 	%ifdef gui.included
 		graphicstable equ numbuf + 1 ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
 		graphicstableend equ graphicstable + 200h
-		mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
+		%ifdef gui.background
+			backgroundbuffer equ graphicstableend
+			mousecolorbuf equ backgroundbuffer + 1280*1025*2
+		%else
+			mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
+		%endif
 		mcolorend equ mousecolorbuf + 256
 		videobuf equ mcolorend + 1	;1680x1050 pixels in characters
 		videobufend	equ videobuf + 210*65*2
