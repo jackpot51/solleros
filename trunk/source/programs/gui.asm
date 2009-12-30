@@ -41,16 +41,24 @@ guiswitchret:
 	cmp esi, graphicstableend
 	jb .clear
 	call guisetup
-	mov word [termwindow], 640
-	mov word [termwindow + 2], 480	;the previous lines of code make a large terminal window that is 4 characters smaller than the screen
-	mov esi, termwindow
+	;The next few lines center a window that is 3/4ths of the full screen
 	mov dx, [resolutionx]
 	mov cx, [resolutiony]
-	sub dx, 640
-	sub cx, 480
-	shr dx, 1 ;x location-this centers the window
-	shr cx, 1 ;y location-this centers the window	
-	mov ebx, nwcmd
+	mov bx, dx
+	mov ax, cx
+	shr bx, 1
+	shr ax, 1
+	mov dx, bx
+	shr dx, 1
+	mov cx, ax
+	shr cx, 1
+	add bx, dx
+	add ax, cx
+	shr cx, 1
+	mov [termwindow], bx
+	mov [termwindow + 2], ax	;the previous lines of code make a large terminal window that is 4 characters smaller than the screen
+	mov esi, termwindow
+	xor ebx, ebx
 	xor ax, ax
 	call showwindow
 	call cursorgui

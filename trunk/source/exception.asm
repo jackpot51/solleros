@@ -129,6 +129,7 @@ backtomsgdone:
 	mov byte [mousedisabled], 0
 	call guiclear
 	call reloadallgraphics
+	call termcopy
 nodebuggui:
 %endif
 	mov esi, [espfirst]
@@ -156,7 +157,7 @@ nodebugint:
 	mov byte [mousedisabled], 0
 	call guiclear
 	call reloadallgraphics
-	jmp guiboot
+	call termcopy
 %endif
 returnunhandgui:
 	jmp nwcmd
@@ -198,41 +199,41 @@ codeloc dd 0
 codelocend dd 0
 igdtcache dw 0,0,0
 	unhandmsg:	
-			db "INT=00000000 ",10,0
+			db "INT=00000000",255,10,0
 unhndrg:
 	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
-			db 255,255,255,255,"00000000 ",10,0
+			db 255,255,255,255,"00000000",255,10,0
 	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
-			db 255,255,255,255,"00000000 ",10,0
+			db 255,255,255,255,"00000000",255,10,0
 	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
-			db 255,255,255,255,"00000000 ",10,0
+			db 255,255,255,255,"00000000",255,10,0
 	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
-			db 255,255,255,255,"00000000 ",10,0
+			db 255,255,255,255,"00000000",255,10,0
 unhandregs:
 			db "EFL=00000000  ",0
 			db "CS:=00000000  ",0
-			db "EIP=00000000 ",10,0
+			db "EIP=00000000",255,10,0
 			db "DS:=00000000  ",0
 			db "ES:=00000000  ",0
 			db "FS:=00000000  ",0
 			db "GS:=00000000  ",0
-			db "SS:=00000000 ",10,0
+			db "SS:=00000000",255,10,0
 			db "EAX=00000000  ",0
 			db "ECX=00000000  ",0
 			db "EDX=00000000  ",0
-			db "EBX=00000000 ",10,0
+			db "EBX=00000000",255,10,0
 			db "ESP=00000000  ",0
 			db "EBP=00000000  ",0
 			db "ESI=00000000  ",0
-unhndrgend:	db "EDI=00000000 ",10,0
+unhndrgend:	db "EDI=00000000",255,10,0
 			db "CR0=00000000  ",0
 			db "CR2=00000000  ",0
 			db "CR3=00000000  ",0
-			db "CR4=00000000 ",10,0
+			db "CR4=00000000",255,10,0
 			db "TR:=00000000  ",0
 			db "IDT=00000000  ",0
 			db "GDT=00000000  ",0
-			db "LDT=00000000 ",10,0
+			db "LDT=00000000",255,10,0
 unhandcode: times 2 db 255,255,255,255,"00000000  ",0	;;this dumps the code before and after the interrupt in question
 			db 255,255,255,255,"00000000 ",255,0
 			db 255,255,255,"[00000000] ",0
