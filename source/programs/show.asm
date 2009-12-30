@@ -30,11 +30,6 @@ bmpfound:
 		call guiclear
 		call clearmousecursor
 		call reloadallgraphics
-		mov esi, [currentcommandloc]
-		add esi, 5
-		call print
-		mov esi, loadedbmpmsg
-		call print
 		ret
 noguibmp:
 		mov esi, warnguimsg
@@ -63,5 +58,3 @@ nofilenamenotfound:
 		ret
 filenf db "The file ",34,0
 filenf2 db 34," could not be found.",10,0
-		
-loadedbmpmsg db " loaded.",10,0

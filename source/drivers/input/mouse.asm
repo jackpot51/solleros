@@ -2,7 +2,7 @@ mousedisabled db 0
 	
 	cursorgui:
 		cmp byte [mouseon], 1
-		je near moused
+		je near mousedaemon
 		cmp byte [guion], 0
 		je near entdown
 	initmouse:
@@ -14,15 +14,23 @@ mousedisabled db 0
 		call ACTMOUS
 		mov byte [mouseon],1
 		call GETB 	;;Get the responce byte of the mouse (like: Hey i am active)
+		;call GETB
 				;;If the bytes are mixed up,
 				;;remove this line or add another of this line.
 	nomouse:
 		ret
+		
+	mousedaemon:
+		cmp byte [mouseon], 1
+		jne initmouse
+		in al, 64h ; Status
+		test al, 20h ; PS2-Mouse?
+		jnz near moused
+		hlt
+		ret
 	moused:
 		cmp byte [mousedisabled], 1
 		je nomouse
-		  cmp byte [mouseon], 1
-		  jne initmouse
 		  call GETB
 		  mov  bl, al
 		  and  bl, 1

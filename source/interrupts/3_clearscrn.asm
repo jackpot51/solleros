@@ -26,11 +26,11 @@ clear:
 	cleardouble:
 		mov edi, videobuf2
 		mov cx, [charxy]
-		pxor xmm0, xmm0
+		xor eax, eax
 	clearc:
-		movdqa [edi], xmm0
-		add edi, 16
-		sub cl, 8
+		mov [edi], eax
+		add edi, 4
+		sub cl, 2
 		cmp cl, 0
 		jne clearc
 		mov cl, [charxy]
