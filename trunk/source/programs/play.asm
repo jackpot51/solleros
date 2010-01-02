@@ -1,14 +1,28 @@
-db 255,44,"play",0
-	call playsync
+db 255,44,"playa",0
+	mov edi, [currentcommandloc]
+	add edi, 6
+	call playasync
 	ret
-playsync:
+db 255,44,"play",0
+play:
 	mov edi, [currentcommandloc]
 	add edi, 5
-	mov esi, 0x400000
+	call playasync
+.waitforsound:
+%ifdef sound.included
+	mov eax, [Length0]
+	or ax, [Length1]
+%endif
+	or al, [soundon]
+	cmp eax, 0
+	jne .waitforsound
+	ret
+playasync:
+	mov esi, 0x800000
 	call loadfile
 	cmp edx, 404
 	je nosoundfound
-	mov ebx, 0x400000
+	mov ebx, 0x800000
 	cmp dword [ebx + 8], "WAVE"
 	je near wave_player
 	cmp word [ebx], "SN"
@@ -19,10 +33,6 @@ playsync:
 	mov [soundendpos], ebx
 	mov word [soundrepititions], 0
 	mov byte [soundon], 1
-waitforsoundendplay:
-	mov al, [soundon]
-	cmp al, 0
-	jne waitforsoundendplay
 	ret
 nosoundfound:
 	mov esi, notfoundsound
@@ -33,29 +43,65 @@ nosoundfound:
 	mov esi, notfound2
 	call print
 	ret
-notfoundsound db "Sound ",34,0
+notfoundsound db "play: ",0
 
 %ifdef sound.included
 sbplay:
-		mov esi, 0x400000
+		mov esi, 0x800000
 		mov ebx, esi
 		add esi, 44
 		sub edi, esi
 		mov [Length1], di
-		shr edi, 16
-		mov [Length0], di
+		shr edi, 15
+		mov [Length0], edi
 		mov ecx, [ebx + 24]
 		mov [Freq], ecx
 		xor eax, eax
-		mov	edx, 0x400000 ;location of sound
-		add edx, 2048
-		add	eax,edx
+		mov	edx, 0x800000 ;physical location of sound
+		add edx, 44
+		add	eax, edx
+		mov esi, eax
+		xor ecx, ecx
 		xor ebx, ebx
-		mov bx, [Length1]
-		add ebx, eax
-		mov [NextMemLoc], ebx
-		mov	[MemLoc],eax
+		mov [SegLoc], bx
+		add ebx, 0x80000
+		mov cx, 0xFFFF
+		cmp di, 0
+		jne .autoinit
+		mov cx, [Length1]
+		mov byte [OddLength], 1
+		cmp cx, 32768
+		jae .autoinit
+		mov byte [OddLength], 0
+		shl cx, 1
+		inc edi
+.autoinit:
+		dec edi
+		mov [Length0], edi
+		mov [Length1], cx
+		shr cx, 1
+		inc cx
+		add eax, ecx
+		mov [NextMemLoc], eax
+		mov	[MemLoc], esi
+		call DMACopy
+		xor ebx, ebx
+		mov bx, [SegLoc]
+		xor ecx, ecx
+		mov cx, [Length1]
+		shr cx, 1
+		inc cx
+		add ebx, ecx
+		mov [SegLoc], bx
+		add ebx, 0x80000
+		mov esi, [NextMemLoc]
+		mov eax, esi
+		add eax, ecx
+		mov [NextMemLoc], eax
+		mov	[MemLoc], esi
+		call DMACopy
 		call DMAPlay
+		call PlayDSP
 		ret
 
 wave_player:

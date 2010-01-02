@@ -8,14 +8,19 @@ rtl8139:
 .CONFIG1 equ 0x52
 .TSD0 equ 0x10
 .TSAD0 equ 0x20
-.initcard:	;should find card, get mac, and initialize card
+.init:	;should find card, get mac, and initialize card
 	xor eax, eax
 	mov [pcifunction], al
 	mov [pcibus], al
 	mov [pcidevice], al
-	mov al, 0x02 ;;type code
+	mov al, 0x02 ;type code
 	mov [pcitype], al
+	mov eax, 0x813910EC
+	mov [pcidevid], eax
 	call getpciport
+	cmp ebx, 0xFFFFFFFF
+	jne .initnic
+	ret
 .initnic:	;Here i tried the rtl8139 interface, fuck it
 	mov [basenicaddr], edx
 	mov ecx, edx
@@ -42,6 +47,10 @@ rtl8139:
 	jnz .macputloop
 	mov ecx, sysmac
 	call showmac
+	call .resetnic
+	mov esi, .initmsg
+	call print
+	ret
 .resetnic:
 	mov edx, [basenicaddr]
 	add edx, .CONFIG1
@@ -65,12 +74,12 @@ rtl8139:
 	out dx, eax	;give nic receive buffer location
 	mov edx, [basenicaddr]
 	add edx, .IMR
-	in ax, dx
-	or ax, 0xE07F ;set all possible interrupts to enabled
-	out dx, ax	;set TOK and ROK
+	;in ax, dx
+	mov ax, 5
+	out dx, ax	;set both TOK and ROK interrupts
 	mov edx, [basenicaddr]
 	add edx, .RCR
-	mov eax, 0xf
+	mov eax, 000010b ;receive only physical matches
 	add eax, 128 ;enable wrap option
 	out dx, eax	;recieve packets from all matches
 	mov edx, [basenicaddr]
@@ -88,8 +97,14 @@ rtl8139:
  			;0x0200 is the class code for ethernet cards
 	cmp byte [nicconfig], 1
 	je .sendcachedata
-	call .initcard
+	call .init
+	pop edi
+	pop esi
+	cmp ebx, 0xFFFFFFFF
+	jne .sendpacket
+	ret
 .sendcachedata:
+	call .resetnic
 	mov edx, [basenicaddr]
 	add edx, .TSAD0
 	pop edi
@@ -120,43 +135,4 @@ rtl8139:
 	cmp eax, 0x8000
 	jne .checknictokbit
 	ret
-	
-showmac:	;mac begins in [ecx]
-	mov esi, macprint
-	mov edi, ecx
-	add ecx, 6
-showmacloop:
-	mov al, [edi]
-	mov ah, [edi]
-	shr al, 4
-	shl ah, 4
-	shr ah, 4
-	add al, 48
-	cmp al, "9"
-	jbe .goodal
-	sub al, 48
-	sub al, 0xA
-	add al, "A"
-.goodal:
-	add ah, 48
-	cmp ah, "9"
-	jbe .goodah
-	sub ah, 48
-	sub ah, 0xA
-	add ah, "A"
-.goodah:
-	mov [esi], ax
-	add esi, 3
-	inc edi
-	cmp edi, ecx
-	jb showmacloop
-	mov esi, macprint
-	call print
-	ret
-	
-macprint db "00:00:00:00:00:00  ",0
-ethernetend dw 0,0
-nicconfig db 0
-basenicaddr	db 0,0,0,0
-sysip db 192,168,0,5
-sysmac	db 0,0,0,0,0,0		;my mac address
+.initmsg db "RTL8139 Initialized",10,0

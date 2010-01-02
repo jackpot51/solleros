@@ -139,8 +139,8 @@ mousedisabled db 0
 		mov byte [showcursorfonton], 0
 		ret
 
-lastmouseposition dw 132,132
-mousecursorposition dw 132,132	
+lastmouseposition dw 0,0
+mousecursorposition dw 0,0	
 
 termmouse:
 		mov esi, videobuf

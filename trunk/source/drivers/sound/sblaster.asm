@@ -9,26 +9,67 @@ sblaster:
 		call WriteDSP
 		mov	al,088h 		; Left = 8, Right = 8 (15-highest)
 		call MstrVol 		; L = Hi Nibble, R = Lo Nibble
+		mov esi, .initmsg
+		call print
 .noinit:
 		ret
-sblastercont: ;this function goes to the next available portion of a sound, if necessary
-	cmp word [Length0], 0
-	je near handled2
-	mov di, [Length0]
-	dec di
-	mov [Length0], di
-	mov eax, [NextMemLoc]
-	mov [MemLoc], eax
+.initmsg db "Soundblaster Initialized",10,0
+sblaster.cont: ;this function goes to the next available portion of a sound, if necessary
+	cmp dword [Length0], 0
+	je near .done
+	dec dword [Length0]
+	jmp .notodd
+.oddlength:
 	xor ecx, ecx
-	mov cx, 0xFFFF
-	mov [Length1], cx
-	add eax, ecx
+	mov [OddLength], cl
+.notodd:
+	mov esi, [NextMemLoc]
+	xor ecx, ecx
+	mov cx, [Length1]
+	shr ecx, 1
+	inc cx
+	xor ebx, ebx
+	mov bx, [SegLoc]
+	add bx, cx
+	mov [SegLoc], bx
+	add ebx, 0x80000 ;linear address of sb buffer
+	mov [MemLoc], esi
+	mov eax, ecx
+	add eax, esi
 	mov [NextMemLoc], eax
-	call DMAPlay
+	call DMACopy
+	;call DMAPlay
+	call PlayDSP
+	mov dx, (BasePort+0xE)
+	in al, dx ;acknowledge the interrupt 
 	jmp handled2 ;it is part of an interrupt routine
+.done:
+	cmp byte [OddLength], 1
+	je .oddlength
+	xor eax, eax
+	mov [Length1], ax
+	mov ax, 0xD0
+	call WriteDSP
+	mov dx, (BasePort+0xE)
+	in al, dx ;acknowledge the interrupt 
+	jmp handled2
+	
+DMACopy:
+		mov ax, LINEAR_SEL
+		mov fs, ax
+		shr ecx, 2
+.loop:
+		mov eax, [esi]
+		mov [fs:ebx], eax
+		add esi, 4
+		add ebx, 4
+		loop .loop
+		mov ax, NEW_DATA_SEL
+		mov fs, ax
+		ret
+		
 
 DMAPlay:    ;uses eax ebx edx
-		dec	word [Length1]
 		mov	byte [Page1],00h
 
 		mov	al,(Channel+4)
@@ -40,12 +81,12 @@ DMAPlay:    ;uses eax ebx edx
 		mov	al,ModeReg
 		mov	dx,0Bh
 		out	dx,al
-		mov	eax,[MemLoc]
+		mov	eax,0x80000
 		mov	dx,AddPort
 		out	dx,al
 		xchg al,ah
 		out	dx,al
-		mov	eax,[MemLoc]
+		mov	eax,0x80000
 		mov	edx,eax
 		and	eax,65536
 		jz	MemLocN1
@@ -71,13 +112,16 @@ MemLocN4:
 		out	dx,al
 		mov	dx,LenPort
 		mov	ax,[Length1]
+		dec ax
 		out	dx,al
 		xchg al,ah
 		out	dx,al
 		mov	dx,0Ah
 		mov	al,Channel
 		out	dx,al
+		ret
 		
+PlayDSP:
 		mov	al,40h
 		call WriteDSP
 		xor	edx,edx
@@ -91,6 +135,7 @@ MemLocN4:
 		mov	al,[WAVEMode]	;write the mode
 		call WriteDSP
 		mov	ax,[Length1]
+		shr ax, 1
 		call WriteDSP
 		xchg al,ah
 		call WriteDSP
@@ -143,17 +188,19 @@ WaitIt:	in	al,dx
 		out	dx,al
 		ret
 
-Length0 dw	0
+OddLength db 0
+Length0 dd	0
 Length1	dw  0
 NextMemLoc dd 0
 MemLoc	dd  0
+SegLoc  dw 0
 Page1	db  0
 Freq	dd	0
 WAVEMode db 14h
 PgPort	equ 83h
 AddPort	equ 02h
 LenPort	equ 03h
-ModeReg	equ 49h
+ModeReg	equ 59h
 Channel	equ 01h
 BasePort	equ 220h
 SoundBlaster	db 0

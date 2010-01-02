@@ -52,8 +52,9 @@ indexdone db 0
 %include 'source/programs/_math.asm' ;!
 %include 'source/programs/_variables.asm' ;% and $
 %include 'source/programs/_run.asm' ;./
-%ifdef rtl8139.included
+%ifdef network.included
 	%include 'source/programs/arp.asm'
+	%include 'source/programs/ping.asm'
 %endif
 %include 'source/programs/batch.asm'
 %ifdef gui.background
@@ -68,6 +69,7 @@ indexdone db 0
 %include 'source/programs/dump.asm'
 %include 'source/programs/echo.asm'
 %include 'source/programs/else.asm'
+%include 'source/programs/exit.asm'
 %include 'source/programs/fi.asm'
 %ifdef gui.included
 	%include 'source/programs/gui.asm'

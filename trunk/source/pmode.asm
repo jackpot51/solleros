@@ -195,8 +195,10 @@ keyinterrupt:		;checks for escape, if pressed, it quits the program currently ru
 %ifdef io.serial
 	jmp handled
 %else
-	cli
 	pusha
+	in al, 64h
+	test al, 20h
+	jnz near handled2
 	in al, 60h
 	cmp al, 1		;escape
 	je userint
@@ -221,8 +223,27 @@ userint:
 	popa
 	sti
 	mov esp, stackend ;reset stack
-	jmp nwcmd
+	jmp returnfromexp
 %endif
+rtcrate db 10
+rtcint:	;this runs at 64Hz which is perfect for 60Hz displays
+%ifdef io.serial
+%else
+%ifdef terminal.vsync
+	cli
+	cmp byte [termcopyneeded], 0
+	je .nocopy
+	call newtermcopy
+.nocopy
+	push eax
+	mov al, 0xC
+	out 0x70, al
+	in al, 0x71
+	pop eax
+	sti
+%endif
+%endif
+	jmp handled4
 %ifdef rtl8139.included
 rtl8139.irq:
 	cli
@@ -231,16 +252,26 @@ rtl8139.irq:
 	add edx, rtl8139.ISR
 	xor eax, eax
 	in ax, dx
+	push edx
+	push eax
+	mov esi, .nicmsg
+	call print
+	pop eax
+	pop edx
 	mov ecx, eax
 	call showhex
-	jmp handled2
+	out dx, ax
+	popa
+	sti
+	jmp handled4
+.nicmsg db "RTL8139:",0
 %endif
 %ifdef sound.included
 sblaster.irq:
 	cli
 	pusha
 	cmp byte [SoundBlaster], 1
-	je near sblastercont
+	je near sblaster.cont
 	jmp handled2
 %endif
 	
@@ -264,6 +295,13 @@ handled3:
 handled:
 	push eax
 	mov al, 0x20
+	out 0x20, al
+	pop eax
+	iret
+handled4:
+	push eax
+	mov al, 0x20
+	out 0xA0, al
 	out 0x20, al
 	pop eax
 	iret
@@ -397,18 +435,18 @@ idt:
 	%endif
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 6
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 7
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 8 = RTC
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 9
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 10
+		dw rtcint,NEW_CODE_SEL,0x8E00,0 ;IRQ 8 = RTC
+		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 9
+		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 10
 	%ifdef rtl8139.included
 		dw rtl8139.irq,NEW_CODE_SEL,0x8E00,0 ;IRQ 11 = default RTL8139
 	%else
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 11
+		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 11
 	%endif
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 12
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 13
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 14
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 15
+		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 12
+		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 13
+		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 14
+		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 15
 ;This brings me up to 0x50
 %assign i 0x50
 %rep 176
