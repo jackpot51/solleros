@@ -1,4 +1,4 @@
-newints:	;;for great justice
+newints:	;for great justice
 	cmp ah, 0
 	je near intx0   ;kills app
 	cmp ah, 1
@@ -68,17 +68,25 @@ intx14:
 	%include 'source/interrupts/14_runcmd.asm'
 intx15:
 	%include 'source/interrupts/15_proginfo.asm'
-		
-%ifdef io.serial
 termcopy:
-		ret
+%ifdef io.serial
+	ret
 %else
+%ifdef terminal.vsync
+	mov byte [termcopyneeded], 1
+	ret
+%else
+	call newtermcopy
+	ret
+%endif
+	termcopyneeded db 0
 	termcursorpos dd 0
 	removedvideo dw 0
-termcopy:	
+newtermcopy:
 	pusha
 	mov edi, videobuf
 	xor ebx, ebx
+	mov [termcopyneeded], bl
 	mov bx, [videobufpos]
 	add edi, ebx
 	mov [termcursorpos], edi

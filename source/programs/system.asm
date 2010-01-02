@@ -1,5 +1,5 @@
 	db 255,44,"system",0
-	mov esi, systeminfomsg
+	mov esi, kernelinfomsg
 	call printquiet
 	mov ecx, osend
 	call showdec
@@ -10,6 +10,12 @@
 	sub ecx, bssstart	;add the extra buffer space
 	call showdec
 	mov esi, membytemsg
+	call printquiet
+	mov esi, endofmemmsg
+	call printquiet
+	mov ecx, bssend
+	call showhex
+	mov esi, systeminfomsg
 	call printquiet
 getcpuspeed:
 	mov eax, 0xFE
@@ -54,11 +60,13 @@ cpuspeedloopend:
 %endif
 	ret
 
-systeminfomsg db "Kernel Information:",10,0
+kernelinfomsg db "Kernel Information:",10,0
 diskbytemsg db "Bytes Disk Space Used",10,0
-membytemsg db "Bytes Memory Space Used",10,"System Information:",10,0
+membytemsg db "Bytes Memory Space Used",10,0
+systeminfomsg db 10,"System Information:",10,0
 %ifdef sound.included
 	soundblastermsg db "Soundblaster Detected.",10,0
 %endif
 cpuspeedmsg db "MIPS",10,0
-memoryspacemsg db "MB Memory Space Free",10,0
+memoryspacemsg db "MB Memory Space",10,0
+endofmemmsg: db "End of Memory Space: 0x",0

@@ -2,7 +2,8 @@ pcibus		db 0
 pcidevice	db 0
 pcifunction	db 0
 pciregister	db 0
-pcireqtype db 0
+pcireqtype	db 0
+pcidevid	dd 0
 
 getpciport:
 	mov al, 1
@@ -42,6 +43,18 @@ nextpcidevice:
 	jmp searchpci
 pcitype: db 0,0,0,0
 checkpcidevice:
+	xor eax, eax
+	cmp [pcidevid], eax
+	je near .good
+	mov [pciregister], al	;device id, vendor id
+	call getpciaddr
+	mov edx, 0xCF8
+	out dx, eax
+	mov edx, 0xCFC
+	in eax, dx
+	cmp eax, [pcidevid]
+	jne near searchpciret
+.good:
 	xor al, al
 	cmp [pcireqtype], al
 	je near dumppcidevice
@@ -53,8 +66,7 @@ checkpcidevice:
 	mov edx, 0xCFC
 	in eax, dx
 	rol eax, 8
-	mov bl, [pcitype]
-	cmp al, bl
+	cmp al, [pcitype]
 	je near foundpciaddr
 	jmp searchpciret
 dumppcidevice:
@@ -99,7 +111,10 @@ nextpcibus:
 	mov [pcibus], al
 	jmp searchpci
 donesearchpci:
+	mov ebx, 0xFFFFFFFF
 	xor edx, edx
+	mov [pcitype], dl
+	mov [pcidevid], edx
 	ret
 foundpciaddr:
 	mov al, 0x10
@@ -116,6 +131,9 @@ findpciioaddr:
 	je near notpciioaddr
 	sub eax, 1
 	mov edx, eax
+	xor ebx, ebx
+	mov [pcitype], bl
+	mov [pcidevid], ebx
 	ret
 notpciioaddr:
 	mov al, [pciregister]

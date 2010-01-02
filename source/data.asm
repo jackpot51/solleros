@@ -1,6 +1,6 @@
 	bootfilename db "boot.sh",0
 	notfound1 db "shush: ",0
-	notfound2 db  ": command not found",10,0
+	notfound2 db  ": not found",10,0
 	userask db "username:",0
 	pwdask	db	"password:",0
 	computer db "@"

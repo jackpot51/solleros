@@ -17,6 +17,9 @@
 %ifdef gui.included
     %include "source/gui/gui.asm"
 %endif
+%ifdef network.included
+	%include "source/network.asm"
+%endif
     %include "source/data.asm"
     %include "build/fileindex.asm"
     %include "source/bss.asm"

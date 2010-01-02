@@ -9,6 +9,9 @@
 %ifdef rtl8139.included
 	%include "source/drivers/network/rtl8139.asm"
 %endif
+%ifdef ne2000.included
+	%include "source/drivers/network/ne2000.asm"
+%endif
 %ifdef io.serial
 	%include "source/drivers/input/serial.asm"
 %else
@@ -18,17 +21,28 @@
 ;every driver's source will be scanned for a .init function
 ;that will be called and if it returns 0
 ;the hardware was found and the driver initialized properly
+initializelater: ;these have debugging messages and should be initialized after the screen
+	%ifdef sound.included
+		call sblaster.init
+	%endif
+	%ifdef ne2000.included
+		call ne2000.init
+	%endif
+	%ifdef rtl8139.included
+		call rtl8139.init
+	%endif
+	ret
 initialize:
 ;Now I will initialise the interrupt controllers and remap irq's
 	call .pic
+%ifdef terminal.vsync
+	call .rtc
+%endif
 	call .pit
 	call .fpu
 	call .sse
 	xor eax, eax
 	xor ecx, ecx
-%ifdef sound.included
-	call sblaster.init
-%endif
 %ifdef io.serial
 	call serial.init
 %endif
@@ -59,6 +73,37 @@ initialize:
 	out 0xA0, al
 	out 0x20, al
 	ret
+.rtc:
+	mov al, 0x8
+	mov ah, al
+	mov dx, 0x70
+	out dx, al
+	inc dx
+	in al, dx
+	xchg al, ah
+	dec dx
+	out dx, al
+	inc dx
+	xchg al, ah
+	or al, 0x40
+	out dx, al
+	
+	mov al, 0xA
+	dec dx
+	out dx, al
+	xchg al, ah
+	inc dx
+	in al, dx
+	and al, 0xF0
+	or al, [rtcrate]
+	xchg al, ah
+	dec dx
+	out dx, al
+	inc dx
+	xchg al, ah
+	out dx, al
+	ret
+	
 .pit:
 	;initialize the PIT
 	mov ax, [pitdiv] ;this is the divider for the PIT

@@ -38,7 +38,8 @@ numbuf: equ buf2 + 20
 		graphicstableend equ graphicstable + 200h
 		%ifdef gui.background
 			backgroundbuffer equ graphicstableend
-			mousecolorbuf equ backgroundbuffer + 1280*1025*2
+			backgroundbufferend equ backgroundbuffer + 1280*1026*2
+			mousecolorbuf equ backgroundbufferend
 		%else
 			mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
 		%endif

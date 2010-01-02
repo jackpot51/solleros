@@ -6,10 +6,13 @@ setdefenv:
 	mov eax, 1
 	mov [currentfolderloc], eax
 	call clear
+	
 bootfilecheck:
 	cmp byte [ranboot], 1
 	je near nobootfile
-	mov byte [ranboot], 1
+	%ifdef hardware.automatic
+		call initializelater ;Initialize components that have debug messages
+	%endif
 	mov edi, bootfilename
 	mov esi, 0x400000
 	call loadfile
@@ -17,6 +20,7 @@ bootfilecheck:
 	je near nobootfile
 	call progbatchfound
 nobootfile:	
+	mov byte [ranboot], 1
 
 	mov esi, signature
 .sigcopyloop:	;this prevents an odd error
@@ -25,6 +29,7 @@ nobootfile:
 	inc esi
 	cmp esi, signatureend
 	jb .sigcopyloop
+	
 	mov esi, signature
 	call print
 	mov ecx, [signatureend - 4]
@@ -102,6 +107,10 @@ pwdrgt:
 	shr ecx, 1
 	mov [uid], ecx
 	call clear
+	xor ecx, ecx
+	inc ecx
+	mov [commandbufpos], ecx
+returnfromexp:
 	mov cx, 200h
 	mov esi, buftxt
 	mov [currentcommandloc], esi
@@ -755,7 +764,7 @@ cnvrthextxt:
 	jmp .donechar
 	
 	
-cnvrttxt: 
+cnvrttxt: ;text to convert in esi, first part or 0 in edi
 	xor ecx, ecx
 	xor eax, eax
 	xor edx, edx

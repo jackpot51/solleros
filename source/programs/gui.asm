@@ -55,6 +55,10 @@ guiswitchret:
 	add bx, dx
 	add ax, cx
 	shr cx, 1
+	shr bx, 3
+	shl bx, 3
+	shr ax, 4
+	shl ax, 4
 	mov [termwindow], bx
 	mov [termwindow + 2], ax	;the previous lines of code make a large terminal window that is 4 characters smaller than the screen
 	mov esi, termwindow

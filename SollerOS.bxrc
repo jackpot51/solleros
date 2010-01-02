@@ -14,7 +14,7 @@ ata0-master: type=disk, mode=flat, translation=auto, path="SollerOS.bin", cylind
 ata1: enabled=0
 ata2: enabled=0
 ata3: enabled=0
-parport1: enabled=1, file=""
+parport1: enabled=0
 parport2: enabled=0
 com1: enabled=1, mode=null, dev=""
 com2: enabled=0
@@ -22,7 +22,7 @@ com3: enabled=0
 com4: enabled=0
 usb_uhci: enabled=0
 usb_ohci: enabled=0
-i440fxsupport: enabled=1
+i440fxsupport: enabled=1, slot1=ne2k
 vga_update_interval: 50000
 vga: extension=vbe
 cpu: count=1, ips=10000000, reset_on_triple_fault=1, cpuid_limit_winnt=0
@@ -30,9 +30,9 @@ print_timestamps: enabled=0
 port_e9_hack: enabled=0
 text_snapshot_check: enabled=0
 private_colormap: enabled=0
-clock: sync=none, time0=local
+clock: sync=realtime, time0=local
 # no cmosimage
-ne2k: enabled=0
+ne2k: enabled=1, ioaddr=0x300, irq=9, mac=fe:fd:de:ad:be:ef, ethmod=null, ethdev=xl0, script=none
 pnic: enabled=0
 sb16: enabled=0
 # no loader
@@ -48,4 +48,4 @@ keyboard_serial_delay: 250
 keyboard_paste_delay: 100000
 keyboard_mapping: enabled=0, map=
 user_shortcut: keys=none
-mouse: enabled=1, type=ps2
+mouse: enabled=0, type=ps2
