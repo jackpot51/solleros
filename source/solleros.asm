@@ -199,6 +199,7 @@ cancel:	xor al, al
 	je near nwcmd
 gotcmd:	mov esi, [commandbufpos]
 	mov [lastcommandpos], esi
+	inc dword [commandsentered]
 	mov edi, buftxt
 	add esi, commandbuf
 	cmp esi, commandbufend
@@ -254,16 +255,16 @@ findvarname:
 	pop esi
 replacevarloop:
 	mov al, [edi]
-	cmp ebx, 0
-	je near expandbuftxt
 	cmp al, 0
 	je near compressbuftxt
+	cmp ebx, 0
+	je near expandbuftxt
 	mov [esi], al
 	dec ebx
 	inc esi
 	inc edi
 	jmp replacevarloop
-compressbuftxt:	
+compressbuftxt:
 	mov al, [esi + ebx]
 	mov [esi], al
 	inc esi

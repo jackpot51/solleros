@@ -154,6 +154,7 @@ newcodecache dd 0x100000
 
 testingcpuspeed db 0
 cpuspeedperint dd 0
+cpuclocksperint dd 0,0
 memoryspace dd 0
 pitdiv dw 2685
 timeinterval dd 2250286
@@ -247,24 +248,17 @@ rtcint:	;this runs at 64Hz which is perfect for 60Hz displays
 %ifdef rtl8139.included
 rtl8139.irq:
 	cli
-	pusha
-	mov edx, [basenicaddr]
+	push edx
+	push eax
+	mov edx, [rtl8139.basenicaddr]
 	add edx, rtl8139.ISR
 	xor eax, eax
 	in ax, dx
-	push edx
-	push eax
-	mov esi, .nicmsg
-	call print
+	out dx, ax
 	pop eax
 	pop edx
-	mov ecx, eax
-	call showhex
-	out dx, ax
-	popa
 	sti
 	jmp handled4
-.nicmsg db "RTL8139:",0
 %endif
 %ifdef sound.included
 sblaster.irq:
@@ -436,7 +430,7 @@ idt:
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 6
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 7
 		dw rtcint,NEW_CODE_SEL,0x8E00,0 ;IRQ 8 = RTC
-		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 9
+		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 9 = default NE2000
 		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 10
 	%ifdef rtl8139.included
 		dw rtl8139.irq,NEW_CODE_SEL,0x8E00,0 ;IRQ 11 = default RTL8139

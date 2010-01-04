@@ -28,9 +28,9 @@ clear:
 		mov cx, [charxy]
 		xor eax, eax
 	clearc:
-		mov [edi], eax
-		add edi, 4
-		sub cl, 2
+		mov [edi], ax
+		add edi, 2
+		dec cl
 		cmp cl, 0
 		jne clearc
 		mov cl, [charxy]

@@ -62,11 +62,13 @@
 		mov al, 1
 		mov ah, 5
 		int 30h
+		cmp ax, 256
+		je exittely
 		cmp al, 0
 		je telyreceive
 		mov ah, al
 		xor al, al
-		mov cx, 100
+		mov cx, 1000
 		cmp ah, 10
 		jne telysend
 		mov ah, 13
@@ -93,5 +95,8 @@
 		jne telyreceive
 		mov ah, 10
 		jmp telysend
+		
+	exittely:
+		ret
 
 BASEADDRSERIAL dw 03f8h

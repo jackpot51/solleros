@@ -22,7 +22,7 @@ rtl8139:
 	jne .initnic
 	ret
 .initnic:	;Here i tried the rtl8139 interface, fuck it
-	mov [basenicaddr], edx
+	mov [.basenicaddr], edx
 	mov ecx, edx
 	call showhex	;for debugging, please remove
 	mov esi, rbuffstart
@@ -35,8 +35,8 @@ rtl8139:
 	cmp cx, 0
 	jne .clearrbuff
 .findmac:
-	mov edx, [basenicaddr]
-	mov edi, sysmac
+	mov edx, [.basenicaddr]
+	mov edi, .mac
 	mov ecx, 6
 .macputloop:
 	in al, dx
@@ -45,48 +45,51 @@ rtl8139:
 	inc edx
 	dec ecx
 	jnz .macputloop
-	mov ecx, sysmac
+	mov ecx, .mac
 	call showmac
 	call .resetnic
+	mov esi, .name
+	call print
 	mov esi, .initmsg
 	call print
+	xor ebx, ebx
 	ret
 .resetnic:
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .CONFIG1
 	xor al, al
 	out dx, al	;WAKE UP!!!!
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .CMD
 	mov al, 0x10
 	out dx, al	;Reset
 .resetnicwait:
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .CMD
 	in al, dx
 	and al, 0x10
 	cmp al, 0x10
 	je near .resetnicwait
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .RBSTART
 	mov eax, rbuffstart
 	add eax, 0x100000 ;change virtual to physical address
 	out dx, eax	;give nic receive buffer location
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .IMR
 	;in ax, dx
 	mov ax, 5
 	out dx, ax	;set both TOK and ROK interrupts
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .RCR
 	mov eax, 000010b ;receive only physical matches
 	add eax, 128 ;enable wrap option
 	out dx, eax	;recieve packets from all matches
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .CMD
 	mov al, 0x0C
 	out dx, al	;use transmit and receive
-	mov byte [nicconfig], 1
+	mov byte [.nicconfig], 1
 	ret
 	
 .sendpacket:	;packet with beginning in edi and end in esi
@@ -95,7 +98,7 @@ rtl8139:
 .nic2:		;here come the low level drivers :(
 			;frame begins at esi, ends at edi
  			;0x0200 is the class code for ethernet cards
-	cmp byte [nicconfig], 1
+	cmp byte [.nicconfig], 1
 	je .sendcachedata
 	call .init
 	pop edi
@@ -105,15 +108,19 @@ rtl8139:
 	ret
 .sendcachedata:
 	call .resetnic
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .TSAD0
 	pop edi
+	mov ecx, [.mac]
+	mov [edi + 6], ecx
+	mov cx, [.mac + 4]
+	mov [edi + 10], cx	;copy the correct mac
 	mov eax, edi
 	add eax, 0x100000 ;base address
 	out dx, eax	;here's Johnny!
 	pop esi
 	sub esi, edi
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .TSD0
 	in eax, dx ;get tsd
 	and eax, 0xFFFFE000 ;clear off thirteen bits
@@ -121,18 +128,22 @@ rtl8139:
 	and eax, 0xFFFFDFFF ;clear own bit
 	out dx, eax
 .checknicownbit:
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .TSD0
 	in eax, dx
 	and eax, 0x2000 ;check own bit
 	cmp eax, 0x2000
 	jne .checknicownbit
 .checknictokbit:
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .TSD0
 	in eax, dx
 	and eax, 0x8000	;check tok bit
 	cmp eax, 0x8000
 	jne .checknictokbit
 	ret
-.initmsg db "RTL8139 Initialized",10,0
+.basenicaddr dd 0
+.nicconfig db 0
+.mac db 0,0,0,0,0,0
+.name db "RTL8139 ",0
+.initmsg db "Initialized",10,0

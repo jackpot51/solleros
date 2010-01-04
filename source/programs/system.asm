@@ -22,13 +22,21 @@ getcpuspeed:
 	out 0x21, al ;mask off all but timer interrupt
 	mov al, 0x20
 	out 0x20, al
-	xor eax, eax
 	hlt
+	rdtsc
+	mov esi, edx
+	mov edi, eax
+	xor eax, eax
 	mov byte [testingcpuspeed], 1
 cpuspeedloop:	;wait until next timer interrupt, then inc eax until the next
 	inc eax
 	jmp cpuspeedloop
 cpuspeedloopend:
+	rdtsc
+	sub eax, edi
+	sub edx, esi
+	mov [cpuclocksperint + 4], edx
+	mov [cpuclocksperint], eax
 	xor eax, eax
 	out 0x21, al
 	mov al, 0x20
@@ -44,6 +52,16 @@ cpuspeedloopend:
 	mov ecx, eax
 	call showdec
 	mov esi, cpuspeedmsg
+	call printquiet
+	xor edx, edx
+	mov eax, [cpuclocksperint]
+	mov edx, [cpuclocksperint + 4]
+	mov ebx, [timeinterval]
+	shr ebx, 10
+	div ebx
+	mov ecx, eax
+	call showdec
+	mov esi, cpuclockmsg
 	call printquiet
 	mov ecx, [memoryspace]
 	shr ecx, 20
@@ -68,5 +86,6 @@ systeminfomsg db 10,"System Information:",10,0
 	soundblastermsg db "Soundblaster Detected.",10,0
 %endif
 cpuspeedmsg db "MIPS",10,0
+cpuclockmsg db "MHz",10,0
 memoryspacemsg db "MB Memory Space",10,0
 endofmemmsg: db "End of Memory Space: 0x",0

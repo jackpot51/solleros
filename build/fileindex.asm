@@ -53,23 +53,20 @@ dd (f17-f16)/512
 db "tely",0
 dd (f17-$$)/512
 dd (f18-f17)/512
-db "test.wav",0
+db "timetest.elf",0
 dd (f18-$$)/512
 dd (f19-f18)/512
-db "timetest.elf",0
+db "tutorial.sh",0
 dd (f19-$$)/512
 dd (f20-f19)/512
-db "tutorial.sh",0
+db "unfs",0
 dd (f20-$$)/512
 dd (f21-f20)/512
-db "unfs",0
+db "victory.wav",0
 dd (f21-$$)/512
 dd (f22-f21)/512
-db "victory.wav",0
+db "_img.bin",0
 dd (f22-$$)/512
 dd (f23-f22)/512
-db "_img.bin",0
-dd (f23-$$)/512
-dd (f24-f23)/512
 enddiskfileindex:
 

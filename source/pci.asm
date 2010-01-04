@@ -4,6 +4,7 @@ pcifunction	db 0
 pciregister	db 0
 pcireqtype	db 0
 pcidevid	dd 0
+pcidevidmask dd 0xFFFFFFFF
 
 getpciport:
 	mov al, 1
@@ -52,7 +53,10 @@ checkpcidevice:
 	out dx, eax
 	mov edx, 0xCFC
 	in eax, dx
-	cmp eax, [pcidevid]
+	and eax, [pcidevidmask]
+	mov ebx, [pcidevid]
+	and ebx, [pcidevidmask]
+	cmp eax, ebx
 	jne near searchpciret
 .good:
 	xor al, al
@@ -115,6 +119,7 @@ donesearchpci:
 	xor edx, edx
 	mov [pcitype], dl
 	mov [pcidevid], edx
+	mov [pcidevidmask], ebx
 	ret
 foundpciaddr:
 	mov al, 0x10
@@ -132,6 +137,9 @@ findpciioaddr:
 	sub eax, 1
 	mov edx, eax
 	xor ebx, ebx
+	dec ebx
+	mov [pcidevidmask], ebx
+	inc ebx
 	mov [pcitype], bl
 	mov [pcidevid], ebx
 	ret

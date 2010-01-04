@@ -1,7 +1,15 @@
 sendpacket: ;packet start in edi, end in esi
 	%ifdef rtl8139.included
+		push edi
+		push esi
 		call rtl8139.sendpacket
+		pop esi
+		pop edi
+		cmp ebx, 0
+		jne .error
+		ret
 	%endif
+.error:
 	%ifdef ne2000.included
 		call ne2000.sendpacket
 	%endif
@@ -125,7 +133,5 @@ showmacloop:
 	
 macprint db "00:00:00:00:00:00 ",0
 ethernetend dw 0,0
-nicconfig db 0
-basenicaddr	dd 0
 sysip db 192,168,0,2
 sysmac	db 0,0,0,0,0,0		;my mac address
