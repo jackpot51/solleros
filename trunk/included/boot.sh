@@ -4,5 +4,5 @@
 #111=640x480
 exit #Comment this line out to automatically load the GUI
 gui 11A
-playa test.wav #Play asynchronously
+playa victory.wav #Play asynchronously
 background background.bmp

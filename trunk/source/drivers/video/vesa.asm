@@ -254,6 +254,6 @@ offscreenmemoffset 	times  4 db 0	;Pointer to start of off screen memory
 offscreenmemsize 	times  2 db 0    ;Amount of off screen memory in 1Kb units
 reserved2 			times  206 db 0  ;Remainder of ModeInfoBlock
 
-resolutionx2 dw 0	;this is not part of the VBE but is necessary GUI info
+resolutionx2 dd 0	;this is not part of the VBE but is necessary GUI info
 VBEEND:
 [BITS 32]

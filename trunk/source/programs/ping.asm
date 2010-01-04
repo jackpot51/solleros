@@ -7,10 +7,6 @@ ping:
 	call showip
 	mov ecx, [sysip]
 	mov [.sourceip]. ecx
-	mov eax, [sysmac]
-	mov [.sourcemac], eax
-	mov ax, [sysmac + 4]
-	mov [.sourcemac + 4], ax
 	xor eax, eax
 	xor ebx, ebx
 	mov [.checksum], ax
@@ -52,8 +48,8 @@ ping:
 .icmp:
 .icmptype db 8 ;Ping request
 .icmpcode db 0
-.icmpchecksum dd 0
-.icmpid dw 1
+.icmpchecksum dw 0
+.icmpid db 0,1
 .sequence dw 0
 db "abcdefghijklmnopqrstuvwabcdefghi" ;this is what microsoft includes
 .packetend

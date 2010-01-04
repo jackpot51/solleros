@@ -10,6 +10,8 @@ readline:
 		mov [modkeyrdpr], bl
 		mov [firstesirdpr], esi
 		mov [endbufferrdpr], edi
+		mov edi, [commandsentered]
+		mov [commandlistentries], edi
 	rdprintb:
 		push esi
 		mov al, 1
@@ -211,6 +213,14 @@ readline:
 		mov ah, [commandedit]
 		cmp ah, 1
 		jbe near rdprintb
+		mov edi, [commandsentered]
+		cmp edi, [commandlistentries]
+		jbe .nofix
+		add dword [commandlistentries], 2
+		cmp edi, [commandlistentries]
+		ja .nofix
+		mov [commandlistentries], edi
+	.nofix
 		cmp ah, 2
 		je rdprdownbck
 		sub ah, 2
@@ -220,6 +230,19 @@ readline:
 		xor al, al
 		cmp [commandedit], al
 		je near rdprintb
+		cmp dword [commandlistentries], 0
+		je near rdprintb
+		dec dword [commandlistentries]
+	.lp:
+		mov edi, buftxt2
+		mov al, [edi]
+		cmp al, 0
+		je .start
+		mov [esi], al
+		call shiftbuftxt2lft
+		call prcharq
+		jmp .lp
+	.start:
 		call rdprbckspc
 		jmp getcurrentcommandstr
 	rdprbckspc:

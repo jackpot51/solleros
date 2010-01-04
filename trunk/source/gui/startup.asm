@@ -1,4 +1,8 @@
 guisetup:
+	%ifdef gui.background
+	xor ebx, ebx
+	mov [backgroundimage], ebx
+	%endif
 	call guiclear
 	mov byte [guion], 1
 	mov byte [mouseselecton], 0

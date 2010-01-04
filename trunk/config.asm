@@ -13,7 +13,7 @@
 ;Use the specified serial port for input and output instead of the keyboard and screen
 ;If the gui is included this should not be enabled
 
-%define terminal.vsync
+;%define terminal.vsync
 ;Uses the RTC to automatically update the terminal at ~64Hz
 
 %define hardware.automatic
@@ -26,10 +26,10 @@
 ;Display debugging information should crashes occur-also uses quite a bit of memory
 
 ;%define disk.protected
-;Use protected mode instead of real mode for disk access
+;Use protected mode instead of real mode for disk access-this allows for multitasking
 
 %define disk.real
-;Use real mode for disk access
+;Use real mode for disk access-this gives greater compatibility
 
 %define sound.included
 ;This includes the sound drivers
@@ -46,6 +46,9 @@
 ;%define sector.debug
 ;Dump the contents of the first sector of SollerOS
 
+;%define system.simple 
+;The smallest possible system, overrides all options
+
 ;FIX DEPENDANCIES
 %ifdef gui.included
 	%undef io.serial
@@ -57,10 +60,24 @@
 	%undef disk.real
 %endif
 %ifdef network.included
-	%ifdef rtl8139.included
-		%undef ne2000.included
-	%endif
 %else
 	%undef ne2000.included
 	%undef rtl8139.included
+%endif
+%ifdef system.simple
+	%define io.serial "1"
+	%define disk.real
+	%undef gui.included
+	%undef gui.alphablending
+	%undef gui.background
+	%undef terminal.vsync
+	%undef hardware.automatic
+	%undef threads.included
+	%undef exceptions.included
+	%undef disk.protected
+	%undef sound.included
+	%undef network.included
+	%undef rtl8139.included
+	%undef ne2000.included
+	%undef sector.debug
 %endif

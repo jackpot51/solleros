@@ -54,6 +54,8 @@ indexdone db 0
 %include 'source/programs/_run.asm' ;./
 %ifdef network.included
 	%include 'source/programs/arp.asm'
+	%include 'source/programs/dhcp.asm'
+	%include 'source/programs/ifconfig.asm'
 	%include 'source/programs/ping.asm'
 %endif
 %include 'source/programs/batch.asm'
@@ -73,6 +75,7 @@ indexdone db 0
 %include 'source/programs/fi.asm'
 %ifdef gui.included
 	%include 'source/programs/gui.asm'
+	%include 'source/programs/line.asm'
 %endif
 %include 'source/programs/help.asm'
 %include 'source/programs/if.asm'

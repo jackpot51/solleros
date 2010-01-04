@@ -75,14 +75,14 @@ ne2000:
 	jne .good0
 	ret
 .good0:
-	mov [basenicaddr], edx
+	mov [.basenicaddr], edx
 	mov ecx, edx
 .test:
 	call .reset
 	call .stop
 	mov edx, ecx
-	mov ecx, 0xFFFF
-	loop $ ;wait for ~100 ms
+	mov ecx, 0xFF
+	loop $ ;wait for ~100 us
 	mov ecx, edx
 	in al, dx
 	and al, (.CR.RD2 | .CR.TXP | .CR.STA | .CR.STP)
@@ -99,40 +99,42 @@ ne2000:
 call showhex	;for debugging, please remove
 	call .setup
 call showmac
+mov esi, .name
+call print
 mov esi, .initmsg
 call print
-	mov byte [nicconfig], 1
+	mov byte [.nicconfig], 1
 	xor ebx, ebx
 	ret
 .reset:
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .RESET
 	in al, dx
 	out dx, al ;write its contents to itself
 	ret
 .page:
 	shl ax, 14
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	in al, dx
 	and al, 00111111b
 	or al, ah
 	out dx, al
 	ret
 .start:
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	mov al, .CR.RD2
 	mov al, .CR.STA
 	out dx, al
 	ret
 .stop:
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	mov al, .CR.RD2
 	or al, .CR.STP
 	out dx, al
 	ret
 .setup:
 	call .stop
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .DCR
 	mov al, .DCR.FT1
 	or al, .DCR.WTS
@@ -141,7 +143,7 @@ call print
 	call .getmac
 	call .stop
 	xor al, al
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .RBCR0
 	out dx, al
 	inc dx
@@ -154,7 +156,7 @@ call print
 	mov [.pageend], eax
 	shl eax, 8
 	mov [.ringend], ax ;set page and ring starts and ends
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .PSTART
 	mov al, [.pagestart]
 	out dx, al
@@ -168,7 +170,7 @@ call print
 ;INSERT INTERRUPT ENABLE HERE
 	mov al, 1
 	call .page
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	mov edi, .rom
 .copymactocard:
 	inc edx
@@ -176,14 +178,14 @@ call print
 	add edi, 2
 	cmp edx, 6
 	jbe .copymactocard
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, 7
 	mov al, [.pagestart]
 	inc al
 	out dx, al ;set page in CURR register
 ;INSERT MULTICAST INIT HERE
 	call .stop
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, .RCR
 	mov al, .RCR.AB
 	out dx, al ;accept broadcast
@@ -193,7 +195,7 @@ call print
 	call .start
 	ret
 .getmac:
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	mov al, 0x20
 	or al, 2
 	out dx, al	;set STA and RD2 bits
@@ -203,23 +205,23 @@ call print
 	inc dx
 	xor al, al
 	out dx, al
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add dx, .RSAR0
 	out dx, al
 	inc dx
 	out dx, al
-	mov dx, [basenicaddr]
+	mov dx, [.basenicaddr]
 	mov al, 8
 	or al, 2
 	out dx, al
-	mov dx, [basenicaddr]
+	mov dx, [.basenicaddr]
 	add dx, .ASIC
 	mov ecx, 8
 	mov edi, .rom
 	rep insw
 .copymac:
 	mov edi, .rom
-	mov esi, sysmac
+	mov esi, .mac
 	mov ecx, 6
 .lpmac:
 	mov al, [edi]
@@ -227,10 +229,10 @@ call print
 	add edi, 2
 	inc esi
 	loop .lpmac
-	mov ecx, sysmac
+	mov ecx, .mac
 	ret
 .sendpacket:
-	cmp byte [nicconfig], 0
+	cmp byte [.nicconfig], 0
 	jne .sendit
 	push esi
 	push edi
@@ -243,14 +245,18 @@ call print
 .sendit: ;packet start in edi, end in esi
 	xchg esi, edi ;this helps with the outsw
 	;now the packet start is in esi, end in edi
-	mov edx, [basenicaddr]
+	mov ecx, [.mac]
+	mov [esi + 6], ecx
+	mov cx, [.mac + 4]
+	mov [esi + 10], cx	;copy the correct mac
+	mov edx, [.basenicaddr]
 	mov al, .CR.RD2
 	or al, .CR.STA
 	out dx, al ;set RD2 and STA
 	add edx, .ISR ; ISR
 	mov al, .ISR.RDC
 	out dx, al ;set RDC flag
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add dx, .RBCR0
 	mov eax, edi
 	sub eax, esi
@@ -265,7 +271,7 @@ call print
 	xchg al, ah
 	inc dx
 	out dx, al ;send size
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add dx, .RSAR0
 	mov ax, [.pagestart]
 	shl eax, 8
@@ -273,16 +279,16 @@ call print
 	xchg al, ah
 	inc dx
 	out dx, al ;send address in NIC memory
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	mov al, .CR.RD1
 	or al, .CR.STA
 	out dx, al ;set RD and STA
 	mov ebx, ecx ;save length in ebx
 	shr ecx, 1
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add dx, 0x10
 	rep outsw ;Send the packet data
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add dx, .ISR
 .chkcopylp:
 	mov ah, .ISR.RDC
@@ -290,32 +296,32 @@ call print
 	and ah, al
 	cmp ah, 0x40
 	jne .chkcopylp	
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add dx, 4
 	mov al, [.pagestart]
 	out dx, al ;send start address in pages
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	add edx, 0x5
 	mov eax, ebx
-	;cmp eax, 64
-	;ja .nopadpacket
-	;mov eax, 64
-;.nopadpacket:
 	out dx, al
 	xchg al, ah
 	inc dx
 	out dx, al ;send length
-	mov edx, [basenicaddr]
+	mov edx, [.basenicaddr]
 	mov al, 0x20
 	or al, 4
 	or al, 2
 	out dx, al ;set RD2, TXP, and STA
 	xor ebx, ebx
 	ret
-.initmsg db "NE2000 Initialized.",10,0
+.basenicaddr dd 0
+.nicconfig db 0
+.name db "NE2000 ",0
+.initmsg db "Initialized.",10,0
 align 2, nop
 .pagestart dw 0
 .pageend dw 0
 .ringstart dd 0
 .ringend dd 0
+.mac db 0,0,0,0,0,0
 .rom times 16 db 0

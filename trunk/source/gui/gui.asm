@@ -12,6 +12,7 @@ guistart:
 	jmp guistart
 	
 %include "source/gui/bmp.asm"
+%include "source/gui/circle.asm"
 %include "source/gui/cursor.asm"
 %include "source/gui/icon.asm"
 %include "source/gui/line.asm"
@@ -491,24 +492,44 @@ grphbuf times 16 db 0
 		ret
 	
 putpixel: ;color in si, point is (dx,cx)
-	mov edi, [physbaseptr]
+		;destroys edi, ebx, eax
+	push ax
+	push bx
 	xor eax, eax
 	xor ebx, ebx
+	xor edi, edi
 	mov bx, [resolutiony]
-	mov ax, [resolutionx2]
-	shl dx, 1
+	mov ax, [resolutionx]
 	cmp dx, ax
 	ja .doneput
+	shl ax, 1
 	cmp cx, bx
 	ja .doneput
 	mov bx, cx
-	mov cx, dx
+	push edx
 	mul ebx
-	mov bx, cx
-	add eax, ebx
+	pop edx
+	add di, dx
+	add di, dx
 	add edi, eax
+	add edi, [physbaseptr]
 	mov [edi], si
 .doneput:
+	pop bx
+	pop ax
+	ret
+	
+getpixelmem:	;pixel in (dx, cx), outputs memory location in edi
+	xor edi, edi
+	xor eax, eax
+	xor ebx, ebx
+	mov bx, [resolutionx2]
+	mov di, dx
+	add di, dx
+	mov ax, cx
+	mul ebx
+	add edi, eax
+	add edi, [physbaseptr]
 	ret
 
 	mouseon db 0

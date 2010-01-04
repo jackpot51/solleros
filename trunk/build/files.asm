@@ -54,21 +54,18 @@ f17:
 incbin "included/tely"
 align 512,db 0
 f18:
-incbin "included/test.wav"
-align 512,db 0
-f19:
 incbin "included/timetest.elf"
 align 512,db 0
-f20:
+f19:
 incbin "included/tutorial.sh"
 align 512,db 0
-f21:
+f20:
 incbin "included/unfs"
 align 512,db 0
-f22:
+f21:
 incbin "included/victory.wav"
 align 512,db 0
-f23:
+f22:
 incbin "included/_img.bin"
 align 512,db 0
-f24:
+f23:

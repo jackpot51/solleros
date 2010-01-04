@@ -57,7 +57,9 @@ numbuf: equ buf2 + 20
 	lastcommandpos: equ videobuf2end
 %endif
 	commandbufpos: equ lastcommandpos + 4
-	commandbuf: equ commandbufpos + 4
+	commandlistentries: equ commandbufpos + 4
+	commandsentered: equ commandlistentries + 4
+	commandbuf: equ commandsentered + 4
 	commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
 %ifdef rtl8139.included
 	rbuffstart: equ commandbufend ;for use with networking

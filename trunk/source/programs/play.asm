@@ -18,11 +18,11 @@ play:
 	jne .waitforsound
 	ret
 playasync:
-	mov esi, 0x800000
+	mov esi, 0xC00000
 	call loadfile
 	cmp edx, 404
 	je nosoundfound
-	mov ebx, 0x800000
+	mov ebx, 0xC00000
 	cmp dword [ebx + 8], "WAVE"
 	je near wave_player
 	cmp word [ebx], "SN"
@@ -47,7 +47,7 @@ notfoundsound db "play: ",0
 
 %ifdef sound.included
 sbplay:
-		mov esi, 0x800000
+		mov esi, 0xC00000
 		mov ebx, esi
 		add esi, 44
 		sub edi, esi
@@ -57,7 +57,7 @@ sbplay:
 		mov ecx, [ebx + 24]
 		mov [Freq], ecx
 		xor eax, eax
-		mov	edx, 0x800000 ;physical location of sound
+		mov	edx, 0xC00000 ;physical location of sound
 		add edx, 44
 		add	eax, edx
 		mov esi, eax
