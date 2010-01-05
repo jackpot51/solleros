@@ -41,10 +41,12 @@ shushprog:
 	jbe .nofixx
 	mov bx, [resolutionx]
 .nofixx:
+	add ax, 16
 	cmp ax, [resolutiony]
 	jbe .nofixy
 	mov ax, [resolutiony]
 .nofixy:
+	sub ax, 16
 	xor cx, cx
 	xor dx, dx
 	mov [termwindow], bx

@@ -29,7 +29,7 @@ echo %	gives back the last answer from !
 echo ##	is used for comments
 echo $$	is used to denote and set variables
 echo ./	runs batch files and programs
-echo stop	is used to exit the batch before the end
+echo exit	is used to exit the batch before the end
 echo pci	shows a list of information about pci devices
 echo batch	creates a new batch file
 echo show	shows text files and batch files

@@ -1,12 +1,13 @@
-;UnFS-Unlimited FileSystem-rethink the modern filesystem. Eventually this will have support for so much shit, you can't even imagine.
+;UnFS Test System
 ;UnFS uses unodes instead of inodes-you can just call them nodes or descriptors
-;What follows is a sample filesystem to help me figure out how to code this stuff.
-;I think I will make a java program which can create and extract this filesystem from the solleros image
 ;by default everything is owned by and readable by root, therefore this does not need to be stated
 ;the structure of the system should be as follows:
+	;/bin/
 	;/bin/tely
-	;/etc/tutorial
+	;/etc/
+	;/home/
 	;/home/user/
+	;/home/user/solleros.txt
 filesys:
 	db 4		;length of signature
 	db "UnFS"
@@ -127,15 +128,15 @@ indexstart:		;this will basically contain all of the names/metadata/dates/other 
 						
 		binindexname:	dd binnode - fsstart
 				db "bin",0
+				
+		bin1indexname:	dd bin1node - fsstart
+				db "tely",0
 						
 		etcindexname:	dd etcnode - fsstart
 				db "etc",0
 				
 		homeindexname:  dd homenode - fsstart
 				db "home",0
-		
-		bin1indexname:	dd bin1node - fsstart
-				db "tely.exe",0
 
 		userindexname:	dd usernode - fsstart
 				db "user",0
@@ -146,11 +147,11 @@ align 512, db 0
 indexend:
 
 bin1p1start:
-incbin "included/tely"
+incbin "../included/tely"
 align 512, db 0
 bin1p1end:
 
 user1p1start:
-incbin "included/solleros.txt"
+incbin "../included/solleros.txt"
 align 512, db 0
 user1p1end:

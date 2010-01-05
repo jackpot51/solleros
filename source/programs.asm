@@ -46,7 +46,6 @@ indexloop2done:
 		jmp indexloop
 indexloopdone: 	mov byte [indexdone], 1
 		ret
-
 indexdone db 0
 %include 'source/programs/_comment.asm' ;#
 %include 'source/programs/_math.asm' ;!
@@ -54,9 +53,6 @@ indexdone db 0
 %include 'source/programs/_run.asm' ;./
 %ifdef network.included
 	%include 'source/programs/arp.asm'
-	%include 'source/programs/dhcp.asm'
-	%include 'source/programs/ifconfig.asm'
-	%include 'source/programs/ping.asm'
 %endif
 %include 'source/programs/batch.asm'
 %ifdef gui.background
@@ -67,6 +63,9 @@ indexdone db 0
 %include 'source/programs/charmap.asm'
 %include 'source/programs/clear.asm'
 %include 'source/programs/cpuid.asm'
+%ifdef network.included
+	%include 'source/programs/dhcp.asm'
+%endif
 %include 'source/programs/dos.asm'
 %include 'source/programs/dump.asm'
 %include 'source/programs/echo.asm'
@@ -75,23 +74,30 @@ indexdone db 0
 %include 'source/programs/fi.asm'
 %ifdef gui.included
 	%include 'source/programs/gui.asm'
-	%include 'source/programs/line.asm'
 %endif
 %include 'source/programs/help.asm'
 %include 'source/programs/if.asm'
+%ifdef network.included
+	%include 'source/programs/ipconfig.asm'
+%endif
 %include 'source/programs/keycode.asm'
+%ifdef gui.included
+	%include 'source/programs/line.asm'
+%endif
 %include 'source/programs/logout.asm'
 %include 'source/programs/loop.asm'
 %include 'source/programs/ls.asm'
 %include 'source/programs/memory.asm'
 %include 'source/programs/pci.asm'
+%ifdef network.included
+	%include 'source/programs/ping.asm'
+%endif
 %include 'source/programs/play.asm'
 %include 'source/programs/pwd.asm'
 %include 'source/programs/reboot.asm'
 %include 'source/programs/reg.asm'
 %include 'source/programs/show.asm'
 %include 'source/programs/shush.asm'
-%include 'source/programs/stop.asm'
 %include 'source/programs/system.asm'
 %include 'source/programs/time.asm'
 %include 'source/programs/turnoff.asm'

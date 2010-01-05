@@ -6,12 +6,6 @@
 %ifdef sound.included
 	%include "source/drivers/sound/sblaster.asm"
 %endif
-%ifdef rtl8139.included
-	%include "source/drivers/network/rtl8139.asm"
-%endif
-%ifdef ne2000.included
-	%include "source/drivers/network/ne2000.asm"
-%endif
 %ifdef io.serial
 	%include "source/drivers/input/serial.asm"
 %else
@@ -25,11 +19,8 @@ initializelater: ;these have debugging messages and should be initialized after 
 	%ifdef sound.included
 		call sblaster.init
 	%endif
-	%ifdef ne2000.included
-		call ne2000.init
-	%endif
-	%ifdef rtl8139.included
-		call rtl8139.init
+	%ifdef network.included
+		call network.init
 	%endif
 	ret
 initialize:

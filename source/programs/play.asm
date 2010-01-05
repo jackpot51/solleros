@@ -49,7 +49,7 @@ notfoundsound db "play: ",0
 sbplay:
 		mov esi, 0xC00000
 		mov ebx, esi
-		add esi, 44
+		add esi, WAVSTART
 		sub edi, esi
 		mov [Length1], di
 		shr edi, 15
@@ -58,7 +58,7 @@ sbplay:
 		mov [Freq], ecx
 		xor eax, eax
 		mov	edx, 0xC00000 ;physical location of sound
-		add edx, 44
+		add edx, WAVSTART
 		add	eax, edx
 		mov esi, eax
 		xor ecx, ecx
@@ -103,7 +103,7 @@ sbplay:
 		call DMAPlay
 		call PlayDSP
 		ret
-
+WAVSTART equ 64;44
 wave_player:
 	cmp byte [SoundBlaster], 1
 	je near sbplay

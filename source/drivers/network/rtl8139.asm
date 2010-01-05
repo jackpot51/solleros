@@ -21,7 +21,7 @@ rtl8139:
 	cmp ebx, 0xFFFFFFFF
 	jne .initnic
 	ret
-.initnic:	;Here i tried the rtl8139 interface, fuck it
+.initnic:
 	mov [.basenicaddr], edx
 	mov ecx, edx
 	call showhex	;for debugging, please remove
@@ -64,12 +64,9 @@ rtl8139:
 	mov al, 0x10
 	out dx, al	;Reset
 .resetnicwait:
-	mov edx, [.basenicaddr]
-	add edx, .CMD
 	in al, dx
-	and al, 0x10
-	cmp al, 0x10
-	je near .resetnicwait
+	test al, 0x10
+	jnz near .resetnicwait
 	mov edx, [.basenicaddr]
 	add edx, .RBSTART
 	mov eax, rbuffstart
@@ -95,9 +92,6 @@ rtl8139:
 .sendpacket:	;packet with beginning in edi and end in esi
 	push esi
 	push edi
-.nic2:		;here come the low level drivers :(
-			;frame begins at esi, ends at edi
- 			;0x0200 is the class code for ethernet cards
 	cmp byte [.nicconfig], 1
 	je .sendcachedata
 	call .init
