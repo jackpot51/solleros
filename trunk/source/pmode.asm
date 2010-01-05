@@ -397,7 +397,13 @@ gdt_end:
 ; 32 reserved interrupts:
 idt:	
 %assign i 0
-%rep    32
+%rep    8
+		dw unhand + i*12,NEW_CODE_SEL,0x8E00,0
+%assign i i+1
+%endrep
+		dw unhand + 8*12,SYS_CODE_SEL,0x8E00,0	;double fault handler in original memory
+%assign i 9
+%rep    23
 		dw unhand + i*12,NEW_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep

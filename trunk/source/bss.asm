@@ -61,7 +61,7 @@ numbuf: equ buf2 + 20
 	commandsentered: equ commandlistentries + 4
 	commandbuf: equ commandsentered + 4
 	commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
-%ifdef rtl8139.included
+%ifdef network.included
 	rbuffstart: equ commandbufend ;for use with networking
 	rbuffend equ rbuffstart + 8212
 %else

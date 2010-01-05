@@ -2,16 +2,10 @@ db 255,44,"line",0
 linetester:
 	cmp byte [guion], 0
 	je near .done
-	;mov esi, [currentcommandloc]
-	;add esi, 5
-	;xor edi, edi
-	;xor ecx, ecx
-	;call cnvrthextxt
-	;mov esi, ecx
 	mov si, [timenanoseconds + 2];essentially load a random value
-	mov ebx, 28
+	mov ebx, 28*2;the line test draws ~28/6 times more lines in a 4:3 display mode
 	call .circletest
-	mov ebx, 6
+	mov ebx, 6*2 ;this makes them draw the same amount of lines
 	call .linetest
 .done:
 	ret

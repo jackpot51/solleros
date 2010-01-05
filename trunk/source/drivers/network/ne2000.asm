@@ -66,7 +66,7 @@ ne2000:
 	mov [pcifunction], al
 	mov [pcibus], al
 	mov [pcidevice], al
-	mov al, 0x02 ;;type code
+	mov al, 2 ;type code
 	mov [pcitype], al
 	mov eax, 0x802910EC
 	mov [pcidevid], eax

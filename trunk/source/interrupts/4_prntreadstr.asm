@@ -46,14 +46,14 @@ readline:
 		cmp ah, 0x4F
 		je near rdprend
 	notspecialrdprnt:
-		cmp ah, 0x48
-		je near rdprup
 		cmp ah, 0x50
 		je near rdprdown
 		cmp ah, 0x4D
 		je near rdprright
 		cmp ah, 0x4B
 		je near rdprleft
+		cmp ah, 0x48
+		je near rdprup
 %endif
 		cmp al, 8
 		je near rdprbscheck
@@ -227,7 +227,6 @@ readline:
 		mov [commandedit], ah
 		
 	rdprup:
-		xor al, al
 		cmp [commandedit], al
 		je near rdprintb
 		cmp dword [commandlistentries], 0

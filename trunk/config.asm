@@ -3,10 +3,10 @@
 %define gui.included
 ;Turn on the gui
 
-%define gui.alphablending
+;%define gui.alphablending
 ;Make the terminal in the GUI 25% transparent
 
-%define gui.background
+;%define gui.background
 ;Make the GUI have a loadable background
 
 ;%define io.serial "1"
@@ -31,13 +31,16 @@
 %define disk.real
 ;Use real mode for disk access-this gives greater compatibility
 
-%define sound.included
+;%define sound.included
 ;This includes the sound drivers
 
 %define network.included
-;This includes the network stack
+;This includes the network stack\
 
-;%define rtl8139.included
+%define rtl8169.included
+;This includes the RTL8169 drivers
+
+%define rtl8139.included
 ;This includes the RTL8139 drivers
 
 %define ne2000.included
@@ -63,6 +66,7 @@
 %else
 	%undef ne2000.included
 	%undef rtl8139.included
+	%undef rtl8169.included
 %endif
 %ifdef system.simple
 	%define io.serial "1"
@@ -78,6 +82,7 @@
 	%undef sound.included
 	%undef network.included
 	%undef rtl8139.included
+	%undef rtl8169.included
 	%undef ne2000.included
 	%undef sector.debug
 %endif
