@@ -41,14 +41,14 @@ dhcp:
 .ip.checksum dw 0
 	db 0,0,0,0
 	db 255,255,255,255	
-.ip.headerend
-.udp.header
+.ip.headerend:
+.udp.header:
 	db 0,68	;source port
 	db 0,67 ;destination port
 	db (.udp.end - .udp.header)/256, (.udp.end - .udp.header)
 .udp.checksum dw 0
-.udp.headerend
-.dhcp.data
+.udp.headerend:
+.dhcp.data:
 	db 1	;message type
 	db 1	;hardware type
 	db 6	;hardware address length
