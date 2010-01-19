@@ -1,0 +1,24 @@
+%include 'music.inc'
+db "SN"
+dd soundend
+	dw 60,F4
+	dw 100,A4
+	dw 200,B4
+	dw 100,F4
+	dw 100,A4
+	dw 200,B4
+	dw 100,F4
+	dw 100,A4
+	dw 100,B4
+	dw 100,E5
+	dw 200,D5
+	dw 100,B4
+	dw 100,C5
+	dw 100,B4
+	dw 100,G4
+	dw 400,E4
+	dw 100,D4
+	dw 100,E4
+	dw 100,G4
+	dw 400,E4
+soundend:

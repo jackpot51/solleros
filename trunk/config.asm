@@ -3,17 +3,17 @@
 %define gui.included
 ;Turn on the gui
 
-;%define gui.alphablending
+%define gui.alphablending
 ;Make the terminal in the GUI 25% transparent
 
-;%define gui.background
+%define gui.background
 ;Make the GUI have a loadable background
 
 ;%define io.serial "1"
 ;Use the specified serial port for input and output instead of the keyboard and screen
 ;If the gui is included this should not be enabled
 
-;%define terminal.vsync
+%define terminal.vsync
 ;Uses the RTC to automatically update the terminal at ~64Hz
 
 %define hardware.automatic
@@ -31,13 +31,13 @@
 %define disk.real
 ;Use real mode for disk access-this gives greater compatibility
 
-;%define sound.included
+%define sound.included
 ;This includes the sound drivers
 
 %define network.included
 ;This includes the network stack\
 
-%define rtl8169.included
+;%define rtl8169.included
 ;This includes the RTL8169 drivers
 
 %define rtl8139.included
