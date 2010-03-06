@@ -7,9 +7,9 @@ int main(int argc, char *argv[]){
 	time_t begin;
 	time(&begin);
 	printf("UTC time is now %s", ctime(&begin));
+	printf("Type something:\n");
 	char n[256];
-	printf("Type something\n");
-	scanf("%s", &n);
+	scanf("%256s", &n);
 	printf("You typed \"%s\"\n",n);
 	char s = n[0];
 	if(n[0]==8){

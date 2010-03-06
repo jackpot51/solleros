@@ -10,7 +10,7 @@ guistart:
 	call getkey
 	mov byte [copygui], 0
 	jmp guistart
-	
+
 %include "source/gui/bmp.asm"
 %include "source/gui/circle.asm"
 %include "source/gui/cursor.asm"
@@ -250,7 +250,6 @@ windowselect:
 		ja near killwin
 		jmp nodragwin
 	dragwin:
-		mov byte [windrag], 1
 		cmp [lastmouseposition], ax
 		jb near nexticonsel
 		add ax, [edi]
@@ -262,6 +261,10 @@ windowselect:
 		cmp [lastmouseposition + 2], bx
 		ja near nexticonsel
 		mov [dragging], esi
+		cmp byte [windrag], 1
+		ja .nochangewindrag
+		inc byte [windrag]
+	.nochangewindrag:
 		sub dx, [lastmouseposition]
 		add dx, [mousecursorposition]
 		add cx, [mousecursorposition + 2]
@@ -285,7 +288,7 @@ windowselect:
 		call guiclear
 		call reloadallgraphics
 		jmp guistart
-		jmp doneiconsel2
+;		jmp doneiconsel2
 	nexticonsel:
 		and word [esi + 10], 0xFFFE
 		add esi, 16
@@ -295,6 +298,8 @@ windowselect:
 	doneiconsel:
 		cmp dword [dragging], 1
 		jae doneiconsel2
+		xor al, al
+		mov [windrag], al
 		cmp dword [codepointer], 0
 		je doneiconsel2
 		mov ebx, [codepointer]
@@ -305,18 +310,17 @@ windowselect:
 		mov [pLBUTTON], al
 		mov al, [RBUTTON]
 		mov [pRBUTTON], al
-		cmp word [dragging], 1
+		cmp dword [dragging], 1
 		jbe near noreloadgraphicsclick
 		cmp byte [windrag], 1
-		je noclearcursorcl
+		jae noclearcursorcl
 		call clearmousecursor
 noclearcursorcl:
 		call reloadallgraphics
 noreloadgraphicsclick:
+		xor ah, ah
 		xor ecx, ecx
 		xor edx, edx
-		xor ah, ah
-		mov [windrag], ah
 		mov al, 254
 		mov dx, [mousecursorposition]
 		mov cx, [mousecursorposition + 2]
@@ -431,6 +435,10 @@ grphbuf times 16 db 0
 		mov cx, [esi + 2]
 		add cx, 16
 		mov ax, [background]
+		cmp byte [windrag], 1
+		jbe clearwindow
+		sub cx, [esi + 2]	;only clear the title bar and 16 extra lines (for the cursor)
+		add cx, 16
 	clearwindow:
 		%ifdef gui.background
 			cmp dword [backgroundimage], 0
@@ -458,6 +466,7 @@ grphbuf times 16 db 0
 		add dx, [esi]
 		cmp cx, 0
 		jne clearwindow
+	endwindowclear:
 		mov byte [termcopyon], 0
 		mov edi, [lastpos]
 		mov esi, [grphbuf + 2]

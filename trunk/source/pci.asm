@@ -5,7 +5,10 @@ pciregister	db 0
 pcireqtype	db 0
 pcidevid	dd 0
 pcidevidmask dd 0xFFFFFFFF
-
+getpcimem:
+	mov al, 2
+	mov [pcireqtype], al
+	jmp searchpci
 getpciport:
 	mov al, 1
 	mov [pcireqtype], al
@@ -124,6 +127,8 @@ donesearchpci:
 foundpciaddr:
 	mov al, 0x10
 	mov [pciregister], al
+	cmp byte [pcireqtype], 2
+	je findpcimemaddr
 findpciioaddr:
 	call getpciaddr
 	mov edx, 0xCF8
@@ -136,6 +141,29 @@ findpciioaddr:
 	je near notpciioaddr
 	sub eax, 1
 	mov edx, eax
+	xor ebx, ebx
+	dec ebx
+	mov [pcidevidmask], ebx
+	inc ebx
+	mov [pcitype], bl
+	mov [pcidevid], ebx
+	ret
+findpcimemaddr:
+	call getpciaddr
+	mov edx, 0xCF8
+	out dx, eax
+	mov edx, 0xCFC
+	in eax, dx
+	mov ebx, eax
+	and ebx, 1
+	cmp ebx, 1
+	je near notpciioaddr
+	mov edx, eax
+	push eax
+	mov eax, [basecache]
+	shl eax, 4
+	sub edx, eax
+	pop eax
 	xor ebx, ebx
 	dec ebx
 	mov [pcidevidmask], ebx

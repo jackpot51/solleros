@@ -29,7 +29,7 @@ helpmsg:
 		db "print - print a string",13,10
 		db "read - read and print string",13,10
 		db "help - never!",13,10
-		db "exit - exit with a bad error number",13,10
+		db "exit - exit with a bad error number"
 		db "$"
 
 printex:
@@ -48,14 +48,17 @@ readex:
 	mov dx, dosbuf
 	mov ah, 0xA
 	int 21h
+	xor bx, bx
+	mov bl, [dosbuf + 1]
+	add bx, dosbuf
+	add bx, 2
+	mov al, '$'
+	mov [bx], al
 	mov dx, line
 	mov ah, 9
 	int 21h
 	mov dx, dosbuf
-	add dx, 3
-	mov ah, 9
-	int 21h
-	mov dx, line
+	add dx, 2
 	mov ah, 9
 	int 21h
 	int 20h
@@ -63,8 +66,7 @@ readex:
 timeex:
 	int 20h
 
-dosmsg db "Hello from dos!",13,10,"$"
+dosmsg db "Hello from dos!$"
 line db 13,10,"$"
 dosbuf db 30,0,0
 	   times 30 db 0
-	   db "$"

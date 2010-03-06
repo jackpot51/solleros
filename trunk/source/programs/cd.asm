@@ -5,8 +5,10 @@ cd:
 	mov edi, [currentfolderloc]
 	mov [lastfolderloc], edi
 	add edi, currentfolder
-	;cmp word [esi], ".."
-	;je .moveup
+	dec edi
+	cmp word [esi], ".."
+	je .moveup
+	inc edi
 .movedown:
 	mov al, [esi]
 	mov [edi], al
@@ -21,8 +23,46 @@ cd:
 	dec edi
 	mov byte [edi], '/'
 	inc edi
+	mov byte [edi], 0
 	sub edi, currentfolder
 	mov [currentfolderloc], edi
 	ret
-;.moveup:
-;	ret
+.moveup:
+	xor eax, eax
+	mov [lastfolderloc], eax
+.moveuploop:
+	dec edi
+	mov al, [edi]
+	cmp edi, currentfolder
+	jbe .moveupover
+	cmp al, '/'
+	jne .moveuploop
+	mov byte [edi], '/'
+	inc edi
+	mov byte [edi], 0
+	sub edi, currentfolder
+	mov [currentfolderloc], edi
+	add edi, currentfolder
+	dec edi
+.lastfolder:
+	dec edi
+	mov al, [edi]
+	cmp edi, currentfolder
+	jbe .donemoveup
+	cmp al, '/'
+	jne .lastfolder
+.donemoveup:
+	inc edi
+	sub edi, currentfolder
+	mov [lastfolderloc], edi
+	ret
+.moveupover:
+	mov edi, currentfolder
+	mov byte [edi], '/'
+	inc edi
+	mov byte [edi], 0
+	xor eax, eax
+	mov [lastfolderloc], eax
+	inc eax
+	mov [currentfolderloc], eax
+	ret

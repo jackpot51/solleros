@@ -123,11 +123,11 @@ mousedisabled db 0
 	nopreviousbutton:
 		xor al, al
 		mov [pbutton], al
+		mov [windrag], al
 		mov al, [LBUTTON]
 		mov [pLBUTTON], al
 		mov al, [RBUTTON]
 		mov [pRBUTTON], al
-		xor ecx, ecx
 		xor edx, edx
 		mov dx, [mousecursorposition]
 		mov cx, [mousecursorposition + 2]

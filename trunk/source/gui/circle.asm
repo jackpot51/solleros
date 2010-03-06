@@ -3,7 +3,7 @@ drawcircle:	;center in (dx,cx), color in si, radius in ax
 	ja .nozerocircle
 	call putpixel	;the easiest circle ever
 	jmp .done
-.nozerocircle
+.nozerocircle:
 	push ebp
 	mov bp, si
 	push ax

@@ -1,5 +1,8 @@
 ;RTL8139 NIC DRIVER
 rtl8139:
+	call .init
+	jmp .end
+
 .RBSTART equ 0x30
 .IMR equ 0x3C
 .ISR equ 0x3E
@@ -109,8 +112,9 @@ rtl8139:
 	mov [edi + 6], ecx
 	mov cx, [.mac + 4]
 	mov [edi + 10], cx	;copy the correct mac
-	mov eax, edi
-	add eax, 0x100000 ;base address
+	mov eax, [basecache]
+	shl eax, 4
+	add eax, edi
 	out dx, eax	;here's Johnny!
 	pop esi
 	sub esi, edi
@@ -141,3 +145,5 @@ rtl8139:
 .mac db 0,0,0,0,0,0
 .name db "RTL8139 ",0
 .initmsg db "Initialized",10,0
+
+.end:

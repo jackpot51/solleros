@@ -1,5 +1,8 @@
 ;RTL8169 NIC DRIVER
 rtl8169:
+	call .init
+	jmp .end
+
 ;REGISTERS
 .CMD equ 0x37
 .TXPOLL equ 0x38
@@ -33,7 +36,7 @@ rtl8169:
 	cmp ebx, 0xFFFFFFFF
 	jne .initnic
 	ret
-.initnic:	;Here i tried the rtl8139 interface, fuck it
+.initnic:
 	mov [.basenicaddr], edx
 	mov ecx, edx
 	call showhex	;for debugging, please remove
@@ -97,11 +100,15 @@ rtl8169:
 	out dx, al	;setup max tx size
 	mov edx, [.basenicaddr]
 	add edx, .TDSAR
-	mov eax, .txdesc
+	mov eax, [basecache]
+	shl eax, 4
+	add eax, .txdesc
 	out dx, eax
 	mov edx, [.basenicaddr]
 	add edx, .RDSAR
-	mov eax, .rxdesc
+	mov eax, [basecache]
+	shl eax, 4
+	add eax, .rxdesc
 	out dx, eax
 	mov edx, [.basenicaddr]
 	add edx, .CMD
@@ -159,8 +166,9 @@ align 256, nop
 	dd 0	;low buf
 	dd 0	;high buf
 align 256, nop
-.rxdesc
+.rxdesc:
 	dd .OWN | .EOR | (rbuffend - rbuffstart)	;command
 	dd 0	;vlan
 	dd rbuffstart	;low buf
 	dd 0	;high buf
+.end:
