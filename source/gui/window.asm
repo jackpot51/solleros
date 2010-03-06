@@ -63,6 +63,13 @@ wincopyendpos dd 0
 		add dx, dx
 		mov [winvcopydx], dx
 		mov [winvcopycx], cx
+		call reloadwindowtitle
+		cmp byte [windrag], 1
+		jae near forgetresetstuff
+		mov edi, [windowbufloc]
+		jmp windowvideocopyset
+		
+	reloadwindowtitle:
 		mov edi, [windowbufloc]
 		xor edx, edx
 		mov dx, [resolutionx2]
@@ -74,17 +81,16 @@ wincopyendpos dd 0
 		xor edx, edx
 		mov dx, [winvcopystx]
 		add edi, edx
+		xor ecx, ecx
 		mov cx, [winvcopysty]
 		sub cx, 16
 		cmp cx, 0
 		je nocleartitlebarpos
 	cleartitlebarpos:
-		xor edx, edx
-		mov dx, [resolutionx2]
-		add edi, edx
-		dec cx
-		cmp cx, 0
-		jne cleartitlebarpos
+		xor eax, eax
+		mov ax, [resolutionx2]
+		mul ecx
+		add edi, eax
 	nocleartitlebarpos:
 		mov cx, 16
 		mov dx, [winvcopydx]
@@ -111,6 +117,11 @@ wincopyendpos dd 0
 		mov [windowbufloc], edi
 		cmp byte [termcopyon], 2
 		je near winvcpst
+		mov bx, [background]
+		push bx
+		;mov bx, 1111111111111111b
+		xor bx, bx
+		mov [background], bx
 		xor ax, ax
 		add esi, 16
 		mov dx, [winvcopystx]
@@ -118,22 +129,56 @@ wincopyendpos dd 0
 		sub cx, 16
 		mov bx, [windowcolor]
 		mov byte [mouseselecton], 1
-		call showstring2
+		call showstring2	;Show window title
+		mov esi, [usercache]
+		add dx, 16
+		mov byte [mouseselecton], 1
+		call showstring2	;Show user name
+		mov esi, computer
+		mov byte [mouseselecton], 1
+		call showstring2	;Show computer name
 		mov al, "X"
 		xor ah, ah
-		mov bx, [windowcolor]
+		mov bx, 1111100000000000b
 		mov dx, [winvcopystx]
 		mov cx, [winvcopysty]
 		sub cx, 16
-		sub dx, 20
+		sub dx, 16
 		add dx, [winvcopydx]
 		mov byte [mouseselecton], 1
+		cmp dx, [resolutionx2]
+		jae .nox
 		call showfontvesa
+.nox:
+		mov bx, [background]
+		sub dx, 24
+		mov al, "+"
+		mov bx, 0000011111100000b
+		mov byte [mouseselecton], 1
+		cmp dx, [resolutionx2]
+		jae .noplus
+		call showfontvesa
+.noplus:
+		sub dx, 24
+		mov al, "-"
+		mov bx, 1111111111100000b
+		mov byte [mouseselecton], 1
+		cmp dx, [resolutionx2]
+		jae .nominus
+		call showfontvesa
+.nominus:
+		sub dx, 24
+		mov al, "?"
+		mov bx, 0000000000011111b
+		mov byte [mouseselecton], 1
+		cmp dx, [resolutionx2]
+		jae .noquestion
+		call showfontvesa
+.noquestion:
+		pop bx
+		mov [background], bx
 	winvcpst:
-		cmp byte [windrag], 1
-		je near forgetresetstuff
-		mov edi, [windowbufloc]
-		jmp windowvideocopyset
+		ret
 
 	windowvideocopy:
 		mov esi, [windowinfobuf]

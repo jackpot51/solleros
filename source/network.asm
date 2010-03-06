@@ -1,3 +1,4 @@
+network.init:
 %ifdef rtl8139.included
 	%include "source/drivers/network/rtl8139.asm"
 %endif
@@ -7,16 +8,9 @@
 %ifdef ne2000.included
 	%include "source/drivers/network/ne2000.asm"
 %endif
-network.init:
-	%ifdef rtl8139.included
-		call rtl8139.init
-	%endif
-	%ifdef rtl8169.included
-		call rtl8169.init
-	%endif
-	%ifdef ne2000.included
-		call ne2000.init
-	%endif
+%ifdef i8254x.included
+	%include "source/drivers/network/i8254x.asm"
+%endif
 	ret
 
 sendpacket: ;packet start in edi, end in esi
@@ -96,7 +90,7 @@ ipstr dd 0
 showip: 	;put the ip address in ecx
 	mov eax, ecx
 	xor bl, bl
-.lp
+.lp:
 	cmp al, 0
 	jne .nozeroprint
 	mov al, "0"

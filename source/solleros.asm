@@ -16,8 +16,8 @@ bootfilecheck:
 	mov edi, bootfilename
 	mov esi, 0x400000
 	call loadfile
-	cmp edx, 404
-	je near nobootfile
+	cmp edx, 0
+	jne nobootfile
 	call progbatchfound
 nobootfile:	
 	mov byte [ranboot], 1
@@ -57,7 +57,7 @@ passcheck:
 	je near backpass
 	mov [esi], al
 	inc esi
-	mov al, '*'
+	mov al, "*"
 	call prcharint
 	jmp passcheck
 backcursor2 db 8," ",8,0
@@ -310,8 +310,7 @@ nextcommandloc dd 0
 thiscommandloc dd 0	
 run:
 	mov esi, buftxt
-fixvariables:
-	inc esi
+fixvariables:	inc esi
 	mov al, [esi]
 	cmp al, '#'	;inline comment
 	je inlinecomment

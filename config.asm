@@ -13,8 +13,12 @@
 ;Use the specified serial port for input and output instead of the keyboard and screen
 ;If the gui is included this should not be enabled
 
-%define terminal.vsync
+;%define terminal.vsync
 ;Uses the RTC to automatically update the terminal at ~64Hz
+	;WARNING:
+	;This may cause problems on systems with non-standard RTC's
+	;It is therefore recommended that you do not enable it even
+	;though it gives a large speed improvement for character output
 
 %define hardware.automatic
 ;Automatically load the sound and network drivers.
@@ -37,7 +41,7 @@
 %define network.included
 ;This includes the network stack\
 
-;%define rtl8169.included
+%define rtl8169.included
 ;This includes the RTL8169 drivers
 
 %define rtl8139.included
@@ -45,6 +49,9 @@
 
 %define ne2000.included
 ;This includes the ne2000 drivers
+
+%define i8254x.included
+;This includes the Intel 8254x drivers
 
 ;%define sector.debug
 ;Dump the contents of the first sector of SollerOS
@@ -64,6 +71,7 @@
 %endif
 %ifdef network.included
 %else
+	%undef i8254x.included
 	%undef ne2000.included
 	%undef rtl8139.included
 	%undef rtl8169.included
@@ -84,5 +92,6 @@
 	%undef rtl8139.included
 	%undef rtl8169.included
 	%undef ne2000.included
+	%undef i8254x.included
 	%undef sector.debug
 %endif

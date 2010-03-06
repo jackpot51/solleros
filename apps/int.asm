@@ -3,6 +3,10 @@
 ;by generating exceptions with buggy code.
 	mov ax, [edi]
 	mov [numbuf], ax
+	mov eax, 0xFEEDBEEF
+	push eax
+	mov eax, 0x2CA77130
+	push eax
 	mov ecx, 0xB100D015
 	mov edx, 0xBAD2FEED
 	mov ebx, 0x2A11D095

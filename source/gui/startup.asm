@@ -67,6 +67,8 @@ guisetup:
 	mov al, 00010000b
 	mov ebx, winblows
 	call showstring
+	
+	call guitime	;load time into timeshow/dateshow and show it
 	ret
 
 	boo:
@@ -150,3 +152,19 @@ wordicon: 	incbin 'source/gui/icons/word'
 pacmanpellet: incbin 'source/gui/icons/pellet'
 ghostie	incbin 'source/gui/icons/ghostie'
 pacman	incbin 'source/gui/icons/pacman'
+
+guitime:
+		call time	;get rtc in timeshow & dateshow
+		xor ebx, ebx
+		mov dx, [resolutionx2]
+		xor cx, cx
+		sub dx, 304
+		mov esi, dateshow
+		mov al, 00010001b
+		call showstring
+		mov esi, timeshow
+		xor ebx, ebx
+		mov al, 00010001b
+		call showstring
+		ret
+		

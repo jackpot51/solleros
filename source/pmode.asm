@@ -277,6 +277,16 @@ timekeeper:
 	jb nonanosecondrollover
 	inc dword [timeseconds]
 	sub eax, 1000000000
+	%ifdef gui.included
+		;REMOVE THIS IT IS NOT EFFICIENT
+		cmp byte [guion], 1
+		jne nonanosecondrollover
+		cmp dword [dragging], 0
+		jne nonanosecondrollover
+		pusha
+		call guitime
+		popa
+	%endif
 nonanosecondrollover:
 	mov [timenanoseconds], eax
 	pop eax

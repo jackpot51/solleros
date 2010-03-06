@@ -4,7 +4,15 @@ jmp timerinterrupt
 readline:
   mov al, 10
   mov bl, 7
-	rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=bufferend
+rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=bufferend
+	call rdprintdos
+	push eax
+	mov al, [endkeyrdpr]
+	call prcharint
+	pop eax
+	ret
+
+	rdprintdos:
 		mov [buftxtloc], esi
 		mov [endkeyrdpr], al
 		mov [modkeyrdpr], bl
@@ -71,12 +79,12 @@ readline:
 		mov al, bh
 		xor bh, bh
 	nomasktxt:
-		call prcharint
 		push esi
 		mov [axcache], ax
 		mov ah, [endkeyrdpr]
 		cmp al, ah
 		je nobackprintbuftxt2
+		call prcharint
 		mov esi, buftxt2
 		call printquiet
 		mov al, " "
@@ -164,22 +172,6 @@ readline:
 		call shiftbuftxt2
 		call prcharint
 		jmp rdprintb
-	shiftbuftxt2:
-		cmp al, 0
-		je noshiftbuftxt2
-		inc edi
-		mov ah, [edi]
-		mov [edi], al
-		mov al, ah
-		jmp shiftbuftxt2
-	noshiftbuftxt2:
-		mov edi, buftxt2
-		dec esi
-		mov al, [esi]
-		mov [edi], al
-		mov byte [esi], 0
-		mov al, 8
-		ret
 		
 	rdprright:
 		mov edi, buftxt2
@@ -220,7 +212,7 @@ readline:
 		cmp edi, [commandlistentries]
 		ja .nofix
 		mov [commandlistentries], edi
-	.nofix
+	.nofix:
 		cmp ah, 2
 		je rdprdownbck
 		sub ah, 2
@@ -334,6 +326,23 @@ readline:
 		mov bl, [modkeyrdpr]
 		mov al, 8
 		jmp bscheckequal
+		
+	shiftbuftxt2:
+		cmp al, 0
+		je noshiftbuftxt2
+		inc edi
+		mov ah, [edi]
+		mov [edi], al
+		mov al, ah
+		jmp shiftbuftxt2
+	noshiftbuftxt2:
+		mov edi, buftxt2
+		dec esi
+		mov al, [esi]
+		mov [edi], al
+		mov byte [esi], 0
+		mov al, 8
+		ret
 		
 axcache dw 0
 endkeyrdpr db 0

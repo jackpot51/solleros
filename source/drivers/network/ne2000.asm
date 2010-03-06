@@ -1,4 +1,7 @@
 ne2000:
+	call .init
+	jmp .end
+
 ;	PAGE0			PAGE 1			PAGE 2
 ;	READ	WRITE	READ	WRITE	READ	WRITE
 ;0	CR		CR		CR		CR		CR		CR
@@ -325,3 +328,5 @@ align 2, nop
 .ringend dd 0
 .mac db 0,0,0,0,0,0
 .rom times 16 db 0
+
+.end:

@@ -63,13 +63,13 @@ dosgetstr:
 	add esi, dosprogloc
 	mov ecx, 0
 	mov cl, [esi]
-	add esi, 3
+	add esi, 2
 	mov edi, esi
 	mov [stringstart], esi
 	add edi, ecx
 	mov al, 10
 	mov bl, 7
-	call rdprint
+	call rdprintdos
 	mov ecx, esi
 	sub ecx, [stringstart]
 	mov esi, [stringstart]
@@ -96,7 +96,10 @@ dosgettime:
 	jmp backtodos
 	
 dosexit:
+	mov esi, line
+	call print
 	popa
+	popf
 	mov esp, [previousstack]
 	xor ebx, ebx
 	mov bl, al

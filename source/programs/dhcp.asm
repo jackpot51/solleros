@@ -75,6 +75,6 @@ dhcp:
 .dhcp.option.name 	db "SollerOS"
 	db 55,4,1,3,15,6	;request subnet, router, domain name, name server
 	db 0xFF	;end DHCP options
-.dhcp.end
-.udp.end
+.dhcp.end:
+.udp.end:
 	

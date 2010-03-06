@@ -15,7 +15,7 @@ linetester:
 	call .stime
 	pop ebx
 	xor edi, edi
-.ltlp
+.ltlp:
 	push ebx
 	call .st
 	not si
@@ -125,7 +125,7 @@ linetester:
 	pusha
 	call drawline
 	popa
-.noswitch
+.noswitch:
 	inc edi
 	inc bx
 	dec dx

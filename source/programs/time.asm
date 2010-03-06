@@ -32,11 +32,17 @@ timeisset:
 	mov esi, timenscacheend
 	call convert
 	mov esi, timenscache
-	call print
+	call printquiet
 	
 	call time
 	mov esi, timeshow
-	call print
+	call printquiet
+	mov esi, line
+	call printquiet
+	mov esi, dateshow
+	call printquiet
+	mov esi, line
+	call printquiet
 	jmp findday
 time:
 	call tstackput1
@@ -200,8 +206,8 @@ tput1:
 	dayhex db 0
 	monthhex db 0
 	yearhex db 0
-	timeshow db "00:00:00",10
-	dateshow db "00-00-0000",10,0
+	timeshow db "00:00:00",0
+	dateshow db "00-00-0000 ",0
 	oldcentury:	;;from 1700 to 1900
 	db 4,2,0
 	century:	;;from 2000 to 2500

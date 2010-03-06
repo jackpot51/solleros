@@ -40,6 +40,17 @@ ifconfig:
 	call print
 .nortl8169:
 %endif
+%ifdef i8254x.included
+	cmp byte [i8254x.nicconfig], 1
+	jne .noi8254x
+	mov esi, i8254x.name
+	call print
+	mov ecx, i8254x.mac
+	call showmac
+	mov esi, line
+	call print
+.noi8254x:
+%endif
 	mov ecx, [sysip]
 	call showip
 	mov esi, line
