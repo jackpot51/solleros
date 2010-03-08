@@ -67,8 +67,9 @@ guisetup:
 	mov al, 00010000b
 	mov ebx, winblows
 	call showstring
-	
+%ifdef gui.time	
 	call guitime	;load time into timeshow/dateshow and show it
+%endif
 	ret
 
 	boo:
@@ -153,6 +154,7 @@ pacmanpellet: incbin 'source/gui/icons/pellet'
 ghostie	incbin 'source/gui/icons/ghostie'
 pacman	incbin 'source/gui/icons/pacman'
 
+%ifdef gui.time
 guitime:
 		call time	;get rtc in timeshow & dateshow
 		xor ebx, ebx
@@ -167,4 +169,4 @@ guitime:
 		mov al, 00010001b
 		call showstring
 		ret
-		
+%endif

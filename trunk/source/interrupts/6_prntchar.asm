@@ -91,17 +91,26 @@ donescr:
 		jmp donecrnl
 			
 	prbs:
+		mov bx, [linebeginpos]
 		cmp dl, 0
 		je prbackline
 	prnobmr:
+		mov [linebeginpos], bx
 		dec dl
 		xor ax, ax
 		sub edi, 2
 		jmp donecrnl
 	prbackline:
+		xor bx, bx
 		mov dl, cl
 		cmp dh, 0
 		je prnobmr
+		mov bx, [linebeginpos]
+		push cx
+		xor ch, ch
+		sub bx, cx
+		sub bx, cx
+		pop cx
 		dec dh
 		jmp prnobmr
 		

@@ -3,11 +3,14 @@
 %define gui.included
 ;Turn on the gui
 
-%define gui.alphablending
+;%define gui.alphablending
 ;Make the terminal in the GUI 25% transparent
 
-%define gui.background
+;%define gui.background
 ;Make the GUI have a loadable background
+
+;%define gui.time
+;Show time in top right corner of screen
 
 ;%define io.serial "1"
 ;Use the specified serial port for input and output instead of the keyboard and screen
