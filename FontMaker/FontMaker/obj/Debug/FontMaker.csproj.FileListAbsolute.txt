@@ -22,3 +22,11 @@ C:\Users\Jackpot\SollerOS\SVN\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.Prop
 C:\Users\Jackpot\SollerOS\SVN\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.csproj.GenerateResource.Cache
 C:\Users\Jackpot\SollerOS\SVN\trunk\FontMaker\FontMaker\bin\Debug\FontMaker.exe
 C:\Users\Jackpot\SollerOS\SVN\trunk\FontMaker\FontMaker\bin\Debug\FontMaker.pdb
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.exe
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.pdb
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\bin\Debug\FontMaker.exe
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\bin\Debug\FontMaker.pdb
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.Form1.resources
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.Properties.Resources.resources
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.csproj.GenerateResource.Cache

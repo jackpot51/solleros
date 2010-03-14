@@ -67,6 +67,7 @@ guisetup:
 	mov al, 00010000b
 	mov ebx, winblows
 	call showstring
+
 %ifdef gui.time	
 	call guitime	;load time into timeshow/dateshow and show it
 %endif

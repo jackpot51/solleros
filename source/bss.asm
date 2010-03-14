@@ -52,7 +52,7 @@ numbuf: equ buf2 + 20
 		videobuf equ numbuf + 1
 		videobufend equ videobuf + 80*30*2
 		videobuf2 equ videobufend
-		videobuf2end equ videobuf2 + 160*64*2
+		videobuf2end equ videobuf2 + 80*30*2
 	%endif
 	lastcommandpos: equ videobuf2end
 %endif

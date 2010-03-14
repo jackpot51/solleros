@@ -26,8 +26,7 @@ termcopyon db 0
 prcharq:
 	mov ah, bl
 	mov [charbuf], ax
-	xor ebx, ebx
-	mov bx, [videobufpos]
+	mov ebx, [videobufpos]
 	mov edi, videobuf
 	add edi, ebx
 	mov ax, [removedvideo]
@@ -61,15 +60,14 @@ donescr:
 	mov ax, [edi]
 	mov [removedvideo], ax
 	sub ebx, videobuf
-	mov [videobufpos], bx
+	mov [videobufpos], ebx
 	mov [charpos], dx
 	mov ax, [charbuf]
 	mov bl, ah
 	ret
 	
 	prtab:
-		xor ebx, ebx
-		mov bx, [linebeginpos]
+		mov ebx, [linebeginpos]
 		sub edi, videobuf
 		sub edi, ebx
 		shr edi, 4
@@ -84,18 +82,17 @@ donescr:
 	
 	prcr:
 		xor dl, dl
-		xor ebx, ebx
 		mov edi, videobuf
-		mov bx, [linebeginpos]
+		mov ebx, [linebeginpos]
 		add edi, ebx
 		jmp donecrnl
 			
 	prbs:
-		mov bx, [linebeginpos]
+		mov ebx, [linebeginpos]
 		cmp dl, 0
 		je prbackline
 	prnobmr:
-		mov [linebeginpos], bx
+		mov [linebeginpos], ebx
 		dec dl
 		xor ax, ax
 		sub edi, 2
@@ -105,7 +102,7 @@ donescr:
 		mov dl, cl
 		cmp dh, 0
 		je prnobmr
-		mov bx, [linebeginpos]
+		mov ebx, [linebeginpos]
 		push cx
 		xor ch, ch
 		sub bx, cx
@@ -121,8 +118,8 @@ donescr:
 		mov bl, cl
 		shl bx, 1
 		mov edi, videobuf
-		add bx, [linebeginpos]
-		mov [linebeginpos], bx
+		add ebx, [linebeginpos]
+		mov [linebeginpos], ebx
 		add edi, ebx
 		jmp donecrnl
 		
@@ -132,8 +129,8 @@ donescr:
 		xor ebx, ebx
 		mov bl, cl
 		shl bx, 1
-		add bx, [linebeginpos]
-		mov [linebeginpos], bx
+		add ebx, [linebeginpos]
+		mov [linebeginpos], ebx
 		jmp doneeol
 	prscr:
 		dec dh
@@ -156,7 +153,7 @@ donescr:
 		ja intscrollloop
 		xor ax, ax
 		sub edi, videobuf
-		mov [linebeginpos], di
+		mov [linebeginpos], edi
 		add edi, videobuf
 		mov ebx, edi
 	intloopclear:
@@ -171,8 +168,8 @@ donescr:
 		mov cx, [charxy]
 		jmp donescr
 		
-linebeginpos dw 0
-videobufpos: dw 0
+linebeginpos dd 0
+videobufpos: dd 0
 charpos db 0,0
 charxy db 80,30
 charbuf dw 0

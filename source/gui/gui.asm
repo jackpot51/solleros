@@ -287,8 +287,8 @@ windowselect:
 		mov byte [termguion], 0
 		call guiclear
 		call reloadallgraphics
+		call switchmousepos2 ;Copy what is now under the mouse
 		jmp guistart
-;		jmp doneiconsel2
 	nexticonsel:
 		and word [esi + 10], 0xFFFE
 		add esi, 16
@@ -312,6 +312,7 @@ windowselect:
 		mov [pRBUTTON], al
 		cmp dword [dragging], 1
 		jbe near noreloadgraphicsclick
+		call switchmousepos2
 		cmp byte [windrag], 1
 		jae noclearcursorcl
 		call clearmousecursor
@@ -437,8 +438,7 @@ grphbuf times 16 db 0
 		mov ax, [background]
 		cmp byte [windrag], 1
 		jbe clearwindow
-		sub cx, [esi + 2]	;only clear the title bar and 16 extra lines (for the cursor)
-		add cx, 16
+		sub cx, [esi + 2]
 	clearwindow:
 		%ifdef gui.background
 			cmp dword [backgroundimage], 0
