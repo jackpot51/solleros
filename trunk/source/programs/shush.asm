@@ -58,6 +58,7 @@ shushprog:
 	call guiclear
 	call clear
 	call reloadallgraphics
+	call switchmousepos2
 .noswitchsize:
 %endif
 	mov esi, shushmsg

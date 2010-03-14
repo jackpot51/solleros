@@ -97,12 +97,12 @@ void OutDig(int dig)
       if ((printed%1000) == 0)
       {
             printed = 0;
-            printf("\n\n\n");
+//            printf("\n\n\n");
       }
-      if ((printed%50) == 0)
-            printf("\n");
-      else if ((printed%10) == 0)
-            putchar(' ');
+//      if ((printed%50) == 0)
+//            printf("\n");
+//      else if ((printed%10) == 0)
+//            putchar(' ');
 }
 
 
@@ -124,7 +124,7 @@ void Print(SHORT *num)
 {
       INDEXER x;
 
-      printf("\nPI = 3.\n");
+      printf("\nPI =\n3.");
       for (x = 1; x < size; x++)
             PrintShort(num[x]);
       printf("\n");

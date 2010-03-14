@@ -87,7 +87,7 @@ newtermcopy:
 	mov edi, videobuf
 	xor ebx, ebx
 	mov [termcopyneeded], bl
-	mov bx, [videobufpos]
+	mov ebx, [videobufpos]
 	add edi, ebx
 	mov [termcursorpos], edi
 	call switchtermcursor

@@ -45,14 +45,17 @@
             // pictureBox1
             // 
             this.pictureBox1.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(320, 640);
+            this.pictureBox1.Size = new System.Drawing.Size(320, 641);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
             // button1
             // 
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.Location = new System.Drawing.Point(12, 658);
+            this.button1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(100, 24);
             this.button1.TabIndex = 1;
@@ -62,7 +65,9 @@
             // 
             // numericUpDown1
             // 
+            this.numericUpDown1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.numericUpDown1.Location = new System.Drawing.Point(224, 662);
+            this.numericUpDown1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(72, 20);
             this.numericUpDown1.TabIndex = 2;
@@ -70,7 +75,9 @@
             // 
             // button2
             // 
+            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.Location = new System.Drawing.Point(118, 658);
+            this.button2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(100, 24);
             this.button2.TabIndex = 4;
@@ -81,6 +88,7 @@
             // pictureBox2
             // 
             this.pictureBox2.Location = new System.Drawing.Point(316, 658);
+            this.pictureBox2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(16, 32);
             this.pictureBox2.TabIndex = 5;
@@ -89,18 +97,15 @@
             // pictureBox3
             // 
             this.pictureBox3.Location = new System.Drawing.Point(302, 662);
+            this.pictureBox3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(8, 16);
+            this.pictureBox3.Size = new System.Drawing.Size(8, 17);
             this.pictureBox3.TabIndex = 6;
             this.pictureBox3.TabStop = false;
             // 
-            // saveFileDialog1
-            // 
-            // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(344, 694);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);
@@ -108,8 +113,10 @@
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.pictureBox1);
+            this.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "FontMaker";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();

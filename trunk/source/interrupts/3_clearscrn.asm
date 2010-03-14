@@ -7,9 +7,9 @@ clear:
 clear:		
 		mov cx, [charxy]
 		mov edi, videobuf
-		xor ax, ax
-		mov [linebeginpos], ax
-		mov [videobufpos], ax
+		xor eax, eax
+		mov [linebeginpos], eax
+		mov [videobufpos], eax
 		xor dx, dx
 		mov [charpos], ax
 		mov ah, 7

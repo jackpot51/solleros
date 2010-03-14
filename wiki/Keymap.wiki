@@ -11,14 +11,14 @@ SollerOS will be switching to Unicode soon, meaning that all Greek characters, L
 ====Here is the keymap currently in use by SollerOS. This may change as characters are added so remember to check this page to get the current keymap.====
 || *None* || Shift || *Alt* || Shift || *Ctrl* || Shift ||
 || ` || ~ || || || || ||
-|| 1 || ! || ¡ || || || ||
+|| 1 || ! || ¡ || ‼ || || ||
 || 2 || @ || ² || √ || || ||
 || 3 || # || || || || ||
 || 4 || $ || ¢ || £ || || ||
 || 5 || % || € || || || ||
-|| 6 || ^ || ¼ || || || ||
+|| 6 || ^ || ¼ || ⁿ || || ||
 || 7 || & || ½ || || || ||
-|| 8 || ٭ || ∞ || || || ||
+|| 8 || ٭ || ∞ || • || || ||
 || 9 || ( || || || || ||
 || 0 || ) || || || || ||
 || - || _ || ¥ || ± || || ||
@@ -39,13 +39,13 @@ SollerOS will be switching to Unicode soon, meaning that all Greek characters, L
 || a || A || á || à || α || A ||
 || s || S || § || || σ || Σ ||
 || d || D || ° || || δ || Δ ||
-|| f || F || ƒ || || φ || Φ ||
+|| f || F || ƒ || ♀ || φ || Φ ||
 || g || G || || || y || Γ ||
 || h || H || || || n || H ||
 || j || J || || || || ||
 || k || K || || || k || K ||
 || l || L || || || θ || θ ||
-|| ; || : || ¶ || || || ||
+|| ; || : || ¶ || ■ || || ||
 || ' || " || || || || ||
 || z || Z || æ || Æ || z || Z ||
 || x || X || || || || Ξ ||
@@ -53,7 +53,7 @@ SollerOS will be switching to Unicode soon, meaning that all Greek characters, L
 || v || V || || || || ||
 || b || B || || || β || B ||
 || n || N || ñ || Ñ || v || N ||
-|| m || M || || || μ || M ||
+|| m || M || ♬ || ♂ || μ || M ||
 || , || < || ≤ || « || || ||
 || . || > || ≥ || » || || ||
 || / || ? || ¿ || || || ||
