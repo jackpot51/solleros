@@ -1,4 +1,4 @@
-	mov ebx, variables
+	;mov ebx, variables
 	mov esi, [currentcommandloc]
 	mov edi, esi
 	xor ecx, ecx

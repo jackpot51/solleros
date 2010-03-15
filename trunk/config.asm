@@ -6,7 +6,7 @@
 ;%define gui.alphablending
 ;Make the terminal in the GUI 25% transparent
 
-%define gui.background
+;%define gui.background
 ;Make the GUI have a loadable background
 
 ;%define gui.time

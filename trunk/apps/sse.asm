@@ -34,6 +34,7 @@ call clearnorm
 call etime
 PRINT "nanoseconds.",10
 hlt
+xor ebx, ebx
 jmp exit
 
 stime:

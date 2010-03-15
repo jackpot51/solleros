@@ -14,6 +14,7 @@
 		je near nofix
 		mov esi, noportnum
 		call print
+		xor ebx, ebx
 		jmp exit
 	noportnum db "You must enter a port number from 1 to 4.",10,0
 	nofix:
