@@ -20,9 +20,22 @@ Now you may use easy to remember syscalls to do what used to be done using inter
 ====print====
 This prints the string in ESI.
   * ESI=Location of zero-terminated string.
+====read====
+This reads input into ESI.
+  * ESI=Location of buffer.
+  * ECX=length of buffer.
+====showdec====
+This prints a number in decimal.
+  * ECX=Number.
+====showhex====
+This prints a number in hexadecimal.
+  * ECX=Number.
+====run====
+This runs a command in ESI.
+  * ESI=Location of zero-terminated command string.
 ====exit====
-This exits with an error code in AL.
-  * AL=Error code.
+This exits with an error code in BL.
+  * BL=Error code.
 
 ==Without Library==
 ===Program Structure===
@@ -50,7 +63,7 @@ msg db "Hello World!",0  ;zero terminated string
 The 0x30 Interrupt Vector is used to communicate with SollerOS and have it perform basic functions.
 ====AH=0====
 This quits the program.
-  * AL=Exit Code. A non-zero value gives an error.
+  * EBX=Exit Code. A non-zero value gives an error.
 ====AH=1====
 This prints strings with the following properties:
   * AL=Terminating character in the string, usually 0
@@ -58,25 +71,64 @@ This prints strings with the following properties:
   * ESI=Location of the string to print
 ====AH=2====
 This reads strings from user input with the following properties:
-  * AL=Terminating character, usually 13(which is the Enter key)
-  * ESI=Buffer to put the string into
+  * AL=Terminating character, usually 10 (which is the Enter key).
+  * ESI=Buffer to put the string into.
+  * ECX=Length of buffer.
+  * *ESI*=Zero-terminated string read from user input.
 ====AH=3====
 This clears the screen.
 ====AH=4====
 This both reads a string from user input and prints it to the screen with the following properties:
-  * AL=Terminating character
-  * BL=Modifier
-  * ESI=Buffer to put the string into
+  * AL=Terminating character, usually 10.
+  * BL=Modifier.
+  * ESI=Buffer to put the string into.
+  * ECX=Length of buffer.
+  * *ESI*=Zero-terminated string read from user input.
 ====AH=5====
 This reads a character from user input with the following properties:
   * AL=Zero if the function should wait for a keypress and nonzero if it should not wait.
+  * *AL*=Character read from user input.
 ====AH=6====
 This prints a character to the screen with the following properties:
-  * AL=Character to print
-  * BL=Modifier
+  * AL=Character to print.
+  * BL=Modifier.
 ====AH=7====
 This reads a file from the disk with the following properties:
-  * ESI=Location in memory where file should be placed
-  * EDI=Location of zero-terminated string containing the file's filename
-====AH=[8,∞)====
-There are a few more that are in development, who knows what else will be added
+  * ESI=Location in memory where file should be placed.
+  * EDI=Location of zero-terminated string containing the file's filename.
+====AH=8====
+This will write files but is not implemented.
+====AH=9====
+This prints a number to the screen.
+  * ECX=Number.
+  * AL=0 if decimal output is wanted.
+  * AL=1 if hexadecimal output is wanted.
+====AH=10====
+This converts text into a number.
+  * ESI=Zero-terminated string containing number.
+  * *ECX*=Number.
+====AH=11====
+This forks the current thread.
+  * ESI=Start address of new thread.
+  * _For the new thread, all other registers_=Previous values.
+  * *EBX*=PID of new thread.
+====AH=12====
+This gets the current Unix time.
+  * *EAX*=Unix time in seconds.
+  * *EBX*=Nanoseconds after the second.
+  * *ECX*=Microseconds after the second.
+====AH=13====
+This sets the current Unix time.
+  * EAX=Unix time in seconds.
+  * EBX=Nanoseconds after the second.
+====AH=14====
+This runs a command in the place of the current process.
+  * ESI=Zero-terminated command string.
+  * *EBX*=Error code from process.
+====AH=15====
+This returns program information for the current process.
+  * *EBX*=Owner's UID.
+  * *EDX*=PID.
+  * *ESI*=Command string.
+  * *EDI*=End of command string.
+  * *ECX*=Number of arguments.
