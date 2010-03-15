@@ -96,14 +96,14 @@ rtl8139:
 	push esi
 	push edi
 	cmp byte [.nicconfig], 1
-	je .sendcachedata
+	je .sendit
 	call .init
 	pop edi
 	pop esi
 	cmp ebx, 0xFFFFFFFF
 	jne .sendpacket
 	ret
-.sendcachedata:
+.sendit:
 	call .resetnic
 	mov edx, [.basenicaddr]
 	add edx, .TSAD0

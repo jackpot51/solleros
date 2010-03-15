@@ -32,9 +32,9 @@ text_snapshot_check: enabled=0
 private_colormap: enabled=0
 clock: sync=realtime, time0=local
 # no cmosimage
-ne2k: enabled=1, ioaddr=0x300, irq=9, mac=fe:fd:de:ad:be:ef, ethmod=win32, ethdev= \Device\NPF_{18449276-2882-4C6A-83AB-23C056F61CCC}, script=none
+ne2k: enabled=1, ioaddr=0x300, irq=9, mac=fe:fd:de:ad:be:ef, ethmod=null, ethdev=, script=none
 pnic: enabled=0
-sb16: enabled=0
+sb16: enabled=1, midimode=0, midi=, wavemode=0, wave=, loglevel=0, log=, dmatimer=0
 # no loader
 log: -
 logprefix: %t%e%d

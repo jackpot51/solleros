@@ -124,7 +124,7 @@ void Print(SHORT *num)
 {
       INDEXER x;
 
-      printf("\nPI =\n3.");
+      printf("3.");
       for (x = 1; x < size; x++)
             PrintShort(num[x]);
       printf("\n");
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
       Print(pi);
 
 #ifdef SHOWTIME
-      printf("\nCalculation time %0.0lf\n", difftime(T2, T1));
+      printf("Calculation time %0.0lf\n", difftime(T2, T1));
 #endif
 
       return EXIT_SUCCESS;
