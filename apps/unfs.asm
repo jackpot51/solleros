@@ -12,6 +12,7 @@
 	je near showfiles
 	mov esi, infomsg
 	call print
+	xor ebx, ebx
 	jmp exit	;there are no other commands yet
 infomsg db "list-list included files",10,"show-display a file",10,0
 systemlocation db "_img.bin",0
@@ -62,6 +63,7 @@ check_fs:
 .error:
 	mov esi, fsnogood
 	call print
+	xor ebx, ebx
 	jmp exit
 fsnogood: db "The filesystem signature was invalid.",10,0
 
@@ -71,6 +73,7 @@ load_fs:
 	mov ah, 7
 	int 0x30
 	mov eax, edx
+	xor ebx, ebx
 	cmp edx, 0
 	jne near exit
 	ret
@@ -112,10 +115,12 @@ showfiles:
 			call print
 			mov esi, line
 			call print
+			xor ebx, ebx
 			jmp exit
 	testfilefolderfound:
 			mov esi, foldermsg
 			call print
+			xor ebx, ebx
 			jmp exit
 	testfilenofind:
 			mov esi, [esibuf]
@@ -141,6 +146,7 @@ listfilesloop:
 	pop esi
 	pop edi
 	inc esi
+	xor ebx, ebx
 	cmp byte [esi], 0
 	je near exit
 	cmp esi, edi

@@ -63,7 +63,6 @@ run:
 	
 exit:
 	xor eax, eax
-	xor ebx, ebx
 	int 0x30
 			
 %macro EXIT 1

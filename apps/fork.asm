@@ -25,6 +25,7 @@ athread:
 	int 0x30
 	mov esi, threadmsg2
 	call print
+	xor ebx, ebx
 	jmp exit
 
 bthread:
