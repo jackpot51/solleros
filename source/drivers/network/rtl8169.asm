@@ -137,7 +137,10 @@ rtl8169:
 	mov [edi + 6], ecx
 	mov cx, [.mac + 4]
 	mov [edi + 10], cx	;copy the correct mac
-	mov [.txdesc + 8], edi	;put packet start in tx descriptor
+	mov eax, [basecache]
+	shl eax, 4
+	add eax, edi
+	mov [.txdesc + 8], eax	;put packet start in tx descriptor
 	sub esi, edi
 	mov [.txdesc], si	;put packet size in tx descriptor
 	or dword [.txdesc], .OWN	;set own bit

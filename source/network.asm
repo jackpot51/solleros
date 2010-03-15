@@ -29,7 +29,14 @@ sendpacket: ;packet start in edi, end in esi
 		pop edi
 	%endif
 	%ifdef ne2000.included
+		push edi
+		push esi
 		call ne2000.sendpacket
+		pop esi
+		pop edi
+	%endif
+	%ifdef i8254x.included
+		call i8254x.sendpacket
 	%endif
 	ret
 

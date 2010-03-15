@@ -34,7 +34,7 @@ wincopyendpos dd 0
 		mov edi, [esi + 8]
 		mov [windowvideobuf], edi
 		cmp ebx, 0
-		je near donewincopynow	;AAAAAAAAA!!!!!
+		je near donewincopynow
 	findendposwin:
 		add edi, eax
 		add edi, eax
