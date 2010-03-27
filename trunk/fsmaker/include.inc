@@ -1,10 +1,8 @@
 ;to make programming for solleros easier, i have created this include file that you may include at the beginning of your program so that you need only focus on your code. It will contain easy to use calls like print, read, or exit that you may use instead of interrupts.
-[BITS 32]
-[ORG 0x400000]
-db "EX"
+%include "start.inc"
 jmp ___progstart___
 
-line db 10,13,0
+line db 10,0
 
 tester:			;si=user bx=prog cl=endchar returns 1 in al if true
 			xor al, al

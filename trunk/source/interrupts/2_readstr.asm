@@ -1,3 +1,4 @@
+readstr:
 call readint
 jmp timerinterrupt
 

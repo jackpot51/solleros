@@ -1,3 +1,4 @@
+readchar:
 	call rdcharint
 	jmp timerinterrupt
 getchar:

@@ -3,9 +3,9 @@ linetester:
 	cmp byte [guion], 0
 	je near .done
 	mov si, [timenanoseconds + 2];essentially load a random value
-	mov ebx, 28*2;the line test draws ~28/6 times more lines in a 4:3 display mode
+	mov ebx, 28*2;the line test draws ~28/6 times more lines in a 4:3 display mode than circles
 	call .circletest
-	mov ebx, 6*2 ;this makes them draw the same amount of lines
+	mov ebx, 6*2 ;this makes them draw the same amount of lines as circles
 	call .linetest
 .done:
 	ret

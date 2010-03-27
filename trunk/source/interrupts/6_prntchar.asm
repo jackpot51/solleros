@@ -1,3 +1,4 @@
+prntchar:
 %ifdef io.serial
 	cmp bl, bh
 	call prcharint

@@ -3,7 +3,7 @@
 		and byte [mouseselecton], 1
 		mov ah, 2
 		call graphicsadd
-	showstring2:
+	showstring2:	;location in (dx,cx), color in [colorfont2] and [background]
 		xor ah, ah
 		mov al, [esi]
 		cmp al, 0

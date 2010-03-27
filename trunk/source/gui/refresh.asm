@@ -2,6 +2,8 @@ guiclear:
 	mov edi, [physbaseptr]
 	mov dx, [resolutionx]
 	mov cx, [resolutiony]
+	mov bx, [background]
+	mov [background + 2], bx
 %ifdef gui.background
 	cmp dword [backgroundimage], 0
 	je guiclear.noback
@@ -41,6 +43,7 @@ guiclearloop:
 	ret
 
 background times 2 dw 0111101111001111b
+	.original equ 0111101111001111b
 
 reloadallgraphics:
 		mov edi, graphicstable

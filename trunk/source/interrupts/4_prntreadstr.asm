@@ -1,3 +1,4 @@
+prntreadstr:
 call rdprint
 jmp timerinterrupt
 

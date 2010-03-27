@@ -1,3 +1,4 @@
+runcmd:
 	mov edi, buftxt
 cpcmd:
 	mov al, [esi]

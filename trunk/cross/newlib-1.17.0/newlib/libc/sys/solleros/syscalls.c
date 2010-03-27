@@ -22,9 +22,6 @@
         return -1;
     }
 
-    char *__env[1] = { 0 };
-    char **environ = __env;
-
     int execve(char *name, char **argv, char **env){
       asm("movb $14, %%ah\n\t"
 	  "int $0x30"
@@ -53,16 +50,12 @@
     }
 
 	int gettimeofday(struct timeval *p, void *z){
-		time_t _sec;
-		suseconds_t _usec;
 		asm("movb $12, %%ah\n\t"
 			"int $0x30"
-			: "=a" (_sec), "=c" (_usec)
+			: "=a" (p->tv_sec), "=c" (p->tv_usec)
 			:
 			: "%ebx"
 			);
-		p->tv_sec = _sec;
-		p->tv_usec = _usec;
 		return 0;
 	}
 

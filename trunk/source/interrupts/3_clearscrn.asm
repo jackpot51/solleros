@@ -1,3 +1,4 @@
+clearscrn:
 call clear
 jmp timerinterrupt
 %ifdef io.serial
