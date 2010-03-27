@@ -1,0 +1,2 @@
+netint:
+	jmp timerinterrupt

@@ -1,0 +1,2 @@
+soundint:
+	jmp timerinterrupt

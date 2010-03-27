@@ -1,3 +1,4 @@
+proginfo:
 	;mov ebx, variables
 	mov esi, [currentcommandloc]
 	mov edi, esi

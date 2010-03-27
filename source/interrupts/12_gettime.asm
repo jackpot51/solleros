@@ -1,3 +1,4 @@
+gettime:
 	mov eax, [timeseconds]
 	mov ebx, [timenanoseconds]
 	mov ecx, ebx

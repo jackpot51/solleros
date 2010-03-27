@@ -61,6 +61,9 @@ indexdone db 0
 %include 'source/programs/beep.asm'
 %include 'source/programs/cd.asm'
 %include 'source/programs/charmap.asm'
+%ifdef gui.included
+	%include 'source/programs/circle.asm'
+%endif
 %include 'source/programs/clear.asm'
 %include 'source/programs/cpuid.asm'
 %ifdef network.included

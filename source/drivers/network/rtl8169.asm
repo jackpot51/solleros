@@ -150,11 +150,9 @@ rtl8169:
 	out dx, al	;set up TX Polling
 .sendloop:
 	mov eax, [.txdesc]
-	mov ecx, eax
-	call showhex
-	call getchar
-	test eax, .OWN
-	jnz .sendloop
+	and eax, .OWN
+	cmp eax, .OWN
+	je .sendloop
 	ret
 	
 .basenicaddr dd 0

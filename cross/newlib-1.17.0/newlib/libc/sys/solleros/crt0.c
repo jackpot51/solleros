@@ -1,15 +1,18 @@
 extern int main(int argc, char *argv[]);
+char *__env[1] = { 0 };
+char **environ = __env;
 void _start()
 {
 	unsigned int addr;
 	unsigned int endaddr;
 	unsigned int variables;
+	unsigned int varnum;
 	int argc;
 	asm("movb $15, %%ah\n\t"
 		"int $0x30"
-		: "=D" (endaddr), "=S" (addr), "=c" (argc), "=a" (variables)
+		: "=D" (endaddr), "=S" (addr), "=c" (argc), "=a" (variables), "=b" (varnum)
 		:
-		: "%ebx", "%edx"
+		: "%edx"
 		);
     char args[argc][256];
 	int i = 0;

@@ -1,5 +1,4 @@
 %include "include.inc"
-section .text
 	PRINT "Running help",10
 	RUN "help"
 	PRINT "Setting variable $a to 12",10
@@ -8,4 +7,3 @@ section .text
 	RUN "!4+$a"
 	xor ebx, ebx
 	jmp exit
-section .data

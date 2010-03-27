@@ -1,73 +1,81 @@
 newints:	;for great justice
 	cmp ah, 0
-	je near intx0   ;kills app
+	je near exitprog   ;kills app
 	cmp ah, 1
-	je near intx1   ;print string
+	je near prntstr  ;print string
 	cmp ah, 2
-	je near intx2	;read string
+	je near readstr	;read string
 	cmp ah, 3
-	je near intx3	;clear screen
+	je near clearscrn	;clear screen
 	cmp ah, 4
-	je near intx4	;read and print string
+	je near prntreadstr	;read and print string
 	cmp ah, 5
-	je near intx5	;get char
+	je near readchar	;get char
 	cmp ah, 6
-	je near intx6	;print char
+	je near prntchar	;print char
 	cmp ah, 7
-	je near intx7	;read file
+	je near openfile	;read file
 ;	cmp ah, 8
-;	je near intx8	;write file
+;	je near closefile	;close file
 	cmp ah, 9
-	je near intx9	;convert number to string
+	je near num2str	;convert number to string
 	cmp ah, 10
-	je near intx10	;convert string to number
+	je near str2num	;convert string to number
 %ifdef threads.included
 	cmp ah, 11
-	je near intx11	;create thread
+	je near forkthread	;create thread
 %endif
 	cmp ah, 12
-	je near intx12	;get time
+	je near gettime	;get time
 	cmp ah, 13
-	je near intx13	;set time
+	je near settime	;set time
 	cmp ah, 14
-	je near intx14	;run program
+	je near runcmd	;run program
 	cmp ah, 15
-	je near intx15	;get program info-location of name/options/number of options/environmental vars
-	ret
-	
-;;the jmp timerinterrupt's ensure that task switches occur
-intx0:
-	%include 'source/interrupts/0_exit.asm'
-intx1:
+	je near proginfo ;get program info-location of name/options/number of options/environmental vars
+	cmp ah, 16
+	je near hooksig	;hook code to a signal
+%ifdef gui.included
+	cmp ah, 17
+	je near guiint	;GUI operations
+%endif
+%ifdef sound.included
+	cmp ah, 18
+	je near guiint	;sound operations
+%endif
+%ifdef network.included
+	cmp ah, 19
+	je near netint	;networking operations
+%endif
+	iret
+	%include 'source/interrupts/0_exitprog.asm'
 	%include 'source/interrupts/1_prntstr.asm'
-intx2:
 	%include 'source/interrupts/2_readstr.asm'
-intx3:
 	%include 'source/interrupts/3_clearscrn.asm'
-intx4:
 	%include 'source/interrupts/4_prntreadstr.asm'
-intx5:
 	%include 'source/interrupts/5_readchar.asm'
-intx6:
 	%include 'source/interrupts/6_prntchar.asm'
-intx7:
 	%include 'source/interrupts/7_openfile.asm'
-intx9:
 	%include 'source/interrupts/9_num2str.asm'
-intx10:
 	%include 'source/interrupts/10_str2num.asm'
 %ifdef threads.included
-intx11:
 	%include 'source/interrupts/11_forkthread.asm'
 %endif
-intx12:
 	%include 'source/interrupts/12_gettime.asm'
-intx13:
 	%include 'source/interrupts/13_settime.asm'
-intx14:
 	%include 'source/interrupts/14_runcmd.asm'
-intx15:
 	%include 'source/interrupts/15_proginfo.asm'
+	%include 'source/interrupts/16_hooksig.asm'
+%ifdef gui.included
+	%include 'source/interrupts/17_guiint.asm'
+%endif
+%ifdef gui.included
+	%include 'source/interrupts/18_soundint.asm'
+%endif
+%ifdef network.included
+	%include 'source/interrupts/19_netint.asm'
+%endif
+
 termcopy:
 %ifdef io.serial
 	ret

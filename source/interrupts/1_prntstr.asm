@@ -1,3 +1,4 @@
+prntstr:
 call printint
 jmp timerinterrupt
 

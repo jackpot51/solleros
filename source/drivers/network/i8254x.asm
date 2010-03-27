@@ -102,7 +102,7 @@ i8254x:
 	cmp ebx, 0
 	je .sendit
 	ret
-.sendit	;packet start in edi, packet end in esi
+.sendit:	;packet start in edi, packet end in esi
 	mov ecx, [.mac]
 	mov [edi + 6], ecx
 	mov cx, [.mac + 4]

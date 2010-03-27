@@ -1,6 +1,6 @@
     ; MENU.ASM
 %include 'source/signature.asm'
-menustart:	
+boot:
 	mov ax, cs
 	mov ds, ax
 	mov es, ax

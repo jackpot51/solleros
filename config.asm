@@ -42,7 +42,7 @@
 ;This includes the sound drivers
 
 %define network.included
-;This includes the network stack\
+;This includes the network stack
 
 %define rtl8169.included
 ;This includes the RTL8169 drivers

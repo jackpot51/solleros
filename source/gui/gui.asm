@@ -50,7 +50,9 @@ colorbuf dw 0,0
 		mov dword [dragging], 1
 		jmp dragclick
 	nodragclick:
-		mov dword [dragging], 0
+		xor eax, eax
+		mov dword [dragging], eax
+		mov [pbutton], al
 		mov al, [LBUTTON]
 		mov [pLBUTTON], al
 		mov al, [RBUTTON]
@@ -298,7 +300,6 @@ windowselect:
 	doneiconsel:
 		cmp dword [dragging], 1
 		jae doneiconsel2
-		xor al, al
 		mov [windrag], al
 		cmp dword [codepointer], 0
 		je doneiconsel2

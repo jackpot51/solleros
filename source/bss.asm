@@ -8,7 +8,8 @@ memlistend equ memlistbuf + 576
 bsscopy equ memlistend
 initialstack equ bsscopy
 stackend equ initialstack + 4000
-fileindex: equ stackend + 96
+sigtable equ stackend + 96
+fileindex: equ sigtable + 4
 fileindexend: equ fileindex + 1024
 previousstack equ fileindexend
 lastfolderloc equ previousstack + 4

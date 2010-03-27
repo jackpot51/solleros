@@ -204,21 +204,53 @@ keyinterrupt:		;checks for escape, if pressed, it quits the program currently ru
 	cmp al, 1		;escape
 	je userint
 	jmp handled2
+;	cmp al, 0x57
+;	jne near handled2
+;pauseint:	;F11 pauses
+;	in al, 64h
+;	test al, 20h
+;	jnz pauseint
+;	in al, 60h
+;	cmp al, 0xD7
+;	jne pauseint
+;	mov esi, pausemsg
+;	call print
+;	cli
+;pauselp:
+;	nop
+;	in al, 64h
+;	test al, 20h
+;	jnz pauselp
+;	in al, 60h
+;	cmp al, 0x57
+;	je near handled2
+;	jmp pauselp
+;pausemsg db "Paused",10,0
 userint:
-	;UNMASK ALL INTS
-	xor al, al
+	xor eax, eax
+	cmp [sigtable], eax
+	je .nosighook
+	mov ebx, [sigtable]
+	mov [esp + 32], ebx
+;	mov [sigtable], eax
+	mov al, 0x20
+	out 0x20, al
+	popa
+	sti
+	iret
+.nosighook:
+		;UNMASK ALL INTS
 	out 0x21, al
-	xor al, al
 	out 0xA1, al
 	mov al, 0x20
 	out 0xA0, al
 	out 0x20, al
-	;RESET PIT DIVISOR
+		;RESET PIT DIVISOR
 	mov ax, [pitdiv]
 	out 0x40, al
 	rol ax, 8
 	out 0x40, al
-	;RESET PIC
+		;RESET PIC
 	mov al, 0x20
 	out 0x20, al
 	popa

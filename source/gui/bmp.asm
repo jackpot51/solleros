@@ -1,4 +1,3 @@
-
 showbmp:
 	mov ax, [esi]
 	cmp ax, "BM"
