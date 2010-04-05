@@ -42,23 +42,23 @@ bthread:
 	mov ecx, 0xBBBBBB00
 	mov bl, "B"
 	call threadmain
-	jmp hlt
+	jmp _hlt
 
 cthread:
 	mov ecx, 0xCCCCCC00
 	mov bl, "C"
 	call threadmain
-	jmp hlt
+	jmp _hlt
 
 dthread:
 	mov ecx, 0xDDDDDD00
 	mov bl, "D"
 	call threadmain
-	jmp hlt
+	jmp _hlt
 
-hlt:
+_hlt:
 	hlt
-	jmp hlt
+	jmp _hlt
 
 fork:
 	xor esi, esi
