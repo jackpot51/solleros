@@ -31,39 +31,42 @@ char plines;
 void physdraw(physobj *p){
 	int x = p->x/pds + pox;
 	int y = p->y/pds + poy;
-	if((p->x + p->r)>=(screen->x - pox)*pds | (p->x - p->r)<=-pox*pds | (p->y + p->r)>=(screen->y - poy)*pds | (p->y - p->r)<=-poy*pds){
-		if(x<=0) x=1;
-		if(x>screen->x) x=screen->x;
-		if(y<=0) y=1;
-		if(y>screen->y) y=screen->y;
-	}else{
-		fillcircle(x,y,p->r/pds,BG);
-	}
-	if(plines){
-		drawline(screen->x/2,screen->y/2,x - 1,y - 1,BG);
-	}
-	p->x = p->x + p->vx;
-	p->y = p->y + p->vy;
-	x = p->x/ds + ox;
-	y = p->y/ds + oy;
-	if((p->x + p->r)>=(screen->x - ox)*ds | (p->x - p->r)<=-ox*ds | (p->y + p->r)>=(screen->y - oy)*ds | (p->y - p->r)<=-oy*ds){
-		if(x<=0) x=1;
-		if(x>=screen->x) x=screen->x;
-		if(y<=0) y=1;
-		if(y>screen->y) y=screen->y;
-	}else{
-		fillcircle(x,y,p->r/ds,p->color);
-	}
-	if(lines){
-		drawline(screen->x/2,screen->y/2,x - 1,y - 1,p->color);
-	}
+	//if(x==(int)((p->x + p->vx)/ds + ox) | y==(int)((p->y + p->vy)/ds + oy)){
+	//	p->x = p->x + p->vx;
+	//	p->y = p->y + p->vy;
+	//}else{
+		if((p->x + p->r)>=(screen->x - pox)*pds | (p->x - p->r)<=-pox*pds | (p->y + p->r)>=(screen->y - poy)*pds | (p->y - p->r)<=-poy*pds){
+			if(x<=0) x=0;
+			if(x>screen->x) x=screen->x - 1;
+			if(y<=0) y=0;
+			if(y>screen->y) y=screen->y - 1;
+		}else{
+			fillcircle(x,y,p->r/pds,BG);
+		}
+		if(plines){
+			drawline(screen->x/2,screen->y/2,x,y,BG);
+		}
+		p->x = p->x + p->vx;
+		p->y = p->y + p->vy;
+		x = p->x/ds + ox;
+		y = p->y/ds + oy;
+		if((p->x + p->r)>=(screen->x - ox)*ds | (p->x - p->r)<=-ox*ds | (p->y + p->r)>=(screen->y - oy)*ds | (p->y - p->r)<=-oy*ds){
+			if(x<=0) x=0;
+			if(x>=screen->x) x=screen->x - 1;
+			if(y<=0) y=0;
+			if(y>screen->y) y=screen->y - 1;
+		}else{
+			fillcircle(x,y,p->r/ds,p->color);
+		}
+		if(lines){
+			drawline(screen->x/2,screen->y/2,x,y,p->color);
+		}
+	//}
 	p->vx = p->vx + p->ax;
 	p->vy = p->vy + p->ay;
 }
 
 int R(int max){
-	struct timeval rt;
-	gettimeofday(&rt, NULL);
 	double r = rand();
 	r = r/RAND_MAX;
 	return (int)(r*max);
@@ -122,9 +125,9 @@ while(running){
 	int frames = 0;
 	int fr = 0;
 	clear(BG);
-	ox = screen->x/3;
+	ox = screen->x*2/5;
 	pox = ox;
-	oy = screen->y/3;
+	oy = screen->y*2/5;
 	poy = oy;
 	ds = 5;
 	pds = ds;
@@ -162,8 +165,8 @@ while(running){
 		plines=lines;
 		frames++;
 		gettimeofday(&et, NULL);
-		sprintf(s,"Gravity Test KEY:%02X OFF:(%+06d,%+06d) IPS:%02d DS:%02d",
-				key,ox,oy,ips,(int)ds);
+		sprintf(s,"Gravity Test KEY:%02X OFF:(%+06d,%+06d) IPS:%02d DS:%02d #:%d",
+				key,ox,oy,ips,(int)ds,len);
 		if(et.tv_sec > st.tv_sec){
 			st=et;
 			sprintf(s,"%s FPS:%04d    ",s,frames);
@@ -211,8 +214,8 @@ while(running){
 			else lines=1;
 		}
 		if(keys[0x2D]==1){ //X
-			ox = screen->x/4;
-			oy = screen->y/4;
+			ox = screen->x*2/5;
+			oy = screen->y*2/5;
 			ds = 5;
 		}
 		if(keys[0x2E]==1) clear(BG); //C
