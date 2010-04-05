@@ -108,7 +108,7 @@
    108 00000000 536F6C6C65724F53    <2> db "SollerOS" ;Operating system name
    109 00000008 20416C706861204275- <2> db " Alpha Build ",0	;Soller OS development level
    110 00000011 696C642000          <2>
-   111 00000016 F2000000            <2> dd 242	;version number
+   111 00000016 F3000000            <2> dd 243	;version number
    112                              <2> signatureend:
    113                              <1> boot:
    114 0000001A 8CC8                <1> 	mov ax, cs
