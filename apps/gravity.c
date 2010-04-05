@@ -97,7 +97,7 @@ int main(int argc, char **argv){
 	struct timeval st, et;
 	char keys[128] = { 0 };
 	char running = 1;
-	char help = 0;
+	char help = 1;
 while(running){
 	gettimeofday(&st, NULL);
 	srand((unsigned int)st.tv_usec);
