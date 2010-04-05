@@ -11688,27 +11688,27 @@
  11688 002D0131 00<rept>            <1> align 512,db 0
  11689                              <1> f5:
  11690 002D0131 <incbin>            <1> incbin "included/exec"
- 11691 002D02E9 00<rept>            <1> align 512,db 0
+ 11691 002D02E1 00<rept>            <1> align 512,db 0
  11692                              <1> f6:
- 11693 002D02E9 <incbin>            <1> incbin "included/finalcount.sn"
+ 11693 002D02E1 <incbin>            <1> incbin "included/finalcount.sn"
  11694 002D0502 00<rept>            <1> align 512,db 0
  11695                              <1> f7:
  11696 002D0502 <incbin>            <1> incbin "included/fork"
- 11697 002D0761 00<rept>            <1> align 512,db 0
+ 11697 002D0758 00<rept>            <1> align 512,db 0
  11698                              <1> f8:
- 11699 002D0761 <incbin>            <1> incbin "included/gravity.elf"
+ 11699 002D0758 <incbin>            <1> incbin "included/gravity.elf"
  11700 002EC6C2 00<rept>            <1> align 512,db 0
  11701                              <1> f9:
  11702 002EC6C2 <incbin>            <1> incbin "included/guitest"
- 11703 002ECC2E 00<rept>            <1> align 512,db 0
+ 11703 002ECC2B 00<rept>            <1> align 512,db 0
  11704                              <1> f10:
- 11705 002ECC2E <incbin>            <1> incbin "included/helloworld.elf"
+ 11705 002ECC2B <incbin>            <1> incbin "included/helloworld.elf"
  11706 003279E3 00<rept>            <1> align 512,db 0
  11707                              <1> f11:
  11708 003279E3 <incbin>            <1> incbin "included/int"
- 11709 00327BB2 00<rept>            <1> align 512,db 0
+ 11709 00327BAF 00<rept>            <1> align 512,db 0
  11710                              <1> f12:
- 11711 00327BB2 <incbin>            <1> incbin "included/lostwoods.sn"
+ 11711 00327BAF <incbin>            <1> incbin "included/lostwoods.sn"
  11712 00327C56 00<rept>            <1> align 512,db 0
  11713                              <1> f13:
  11714 00327C56 <incbin>            <1> incbin "included/mario.sn"
@@ -11736,9 +11736,9 @@
  11736 00419E43 00<rept>            <1> align 512,db 0
  11737                              <1> f21:
  11738 00419E43 <incbin>            <1> incbin "included/tely"
- 11739 0041A1C6 00<rept>            <1> align 512,db 0
+ 11739 0041A1BA 00<rept>            <1> align 512,db 0
  11740                              <1> f22:
- 11741 0041A1C6 <incbin>            <1> incbin "included/timetest.elf"
+ 11741 0041A1BA <incbin>            <1> incbin "included/timetest.elf"
  11742 0043A83D 00<rept>            <1> align 512,db 0
  11743                              <1> f23:
  11744 0043A83D <incbin>            <1> incbin "included/tutorial.sh"
