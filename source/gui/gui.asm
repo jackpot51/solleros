@@ -17,6 +17,7 @@ guistart:
 %include "source/gui/icon.asm"
 %include "source/gui/line.asm"
 %include "source/gui/refresh.asm"
+%include "source/gui/square.asm"
 %include "source/gui/startup.asm"
 %include "source/gui/text.asm"
 %include "source/gui/window.asm"
