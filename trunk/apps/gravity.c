@@ -132,10 +132,6 @@ while(running){
 	unsigned char key;
 	char continued = 1;
 	while(running & continued){
-		double mx = 0;
-		double my = 0;
-		double ke = 0;
-		double gpe = 0;
 		for(i=0;i<len;i++){
 			obj[i].ax = 0;
 			obj[i].ay = 0;
@@ -149,20 +145,15 @@ while(running){
 						dy = dy*(obj[i].r + obj[i2].r)/d;
 						d = sqroot(dx*dx + dy*dy);
 						double a = G*obj[i2].m/(dx*dx + dy*dy);
-						gpe -= G*obj[i].m*obj[i2].m/d;
 						obj[i].ax += a*dx/d;
 						obj[i].ay += a*dy/d;
 					}else{
 						double a = G*obj[i2].m/(dx*dx + dy*dy);
-						gpe -= obj[i].m*a*d;
 						obj[i].ax += a*dx/d;
 						obj[i].ay += a*dy/d;
 					}
 				}
 			}
-			mx += obj[i].vx*obj[i].m;
-			my += obj[i].vy*obj[i].m;
-			ke += 0.5*(obj[i].vx*obj[i].vx + obj[i].vy*obj[i].vy)*obj[i].m;
 			physdraw(&obj[i]);
 		}
 		pox = ox;
@@ -171,8 +162,8 @@ while(running){
 		plines=lines;
 		frames++;
 		gettimeofday(&et, NULL);
-		sprintf(s,"Gravity Test KEY:%02X OFF:(%+06d,%+06d) IPS:%02d DS:%02d M:(%05d,%05d) KE:%07d GPE:%07d E:%07d",
-				key,ox,oy,ips,(int)ds,(int)(mx*10000),(int)(my*10000),(int)(ke*10000),(int)(gpe*10000),(int)(ke*10000 + gpe*10000));
+		sprintf(s,"Gravity Test KEY:%02X OFF:(%+06d,%+06d) IPS:%02d DS:%02d",
+				key,ox,oy,ips,(int)ds);
 		if(et.tv_sec > st.tv_sec){
 			st=et;
 			sprintf(s,"%s FPS:%04d    ",s,frames);

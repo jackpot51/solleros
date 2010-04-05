@@ -1,6 +1,6 @@
 @echo off
 set CYGWIN=nodosfilewarning
-cp nasm.exe %SYSTEMROOT%\System32
+copy nasm.exe %SYSTEMROOT%\System32
 cd fsmaker
 javac "fsmaker.java"
 java fsmaker
