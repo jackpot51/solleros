@@ -50,10 +50,10 @@ guitest:
 	mov dx, [ebp + .x]
 	add dx, [ebp + .dx]
 	cmp dx, si
-	jb .switchx
+	jb near .switchx
 	add dx, si
 	cmp dx, [.resx]
-	jae .switchx
+	jae near .switchx
 	sub dx, si
 	
 	mov cx, [ebp + .y]
@@ -231,7 +231,6 @@ guitest:
 .resy dw 0	;maximum y
 .dt dw 5	;time between refreshes in terms of the PIT's interrupt rate
 .balls dd 	.end - .b1
-.BALLSIZE equ .b1end - .b1
 ;Balls start here
 .b1:
 .color dw 0xFFFF
@@ -248,7 +247,7 @@ guitest:
 .fbdx dw 0	;previous dx
 .fbdy dw 0	;previous dy
 .b1end:
-
+.BALLSIZE equ .b1end - .b1
 dw 0000000000011111b	;color
 dw 6					;size
 dw 440					;x
