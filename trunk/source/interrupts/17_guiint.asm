@@ -1,8 +1,8 @@
 guiint:
 	cmp al, 253
-	je .getinfo
+	je near .getinfo
 	cmp byte [guion], 1
-	jne .nogui
+	jne near .nogui
 	cmp al, 0
 	je near .clear
 	cmp al, 1
@@ -15,6 +15,10 @@ guiint:
 	je near .drawcircle
 	cmp al, 5
 	je near .fillcircle
+	cmp al, 6
+	je near .drawsquare
+	cmp al, 7
+	je near .fillsquare
 	cmp al, 254
 	je near .setinfo
 	cmp al, 255
@@ -35,7 +39,7 @@ guiint:
 	call guiclear
 	jmp timerinterrupt
 	
-.getinfo:		;puts screen size in (dx, cx), background color in bx, and will put other stuff in other places
+.getinfo:	;puts screen size in (dx, cx), background color in bx, and will put other stuff in other places
 	xor bx, bx
 	xor cx, cx
 	xor dx, dx
@@ -46,8 +50,8 @@ guiint:
 	mov cx, [resolutiony]
 	jmp timerinterrupt
 	
-.setinfo:
-	
+.setinfo:	;does nothing yet. will get screen size in (dx, cx), background color in bx, and will put other stuff in other places
+	jmp timerinterrupt
 .reset:		;resets the screen to the original settings
 	mov bx, background.original
 	mov [background], bx
@@ -100,3 +104,16 @@ guiint:
 	call fillcircle
 	jmp timerinterrupt
 	
+.drawsquare: ;color in bx, start in (dx, cx), end in (di, si)
+	mov ax, si
+	mov si, bx
+	mov bx, di
+	call drawsquare
+	jmp timerinterrupt
+
+.fillsquare: ;color in bx, start in (dx, cx), end in (di, si)
+	mov ax, si
+	mov si, bx
+	mov bx, di
+	call fillsquare
+	jmp timerinterrupt
