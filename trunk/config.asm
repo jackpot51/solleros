@@ -44,7 +44,7 @@
 %define network.included
 ;This includes the network stack
 
-%define rtl8169.included
+;%define rtl8169.included
 ;This includes the RTL8169 drivers
 
 %define rtl8139.included
@@ -59,29 +59,23 @@
 ;%define sector.debug
 ;Dump the contents of the first sector of SollerOS
 
-;%define system.simple 
+;%define dos.compatible
+;Make the kernel loadable by dos.
+
+;%define system.simple
 ;The smallest possible system, overrides all options
 
 ;FIX DEPENDANCIES
-%ifdef gui.included
-	%undef io.serial
-%else
-	%undef gui.alphablending
-	%undef gui.background
-%endif
-%ifdef disk.protected
-	%undef disk.real
-%endif
-%ifdef network.included
-%else
-	%undef i8254x.included
-	%undef ne2000.included
-	%undef rtl8139.included
-	%undef rtl8169.included
-%endif
 %ifdef system.simple
-	%define io.serial "1"
-	%define disk.real
+	%undef dos.compatible	;overides all including dos.compatible
+	%define UNDEFALL
+%endif
+%ifdef dos.compatible
+	%define UNDEFALL
+%endif
+%ifdef UNDEFALL
+	%undef io.serial
+	%undef disk.real
 	%undef gui.included
 	%undef gui.alphablending
 	%undef gui.background
@@ -97,4 +91,30 @@
 	%undef ne2000.included
 	%undef i8254x.included
 	%undef sector.debug
+	%undef UNDEFALL
+%endif
+%ifdef system.simple
+	%define io.serial "1"
+	%define disk.real
+%endif
+%ifdef gui.included
+	%undef io.serial
+%else
+	%undef gui.alphablending
+	%undef gui.background
+%endif
+%ifdef network.included
+%else
+	%undef i8254x.included
+	%undef ne2000.included
+	%undef rtl8139.included
+	%undef rtl8169.included
+%endif
+%ifdef disk.protected
+	%undef disk.real
+%else
+	%ifdef disk.real
+	%else
+		%define disk.none
+	%endif
 %endif

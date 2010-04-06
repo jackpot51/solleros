@@ -1,5 +1,7 @@
 [map symbols build/kernel.map]
 %include "config.asm"
+[ORG 0x100]
+	%include "source/signature.asm"
 [BITS 16]
     %include "source/boot.asm"
     %include "source/pmode.asm"
@@ -21,6 +23,13 @@
 	%include "source/network.asm"
 %endif
     %include "source/data.asm"
+%ifdef disk.none
+	diskfileindex:
+	enddiskfileindex:
+	align 512, db 0
+    %include "source/bss.asm"
+%else
     %include "build/fileindex.asm"
     %include "source/bss.asm"
     %include "build/files.asm"
+%endif

@@ -158,5 +158,4 @@ batchedi dd 0
 		
 runnextline db 1
 iffalsebuf db 0
-
 notbatch: ret 

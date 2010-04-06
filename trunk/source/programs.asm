@@ -69,7 +69,10 @@ indexdone db 0
 %ifdef network.included
 	%include 'source/programs/dhcp.asm'
 %endif
-%include 'source/programs/dos.asm'
+%ifdef disk.none
+%else
+	%include 'source/programs/dos.asm'
+%endif
 %include 'source/programs/dump.asm'
 %include 'source/programs/echo.asm'
 %include 'source/programs/else.asm'
@@ -89,17 +92,26 @@ indexdone db 0
 %endif
 %include 'source/programs/logout.asm'
 %include 'source/programs/loop.asm'
-%include 'source/programs/ls.asm'
+%ifdef disk.none
+%else
+	%include 'source/programs/ls.asm'
+%endif
 %include 'source/programs/memory.asm'
 %include 'source/programs/pci.asm'
 %ifdef network.included
 	%include 'source/programs/ping.asm'
 %endif
-%include 'source/programs/play.asm'
+%ifdef disk.none
+%else
+	%include 'source/programs/play.asm'
+%endif
 %include 'source/programs/pwd.asm'
 %include 'source/programs/reboot.asm'
 %include 'source/programs/reg.asm'
-%include 'source/programs/show.asm'
+%ifdef disk.none
+%else
+	%include 'source/programs/show.asm'
+%endif
 %include 'source/programs/shush.asm'
 %include 'source/programs/system.asm'
 %include 'source/programs/time.asm'

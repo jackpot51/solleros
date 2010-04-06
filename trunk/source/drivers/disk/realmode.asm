@@ -37,7 +37,7 @@ diskaddresspacket:
 dlen:	db 0x10 ;size of packet
 		db 0
 dreadlen:	dw 0x7F	;blocks to read=maximum
-daddress:	dw 0x0	;address 0
+daddress:	dw 0	;address 0
 dsegm:		dw 0x100	;segment
 		;start with known value for hd
 dlbaad:

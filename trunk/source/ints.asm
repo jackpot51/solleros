@@ -41,7 +41,7 @@ newints:	;for great justice
 %endif
 %ifdef sound.included
 	cmp ah, 18
-	je near guiint	;sound operations
+	je near soundint	;sound operations
 %endif
 %ifdef network.included
 	cmp ah, 19
@@ -69,7 +69,7 @@ newints:	;for great justice
 %ifdef gui.included
 	%include 'source/interrupts/17_guiint.asm'
 %endif
-%ifdef gui.included
+%ifdef sound.included
 	%include 'source/interrupts/18_soundint.asm'
 %endif
 %ifdef network.included
