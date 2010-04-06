@@ -25,8 +25,8 @@ ReadHardDisk:
 	mov bx, 4
 	mov ecx, [gs:bx]
 dumpconts1:
-	mov si, signature
-	xor bx, bx
+	mov si, sigjump
+	mov bx, 0x100
 dumpconts1lp:
 	mov cl, [gs:bx]
 	cmp cl, [si]
@@ -49,7 +49,7 @@ nodumpconts:
 skipcontsdump:
 	mov cx, [DriveNumber]
 	mov edx, [lbaad]
-    jmp 0x1000:(signatureend - signature)
+	jmp 0x1000:0x100
 %ifdef sector.debug
 dumpconts:
 	mov si, line
@@ -169,7 +169,7 @@ diskaddresspacket:
 len:	db 0x10 ;;size of packet
 	db 0
 readlen:	dw 0x7F	;;blocks to read=maximum
-address:	dw 0x0	;;address 0
+address:	dw 0x100	;;address to load kernel
 segm:	dw 0x1000	;;segment
 ;;start with known value for hd
 lbaad:
@@ -177,5 +177,6 @@ lbaad:
 	dd 0
 
 %include 'source/signature.asm'
-    	times 510-($-$$) db 0
+    times 510-($-$$) db 0
     dw 0AA55h	;;magic byte
+incbin 'build/kernel.com' ;include the kernel file

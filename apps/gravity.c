@@ -27,6 +27,8 @@ int oy; //y offset
 int poy; //previous
 char lines;
 char plines;
+char keys[128];
+unsigned char key;
 
 void physdraw(physobj *p){
 	int x = p->x/pds + pox;
@@ -36,10 +38,10 @@ void physdraw(physobj *p){
 	//	p->y = p->y + p->vy;
 	//}else{
 		if((p->x + p->r)>=(screen->x - pox)*pds | (p->x - p->r)<=-pox*pds | (p->y + p->r)>=(screen->y - poy)*pds | (p->y - p->r)<=-poy*pds){
-			if(x<=0) x=0;
-			if(x>screen->x) x=screen->x - 1;
-			if(y<=0) y=0;
-			if(y>screen->y) y=screen->y - 1;
+			if(x<0) x=0;
+			if(x>=screen->x) x=screen->x - 1;
+			if(y<0) y=0;
+			if(y>=screen->y) y=screen->y - 1;
 		}else{
 			fillcircle(x,y,p->r/pds,BG);
 		}
@@ -51,10 +53,10 @@ void physdraw(physobj *p){
 		x = p->x/ds + ox;
 		y = p->y/ds + oy;
 		if((p->x + p->r)>=(screen->x - ox)*ds | (p->x - p->r)<=-ox*ds | (p->y + p->r)>=(screen->y - oy)*ds | (p->y - p->r)<=-oy*ds){
-			if(x<=0) x=0;
+			if(x<0) x=0;
 			if(x>=screen->x) x=screen->x - 1;
-			if(y<=0) y=0;
-			if(y>screen->y) y=screen->y - 1;
+			if(y<0) y=0;
+			if(y>=screen->y) y=screen->y - 1;
 		}else{
 			fillcircle(x,y,p->r/ds,p->color);
 		}
@@ -92,15 +94,28 @@ unsigned char inb(int port){
 	return r;
 }
 
+void getKey(){
+		key = inb(0x64);
+		if(!(key&0x20)){
+			key = inb(0x60);
+			if(key>=0x80) keys[key - 0x80] = 0;
+			else if(keys[key]==0) keys[key] = 1;
+		}else{
+			key=0;
+			memset((void *)&keys, 0, 128);
+		}
+}
+
 int main(int argc, char **argv){
 	screen = getinfo();
 	if(!screen->x | !screen->y){
 		return 1;
 	}
 	struct timeval st, et;
-	char keys[128] = { 0 };
 	char running = 1;
 	char help = 1;
+	key=0;
+	memset((void *)&keys, 0, 128);
 while(running){
 	gettimeofday(&st, NULL);
 	srand((unsigned int)st.tv_usec);
@@ -132,7 +147,6 @@ while(running){
 	ds = 5;
 	pds = ds;
 	char ips=1;
-	unsigned char key;
 	char continued = 1;
 	while(running & continued){
 		for(i=0;i<len;i++){
@@ -183,17 +197,13 @@ while(running){
 			"zoom and offset, 'C' to remove artifacts, 'N' to generate a new system, and the\n"
 			"arrow keys to change the offset.");
 		}
-		key = inb(0x60);
-		if(key>=0x80) keys[key - 0x80] = 0;
-		else if(keys[key]==0) keys[key] = 1;
-		else if(keys[key]==1) keys[key] = 2;
+		getKey();
+		if(keys[key]==1) keys[key] = 2;
 		for(i=0;i<ips;i++){
 			asm("hlt");
-			key = inb(0x60);
-			if(key>=0x80) keys[key - 0x80] = 0;
-			else if(keys[key]==0) keys[key] = 1;
+			getKey();
 		}
-		if(keys[1]	| keys[0x10]) running = 0; //ESC or Q
+		if(keys[1] | keys[0x10]) running = 0; //ESC or Q
 		if(keys[0xC]) ds += 0.01; //minus
 		if(keys[0xD]>0 & ds > 1) ds -= 0.01; //plus
 		if(keys[0x13]==1){ //R
@@ -224,6 +234,7 @@ while(running){
 		if(keys[0x50]) oy -= 2; //down
 		if(keys[0x4B]) ox += 2; //right
 		if(keys[0x4D]) ox -= 2; //right
+
 	}
 }
 	reset();

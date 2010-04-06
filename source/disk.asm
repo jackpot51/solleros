@@ -1,11 +1,19 @@
-;This loads files using the methods in the loaded driver
 %ifdef disk.real
-%include "source/drivers/disk/realmode.asm"
+	%include "source/drivers/disk/realmode.asm"
 %else
 	%ifdef disk.protected
-	%include "source/drivers/disk/pata.asm"
+		%include "source/drivers/disk/pata.asm"
 	%endif
 %endif
+%ifdef disk.none
+loadfile:	xor edx, edx
+			cmp byte [edi], '&'
+			je .ret
+			mov edx, 404	;no files are found except &
+		.ret:
+			ret
+%else
+;This loads files using the methods in the loaded driver
 loadfile:	;loads a file with the name buffer's location in edi into location in esi
 			;returns with err code in edx and file end in edi
 	cmp byte [edi], 0
@@ -60,7 +68,7 @@ eqfilefind:
 equalfilenames:
 	mov eax, [ebx + 4] 	;put file size in eax
 	mov ebx, [ebx]		;put file beginning in ebx
-	add ebx, [lbaad]	;add offset to solleros
+	add ebx, [lbaad]	;add offset to solleros start
 	xor ecx, ecx
 	mov cl, al			;get excess number of sectors
 	shl cl, 2
@@ -100,6 +108,4 @@ lbad4 db 0
 lbad5 db 0
 lbad6 db 0
 segments dw 100
-
-
-	
+%endif

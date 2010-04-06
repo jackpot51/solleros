@@ -30,7 +30,9 @@ guiswitchret:
 	cmp edi, VBEEND
 	jb .loop
 	mov eax, [physbaseptr]
-	sub eax, 0x100000
+	mov ebx, [basecache]
+	shl ebx, 4
+	sub eax, ebx
 	mov [physbaseptr], eax
 	mov byte [termguion], 0
 	mov esi, graphicstable

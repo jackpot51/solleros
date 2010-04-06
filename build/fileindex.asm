@@ -41,7 +41,7 @@ dd (f13-f12)/512
 db "mario.sn",0
 dd (f13-$$)/512
 dd (f14-f13)/512
-db "Moment8bit.wav",0
+db "moment.wav",0
 dd (f14-$$)/512
 dd (f15-f14)/512
 db "pi.elf",0
