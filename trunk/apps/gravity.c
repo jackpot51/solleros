@@ -7,20 +7,23 @@
 #include <sys/time.h>
 #define BG 0b0000000000000000 //background color in 5:6:5 RGB
 typedef struct {
-	double x;	//upper left position
-	double y;
-	double vx;	//velocity
-	double vy;
-	double ax;	//acceleration
-	double ay;
-	double r;	//radius
-	double m;
+	float x;	//upper left position
+	float y;
+	//float z;
+	float vx;	//velocity
+	float vy;
+	//float vz;
+	float ax;	//acceleration
+	float ay;
+	//float az;
+	float r;	//radius
+	float m;
 	int color;
 } physobj;
 screeninfo *screen; //screen resolution
-double G = 6.673;//E-1; //this is usually E-11
-double ds; //distance scale (real/sim)
-double pds; //previous scale
+float G = 6.673;//E-1; //this is usually E-11
+float ds; //distance scale (real/sim)
+float pds; //previous scale
 int ox; //x offset
 int pox; //previous
 int oy; //y offset
@@ -38,10 +41,11 @@ void physdraw(physobj *p){
 	//	p->y = p->y + p->vy;
 	//}else{
 		if((p->x + p->r)>=(screen->x - pox)*pds | (p->x - p->r)<=-pox*pds | (p->y + p->r)>=(screen->y - poy)*pds | (p->y - p->r)<=-poy*pds){
+			//FUTURE ALGORITHM: xi/yi=xf/yf=> xf=xi*yf/yi;yf=yi*xf/xi where yf and xf respectively are the max values
 			if(x<0) x=0;
-			if(x>=screen->x) x=screen->x - 1;
+			else if(x>=screen->x) x=screen->x - 1;
 			if(y<0) y=0;
-			if(y>=screen->y) y=screen->y - 1;
+			else if(y>=screen->y) y=screen->y - 1;
 		}else{
 			fillcircle(x,y,p->r/pds,BG);
 		}
@@ -50,6 +54,7 @@ void physdraw(physobj *p){
 		}
 		p->x = p->x + p->vx;
 		p->y = p->y + p->vy;
+		//p->z = p->z + p->vz;
 		x = p->x/ds + ox;
 		y = p->y/ds + oy;
 		if((p->x + p->r)>=(screen->x - ox)*ds | (p->x - p->r)<=-ox*ds | (p->y + p->r)>=(screen->y - oy)*ds | (p->y - p->r)<=-oy*ds){
@@ -66,17 +71,18 @@ void physdraw(physobj *p){
 	//}
 	p->vx = p->vx + p->ax;
 	p->vy = p->vy + p->ay;
+	//p->vz = p->vz + p->az;
 }
 
 int R(int max){
-	double r = rand();
+	float r = rand();
 	r = r/RAND_MAX;
 	return (int)(r*max);
 }
 
-double sqroot(double m)
+float sqroot(float m)
 {
-	double r;
+	float r;
 	asm volatile("fsqrt"
 		: "=t" (r)
 		: "0" (m)
@@ -93,19 +99,7 @@ unsigned char inb(int port){
 	);
 	return r;
 }
-
-void getKey(){
-		key = inb(0x64);
-		if(!(key&0x20)){
-			key = inb(0x60);
-			if(key>=0x80) keys[key - 0x80] = 0;
-			else if(keys[key]==0) keys[key] = 1;
-		}else{
-			key=0;
-			memset((void *)&keys, 0, 128);
-		}
-}
-
+//Retinal size=Distance between retina*Size/Distance
 int main(int argc, char **argv){
 	screen = getinfo();
 	if(!screen->x | !screen->y){
@@ -114,9 +108,14 @@ int main(int argc, char **argv){
 	struct timeval st, et;
 	char running = 1;
 	char help = 1;
+	char shown = 1;
+	char pause = 0;
+	char fpsonly = 0;
 	key=0;
 	memset((void *)&keys, 0, 128);
+	char ips=1;
 while(running){
+	int simtime = 0;
 	gettimeofday(&st, NULL);
 	srand((unsigned int)st.tv_usec);
 	physobj obj[R(20) + 2];
@@ -125,10 +124,13 @@ while(running){
 	for(i=0;i<len;i++){
 		obj[i].x=R(screen->x);
 		obj[i].y=R(screen->y);
+		//obj[i].z=0;
 		obj[i].vx=0;
 		obj[i].vy=0;
+		//obj[i].vz=0;
 		obj[i].ax=0;
 		obj[i].ay=0;
+		//obj[i].az=0;
 		obj[i].m=R(5)+1;
 		obj[i].r=obj[i].m*10;
 		obj[i].color=R(65535);
@@ -146,62 +148,105 @@ while(running){
 	poy = oy;
 	ds = 5;
 	pds = ds;
-	char ips=1;
 	char continued = 1;
 	while(running & continued){
-		for(i=0;i<len;i++){
-			obj[i].ax = 0;
-			obj[i].ay = 0;
-			for(i2=0;i2<len;i2++){
-				if(i2!=i){
-					double dx = obj[i2].x - obj[i].x;
-					double dy = obj[i2].y - obj[i].y;
-					double d = sqroot(dx*dx + dy*dy);
-					if(d <= obj[i].r + obj[i2].r){ //collision
-						dx = dx*(obj[i].r + obj[i2].r)/d;
-						dy = dy*(obj[i].r + obj[i2].r)/d;
-						d = sqroot(dx*dx + dy*dy);
-						double a = G*obj[i2].m/(dx*dx + dy*dy);
-						obj[i].ax += a*dx/d;
-						obj[i].ay += a*dy/d;
-					}else{
-						double a = G*obj[i2].m/(dx*dx + dy*dy);
-						obj[i].ax += a*dx/d;
-						obj[i].ay += a*dy/d;
+		if(!pause){
+			for(i=0;i<len;i++){
+				obj[i].ax = 0;
+				obj[i].ay = 0;
+				//obj[i].az = 0;
+				for(i2=0;i2<len;i2++){
+					if(i2!=i){
+						float dx = obj[i2].x - obj[i].x;
+						float dy = obj[i2].y - obj[i].y;
+						//float dz = obj[i2].z - obj[i].z;
+						float d2 = dx*dx + dy*dy;// + dz*dz;
+						float d = sqroot(d2);
+						if(d <= (obj[i].r + obj[i2].r)){ //collision
+							dx = dx*(obj[i].r + obj[i2].r)/d;
+							dy = dy*(obj[i].r + obj[i2].r)/d;
+							//dz = dz*(obj[i].r + obj[i2].r)/d;
+							d2 = dx*dx + dy*dy;// + dz*dz;
+							d = sqroot(d2);
+							float a = G*obj[i2].m/(d2);
+							obj[i].ax += a*dx/d;
+							obj[i].ay += a*dy/d;
+							//obj[i].az += a*dz/d;
+						}else{
+							float a = G*obj[i2].m/(d2);
+							obj[i].ax += a*dx/d;
+							obj[i].ay += a*dy/d;
+							//obj[i].az += a*dz/d;
+						}
 					}
 				}
+				if(shown) physdraw(&obj[i]);
+				else{
+					obj[i].x = obj[i].x + obj[i].vx;
+					obj[i].y = obj[i].y + obj[i].vy;
+					//obj[i].z = obj[i].z + obj[i].vz;
+					obj[i].vx = obj[i].vx + obj[i].ax;
+					obj[i].vy = obj[i].vy + obj[i].ay;
+					//obj[i].vz = obj[i].vz + obj[i].az;
+				}
 			}
-			physdraw(&obj[i]);
-		}
-		pox = ox;
-		poy = oy;
-		pds = ds;
-		plines=lines;
-		frames++;
-		gettimeofday(&et, NULL);
-		sprintf(s,"Gravity Test KEY:%02X OFF:(%+06d,%+06d) IPS:%02d DS:%02d #:%d",
-				key,ox,oy,ips,(int)ds,len);
-		if(et.tv_sec > st.tv_sec){
-			st=et;
-			sprintf(s,"%s FPS:%04d    ",s,frames);
-			fr = frames;
-			frames = 0;
+			pox = ox;
+			poy = oy;
+			pds = ds;
+			plines=lines;
+			frames++;
+			gettimeofday(&et, NULL);
+			if(shown){
+				if(fpsonly!=2){
+					if(fpsonly==1) sprintf(s,"t:%d",simtime);
+					else sprintf(s,"Gravity Test KEY:%02X OFF:(%+06d,%+06d) IPS:%02d DS:%02d #:%d t:%d",key,ox,oy,ips,(int)ds,len,simtime);
+					if((et.tv_sec - st.tv_sec)>0){
+						simtime += et.tv_sec - st.tv_sec;
+						fr = frames/(et.tv_sec - st.tv_sec);
+						st=et;
+						sprintf(s,"%s FPS:%04d    ",s,fr);
+						frames = 0;
+					}else sprintf(s,"%s FPS:%04d    ",s,fr);
+					drawtext(0,0,BG,~BG,s);
+				}
+				if(help){
+					drawtext(0,screen->y - 96,BG,~BG,
+					"\nPress 'Q' or ESC to exit, '+' to zoom in, '-' to zoom out, '[' to decrease\n"
+					"speed, ']' to increase speed, 'H' show help, 'S' to simulate in the background,\n"
+					"'L' to toggle lines, 'X' to reset zoom and offset, 'C' to remove artifacts,\n"
+					"'P to pause, F to only show the framerate, 'N' to generate a new system,\n"
+					"and the arrow keys to change the offset.");
+				}
+			}else if((et.tv_sec - st.tv_sec)>0){
+				simtime += et.tv_sec - st.tv_sec;
+				sprintf(s,"FPS:%04d    ",frames/(et.tv_sec - st.tv_sec));
+				st=et;
+				frames = 0;
+				drawtext(0,0,BG,~BG,s);
+			}
 		}else{
-			sprintf(s,"%s FPS:%04d    ",s,fr);
+			drawtext(screen->x - 48,screen->y - 16,BG,~BG,"Paused");
+			asm("hlt");
 		}
-		drawtext(0,0,BG,~BG,s);
-		if(help){
-			drawtext(0,screen->y - 80,BG,~BG,
-			"\nPress 'Q' or ESC to exit, '+' to zoom in, '-' to zoom out, '[' to decrease\n"
-			"speed, ']' to increase speed, 'H' show help, 'L' to toggle lines, 'X' to reset\n"
-			"zoom and offset, 'C' to remove artifacts, 'N' to generate a new system, and the\n"
-			"arrow keys to change the offset.");
+		key = inb(0x64);
+		if(!(key&0x20)){
+			key = inb(0x60);
+			if(key>=0x80) keys[key - 0x80] = 0;
+			else if(keys[key]==0) keys[key] = 1;
+			else if(keys[key]==1) keys[key] = 2;
+		}else{
+			key=0;
 		}
-		getKey();
-		if(keys[key]==1) keys[key] = 2;
 		for(i=0;i<ips;i++){
 			asm("hlt");
-			getKey();
+			key = inb(0x64);
+			if(!(key&0x20)){
+				key = inb(0x60);
+				if(key>=0x80) keys[key - 0x80] = 0;
+				else if(keys[key]==0) keys[key] = 1;
+			}else{
+				key=0;
+			}
 		}
 		if(keys[1] | keys[0x10]) running = 0; //ESC or Q
 		if(keys[0xC]) ds += 0.01; //minus
@@ -210,8 +255,30 @@ while(running){
 			memcpy(obj,ogobj,sizeof(ogobj));
 			clear(BG);
 		}
+		if(keys[0x19]==1){//P
+			if(pause){
+				pause = 0;
+				clear(BG);
+			}
+			else pause = 1;
+		}
 		if(keys[0x1A]==1 & ips < 128) ips+=1; //left square bracket
 		if(keys[0x1B]==1 & ips > 0) ips-=1; //rigt square bracket
+		if(keys[0x1F]==1){ //S
+			if(shown){
+				ips = 0;
+				shown = 0;
+				clear(BG);
+			}
+			else shown= 1;
+		}
+		if(keys[0x21]==1){ //F
+			if(fpsonly==2)	fpsonly=0;
+			else{
+				fpsonly++;
+				clear(BG);
+			}
+		}
 		if(keys[0x23]==1){ //H
 			if(help){
 				help=0;
@@ -234,7 +301,6 @@ while(running){
 		if(keys[0x50]) oy -= 2; //down
 		if(keys[0x4B]) ox += 2; //right
 		if(keys[0x4D]) ox -= 2; //right
-
 	}
 }
 	reset();

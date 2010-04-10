@@ -128,7 +128,7 @@
    128 00000003 536F6C6C65724F53    <1> db "SollerOS" ;Operating system name
    129 0000000B 20416C706861204275- <1> db " Alpha Build ",0	;Soller OS development level
    130 00000014 696C642000          <1>
-   131 00000019 FB000000            <1> dd 251	;version number
+   131 00000019 FC000000            <1> dd 252	;version number
    132                              <1> signatureend:
    133                                  [BITS 16]
    134                                      %include "source/boot.asm"
@@ -11550,9 +11550,9 @@
  11550 002AAC46 00<rept>            <1> align 512,db 0
  11551                              <1> f2:
  11552 002AAC46 <incbin>            <1> incbin "included/boot.sh"
- 11553 002AAF00 00<rept>            <1> align 512,db 0
+ 11553 002AAEFE 00<rept>            <1> align 512,db 0
  11554                              <1> f3:
- 11555 002AAF00 <incbin>            <1> incbin "included/chartest.elf"
+ 11555 002AAEFE <incbin>            <1> incbin "included/chartest.elf"
  11556 002CFADB 00<rept>            <1> align 512,db 0
  11557                              <1> f4:
  11558 002CFADB <incbin>            <1> incbin "included/dostest.com"
@@ -11568,9 +11568,9 @@
  11568 002D0358 00<rept>            <1> align 512,db 0
  11569                              <1> f8:
  11570 002D0358 <incbin>            <1> incbin "included/gravity.elf"
- 11571 002EC302 00<rept>            <1> align 512,db 0
+ 11571 002EC2EB 00<rept>            <1> align 512,db 0
  11572                              <1> f9:
- 11573 002EC302 <incbin>            <1> incbin "included/guitest"
+ 11573 002EC2EB <incbin>            <1> incbin "included/guitest"
  11574 002EC82B 00<rept>            <1> align 512,db 0
  11575                              <1> f10:
  11576 002EC82B <incbin>            <1> incbin "included/helloworld.elf"
