@@ -46,25 +46,33 @@ nodumpconts:
 	inc eax
 	mov [lbaad], eax
 	jmp ReadHardDisk
-skipcontsdump:	
+skipcontsdump:
+	mov eax, [lbaad]
+	mov [lbaadorig], eax
+.lp:
 	mov si, diskaddresspacket
 	mov byte [readlen], 0x7F
 	xor ax, ax
 	mov ah, 0x42
 	mov dl, [DriveNumber]
 	int 0x13
-	jc skipcontsdump
+	jc .lp
 	mov cx, [tracks]
 	cmp cx, 0
 	je nomultitrack
 	dec cx
 	mov [tracks], cx
-	add word [segm], 0x1000
+	mov eax, [lbaad]
+	add eax, 0x7F
+	mov [lbaad], eax
+	add word [segm], 0xFE0
+	xor ax, ax
+	mov [address], ax
 	cmp cx, 0
-	jne skipcontsdump
+	jne .lp
 nomultitrack:
 	mov cx, [DriveNumber]
-	mov edx, [lbaad]
+	mov edx, [lbaadorig]
 	jmp 0x1000:0x100
 %ifdef sector.debug
 dumpconts:
@@ -181,7 +189,8 @@ bootmsg db "SollerOS Loaded. Press any key to continue.",0
 %endif
 	DriveNumber db 0
 	line db 10,13,0
-tracks dw 1
+tracks dw 7
+lbaadorig dd 0
 diskaddresspacket:
 len:	db 0x10 ;size of packet
 	db 0

@@ -217,7 +217,7 @@ namespace FontMaker
                     if (savefs.CanWrite)
                     {
                         savefs.Position = 0;
-                        for (int valint = 0; valint < 0x500; valint++)
+                        for (int valint = 0; valint < 0x800; valint++)
                         {
                             int nv = valint;
                             if (!pixeldata[nv, 128])

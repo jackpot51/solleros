@@ -1,11 +1,6 @@
 align 4, nop
 bssstart: equ $
-guion equ bssstart
-DriveNumber equ guion + 1
-lbaad equ DriveNumber + 1
-memlistbuf equ lbaad + 4
-memlistend equ memlistbuf + 576
-bsscopy equ memlistend
+bsscopy equ $
 initialstack equ bsscopy
 stackend equ initialstack + 4000
 sigtable equ stackend + 96
