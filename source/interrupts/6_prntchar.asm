@@ -17,7 +17,6 @@ prchar.notimer:
 	iret
 	
 prcharint:	;print char, char in ax, modifier in bx, if bl = bh  then termcopy will not happen, will run termcopy if called as is
-xor ah, ah
 	cmp bl, bh
 	je prcharq
 	call prcharq

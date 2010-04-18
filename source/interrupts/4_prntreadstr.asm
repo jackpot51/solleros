@@ -114,8 +114,8 @@ rdprint:	;print and get line, al=last key, bx=modifier, esi=buffer, edi=bufferen
 	nomasktxt:
 		push esi
 		mov [axcache], ax
-		mov ah, [endkeyrdpr]
-		cmp al, ah
+		mov bx, [endkeyrdpr]
+		cmp ax, bx
 		je nobackprintbuftxt2
 		call prcharint
 		mov esi, buftxt2
@@ -126,15 +126,13 @@ rdprint:	;print and get line, al=last key, bx=modifier, esi=buffer, edi=bufferen
 		cmp esi, buftxt2
 		je nobackprintbuftxt2
 	backprintbuftxt2:
-		xor ah, ah
 		call prcharq
 		dec esi
 		cmp esi, buftxt2
 		ja backprintbuftxt2
 	nobackprintbuftxt2:
-		cmp al, 10
+		cmp ax, 10
 		je nonobackprint
-		xor ah, ah
 		call prcharint
 	nonobackprint:
 		pop esi
@@ -354,13 +352,27 @@ rdprint:	;print and get line, al=last key, bx=modifier, esi=buffer, edi=bufferen
 		jbe morerdprup
 		mov edi, commandbuf
 		jmp morerdprup
-		
+
 	rdprdel:
 		mov edi, buftxt2
 		mov al, [edi]
 		cmp al, 0
 		je near rdprintb
 		mov [esi], al
+		cmp al, 0x80
+		jb .fn
+	.lp:
+		inc esi
+		inc edi
+		mov al, [edi]
+		cmp al, 0
+		je near rdprintb
+		mov [esi], al
+		cmp al, 0x80
+		jb .fn
+		cmp al, 0xC0
+		jb .lp
+	.fn:
 		call shiftbuftxt2lft
 		call prcharq
 		
@@ -412,7 +424,7 @@ rdprint:	;print and get line, al=last key, bx=modifier, esi=buffer, edi=bufferen
 		ret
 		
 axcache dw 0
-endkeyrdpr db 0
+endkeyrdpr dw 0
 modkeyrdpr dw 0
 firstesirdpr dd 0
 commandedit db 0
