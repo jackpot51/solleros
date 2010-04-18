@@ -56,7 +56,7 @@
 ;%define i8254x.included
 ;This includes the Intel 8254x drivers
 
-%define sector.debug
+;%define sector.debug
 ;Dump the contents of the first sector of SollerOS
 
 ;%define dos.compatible
