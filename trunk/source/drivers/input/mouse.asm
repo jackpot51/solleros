@@ -132,8 +132,7 @@ mousedisabled db 0
 		mov dx, [mousecursorposition]
 		mov cx, [mousecursorposition + 2]
 		mov bx, 1100011100011000b
-		xor ah, ah
-		mov al, 254
+		mov ax, 1
 		mov byte [showcursorfonton], 1
 		call showfontvesa
 		mov byte [showcursorfonton], 0

@@ -1,6 +1,6 @@
 db 255,44,"keycode",0
 keycode:
-	mov byte [trans], 0
+	mov word [trans], 0
 	mov byte [threadson], 0
 %ifdef io.serial
 .noserial:
@@ -28,10 +28,9 @@ keycode:
 	je near .nospecialkeycode
 	call showhexsmall
 .nospecialkeycode:
-	mov ax, [lastkey]
-	mov cl, ah
+	mov cx, [lastkey + 2]
 	call showhexsmall
-	cmp ah, 1
+	cmp cl, 1
 	jne keycode
 	ret
 %endif

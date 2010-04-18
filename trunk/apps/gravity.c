@@ -21,7 +21,7 @@ typedef struct {
 	int color;
 } physobj;
 screeninfo *screen; //screen resolution
-float G = 6.673;//E-1; //this is usually E-11
+//const float G = 6.673;//E-1; //this is usually E-11
 float ds; //distance scale (real/sim)
 float pds; //previous scale
 int ox; //x offset
@@ -131,7 +131,7 @@ while(running){
 		obj[i].ax=0;
 		obj[i].ay=0;
 		//obj[i].az=0;
-		obj[i].m=R(5)+1;
+		obj[i].m=R(10)+1;
 		obj[i].r=obj[i].m*10;
 		obj[i].color=R(65535);
 	}
@@ -168,12 +168,12 @@ while(running){
 							//dz = dz*(obj[i].r + obj[i2].r)/d;
 							d2 = dx*dx + dy*dy;// + dz*dz;
 							d = sqroot(d2);
-							float a = G*obj[i2].m/(d2);
+							float a = obj[i2].m/d2;
 							obj[i].ax += a*dx/d;
 							obj[i].ay += a*dy/d;
 							//obj[i].az += a*dz/d;
 						}else{
-							float a = G*obj[i2].m/(d2);
+							float a = obj[i2].m/d2;
 							obj[i].ax += a*dx/d;
 							obj[i].ay += a*dy/d;
 							//obj[i].az += a*dz/d;
@@ -210,7 +210,7 @@ while(running){
 					drawtext(0,0,BG,~BG,s);
 				}
 				if(help){
-					drawtext(0,screen->y - 96,BG,~BG,
+					drawtext(0,(screen->y - screen->y%16) - 96,BG,~BG,
 					"\nPress 'Q' or ESC to exit, '+' to zoom in, '-' to zoom out, '[' to decrease\n"
 					"speed, ']' to increase speed, 'H' show help, 'S' to simulate in the background,\n"
 					"'L' to toggle lines, 'X' to reset zoom and offset, 'C' to remove artifacts,\n"

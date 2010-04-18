@@ -46,7 +46,23 @@ nodumpconts:
 	inc eax
 	mov [lbaad], eax
 	jmp ReadHardDisk
-skipcontsdump:
+skipcontsdump:	
+	mov si, diskaddresspacket
+	mov byte [readlen], 0x7F
+	xor ax, ax
+	mov ah, 0x42
+	mov dl, [DriveNumber]
+	int 0x13
+	jc skipcontsdump
+	mov cx, [tracks]
+	cmp cx, 0
+	je nomultitrack
+	dec cx
+	mov [tracks], cx
+	add word [segm], 0x1000
+	cmp cx, 0
+	jne skipcontsdump
+nomultitrack:
 	mov cx, [DriveNumber]
 	mov edx, [lbaad]
 	jmp 0x1000:0x100
@@ -54,14 +70,14 @@ skipcontsdump:
 dumpconts:
 	mov si, line
 	call print
-	xor bx, bx
+	mov bx, 0x100
 dumpconts2:
 	mov ecx, [gs:bx]
 	push bx
 	call printnum
 	pop bx
 	add bx, 4
-	cmp bx, 700
+	cmp bx, 956
 	jbe dumpconts2
 	mov si, bootmsg
 	call print
@@ -161,19 +177,20 @@ db '  ',0
 	    jmp prs		; loop
     finpr: ret
 	
-bootmsg db "Press any key to continue.",0
+bootmsg db "SollerOS Loaded. Press any key to continue.",0
 %endif
 	DriveNumber db 0
 	line db 10,13,0
+tracks dw 1
 diskaddresspacket:
-len:	db 0x10 ;;size of packet
+len:	db 0x10 ;size of packet
 	db 0
-readlen:	dw 0x7F	;;blocks to read=maximum
-address:	dw 0x100	;;address to load kernel
-segm:	dw 0x1000	;;segment
-;;start with known value for hd
+readlen:	dw 2	;blocks to read=maximum
+address:	dw 0x100	;address to load kernel
+segm:	dw 0x1000	;segment
+;start with known value for hd
 lbaad:
-	dd 0	;;lba address
+	dd 0	;lba address
 	dd 0
 
 %include 'source/signature.asm'

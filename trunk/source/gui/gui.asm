@@ -324,7 +324,7 @@ noreloadgraphicsclick:
 		xor ah, ah
 		xor ecx, ecx
 		xor edx, edx
-		mov al, 254
+		mov al, 1
 		mov dx, [mousecursorposition]
 		mov cx, [mousecursorposition + 2]
 		mov bx, 0011100011100111b
