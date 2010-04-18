@@ -21,6 +21,11 @@
 			db 0
 	userlstend:
 	
+	guion db 0
+	DriveNumber db 0
+	lbaad dd 0
+	memlistbuf times 576 db 0
+	memlistend: dd 0
 %ifdef io.serial
 %else
 fonts:	incbin "source/fonts/fonts.pak"
