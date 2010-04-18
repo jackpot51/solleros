@@ -61,7 +61,7 @@ namespace FontMaker
                 }
                 openedfile = openFileDialog1.FileName;
                 openfs = new FileStream(openedfile, FileMode.Open);
-                if (openfs.Length % 16 != 0)
+                if (openedfile.EndsWith(".hex"))
                 {
                     numericUpDown1.Maximum = 65535;
                     filetype = false;
@@ -217,12 +217,12 @@ namespace FontMaker
                     if (savefs.CanWrite)
                     {
                         savefs.Position = 0;
-                        for (int valint = 0; valint < 1796; valint++)
+                        for (int valint = 0; valint < 0x500; valint++)
                         {
                             int nv = valint;
                             if (!pixeldata[nv, 128])
                             {
-                                nv = 2; //replace with ? in diamond sign's number
+                                nv = 0xFFFD; //replace with ? in diamond sign's number
                             }
                             for (int i = 0; i < 16; i++)
                             {

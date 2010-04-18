@@ -23,7 +23,7 @@
 	
 %ifdef io.serial
 %else
-fonts:	incbin "source/precompiled/fonts.pak"
+fonts:	incbin "source/fonts/fonts.pak"
 fontend:
 %endif
 osend:	;this is the end of the operating system's space on disk

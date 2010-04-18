@@ -262,8 +262,8 @@ errortypesend:
 			dd unknownerror
 			
 err0	db "Division by zero:",10
-		db "Technically lim a",246,"x = ",236," when a is any real number. Happy Easter!",10
-		db "            x",26,"0",10,0
+		db "Technically lim a÷x = ∞ when a is any real number. Happy Easter!",10
+		db "            x→0",10,0
 		
 err1	db "Single-step/Breakpoint:",10
 		db "A breakpoint fault, breakpoint trap, or single-step trap was triggered.",10,0
