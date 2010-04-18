@@ -74,11 +74,14 @@ dd (f24-f23)/512
 db "unfs",0
 dd (f24-$$)/512
 dd (f25-f24)/512
-db "victory.wav",0
+db "utf-8.txt",0
 dd (f25-$$)/512
 dd (f26-f25)/512
-db "_img.bin",0
+db "victory.wav",0
 dd (f26-$$)/512
 dd (f27-f26)/512
+db "_img.bin",0
+dd (f27-$$)/512
+dd (f28-f27)/512
 enddiskfileindex:
 

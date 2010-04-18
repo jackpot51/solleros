@@ -1,6 +1,6 @@
 prntchar:
+	xor ah, ah
 %ifdef io.serial
-	cmp bl, bh
 	call prcharint
 	jmp timerinterrupt
 prcharint:	
@@ -16,7 +16,8 @@ prchar.notimer:
 	call prcharq
 	iret
 	
-prcharint:	;;print char, char in al, modifier in bl, if bh = bl then termcopy will not happen, will run termcopy if called as is
+prcharint:	;print char, char in ax, modifier in bx, if bl = bh  then termcopy will not happen, will run termcopy if called as is
+xor ah, ah
 	cmp bl, bh
 	je prcharq
 	call prcharq
@@ -25,30 +26,35 @@ prcharint:	;;print char, char in al, modifier in bl, if bh = bl then termcopy wi
 termguion db 0
 termcopyon db 0
 prcharq:
-	mov ah, bl
-	mov [charbuf], ax
+	shl ebx, 16
+	mov bx, ax
+	mov eax, ebx
+	mov [charbuf], eax
 	mov ebx, [videobufpos]
 	mov edi, videobuf
 	add edi, ebx
-	mov ax, [removedvideo]
-	mov [edi], ax
-	mov ax, [charbuf]
+	mov eax, [removedvideo]
+	mov [edi], eax
+	mov eax, [charbuf]
 	xor edx, edx
 	mov dx, [charpos]
 	xor ecx, ecx
 	mov cx, [charxy]
-	cmp al, 9
+	cmp ax, 9
 	je near prtab
-	cmp al, 13		;I am phasing this out-it is used by windows but not unix based systems
+	cmp ax, 13		;I am phasing this out-it is used by windows but not unix based systems
 	je near prcr
-	cmp al, 10
+	cmp ax, 10
 	je near prnlcr
-	cmp al, 8
+	cmp ax, 8
 	je near prbs
-	cmp al, 255		;;null character
+	cmp ax, 255		;null character
 	je near donescr
-	mov [edi], ax
-	add edi, 2
+	cmp ax, (fontend - fonts)/16
+	jae near prnofont
+donepr:
+	mov [edi], eax
+	add edi, 4
 	inc dl
 donecrnl:
 	cmp dl, cl
@@ -58,22 +64,26 @@ doneeol:
 	jae near prscr	
 donescr:
 	mov ebx, edi
-	mov ax, [edi]
-	mov [removedvideo], ax
+	mov eax, [edi]
+	mov [removedvideo], eax
 	sub ebx, videobuf
 	mov [videobufpos], ebx
 	mov [charpos], dx
-	mov ax, [charbuf]
-	mov bl, ah
+	mov eax, [charbuf]
+	mov ebx, eax
+	shr ebx, 16
 	ret
 	
+	prnofont:
+		mov ax, 2
+		jmp donepr
 	prtab:
 		mov ebx, [linebeginpos]
 		sub edi, videobuf
 		sub edi, ebx
-		shr edi, 4
-		shl edi, 4
-		add edi, 16
+		shr edi, 5
+		shl edi, 5
+		add edi, 32
 		shr dl, 3
 		shl dl, 3
 		add dl, 8
@@ -95,8 +105,8 @@ donescr:
 	prnobmr:
 		mov [linebeginpos], ebx
 		dec dl
-		xor ax, ax
-		sub edi, 2
+		xor eax, eax
+		sub edi, 4
 		jmp donecrnl
 	prbackline:
 		xor bx, bx
@@ -105,9 +115,10 @@ donescr:
 		je prnobmr
 		mov ebx, [linebeginpos]
 		push cx
-		xor ch, ch
-		sub bx, cx
-		sub bx, cx
+		xor ecx, ecx
+		mov cl, [esp]
+		shl ecx, 2
+		sub ebx, ecx
 		pop cx
 		dec dh
 		jmp prnobmr
@@ -117,7 +128,7 @@ donescr:
 		xor ebx, ebx
 		xor dl, dl
 		mov bl, cl
-		shl bx, 1
+		shl bx, 2
 		mov edi, videobuf
 		add ebx, [linebeginpos]
 		mov [linebeginpos], ebx
@@ -129,7 +140,7 @@ donescr:
 		inc dh
 		xor ebx, ebx
 		mov bl, cl
-		shl bx, 1
+		shl bx, 2
 		add ebx, [linebeginpos]
 		mov [linebeginpos], ebx
 		jmp doneeol
@@ -138,13 +149,13 @@ donescr:
 		mov edi, videobuf
 		xor ebx, ebx
 		mov bl, cl
-		shl bx, 1
+		shl bx, 2
 		add ebx, edi
 	intscrollloop:
-		mov ax, [ebx]
-		mov [edi], ax
-		add edi, 2
-		add ebx, 2
+		mov eax, [ebx]
+		mov [edi], eax
+		add edi, 4
+		add ebx, 4
 		dec cl
 		cmp cl, 0
 		jne intscrollloop
@@ -152,14 +163,14 @@ donescr:
 		dec ch
 		cmp ch, 1
 		ja intscrollloop
-		xor ax, ax
+		xor eax, eax
 		sub edi, videobuf
 		mov [linebeginpos], edi
 		add edi, videobuf
 		mov ebx, edi
 	intloopclear:
-		mov [ebx], ax
-		add ebx, 2
+		mov [ebx], eax
+		add ebx, 4
 		dec cl
 		cmp cl, 0
 		jne intloopclear
@@ -173,5 +184,5 @@ linebeginpos dd 0
 videobufpos: dd 0
 charpos db 0,0
 charxy db 80,30
-charbuf dw 0
+charbuf dd 0
 %endif

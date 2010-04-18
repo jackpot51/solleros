@@ -1,59 +1,61 @@
+charmapnum db 0
 db 255,44,"charmap",0
 	mov bx, 7
-	mov al, " "
+	mov ax, " "
+	mov byte [charmapnum], 0
 	call prcharq
 	call prcharq
 	call prcharq
 	call prcharq
-	mov al, "0"
+	mov ax, "0"
 charmapnumprnt:
 	call prcharq
-	inc al
+	inc ax
 	push ax
-	mov al, " "
+	mov ax, " "
 	call prcharq
 	pop ax
-	cmp al, "9"
+	cmp ax, "9"
 	jbe charmapnumprnt
-	mov al, "A"
+	mov ax, "A"
 charmapnumprnt2:
 	call prcharq
-	inc al
+	inc ax
 	push ax
-	mov al, " "
+	mov ax, " "
 	call prcharq
 	pop ax
-	cmp al, "G"
+	cmp ax, "G"
 	jb charmapnumprnt2
 	
 	mov esi, line
 	call printquiet
 	xor ax, ax
-	mov cl, al
+	mov cx, ax
 	call showhexsmall
 	jmp charmapnocopy ;the first char is 0 which is unprintable
 charmapcopy:
-	inc al
+	inc ax
 	push ax
-	cmp al, 8
+	cmp ax, 8
 	je charmapnocopy
-	cmp al, 9
+	cmp ax, 9
 	je charmapnocopy
-	cmp al, 10
+	cmp ax, 10
 	je charmapnocopy
-	cmp al, 13
+	cmp ax, 13
 	je charmapnocopy
-	cmp al, 255
+	cmp ax, 255
 	je charmapnocopy
-	cmp al, 0
+	cmp ax, 256
 	je nomorecharmap
 	call prcharq
-	mov al, " "
+	mov ax, " "
 	call prcharq
 	pop ax
 charmapcopycheck:
-	inc ah
-	cmp ah, 16
+	inc byte [charmapnum]
+	cmp byte [charmapnum], 16
 	jb charmapcopy
 	push ax
 	mov esi, line
@@ -64,13 +66,13 @@ charmapcopycheck:
 	mov cl, al
 	inc cl
 	call showhexsmall
-	xor ah, ah
+	mov byte [charmapnum], 0
 	jmp charmapcopy
 nomorecharmap:
 	jmp nwcmd
 charmapnocopy:
 	push ax
-	mov al, " "
+	mov ax, " "
 	call prcharq
 	call prcharq
 	pop ax

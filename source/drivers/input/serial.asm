@@ -35,7 +35,8 @@ serial:
 		je .receive
 		ret
 	.receive:
-		xor ah, ah
+		xor eax, eax
+		mov [lastkey], eax
 		mov dx, [.address]
 		in al, dx
 		cmp al, 0
@@ -53,7 +54,8 @@ serial:
 		mov ah, 0xFF
 		mov byte [specialkey], 0
 	.done:
-		mov [lastkey], ax
+		mov [lastkey], al
+		mov [lastkey + 2], ah
 		ret
 		
 	.del:

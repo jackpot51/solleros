@@ -30,3 +30,11 @@ C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\ResolveAssemblyRef
 C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.Form1.resources
 C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.Properties.Resources.resources
 C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Debug\FontMaker.csproj.GenerateResource.Cache
+C:\Users\Jackpot\Desktop\unifont\FontMaker\FontMaker\obj\Debug\FontMaker.exe
+C:\Users\Jackpot\Desktop\unifont\FontMaker\FontMaker\obj\Debug\FontMaker.pdb
+C:\Users\Jackpot\Desktop\unifont\FontMaker\FontMaker\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Jackpot\Desktop\unifont\FontMaker\FontMaker\obj\Debug\FontMaker.Form1.resources
+C:\Users\Jackpot\Desktop\unifont\FontMaker\FontMaker\obj\Debug\FontMaker.Properties.Resources.resources
+C:\Users\Jackpot\Desktop\unifont\FontMaker\FontMaker\obj\Debug\FontMaker.csproj.GenerateResource.Cache
+C:\Users\Jackpot\Desktop\unifont\FontMaker\FontMaker\bin\Debug\FontMaker.exe
+C:\Users\Jackpot\Desktop\unifont\FontMaker\FontMaker\bin\Debug\FontMaker.pdb

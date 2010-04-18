@@ -3,38 +3,39 @@ readchar:
 	jmp timerinterrupt
 getchar:
 	xor al, al
-	rdcharint:		;;get char, if al is 0, wait for key
-		mov byte [trans], 1
+	rdcharint:		;get char, if al is 0, wait for key
+		mov word [trans], 1
 		cmp al, 0
 		jne transcheck
-		mov byte [trans], 0
+		mov word [trans], 0
 	transcheck:
 	%ifdef io.serial
 		call serial.receive
+		xor ah, ah
 		cmp al, 13
 		je rdenter
 	%else
 		call getkey
-		mov ax, [lastkey]
-		cmp ah, 0x1C
+		mov ax, [lastkey + 2]
+		cmp ax, 0x1C
 		je rdenter
 	%endif
-		mov bh, [trans]
+		mov ax, [lastkey]
+		mov bx, [trans]
 		cmp byte [specialkey], 0xE0
 		jne nospecialtrans
-		mov bl, al
-		xor al, al
 	nospecialtrans:
-		or bh, al
-		cmp bh, 0
+		or bx, ax
+		cmp bx, 0
 		je transcheck
 		jmp rdend
 	rdenter:
-		mov ah, 0x1C
-		mov al, 10
-		mov [lastkey], ax
+		shl eax, 16
+		mov ax, 10
+		mov [lastkey], eax
 	rdend:
+		mov eax, [lastkey]
 		ret
 		
-lastkey db 0,0
-trans db 0
+lastkey dd 0
+trans dw 0

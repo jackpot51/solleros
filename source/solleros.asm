@@ -57,6 +57,7 @@ passcheck:
 	je near backpass
 	mov [esi], al
 	inc esi
+	xor ah, ah
 	mov al, "*"
 	call prcharint
 	jmp passcheck

@@ -33,30 +33,30 @@
 ;Display debugging information should crashes occur-also uses quite a bit of memory
 
 ;%define disk.protected
-;Use protected mode instead of real mode for disk access-this allows for multitasking
+;Use protected mode instead of real mode for disk access-this allows for multitasking with disk reads
 
 %define disk.real
 ;Use real mode for disk access-this gives greater compatibility
 
-%define sound.included
+;%define sound.included
 ;This includes the sound drivers
 
 %define network.included
 ;This includes the network stack
 
-;%define rtl8169.included
+%define rtl8169.included
 ;This includes the RTL8169 drivers
 
-%define rtl8139.included
+;%define rtl8139.included
 ;This includes the RTL8139 drivers
 
-%define ne2000.included
+;%define ne2000.included
 ;This includes the ne2000 drivers
 
-%define i8254x.included
+;%define i8254x.included
 ;This includes the Intel 8254x drivers
 
-;%define sector.debug
+%define sector.debug
 ;Dump the contents of the first sector of SollerOS
 
 ;%define dos.compatible

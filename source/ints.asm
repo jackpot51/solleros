@@ -89,7 +89,7 @@ termcopy:
 %endif
 	termcopyneeded db 0
 	termcursorpos dd 0
-	removedvideo dw 0
+	removedvideo dd 0
 newtermcopy:
 	pusha
 	mov edi, videobuf
@@ -117,36 +117,36 @@ nowincopy:
 	xor ecx, ecx
 	mov cx, [charxy]
 nowincopy2:
-	mov ax, [edi]
+	mov eax, [edi]
 	add edi, (videobuf2 - videobuf)
-	mov bx, [edi]
-	mov [edi], ax
+	mov ebx, [edi]
+	mov [edi], eax
 	sub edi, (videobuf2 - videobuf)
-	inc edi
-	cmp ax, bx
+	add edi, 2
+	cmp eax, ebx
 	je nopresentwinfont
-	dec edi
-	mov ebx, fonts
+	sub edi, 2
+	mov ebp, fonts
 	xor eax, eax
-	mov al, [edi]
+	mov ax, [edi]
 	shl eax, 4
-	add ebx, eax
-	inc edi
-	mov ah, [edi]
+	add ebp, eax
+	add edi, 2
+	mov bx, [edi]
 	xor edx, edx
 	mov dl, [charxy]
 	rol ecx, 16
 	mov cl, 16
 nowinfont:
-	mov al, [ebx]
+	mov al, [ebp]
 	ror al, 1
-	cmp ah, 7
-	jbe notnotfont
+	cmp bl, 0x80
+	jb notnotfont
 	not al
 notnotfont:
 	mov [esi], al
 	add esi, edx
-	inc ebx
+	inc ebp
 	dec cl
 	cmp cl, 0
 	jne nowinfont
@@ -154,7 +154,7 @@ notnotfont:
 	sub esi, edx
 	rol ecx, 16
 nopresentwinfont:
-	inc edi
+	add edi, 2
 	inc esi
 	dec cl
 	cmp cl, 0
@@ -175,20 +175,20 @@ nocopytermatall:
 	
 switchtermcursor:
 	mov edi, [termcursorpos]
-	mov al, [edi + 1]
-	mov ah, [edi]
-	cmp al, 7
-	jbe movlargecursorterm
-	mov al, 7
+	mov ax, [edi + 2]
+	mov bx, [edi]
+	cmp ax, 0x80
+	jb movlargecursorterm
+	mov ax, 7
 	jmp movedcursorterm
 movlargecursorterm:
-	mov al, 0xF0
+	mov ax, 0xF0
 movedcursorterm:
-	mov [edi + 1], al
-	cmp ah, 0
+	mov [edi + 2], ax
+	cmp bx, 0
 	jne fixednocursorterm
-	mov ah, " "
-	mov [edi], ah
+	mov bx, ' '
+	mov [edi], bx
 fixednocursorterm:
 	ret
 %endif

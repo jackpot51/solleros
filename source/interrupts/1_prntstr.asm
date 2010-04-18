@@ -1,23 +1,26 @@
 prntstr:
+xor ah, ah
 call printint
 jmp timerinterrupt
+
+	printquiet:
+		xor ax, ax
+		mov [endkeyprint], ax
+		mov bx, 7
+		call printint.b
+		ret
 
 	printhighlight:
 		xor ax, ax
 		mov bx, 0xF0
 		jmp printint
-	printquiet:
-		xor ax, ax
-		mov [endkeyprint], al
-		mov bx, 7
-		call printint.b
-		ret
+
     print:
 		xor ax, ax
 		mov bx, 7
-	printint:	;;print line, al=last key,bl=modifier, esi=buffer
+	printint:	;print line, ax=last key,bx=modifier, esi=buffer
 		push esi
-		mov [endkeyprint], al
+		mov [endkeyprint], ax
 		call .b
 		mov ecx, esi
 		pop edi
@@ -26,9 +29,37 @@ jmp timerinterrupt
 		call termcopy
 		pop ecx
 		ret
-	.b:
+	.b:	
+		push ebx
+		xor eax, eax
 		mov al, [esi]
-		cmp al, [endkeyprint]
+		cmp al, 0xFF
+		je .doneutf
+		cmp al, 0xC0
+		jb .doneutf
+		cmp al, 0xE0
+		jb .two
+		inc esi
+		mov cx, [esi]
+		inc esi
+		shl al, 4
+		shl cx, 2
+		shr ch, 2
+		shr cx, 2
+		or ch, al
+		mov ax, cx
+		jmp .doneutf
+	.two:
+		mov ch, [esi]
+		inc esi
+		mov cl, [esi]
+		shl cx, 2
+		shr ch, 2
+		shr cx, 2
+		mov ax, cx
+	.doneutf:
+		pop ebx
+		cmp ax, [endkeyprint]
 		je .done
 		call prcharq
 		inc esi
@@ -36,4 +67,4 @@ jmp timerinterrupt
 	.done:
 		ret
 
-endkeyprint db 0
+endkeyprint dw 0

@@ -75,9 +75,12 @@ f24:
 incbin "included/unfs"
 align 512,db 0
 f25:
-incbin "included/victory.wav"
+incbin "included/utf-8.txt"
 align 512,db 0
 f26:
-incbin "included/_img.bin"
+incbin "included/victory.wav"
 align 512,db 0
 f27:
+incbin "included/_img.bin"
+align 512,db 0
+f28:

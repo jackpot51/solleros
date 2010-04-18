@@ -46,14 +46,14 @@ numbuf: equ buf2 + 20
 		%endif
 		mcolorend equ mousecolorbuf + 256
 		videobuf equ mcolorend + 1	;1680x1050 pixels in characters
-		videobufend	equ videobuf + 210*65*2
+		videobufend	equ videobuf + 210*65*4;2
 		videobuf2 equ videobufend
-		videobuf2end equ videobuf2 + 210*65*2
+		videobuf2end equ videobuf2 + 210*65*4;2
 	%else
 		videobuf equ numbuf + 1
-		videobufend equ videobuf + 80*30*2
+		videobufend equ videobuf + 80*30*4
 		videobuf2 equ videobufend
-		videobuf2end equ videobuf2 + 80*30*2
+		videobuf2end equ videobuf2 + 80*30*4
 	%endif
 	lastcommandpos: equ videobuf2end
 %endif

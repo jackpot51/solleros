@@ -5,7 +5,7 @@ jmp timerinterrupt
 clear:
 	ret
 %else
-clear:		
+clear:
 		mov cx, [charxy]
 		mov edi, videobuf
 		xor eax, eax
@@ -13,10 +13,11 @@ clear:
 		mov [videobufpos], eax
 		xor dx, dx
 		mov [charpos], ax
-		mov ah, 7
+		mov ax, 7
+		shl eax, 16
 	clearb:
-		mov [edi], ax
-		add edi, 2
+		mov [edi], eax
+		add edi, 4
 		dec cl
 		cmp cl, 0
 		jne clearb
@@ -29,8 +30,8 @@ clear:
 		mov cx, [charxy]
 		xor eax, eax
 	clearc:
-		mov [edi], ax
-		add edi, 2
+		mov [edi], eax
+		add edi, 4
 		dec cl
 		cmp cl, 0
 		jne clearc

@@ -1,0 +1,13 @@
+utf8 üτƒ
+Αα 	Alpha 	Νν 	Nu
+Ββ 	Beta 	Ξξ 	Xi
+Γγ 	Gamma 	Οο 	Omicron
+Δδ 	Delta 	Ππ 	Pi
+Εε 	Epsilon Ρρ 	Rho
+Ζζ 	Zeta 	Σσς	Sigma
+Ηη 	Eta 	Ττ 	Tau
+Θθ 	Theta 	Υυ 	Upsilon
+Ιι 	Iota 	Φφ 	Phi
+Κκ 	Kappa 	Χχ 	Chi
+Λλ 	Lambda 	Ψψ 	Psi
+Μμ 	Mu 	Ωω 	Omega

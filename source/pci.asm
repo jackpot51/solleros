@@ -158,6 +158,8 @@ findpcimemaddr:
 	and ebx, 1
 	cmp ebx, 1
 	je near notpciioaddr
+	shr eax, 4
+	shl eax, 4	;remove prefetch and type
 	mov edx, eax
 	push eax
 	mov eax, [basecache]

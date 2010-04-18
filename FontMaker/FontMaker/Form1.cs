@@ -17,9 +17,11 @@ namespace FontMaker
         Graphics box3;
         FileStream openfs;
         FileStream savefs;
+        int current = 0;
         bool openedafilealready = false;
-        bool[] pixeldata = new bool[128];
+        bool[,] pixeldata = new bool[65536,129];
         byte[] readbyte = new byte[16];
+        bool filetype = true;
         string openedfile = "";
         string savedfile = "";
 
@@ -34,16 +36,17 @@ namespace FontMaker
 
         public void pictureBox1_MouseDown(object sender, MouseEventArgs mea)
         {
+            pixeldata[current, 128] = true;
             int pdata = mea.X / 40 + mea.Y / 40 * 8;
             int mousex = mea.X - (mea.X % 40) + 1;
             int mousey = mea.Y - (mea.Y % 40) + 1;
-            if (pixeldata[pdata])
+            if (pixeldata[current,pdata])
             {
-                pixeldata[pdata] = false;
+                pixeldata[current,pdata] = false;
             }
             else
             {
-                pixeldata[pdata] = true;
+                pixeldata[current,pdata] = true;
             }
             updategraphics(pdata);
         }
@@ -58,8 +61,78 @@ namespace FontMaker
                 }
                 openedfile = openFileDialog1.FileName;
                 openfs = new FileStream(openedfile, FileMode.Open);
+                if (openfs.Length % 16 != 0)
+                {
+                    numericUpDown1.Maximum = 65535;
+                    filetype = false;
+                }
+                else
+                {
+                    numericUpDown1.Maximum = openfs.Length / 16 - 1;
+                    filetype = true;
+                }
                 openedafilealready = true;
-                numericUpDown1.Maximum = openfs.Length / 16 - 1;
+                if (openfs.CanRead)
+                {
+                    if (filetype)
+                    {
+                        openfs.Position = 0;
+                        for (int valint = 0; valint < numericUpDown1.Maximum; valint++)
+                        {
+                            openfs.Read(readbyte, 0, 16);
+                            pixeldata[valint, 128] = true;
+                            for (int i = 0; i < 16; i++)
+                            {
+                                bool[] pd = new bool[8];
+                                for (int i2 = 0; i2 < 8; i2++)
+                                {
+                                    pd[i2] = Convert.ToBoolean((readbyte[i] - ((readbyte[i] >> (i2 + 1)) << (i2 + 1))) >> i2);
+                                }
+                                for (int i2 = 1; i2 < 8; i2++)
+                                {
+                                    pixeldata[valint, i * 8 + i2] = pd[8 - i2]; //the pixel data must be flipped and something adjusted
+                                }
+                                pixeldata[valint, i * 8] = pd[0];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        openfs.Position = 0;
+                        bool canread = true;
+                        while (canread)
+                        {
+                            byte[] number = new byte[5];
+                            byte[] readdata = new byte[65];
+                            bool largechar = false;
+                            while (number[4] != ':') openfs.Read(number, 0, 5);
+                            openfs.Read(readdata, 0, 33);
+                            string str = Encoding.GetEncoding(1251).GetString(number, 0, 4);
+                            if (readdata[32] != 10)
+                            {
+                                largechar = true;
+                                openfs.Read(readdata, 33, 32);
+                            }
+                            int valint = Convert.ToInt32(str, 16);
+                            pixeldata[valint, 128] = false;
+                            if (!largechar)
+                            {
+                                pixeldata[valint, 128] = true;
+                                for (int i = 0; i < 16; i++)
+                                {
+                                    string strb = Encoding.GetEncoding(1251).GetString(readdata, i * 2, 2);
+                                    int rb = Convert.ToInt32(strb, 16);
+                                    for (int i2 = 0; i2 < 8; i2++)
+                                    {
+                                        pixeldata[valint, i * 8 + 7 - i2] = Convert.ToBoolean(rb >> i2 & 1);
+                                    }
+                                }
+                            }
+                            if (openfs.Position >= openfs.Length) canread = false;
+                        }
+                        pixeldata[0, 128] = true;
+                    }
+                }
                 loadpdata(numericUpDown1.Value);
             }
         }
@@ -70,35 +143,37 @@ namespace FontMaker
         }
         private void loadpdata(decimal value)
         {
-            if (openfs.CanRead)
+            current = Convert.ToInt32(value);
+            this.Text = Convert.ToChar(current).ToString() + " U+" + current.ToString("X4");
+            if (pixeldata[current, 128])
             {
-                this.Text = Convert.ToChar(Convert.ToInt64(value)).ToString();
-                openfs.Position = Convert.ToInt64(value * 16);
-                openfs.Read(readbyte, 0, 16);
-                for (int i = 0; i < 16; i++)
+                for (int i = 0; i < 128; i++)
                 {
-                    bool[] pd = new bool[8];
-                    for (int i2 = 0; i2 < 8; i2++)
-                    {
-                        pd[i2] = Convert.ToBoolean((readbyte[i] - ((readbyte[i] >> (i2 + 1)) << (i2 + 1))) >> i2);
-                    }
-                    for (int i2 = 1; i2 < 8; i2++)
-                    {
-                        pixeldata[i * 8 + i2] = pd[8 - i2]; //the pixel data must be flipped and something adjusted
-                    }
-                    pixeldata[i * 8] = pd[0];
-                }
-                for (int pdata = 0; pdata < 128; pdata++)
-                {
-                    updategraphics(pdata);
+                    updategraphics(i);
                 }
             }
+            else
+            {
+                for (int i = 0; i < 128; i++)
+                {
+                    invalidategraphics(i);
+                }
+            }
+            
+        }
+        private void invalidategraphics(int pdata)
+        {
+            int mousex = pdata % 8 * 40 + 1;
+            int mousey = pdata / 8 * 40 + 1;
+            box.FillRectangle(Brushes.Gray, mousex, mousey, 38, 38);
+            box2.FillRectangle(Brushes.Gray, pdata % 8 * 2, pdata / 8 * 2, 2, 2);
+            box3.FillRectangle(Brushes.Gray, pdata % 8, pdata / 8, 1, 1);
         }
         private void updategraphics(int pdata)
         {
             int mousex = pdata % 8 * 40 + 1;
             int mousey = pdata / 8 * 40 + 1;
-            if (pixeldata[pdata])
+            if (pixeldata[current,pdata])
             {
                 box.FillRectangle(Brushes.Black, mousex, mousey, 38, 38);
                 box2.FillRectangle(Brushes.Black, pdata % 8 * 2, pdata / 8 * 2, 2, 2);
@@ -110,7 +185,6 @@ namespace FontMaker
                 box2.FillRectangle(Brushes.White, pdata % 8 * 2, pdata / 8 * 2, 2, 2);
                 box3.FillRectangle(Brushes.White, pdata % 8, pdata / 8, 1, 1);
             }
-
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -124,46 +198,49 @@ namespace FontMaker
                     {
                         readbyte[i] = 0;
                         bool[] pd = new bool[8];
-                        pd[0] = pixeldata[i * 8];
+                        pd[0] = pixeldata[current,i * 8];
                         for (int i2 = 1; i2 < 8; i2++)
                         {
-                            pd[8 - i2] = pixeldata[i * 8 + i2];
+                            pd[8 - i2] = pixeldata[current,i * 8 + i2];
                         }
                         for (int i2 = 0; i2 < 8; i2++)
                         {
                             readbyte[i] = Convert.ToByte((Convert.ToByte(pd[i2]) << i2) + readbyte[i]);
                         }
                     }
-                    openfs.Position = Convert.ToInt64(numericUpDown1.Value * 16);
+                    openfs.Position = Convert.ToInt64(current * 16);
                     openfs.Write(readbyte, 0, 16);
                 }
                 else
                 {
                     savefs = new FileStream(savedfile, FileMode.OpenOrCreate);
-                    if (savefs.CanWrite && openfs.CanRead)
+                    if (savefs.CanWrite)
                     {
-                        openfs.Position = 0;
                         savefs.Position = 0;
-                        for (int i = 0; i < openfs.Length; i++)
+                        for (int valint = 0; valint < 1796; valint++)
                         {
-                            savefs.WriteByte(Convert.ToByte(openfs.ReadByte()));
-                        }
-                        for (int i = 0; i < 16; i++)
-                        {
-                            readbyte[i] = 0;
-                            bool[] pd = new bool[8];
-                            pd[0] = pixeldata[i * 8];
-                            for (int i2 = 1; i2 < 8; i2++)
+                            int nv = valint;
+                            if (!pixeldata[nv, 128])
                             {
-                                pd[8 - i2] = pixeldata[i * 8 + i2];
+                                nv = 2; //replace with ? in diamond sign's number
                             }
-                            for (int i2 = 0; i2 < 8; i2++)
+                            for (int i = 0; i < 16; i++)
                             {
-                                readbyte[i] = Convert.ToByte((Convert.ToByte(pd[i2]) << i2) + readbyte[i]);
+                                readbyte[i] = 0;
+                                bool[] pd = new bool[8];
+                                pd[0] = pixeldata[nv, i * 8];
+                                for (int i2 = 1; i2 < 8; i2++)
+                                {
+                                    pd[8 - i2] = pixeldata[nv, i * 8 + i2];
+                                }
+                                for (int i2 = 0; i2 < 8; i2++)
+                                {
+                                    readbyte[i] = Convert.ToByte((Convert.ToByte(pd[i2]) << i2) + readbyte[i]);
+                                }
                             }
+                            savefs.Position = Convert.ToInt64(valint * 16);
+                            savefs.Write(readbyte, 0, 16);
                         }
-                        savefs.Position = Convert.ToInt64(numericUpDown1.Value * 16);
-                        savefs.Write(readbyte, 0, 16);
                     }
                     savefs.Close();
                 }

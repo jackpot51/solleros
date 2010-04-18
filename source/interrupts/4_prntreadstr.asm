@@ -4,19 +4,20 @@ jmp timerinterrupt
 
 readline:
   mov al, 10
-  mov bl, 7
-rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=bufferend
+  mov bx, 7
+rdprint:	;print and get line, al=last key, bx=modifier, esi=buffer, edi=bufferend
 	call rdprintdos
 	push eax
 	mov al, [endkeyrdpr]
+	xor ah, ah
 	call prcharint
 	pop eax
 	ret
 
-	rdprintdos:
+	rdprintdos: ;allows dos compatibility with read function
 		mov [buftxtloc], esi
 		mov [endkeyrdpr], al
-		mov [modkeyrdpr], bl
+		mov [modkeyrdpr], bx
 		mov [firstesirdpr], esi
 		mov [endbufferrdpr], edi
 		mov edi, [commandsentered]
@@ -25,6 +26,8 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 		push esi
 		mov al, 1
 		call rdcharint
+		mov ah, [lastkey + 2]
+		mov cl, ah
 		pop esi
 %ifdef io.serial
 		cmp ah, 0x41
@@ -54,7 +57,6 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 		je near rdprhome
 		cmp ah, 0x4F
 		je near rdprend
-	notspecialrdprnt:
 		cmp ah, 0x50
 		je near rdprdown
 		cmp ah, 0x4D
@@ -63,22 +65,52 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 		je near rdprleft
 		cmp ah, 0x48
 		je near rdprup
+	notspecialrdprnt:
 %endif
-		cmp al, 8
+		mov ax, [lastkey]
+		cmp ax, 8
 		je near rdprbscheck
-		cmp al, 0
+		cmp ax, 0
 		je rdprintb
-		cmp ah, 0
+		cmp cl, 0
 		je rdprintb
+		cmp ax, 0x80
+		jb .normal
+		cmp ax, 0x800
+		jae .three
+		inc esi
+		cmp esi, [endbufferrdpr]
+		jae near donerdprinc
+		shl ax, 2
+		shr al, 2
+		or al, 10000000b
+		or ah, 11000000b
+		mov [esi - 1], ah
+		jmp .normal
+.three:	
+		add esi, 2
+		cmp esi, [endbufferrdpr]
+		jae near donerdprinc
+		mov cl, ah
+		shr cl, 4
+		or cl, 11100000b
+		mov [esi - 2], cl
+		shl ax, 4
+		shr ax, 2
+		or ah, 10000000b
+		shr al, 2
+		or al, 10000000b
+		mov [esi - 1], ah
+.normal:
 		mov [esi], al
 		inc esi
+		mov ax, [lastkey]
 	bscheckequal:
-		mov bl, [modkeyrdpr]
-		mov bh, [txtmask]
-		cmp bh, 0
+		mov bx, [modkeyrdpr]
+		cmp byte [txtmask], 0
 		je nomasktxt
-		mov al, bh
-		xor bh, bh
+		xor ah, ah
+		mov al, [txtmask]
 	nomasktxt:
 		push esi
 		mov [axcache], ax
@@ -88,12 +120,13 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 		call prcharint
 		mov esi, buftxt2
 		call printquiet
-		mov al, " "
+		mov ax, " "
 		call prcharq
-		mov al, 8
+		mov ax, 8
 		cmp esi, buftxt2
 		je nobackprintbuftxt2
 	backprintbuftxt2:
+		xor ah, ah
 		call prcharq
 		dec esi
 		cmp esi, buftxt2
@@ -101,6 +134,7 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 	nobackprintbuftxt2:
 		cmp al, 10
 		je nonobackprint
+		xor ah, ah
 		call prcharint
 	nonobackprint:
 		pop esi
@@ -183,17 +217,29 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 		call shiftbuftxt2lft
 		call prcharint
 		jmp rdprintb
+		
 	shiftbuftxt2lft:
+		push ebp
+		mov ebp, edi
+	.lp:
 		cmp al, 0
 		je noshiftbuftxt2lft
 		inc edi
 		mov al, [edi]
 		mov [edi - 1], al
-		jmp shiftbuftxt2lft
+		jmp .lp
 	noshiftbuftxt2lft:
+		mov al, [ebp]
+		pop ebp
+		cmp al, 0xC0
+		jae .nofix
+		cmp al, 0x80
+		jae shiftbuftxt2lft
+	.nofix:
 		mov al, [esi]
+		xor ah, ah
 		inc esi
-		mov bl, [modkeyrdpr]
+		mov bx, [modkeyrdpr]
 		ret
 		
 	rdprdownbck:
@@ -241,12 +287,12 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 		cmp esi, [buftxtloc]
 		je nordprupbck
 	rdprupbckspclp:
-		mov al, 8
-		mov bl, [modkeyrdpr]
+		mov ax, 8
+		mov bx, [modkeyrdpr]
 		call prcharq
-		mov al, ' '
+		mov ax, ' '
 		call prcharq
-		mov al, 8
+		mov ax, 8
 		call prcharq
 		dec esi
 		cmp esi, [buftxtloc]
@@ -300,7 +346,8 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 		mov [esi], al
 		inc esi
 		push edi
-		mov bl, [modkeyrdpr]
+		mov bx, [modkeyrdpr]
+		xor ah, ah
 		call prcharq
 		pop edi
 		cmp edi, commandbufend
@@ -319,35 +366,54 @@ rdprint:	;;print and get line, al=last key, bl=modifier, esi=buffer, edi=buffere
 		
 	rdprbscheck:
 		cmp esi, [firstesirdpr]
-		ja goodbscheck
-		jmp rdprintb
+		jbe near rdprintb
 	goodbscheck:
 		dec esi
+		mov al, [esi - 1]
 		mov byte [esi], 0
-		mov bl, [modkeyrdpr]
+		cmp al, 0xC0
+		jae .onemore
+		cmp al, 0x80
+		jae goodbscheck
+		jmp .nomore
+	.onemore:
+		dec esi
+		mov byte [esi], 0		
+	.nomore:
+		mov bx, [modkeyrdpr]
 		mov al, 8
 		jmp bscheckequal
 		
 	shiftbuftxt2:
+		push ebp
+		mov ebp, edi
+	.lp
 		cmp al, 0
 		je noshiftbuftxt2
 		inc edi
 		mov ah, [edi]
 		mov [edi], al
 		mov al, ah
-		jmp shiftbuftxt2
+		jmp .lp
 	noshiftbuftxt2:
+		mov al, [ebp]
+		pop ebp
+		cmp al, 0xC0
+		jae .nofix
+		cmp al, 0x80
+		jae shiftbuftxt2
+	.nofix:
 		mov edi, buftxt2
 		dec esi
 		mov al, [esi]
 		mov [edi], al
 		mov byte [esi], 0
-		mov al, 8
+		mov ax, 8
 		ret
 		
 axcache dw 0
 endkeyrdpr db 0
-modkeyrdpr db 0
+modkeyrdpr dw 0
 firstesirdpr dd 0
 commandedit db 0
 txtmask db 0

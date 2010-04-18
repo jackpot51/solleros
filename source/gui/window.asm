@@ -36,11 +36,10 @@ wincopyendpos dd 0
 		cmp ebx, 0
 		je near donewincopynow
 	findendposwin:
+		shl eax, 2
+		xor edx, edx
+		mul ebx
 		add edi, eax
-		add edi, eax
-		dec ebx
-		cmp ebx, 0
-		ja findendposwin
 		mov [wincopyendpos], edi
 		xor edi, edi
 		xor ax, ax
@@ -119,7 +118,6 @@ wincopyendpos dd 0
 		je near winvcpst
 		mov bx, [background]
 		push bx
-		;mov bx, 1111111111111111b
 		xor bx, bx
 		mov [background], bx
 		xor ax, ax
@@ -137,8 +135,7 @@ wincopyendpos dd 0
 		mov esi, computer
 		mov byte [mouseselecton], 1
 		call showstring2	;Show computer name
-		mov al, "X"
-		xor ah, ah
+		mov ax, "X"
 		mov bx, 1111100000000000b
 		mov dx, [winvcopystx]
 		mov cx, [winvcopysty]
@@ -152,7 +149,7 @@ wincopyendpos dd 0
 .nox:
 		mov bx, [background]
 		sub dx, 24
-		mov al, "+"
+		mov ax, "+"
 		mov bx, 0000011111100000b
 		mov byte [mouseselecton], 1
 		cmp dx, [resolutionx2]
@@ -160,7 +157,7 @@ wincopyendpos dd 0
 		call showfontvesa
 .noplus:
 		sub dx, 24
-		mov al, "-"
+		mov ax, "-"
 		mov bx, 1111111111100000b
 		mov byte [mouseselecton], 1
 		cmp dx, [resolutionx2]
@@ -168,7 +165,7 @@ wincopyendpos dd 0
 		call showfontvesa
 .nominus:
 		sub dx, 24
-		mov al, "?"
+		mov ax, "?"
 		mov bx, 0000000000011111b
 		mov byte [mouseselecton], 1
 		cmp dx, [resolutionx2]
@@ -227,7 +224,7 @@ wincopyendpos dd 0
 		shl edx, 4
 		add esi, edx
 		mov edi, [windowvideobuf]
-		sub edi, 2
+		sub edi, 4
 		mov [charposvbuf], edi
 		jmp nextcharwin
 	win.write:	;adjusted this to use alpha
@@ -294,7 +291,7 @@ wincopyendpos dd 0
 		mov dl, 1
 		rol dh, 1
 		and dl, dh
-		cmp byte [colorcache], 0x10
+		cmp word [colorcache], 0x80
 		jae switchwincolors
 		mov ax, [windowcolor + 2]
 		call win.write
@@ -315,13 +312,13 @@ wincopyendpos dd 0
 		inc cl
 		cmp cl, 8
 		jne copywindow
-		inc bx
+		inc ebx
 		xor cl, cl
 		xor edx, edx
 		mov dx, [resolutionx2]
 		add esi, edx
 		mov edi, esi
-		mov dh, [fonts + bx]
+		mov dh, [fonts + ebx]
 		ror dh, 1
 		inc ch
 		cmp ch, 16
@@ -329,25 +326,24 @@ wincopyendpos dd 0
 	nextcharwin:
 		xor cx, cx
 		mov edi, [charposvbuf]
-		add edi, 2
+		add edi, 4
 		cmp edi, [wincopyendpos]
 		jae near donewincopynow
-		mov bh, [edi + 1]
-		cmp bh, 0
+		mov bx, [edi + 2]
+		cmp bx, 0
 		jne nofixcolorwin
-		mov bh, 7
-		mov [edi + 1], bh
+		mov bx, 7
+		mov [edi + 2], bx
 	nofixcolorwin:
-		mov [colorcache], bh
-		mov bl, [edi]
+		mov [colorcache], bx
+		mov ebx, [edi]
 		mov [charposvbuf], edi
 		cmp dword [windowvideobuf2], 0
 		je noskipcharcopy
 		sub edi, [windowvideobuf]
 		add edi, [windowvideobuf2]
-		mov ah, [edi + 1]
-		mov al, [edi]
-		cmp ax, bx
+		mov eax, [edi]
+		cmp eax, ebx
 		jne noskipcharcopy
 	skipcharcopy:
 		add esi, 16
@@ -365,11 +361,10 @@ wincopyendpos dd 0
 		add esi, edx
 		jmp nextcharwin
 	noskipcharcopy:
-		mov [edi], bl
-		mov [edi + 1], bh
+		mov [edi], ebx
 		mov edi, [charposvbuf]
-		xor bh, bh
-		shl bx, 4
+		shl ebx, 16
+		shr ebx, 12
 		xor edx, edx
 		mov dx, [resolutionx2]
 		shl edx, 4
@@ -382,7 +377,7 @@ wincopyendpos dd 0
 		jae fixwindowcopy
 		mov [charposline], cx
 		xor cx, cx
-		mov dh, [fonts + bx]
+		mov dh, [fonts + ebx]
 		ror dh, 1
 		jmp copywindow
 fixwindowcopy:
@@ -391,7 +386,7 @@ fixwindowcopy:
 		sub dx, [winvcopydx]
 		add esi, edx
 		mov edi, esi
-		mov dh, [fonts + bx]
+		mov dh, [fonts + ebx]
 		ror dh, 1
 		jmp copywindow
 donewincopynow:
