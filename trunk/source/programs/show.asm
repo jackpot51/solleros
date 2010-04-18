@@ -1,15 +1,3 @@
-%ifdef gui.included
-db 255,44,"showg",0
-		mov edi, [currentcommandloc]
-		add edi, 6
-		mov esi, 0x800000
-		call loadfile
-		mov esi, 0x800000
-		xor cx, cx
-		xor dx, dx
-		call showstring2
-		ret
-%endif
 db 255,44,"show",0
 showprog:
 		mov edi, [currentcommandloc]

@@ -26,7 +26,7 @@ ReadHardDisk:
 	mov ecx, [gs:bx]
 dumpconts1:
 	mov si, sigjump
-	mov bx, 0x100
+	xor bx, bx
 dumpconts1lp:
 	mov cl, [gs:bx]
 	cmp cl, [si]
@@ -70,7 +70,7 @@ nomultitrack:
 dumpconts:
 	mov si, line
 	call print
-	mov bx, 0x100
+	xor bx, bx
 dumpconts2:
 	mov ecx, [gs:bx]
 	push bx
@@ -186,8 +186,8 @@ diskaddresspacket:
 len:	db 0x10 ;size of packet
 	db 0
 readlen:	dw 2	;blocks to read=maximum
-address:	dw 0x100	;address to load kernel
-segm:	dw 0x1000	;segment
+address:	dw 0	;address to load kernel
+segm:	dw 0x1010	;segment
 ;start with known value for hd
 lbaad:
 	dd 0	;lba address

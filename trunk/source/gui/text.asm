@@ -37,7 +37,7 @@
 		push esi
 		mov bx, [colorfont2]
 		call showfontvesa
-		cmp al, 10
+		cmp ax, 10
 		je noproceedshst
 		add dx, 8
 	noproceedshst:
