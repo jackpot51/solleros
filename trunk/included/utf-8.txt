@@ -1,13 +1,29 @@
-utf8 üτƒ
-Αα 	Alpha 	Νν 	Nu
-Ββ 	Beta 	Ξξ 	Xi
-Γγ 	Gamma 	Οο 	Omicron
-Δδ 	Delta 	Ππ 	Pi
-Εε 	Epsilon Ρρ 	Rho
-Ζζ 	Zeta 	Σσς	Sigma
-Ηη 	Eta 	Ττ 	Tau
-Θθ 	Theta 	Υυ 	Upsilon
-Ιι 	Iota 	Φφ 	Phi
-Κκ 	Kappa 	Χχ 	Chi
-Λλ 	Lambda 	Ψψ 	Psi
-Μμ 	Mu 	Ωω 	Omega
+⌬☯
+Latin		lingua lătīna
+Greek		ελληνικά
+Cyrillic	русский язык
+Armenian	Հայկական Այբուբեն
+Hebrew		אָלֶף-בֵּית עִבְרִי
+Arabic		أبجدية عربية‎ 
+Syriac		ܐܣܛܪܢܓܠܐ
+Taana		ތާނަ
+N'Ko		ߒߞߏ
+Katakana	カタカナ
+Hiragana	ひらがな
+Indian
+	Devanagari	देवनागरी
+	Bengali		বাংলা লিপি
+	Gurmukhi	ਗੁਰਮੁਖੀ
+	Gujarati	ગુજરાતી લિપિ
+	Oriya		ଓଡ଼ିଆ
+	Tamil		தமிழ் அரிச்சுவடி
+	Teluga		తెలుగు
+	Kannada		ಕನ್ನಡ
+	Malayalam	മലയാളലിപി
+Sinhala		ශුද්ධ සිංහල
+Thai 		ักษรไทย
+Lao		ຂ້ານ້ອຍບໍ່ໄດ້ດອກແດ
+Tibetan		བོད་སྐད་
+Burmese		မြန်မာအက္ခရာ
+Georgian	ქართული დამწერლობა
+Ethiopic	ግዕዝ Gəʿəz

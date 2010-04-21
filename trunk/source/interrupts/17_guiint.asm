@@ -40,9 +40,9 @@ guiint:
 	jmp timerinterrupt
 	
 .getinfo:	;puts screen size in (dx, cx), background color in bx, and will put other stuff in other places
-	xor bx, bx
-	xor cx, cx
-	xor dx, dx
+	xor ebx, ebx
+	xor ecx, ecx
+	xor edx, edx
 	cmp [guion], bl
 	je .nogui
 	mov bx, [background]

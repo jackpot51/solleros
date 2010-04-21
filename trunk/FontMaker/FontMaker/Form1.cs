@@ -115,7 +115,20 @@ namespace FontMaker
                             }
                             int valint = Convert.ToInt32(str, 16);
                             pixeldata[valint, 128] = false;
-                            if (!largechar)
+                            if (largechar)
+                            {
+                                pixeldata[valint, 128] = true;
+                                for (int i = 0; i < 16; i++)
+                                {
+                                    string strb = Encoding.GetEncoding(1251).GetString(readdata, i * 4, 4);
+                                    int rb = Convert.ToInt32(strb, 16);
+                                    for (int i2 = 0; i2 < 8; i2++)
+                                    {
+                                        pixeldata[valint, i * 8 + 7 - i2] = Convert.ToBoolean(rb >> i2*2 & 1);
+                                    }
+                                }
+                            }
+                            else
                             {
                                 pixeldata[valint, 128] = true;
                                 for (int i = 0; i < 16; i++)
@@ -217,7 +230,7 @@ namespace FontMaker
                     if (savefs.CanWrite)
                     {
                         savefs.Position = 0;
-                        for (int valint = 0; valint < 0x800; valint++)
+                        for (int valint = 0; valint < numericUpDown2.Value; valint++)
                         {
                             int nv = valint;
                             if (!pixeldata[nv, 128])
