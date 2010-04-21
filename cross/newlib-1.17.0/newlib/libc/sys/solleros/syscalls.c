@@ -159,45 +159,40 @@
     int write(int file, char *ptr, int len){
 		int i;
 		asm("cli");
-		if(file==1){
+		if(file==1 | file==2){
+			int color = file==1?7:8;
+			int character;
 			for(i=1;i<len;i++){ //the i=1 instead of i=0 makes sure it is printed quietly
+				character=*ptr++;
+				if(character>0xC0){
+					character=(character&0x1F)<<6 + (*ptr++)&0x3F;
+					i++;
+				}
+				else if(character>0xE0){
+					character=(character&0xF)<<12 + ((*ptr++)&0x3F)<<6 + (*ptr++)&0x3F;
+					i+=2;
+				}
 		        asm("movb $6, %%ah\n\t"
-					"movb $7, %%bl\n\t"
-					"movb %%bl, %%bh\n\t" 
 					"int $0x30"
 					:
-					: "a" (*ptr++)
-					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
+					: "a" (character), "b" (color), "c" (character)
+					: "%esi", "%edi", "%edx"
 					);
+			}
+			character=*ptr++;
+			if(character>0xC0){
+				character=(character&0x1F)<<6 + (*ptr++)&0x3F;
+			}
+			else if(character>0xE0){
+				character=(character&0xF)<<12 + ((*ptr++)&0x3F)<<6 + (*ptr++)&0x3F;
 			}
 			asm("movb $6, %%ah\n\t"
-				"movb $7, %%bl\n\t"
-				"xorb %%bh, %%bh\n\t" 
+				"xorl %%ecx, %%ecx\n\t" 
 				"int $0x30\n\t"
 				:
-				: "a" (*ptr++)
-				: "%esi", "%edi", "%ebx", "%edx", "%ecx"
+				: "a" (character), "b" (color)
+				: "%esi", "%edi", "%edx", "%ecx"
 				);
-		}
-		if(file==2){
-			for(i=1;i<len;i++){
-		        asm("movb $6, %%ah\n\t"
-					"movb $0xF0, %%bl\n\t"
-					"movb %%bl, %%bh\n\t"
-					"int $0x30"
-					:
-					: "a" (*ptr++)
-					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
-					);
-			}
-		        asm("movb $6, %%ah\n\t"
-					"movb $0xF0, %%bl\n\t"
-					"xorb %%bh, %%bh\n\t"
-					"int $0x30"
-					:
-					: "a" (*ptr++)
-					: "%esi", "%edi", "%ebx", "%edx", "%ecx"
-					);
 		}
 		asm("sti");
         return i;

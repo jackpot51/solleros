@@ -61,7 +61,10 @@ jmp timerinterrupt
 		pop ebx
 		cmp ax, [endkeyprint]
 		je .done
+		cmp ax, 0xFEFF
+		je .noprint
 		call prcharq
+	.noprint:
 		inc esi
 		jmp .b
 	.done:

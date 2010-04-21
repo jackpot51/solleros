@@ -189,7 +189,7 @@ bootmsg db "SollerOS Loaded. Press any key to continue.",0
 %endif
 	DriveNumber db 0
 	line db 10,13,0
-tracks dw 7
+tracks dw 6
 lbaadorig dd 0
 diskaddresspacket:
 len:	db 0x10 ;size of packet

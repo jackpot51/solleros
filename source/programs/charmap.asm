@@ -1,5 +1,15 @@
 charmapnum db 0
 db 255,44,"charmap",0
+	mov esi, [currentcommandloc]
+	add esi, 9
+	cmp byte [esi], 0
+	je .nospecific
+	call cnvrthextxt
+	mov ax, cx
+	mov bx, 7
+	call prcharq
+	ret
+.nospecific:
 	mov bx, 7
 	mov ax, " "
 	mov byte [charmapnum], 0

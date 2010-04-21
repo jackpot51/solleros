@@ -1,5 +1,5 @@
 prntchar:
-	xor ah, ah
+	xor ah, ah ;this kills unicode from the outside unfortunately
 %ifdef io.serial
 	call prcharint
 	jmp timerinterrupt
@@ -16,11 +16,14 @@ prchar.notimer:
 	call prcharq
 	iret
 	
-prcharint:	;print char, char in ax, modifier in bx, if bl = bh  then termcopy will not happen, will run termcopy if called as is
-	cmp bl, bh
+prcharint:	;print char, char in ax, modifier in bx, if ecx is eax then termcopy will not happen, will run termcopy if called as is
+	cmp ax, 0xFEFF
+	je .ret
+	cmp ecx, eax
 	je prcharq
 	call prcharq
 	call termcopy
+.ret:
 	ret
 termguion db 0
 termcopyon db 0
