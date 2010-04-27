@@ -21,66 +21,69 @@ f6:
 incbin "included/finalcount.sn"
 align 512,db 0
 f7:
-incbin "included/fork"
+incbin "included/floppy.txt"
 align 512,db 0
 f8:
-incbin "included/gravity.elf"
+incbin "included/fork"
 align 512,db 0
 f9:
-incbin "included/guitest"
+incbin "included/gravity.elf"
 align 512,db 0
 f10:
-incbin "included/helloworld.elf"
+incbin "included/guitest"
 align 512,db 0
 f11:
-incbin "included/int"
+incbin "included/helloworld.elf"
 align 512,db 0
 f12:
-incbin "included/lostwoods.sn"
+incbin "included/int"
 align 512,db 0
 f13:
-incbin "included/mario.sn"
+incbin "included/lostwoods.sn"
 align 512,db 0
 f14:
-incbin "included/moment.wav"
+incbin "included/mario.sn"
 align 512,db 0
 f15:
-incbin "included/pi.elf"
+incbin "included/moment.wav"
 align 512,db 0
 f16:
-incbin "included/solleros.bmp"
+incbin "included/pi.elf"
 align 512,db 0
 f17:
-incbin "included/solleros.txt"
+incbin "included/solleros.bmp"
 align 512,db 0
 f18:
-incbin "included/songotime.sn"
+incbin "included/solleros.txt"
 align 512,db 0
 f19:
-incbin "included/sse"
+incbin "included/songotime.sn"
 align 512,db 0
 f20:
-incbin "included/stdiotest.elf"
+incbin "included/sse"
 align 512,db 0
 f21:
-incbin "included/tely"
+incbin "included/stdiotest.elf"
 align 512,db 0
 f22:
-incbin "included/timetest.elf"
+incbin "included/tely"
 align 512,db 0
 f23:
-incbin "included/tutorial.sh"
+incbin "included/timetest.elf"
 align 512,db 0
 f24:
-incbin "included/unfs"
+incbin "included/tutorial.sh"
 align 512,db 0
 f25:
-incbin "included/utf-8.txt"
+incbin "included/unfs"
 align 512,db 0
 f26:
-incbin "included/victory.wav"
+incbin "included/utf-8.txt"
 align 512,db 0
 f27:
-incbin "included/_img.bin"
+incbin "included/victory.wav"
 align 512,db 0
 f28:
+incbin "included/_img.bin"
+align 512,db 0
+f29:
