@@ -9,6 +9,7 @@ play:
 	add edi, 5
 	call playasync
 .waitforsound:
+	hlt
 %ifdef sound.included
 	mov eax, [Length0]
 	or ax, [Length1]
