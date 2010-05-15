@@ -1,0 +1,13 @@
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\bin\Release\FontMaker.exe
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\bin\Release\FontMaker.pdb
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\FontMaker.Form1.resources
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\FontMaker.Properties.Resources.resources
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\ResGen.read.1.tlog
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\ResGen.write.1.tlog
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\FontMaker.exe
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\FontMaker.pdb
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\bin\Release\FontMaker.exe.manifest
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\bin\Release\FontMaker.application
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\FontMaker.exe.manifest
+C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker\obj\Release\FontMaker.application

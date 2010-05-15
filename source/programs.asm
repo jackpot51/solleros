@@ -59,6 +59,10 @@ indexdone db 0
 	%include 'source/programs/background.asm'
 %endif
 %include 'source/programs/beep.asm'
+%ifdef dos.compatible
+%else
+	%include 'source/programs/boot.asm'
+%endif
 %include 'source/programs/cd.asm'
 %include 'source/programs/charmap.asm'
 %ifdef gui.included

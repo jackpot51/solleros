@@ -3,12 +3,17 @@
 	; Boot record is loaded at 0000:7C00
 [ORG 7c00h]
 	mov [DriveNumber], dl	;save the original drive number
-	xor ax,		ax
+	xor eax,	eax
 	mov ds,		ax		;Update the segment registers
 	mov es, 	ax
 	mov ss,		ax
 	mov fs,		ax
 	mov gs,		ax
+	mov [lbaad], eax
+	mov [lbaad + 4], eax
+	mov [address], ax
+	mov ax, 0x1010
+	mov [segm], ax
 ReadHardDisk:
 	mov si, diskaddresspacket
 	xor ax, ax
@@ -57,18 +62,18 @@ skipcontsdump:
 	mov dl, [DriveNumber]
 	int 0x13
 	jc .lp
-	mov cx, [tracks]
-	cmp cx, 0
+	mov cl, [tracks]
+	cmp cl, 0
 	je nomultitrack
-	dec cx
-	mov [tracks], cx
+	dec cl
+	mov [tracks], cl
 	mov eax, [lbaad]
 	add eax, 0x7F
 	mov [lbaad], eax
 	add word [segm], 0xFE0
 	xor ax, ax
 	mov [address], ax
-	cmp cx, 0
+	cmp cl, 0
 	jne .lp
 nomultitrack:
 	mov cx, [DriveNumber]
@@ -85,7 +90,7 @@ dumpconts2:
 	call printnum
 	pop bx
 	add bx, 4
-	cmp bx, 956
+	cmp bx, 732
 	jbe dumpconts2
 	mov si, bootmsg
 	call print
@@ -189,7 +194,7 @@ bootmsg db "SollerOS Loaded. Press any key to continue.",0
 %endif
 	DriveNumber db 0
 	line db 10,13,0
-tracks dw 6
+tracks db 6
 lbaadorig dd 0
 diskaddresspacket:
 len:	db 0x10 ;size of packet
