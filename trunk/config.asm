@@ -23,13 +23,13 @@
 	;It is therefore recommended that you do not enable it even
 	;though it gives a large speed improvement for character output
 
-%define hardware.automatic
+;%define hardware.automatic
 ;Automatically load the sound and network drivers.
 
-%define threads.included
+;%define threads.included
 ;Include the thread testing stuff-this uses a relatively large amount of memory
 
-%define exceptions.included
+;%define exceptions.included
 ;Display debugging information should crashes occur-also uses quite a bit of memory
 
 ;%define disk.protected
@@ -38,10 +38,10 @@
 %define disk.real
 ;Use real mode for disk access-this gives greater compatibility
 
-%define sound.included
+;%define sound.included
 ;This includes the sound drivers
 
-%define network.included
+;%define network.included
 ;This includes the network stack
 
 ;%define rtl8169.included
@@ -53,10 +53,10 @@
 ;%define ne2000.included
 ;This includes the ne2000 drivers
 
-%define i8254x.included
+;%define i8254x.included
 ;This includes the Intel 8254x drivers
 
-;%define sector.debug
+%define sector.debug
 ;Dump the contents of the first sector of SollerOS
 
 ;%define dos.compatible

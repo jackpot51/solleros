@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="FontMaker">
+</Property><Property Name="Solution File" Value="C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker.sln">
+</Property><Property Name="User Options File" Value="C:\Users\Jackpot\SollerOS\trunk\FontMaker\FontMaker.suo">
+</Property><Property Name="Date" Value="Friday, May 14, 2010">
+</Property><Property Name="Time" Value="19:29 PM">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="FontMaker.sln" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker.sln">
+</Event><Event ErrorLevel="0" Project="" Source="FontMaker.suo" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker.suo">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\FontMaker.csproj" Description="Project file successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\FontMaker.csproj">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Form1.cs" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Form1.cs">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Form1.Designer.cs" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Form1.Designer.cs">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Program.cs" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Program.cs">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Properties\AssemblyInfo.cs" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Properties\Resources.Designer.cs" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Properties\Resources.Designer.cs">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Properties\Settings.Designer.cs" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Properties\Settings.Designer.cs">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Properties\Settings.settings" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Properties\Settings.settings">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Form1.resx" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Form1.resx">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\Properties\Resources.resx" Description="File successfully backed up as C:\Users\Jackpot\SollerOS\trunk\FontMaker\Backup\FontMaker\Properties\Resources.resx">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\FontMaker.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="FontMaker" Source="FontMaker\FontMaker.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="FontMaker.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="FontMaker.sln" Description="Converted">
+</Event><Event ErrorLevel="0" Project="FontMaker" Source="FontMaker\FontMaker.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>

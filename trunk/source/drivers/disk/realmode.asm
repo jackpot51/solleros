@@ -1,5 +1,4 @@
 diskr:
-			;read from disk using real mode-it does not work with large files
 			;sector count in cl
 			;disk number in ch
 			;48 bit address with last 32 bits in ebx
