@@ -34,7 +34,7 @@ nextnamechar:
 	cmp cl, ' '
 	je equalfilenames
 	cmp al, '*'
-	je equalfilenames2
+	je asteriskcheck
 	cmp ah, 0
 	je nextfilename
 	cmp al, 0
@@ -55,6 +55,23 @@ nofileload:
 	mov edx, 404	;indicate not found error
 nullfile:
 	ret
+asteriskcheck:
+	inc edi
+	mov al, [edi]
+	cmp al, '*'
+	je asteriskcheck ;remove multiple asterisks
+	cmp al, ' '
+	je equalfilenames2
+	cmp al, 0
+	je equalfilenames2
+.lp:
+	inc ebx
+	mov ah, [ebx]
+	cmp ah, 0
+	je nextfilename
+	cmp al, ah
+	je nextnamechar
+	jmp .lp
 equalfilenames2:
 	sub ebx, 2
 eqfilefind:
