@@ -37,6 +37,16 @@ initialize:
 %ifdef io.serial
 	call serial.init
 %endif
+	call .time
+	ret
+	
+.time:
+	call time
+	call timeconvert
+	mov [timeseconds], ecx
+	xor ecx, ecx
+	mov [timenanoseconds], ecx
+	mov byte [istimeset], 1
 	ret
 	
 .pic:

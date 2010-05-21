@@ -74,6 +74,11 @@ nextvmode:
 	jmp nextvmode
 isthisvideook db 10,13,"Is this video mode OK?(y/n)",13,10,0
 setvesamode:
+	mov si, [videomodecache]
+	mov cx, [si]
+	call decshow
+	mov al, ':'
+	call char
 	mov cx, [resolutionx]
 	call decshow
 	mov al, "x"

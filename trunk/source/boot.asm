@@ -11,7 +11,7 @@ boot:
 	mov si, serialmsg
 	call printrm
 	jmp pmode
-serialmsg: db "SollerOS: Using serial port ",io.serial," for I/O.",0
+serialmsg: db 10,13,"SollerOS: Using serial port ",io.serial," for I/O.",0
 %else
 	call vgaset	;make users switch using a command-this leads to very fast boots
 	jmp pmode

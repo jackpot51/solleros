@@ -57,7 +57,12 @@ public class fsmaker {
 				String[] cfiles = apps.list(cfilter);
 				for(int i=0; i<cfiles.length; i++){
 					String s = null;
-					String[] command = new String[]{ccomp, "-o", includeddir + cfiles[i].substring(0, cfiles[i].length() - 2) + ".elf", appsdir + cfiles[i]};
+                                        String[] command;
+                                        if(cfiles[i].endsWith(".n.c")){
+                                        	command = new String[]{ccomp, "-nostdlib", "-s", "-o", includeddir + cfiles[i].substring(0, cfiles[i].length() - 4) + ".elf", appsdir + cfiles[i]};
+                                        }else{
+                                                command = new String[]{ccomp, "-s", "-o", includeddir + cfiles[i].substring(0, cfiles[i].length() - 2) + ".elf", appsdir + cfiles[i]};
+                                        }
 					Process child = Runtime.getRuntime().exec(command);
 					BufferedReader stdError = new BufferedReader(new InputStreamReader(child.getErrorStream()));
 					BufferedReader stdInput = new BufferedReader(new InputStreamReader(child.getInputStream()));

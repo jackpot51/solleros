@@ -7,23 +7,23 @@
 #include <sys/time.h>
 #define BG 0b0000000000000000 //background color in 5:6:5 RGB
 typedef struct {
-	float x;	//upper left position
-	float y;
-	//float z;
-	float vx;	//velocity
-	float vy;
-	//float vz;
-	float ax;	//acceleration
-	float ay;
-	//float az;
-	float r;	//radius
-	float m;
+	double x;	//upper left position
+	double y;
+	//double z;
+	double vx;	//velocity
+	double vy;
+	//double vz;
+	double ax;	//acceleration
+	double ay;
+	//double az;
+	double r;	//radius
+	double m;
 	int color;
 } physobj;
 screeninfo *screen; //screen resolution
-//const float G = 6.673;//E-1; //this is usually E-11
-float ds; //distance scale (real/sim)
-float pds; //previous scale
+//const double G = 6.673;//E-1; //this is usually E-11
+double ds; //distance scale (real/sim)
+double pds; //previous scale
 int ox; //x offset
 int pox; //previous
 int oy; //y offset
@@ -75,14 +75,14 @@ void physdraw(physobj *p){
 }
 
 int R(int max){
-	float r = rand();
+	double r = rand();
 	r = r/RAND_MAX;
 	return (int)(r*max);
 }
 
-float sqroot(float m)
+double sqroot(double m)
 {
-	float r;
+	double r;
 	asm volatile("fsqrt"
 		: "=t" (r)
 		: "0" (m)
@@ -101,7 +101,7 @@ unsigned char inb(int port){
 }
 //Retinal size=Distance between retina*Size/Distance
 int main(int argc, char **argv){
-	screen = getinfo();
+	getinfo(screen);
 	if(!screen->x | !screen->y){
 		return 1;
 	}
@@ -140,6 +140,7 @@ while(running){
 	char i2;
 	char s[256] = { 0 };
 	int frames = 0;
+	int lastframes;
 	int fr = 0;
 	clear(BG);
 	ox = screen->x*2/5;
@@ -157,23 +158,23 @@ while(running){
 				//obj[i].az = 0;
 				for(i2=0;i2<len;i2++){
 					if(i2!=i){
-						float dx = obj[i2].x - obj[i].x;
-						float dy = obj[i2].y - obj[i].y;
-						//float dz = obj[i2].z - obj[i].z;
-						float d2 = dx*dx + dy*dy;// + dz*dz;
-						float d = sqroot(d2);
+						double dx = obj[i2].x - obj[i].x;
+						double dy = obj[i2].y - obj[i].y;
+						//double dz = obj[i2].z - obj[i].z;
+						double d2 = dx*dx + dy*dy;// + dz*dz;
+						double d = sqroot(d2);
 						if(d <= (obj[i].r + obj[i2].r)){ //collision
 							dx = dx*(obj[i].r + obj[i2].r)/d;
 							dy = dy*(obj[i].r + obj[i2].r)/d;
 							//dz = dz*(obj[i].r + obj[i2].r)/d;
 							d2 = dx*dx + dy*dy;// + dz*dz;
 							d = sqroot(d2);
-							float a = obj[i2].m/d2;
+							double a = obj[i2].m/d2;
 							obj[i].ax += a*dx/d;
 							obj[i].ay += a*dy/d;
 							//obj[i].az += a*dz/d;
 						}else{
-							float a = obj[i2].m/d2;
+							double a = obj[i2].m/d2;
 							obj[i].ax += a*dx/d;
 							obj[i].ay += a*dy/d;
 							//obj[i].az += a*dz/d;
@@ -221,6 +222,7 @@ while(running){
 				simtime += et.tv_sec - st.tv_sec;
 				sprintf(s,"FPS:%04d    ",frames/(et.tv_sec - st.tv_sec));
 				st=et;
+				lastframes = frames;
 				frames = 0;
 				drawtext(0,0,BG,~BG,s);
 			}
@@ -249,8 +251,8 @@ while(running){
 			}
 		}
 		if(keys[1] | keys[0x10]) running = 0; //ESC or Q
-		if(keys[0xC]) ds += 0.01; //minus
-		if(keys[0xD]>0 & ds > 1) ds -= 0.01; //plus
+		if(keys[0xC]) ds = ds*=1.005; //minus
+		if(keys[0xD]>0 & ds > 1) ds/=1.005; //plus
 		if(keys[0x13]==1){ //R
 			memcpy(obj,ogobj,sizeof(ogobj));
 			clear(BG);
@@ -299,7 +301,7 @@ while(running){
 		if(keys[0x31]==1) continued=0; //N
 		if(keys[0x48]) oy += 2; //up
 		if(keys[0x50]) oy -= 2; //down
-		if(keys[0x4B]) ox += 2; //right
+		if(keys[0x4B]) ox += 2; //left
 		if(keys[0x4D]) ox -= 2; //right
 	}
 }

@@ -69,7 +69,7 @@ fillsquare:	;from (bx,ax) to (dx,cx), color in si
 	xor ebx, ebx
 	pop bx
 	pop ax
-.lp2
+.lp2:
 	push dx
 .lp:
 	mov [edi], si

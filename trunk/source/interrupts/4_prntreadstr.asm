@@ -399,7 +399,7 @@ rdprint:	;print and get line, al=last key, bx=modifier, esi=buffer, edi=bufferen
 	shiftbuftxt2:
 		push ebp
 		mov ebp, edi
-	.lp
+	.lp:
 		cmp al, 0
 		je noshiftbuftxt2
 		inc edi

@@ -104,7 +104,7 @@ sbplay:
 		call DMAPlay
 		call PlayDSP
 		ret
-WAVSTART equ 64;44
+WAVSTART equ 44
 wave_player:
 	cmp byte [SoundBlaster], 1
 	je near sbplay

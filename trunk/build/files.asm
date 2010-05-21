@@ -51,39 +51,42 @@ f16:
 incbin "included/pi.elf"
 align 512,db 0
 f17:
-incbin "included/solleros.bmp"
+incbin "included/raytrace.elf"
 align 512,db 0
 f18:
-incbin "included/solleros.txt"
+incbin "included/solleros.bmp"
 align 512,db 0
 f19:
-incbin "included/songotime.sn"
+incbin "included/solleros.txt"
 align 512,db 0
 f20:
-incbin "included/sse"
+incbin "included/songotime.sn"
 align 512,db 0
 f21:
-incbin "included/stdiotest.elf"
+incbin "included/sse"
 align 512,db 0
 f22:
-incbin "included/tely"
+incbin "included/stdiotest.elf"
 align 512,db 0
 f23:
-incbin "included/timetest.elf"
+incbin "included/tely"
 align 512,db 0
 f24:
-incbin "included/tutorial.sh"
+incbin "included/timetest.elf"
 align 512,db 0
 f25:
-incbin "included/unfs"
+incbin "included/tutorial.sh"
 align 512,db 0
 f26:
-incbin "included/utf-8.txt"
+incbin "included/unfs"
 align 512,db 0
 f27:
-incbin "included/victory.wav"
+incbin "included/utf-8.txt"
 align 512,db 0
 f28:
-incbin "included/_img.bin"
+incbin "included/victory.wav"
 align 512,db 0
 f29:
+incbin "included/_img.bin"
+align 512,db 0
+f30:

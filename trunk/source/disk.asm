@@ -56,7 +56,7 @@ nofileload:
 nullfile:
 	ret
 asteriskcheck:
-	inc edi
+	dec ebx
 	mov al, [edi]
 	cmp al, '*'
 	je asteriskcheck ;remove multiple asterisks
@@ -65,12 +65,12 @@ asteriskcheck:
 	cmp al, 0
 	je equalfilenames2
 .lp:
-	inc ebx
 	mov ah, [ebx]
 	cmp ah, 0
 	je nextfilename
 	cmp al, ah
 	je nextnamechar
+	inc ebx
 	jmp .lp
 equalfilenames2:
 	sub ebx, 2
