@@ -127,12 +127,20 @@ PlayDSP:
 		xor	edx,edx
 		mov	eax,1000000
 		mov	ebx,[Freq]
+		cmp byte [Stereo], 0
+		je .nost
+		shl ebx, 1
+.nost:
 		div	ebx
 		mov	ebx,eax
 		mov	eax,256
 		sub	eax,ebx
 		call WriteDSP
-		mov	al,[WAVEMode]	;write the mode
+		mov	al,14h	;write the mode
+		cmp byte [Stereo], 0
+		je .nost2
+		
+.nost2:
 		call WriteDSP
 		mov	ax,[Length1]
 		shr ax, 1
@@ -188,6 +196,7 @@ WaitIt:	in	al,dx
 		out	dx,al
 		ret
 
+Stereo db 0
 OddLength db 0
 Length0 dd	0
 Length1	dw  0
@@ -196,7 +205,6 @@ MemLoc	dd  0
 SegLoc  dw 0
 Page1	db  0
 Freq	dd	0
-WAVEMode db 14h
 PgPort	equ 83h
 AddPort	equ 02h
 LenPort	equ 03h

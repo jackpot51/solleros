@@ -84,15 +84,13 @@ void fillsquare(int x, int y, int x2, int y2, int color){
 	);
 }
 
-screeninfo *getinfo(){
-	screeninfo *sc;
+void getinfo(screeninfo * sc){
 	asm volatile("movb $17, %%ah\n\t"
 		"movb $253, %%al\n\t"
 		"int $0x30"
 	: "=d" (sc->x), "=c" (sc->y), "=b" (sc->color)
 	:
 	);
-	return sc;
 }
 
 void reset(){

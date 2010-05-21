@@ -4,11 +4,11 @@
 [ORG 7c00h]
 	mov [DriveNumber], dl	;save the original drive number
 	xor eax,	eax
-	mov ds,		ax		;Update the segment registers
+	mov ds,	ax		;Update the segment registers
 	mov es, 	ax
-	mov ss,		ax
-	mov fs,		ax
-	mov gs,		ax
+	mov ss,	ax
+	mov fs,	ax
+	mov gs,	ax
 	mov [lbaad], eax
 	mov [lbaad + 4], eax
 	mov [address], ax

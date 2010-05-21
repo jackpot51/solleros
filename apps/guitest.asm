@@ -225,8 +225,8 @@ guitest:
 .extmsg db 	"Press the ESC key to exit",0
 .title db "GUI Test",0
 .fbstr	db 	"Freebody:",0
-.fbstr2 db 	127,"r/",127,"t",0
-.fbstr3 db 	127,"v/",127,"t",0
+.fbstr2 db  "dr/dt",0
+.fbstr3 db 	"dv/dt",0
 .resx dw 0	;maximum x
 .resy dw 0	;maximum y
 .dt dw 5	;time between refreshes in terms of the PIT's interrupt rate

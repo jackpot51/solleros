@@ -44,6 +44,7 @@ dosgchar:
 	
 doswchar:
 	mov al, dl
+	xor ah, ah
 	mov bl, 7
 	call prcharint
 	jmp backtodos
@@ -52,7 +53,7 @@ dosprintstr:
 	xor esi, esi
 	mov si, dx
 	add esi, dosprogloc
-	mov al, "$"
+	mov ax, "$"
 	mov bl, 7
 	call printint
 	jmp backtodos

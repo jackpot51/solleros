@@ -6,19 +6,21 @@ timeinputbuffer times 12 db 0
 timeinputbend: db 0
 
 db 255,44,"time",0
-	cmp byte [istimeset], 0
-	jne timeisset
-	mov esi, settimemsg
-	call print
-	mov esi, timeinputbuffer
-	mov edi, timeinputbend
-	call readline
-	mov esi, timeinputbuffer
-	xor edi, edi
-	call cnvrttxt
+	;cmp byte [istimeset], 0
+	;jne timeisset
+	call time
+	call timeconvert	
+	; mov esi, settimemsg
+	; call print
+	; mov esi, timeinputbuffer
+	; mov edi, timeinputbend
+	; call readline
+	; mov esi, timeinputbuffer
+	; xor edi, edi
+	; call cnvrttxt
 	mov [timeseconds], ecx
-	xor ecx, ecx
-	mov [timenanoseconds], ecx
+	;xor ecx, ecx
+	;mov [timenanoseconds], ecx
 	mov byte [istimeset], 1
 timeisset:
 	mov ecx, [timeseconds]
@@ -69,6 +71,7 @@ time:
 
 	mov al,0x08			;Get month (01 to 12)
 	call tget1
+	and al, 11111b
 	mov [RTCtimeMonth],al
 
 	mov al,0x09			;Get year (00 to 99)
@@ -195,7 +198,133 @@ tput1:
 	mov [esi], al
 	add esi, 2
 	ret
+	
+timeconvert: ;return time in the RTCtime stuff in ecx
+	xor ebx, ebx
+	xor ecx, ecx
+	xor edi, edi
+	xor esi, esi
+	
+	mov al, [RTCtimeSecond]
+	call converttohex
+	mov cl, ah
+	
+	mov al, [RTCtimeMinute]
+	call converttohex
+	mov bl, ah
+	mov eax, 60
+	xor edx, edx
+	mul ebx
+	add ecx, eax
+	
+	mov al, [RTCtimeHour]
+	call converttohex
+	mov bl, ah
+	mov eax, 3600
+	xor edx, edx
+	mul ebx
+	add ecx, eax
 		
+	xor eax, eax
+	mov al, [RTCtimeYear]
+	call converttohex
+	mov si, ax
+	shr si, 8
+	cmp si, 70
+	ja .no100
+	add si, 100
+.no100:
+	add si, 1900
+	
+	mov ebx, .month
+	mov al, [RTCtimeDay]
+	call converttohex
+	mov al, ah
+	dec al
+	xor edx, edx
+	mov dl, al
+	mov al, [RTCtimeMonth]
+	call converttohex
+	mov al, dl
+	mov dl, ah
+	xor ah, ah
+	mov bp, dx
+	
+	mov di, si
+	shr di, 2
+	shl di, 2
+	mov byte [.month + 1], 28
+	cmp di, si
+	jne .nofebmod
+	inc byte [.month + 1]
+.nofebmod:
+	dec bp
+	cmp bp, 0
+	je .ylp
+	mov dl, [ebx]
+	add eax, edx
+	inc ebx
+	jmp .nofebmod
+	
+.ylp:
+	mov di, si
+	shr di, 2
+	shl di, 2
+	add ecx, 31536000
+	cmp di, si
+	jne .noymod
+	add ecx, 86400
+.noymod:
+	dec si
+	cmp si, 1970
+	ja .ylp
+	
+	mov ebx, 86400
+	xor edx, edx
+	mul ebx
+	add ecx, eax
+	
+	xor ebx, ebx
+	xor edx, edx
+	mov eax, 3600
+	mov bh, [timezoneh]
+	cmp bh, 128
+	jb .posh
+	sub bl, bh
+	xor bh, bh
+	mul ebx
+	add ecx, eax
+	jmp .doneth
+.posh:
+	xchg bl, bh
+	mul ebx
+	sub ecx, eax
+.doneth:
+
+	xor ebx, ebx	
+	xor edx, edx
+	mov eax, 60
+	mov bh, [timezonem]
+	cmp bh, 128
+	jb .posm
+	sub bl, bh
+	xor bh, bh
+	mul ebx
+	add ecx, eax
+	jmp .donetm
+.posm:
+	xchg bl, bh
+	mul ebx
+	sub ecx, eax
+.donetm:
+
+	ret
+	
+
+.month db 31,28,31,30,31,30,31,31,30,31,30,31
+
+	timezoneh db -6
+	timezonem db 0
 	tstack dd 0,0,0,0,0,0
 	RTCtimeSecond db 0
 	RTCtimeMinute db 0
