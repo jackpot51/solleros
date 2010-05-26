@@ -90,17 +90,9 @@ double sqroot(double m)
 	return r;
 }
 
-unsigned char inb(int port){
-	unsigned char r;
-	asm("xor %%eax, %%eax\n\t"
-		"in %%dx, %%al"
-		: "=a" (r)
-		: "d" (port)
-	);
-	return r;
-}
 //Retinal size=Distance between retina*Size/Distance
 int main(int argc, char **argv){
+	screen = malloc(sizeof(screeninfo));
 	getinfo(screen);
 	if(!screen->x | !screen->y){
 		return 1;
@@ -211,12 +203,16 @@ while(running){
 					drawtext(0,0,BG,~BG,s);
 				}
 				if(help){
-					drawtext(0,(screen->y - screen->y%16) - 96,BG,~BG,
-					"\nPress 'Q' or ESC to exit, '+' to zoom in, '-' to zoom out, '[' to decrease\n"
-					"speed, ']' to increase speed, 'H' show help, 'S' to simulate in the background,\n"
-					"'L' to toggle lines, 'X' to reset zoom and offset, 'C' to remove artifacts,\n"
-					"'P to pause, F to only show the framerate, 'N' to generate a new system,\n"
-					"and the arrow keys to change the offset.");
+					int y = screen->y - screen->y%16 - 80;
+					drawtext(0,y,BG,~BG,"Press 'Q' or ESC to exit, '+' to zoom in, '-' to zoom out, '[' to decrease");
+					y += 16;
+					drawtext(0,y,BG,~BG,"speed, ']' to increase speed, 'H' show help, 'S' to simulate in the background,");
+					y += 16;
+					drawtext(0,y,BG,~BG,"'L' to toggle lines, 'X' to reset zoom and offset, 'C' to remove artifacts,");
+					y += 16;
+					drawtext(0,y,BG,~BG,"'P to pause, F to only show the framerate, 'N' to generate a new system,");
+					y += 16;
+					drawtext(0,y,BG,~BG,"and the arrow keys to change the offset.");
 				}
 			}else if((et.tv_sec - st.tv_sec)>0){
 				simtime += et.tv_sec - st.tv_sec;
@@ -228,7 +224,7 @@ while(running){
 			}
 		}else{
 			drawtext(screen->x - 48,screen->y - 16,BG,~BG,"Paused");
-			asm("hlt");
+			hlt();
 		}
 		key = inb(0x64);
 		if(!(key&0x20)){
@@ -240,7 +236,7 @@ while(running){
 			key=0;
 		}
 		for(i=0;i<ips;i++){
-			asm("hlt");
+			hlt();
 			key = inb(0x64);
 			if(!(key&0x20)){
 				key = inb(0x60);

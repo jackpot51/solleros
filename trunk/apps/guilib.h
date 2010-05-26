@@ -4,6 +4,20 @@ typedef struct {
 	int color;
 } screeninfo;
 
+void hlt(){
+		asm("hlt");
+}
+
+unsigned char inb(int port){
+	unsigned char r;
+	asm("xor %%eax, %%eax\n\t"
+		"in %%dx, %%al"
+		: "=a" (r)
+		: "d" (port)
+	);
+	return r;
+}
+
 void clear(int color){
 	asm volatile("movb $17, %%ah\n\t"
 		"xorb %%al, %%al\n\t"
@@ -64,7 +78,7 @@ void fillcircle(int x, int y, int radius, int color){
 	);
 }
 
-void drawsquare(int x, int y, int x2, int y2, int color){
+void drawrect(int x, int y, int x2, int y2, int color){
 	asm volatile("movb $17, %%ah\n\t"
 		"movb $6, %%al\n\t"
 		"int $0x30"
@@ -74,7 +88,7 @@ void drawsquare(int x, int y, int x2, int y2, int color){
 	);
 }
 
-void fillsquare(int x, int y, int x2, int y2, int color){
+void fillrect(int x, int y, int x2, int y2, int color){
 	asm volatile("movb $17, %%ah\n\t"
 		"movb $7, %%al\n\t"
 		"int $0x30"
