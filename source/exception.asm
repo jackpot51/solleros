@@ -148,6 +148,9 @@ nodebugint:
 	pop fs
 	pop es
 	pop ds
+	add esp, 8
+;	popf ;pop the cs segment selector into eflags
+;	popf ;then pop the flags
 %ifdef gui.included
 	cmp byte [guion], 0
 	je returnunhandgui

@@ -27,16 +27,6 @@ double R(double max){
 	return r*max;
 }
 
-unsigned char inb(int port){
-	unsigned char r;
-	asm("xor %%eax, %%eax\n\t"
-		"in %%dx, %%al"
-		: "=a" (r)
-		: "d" (port)
-	);
-	return r;
-}
-
 void nextFrame(View2D TheImage, Camera TheCamera, Sphere s, Color bcol, LightIntensity LIntensity){
 	for(CameraStart(&TheCamera);TheCamera.from.y<1;CameraNext(&TheCamera)){
 		Vector v = {0,0,0};
@@ -51,6 +41,7 @@ void nextFrame(View2D TheImage, Camera TheCamera, Sphere s, Color bcol, LightInt
 }
 
 int main(int argc, char *argv[]){
+	screen = malloc(sizeof(screeninfo));
 	getinfo(screen);
 	if(!screen->x | !screen->y){
 		_exit(1);
@@ -80,7 +71,7 @@ int main(int argc, char *argv[]){
 	unsigned char key = 0;
 	while(key!=0x10){
 			key = inb(0x60);
-			asm("hlt");
+			hlt();
 			if(key==0x48 & LIntensity.light.y<1){ //up
 					LIntensity.light.y-=0.4;
 					nextFrame(TheImage,TheCamera,s,bcol,LIntensity);
