@@ -38,7 +38,7 @@
 %define disk.real
 ;Use real mode for disk access-this gives greater compatibility
 
-;%define sound.included
+%define sound.included
 ;This includes the sound drivers
 
 ;%define network.included
