@@ -70,6 +70,7 @@ indexdone db 0
 %endif
 %include 'source/programs/clear.asm'
 %include 'source/programs/cpuid.asm'
+%include 'source/programs/date.asm'
 %ifdef network.included
 	%include 'source/programs/dhcp.asm'
 %endif
