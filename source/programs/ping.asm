@@ -22,8 +22,7 @@ ping:
 	mov edi, .packet
 	mov esi, .packetend
 	call sendpacket
-	mov esi, line
-	call print
+	call printline
 	ret
 	
 	

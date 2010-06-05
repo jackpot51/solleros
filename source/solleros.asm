@@ -706,8 +706,11 @@ showdec: ;;same as showhex, just uses decimal conversion
 	dec esi
 .sifind:
 	inc esi
+	cmp esi, decnumberend - 1
+	jae .nosifind
 	cmp byte [esi], '0'
 	je .sifind
+.nosifind:
 	call print
 	cmp byte [firsthexshown], 2
 	jne .shown

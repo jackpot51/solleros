@@ -187,8 +187,7 @@ edxnumbuf dw 0,0
 		jmp chkadd
 	dnaddm1: dec esi
 	dnadd:	call print
-		mov esi, line
-		call print
+		call printline
 		ret
 		
 	decaddfix:

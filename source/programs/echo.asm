@@ -4,9 +4,8 @@ db 255,44,"echo",0
 		mov esi, [currentcommandloc]
 		add esi, 5
 		mov al, [esi]
-		call print
-		mov esi, line
-		call print
+		call printquiet
+		call printline
 		ret
 	echovr:	mov ebx, variables
 		mov edi, 6
