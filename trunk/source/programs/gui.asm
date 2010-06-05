@@ -12,11 +12,8 @@ guiswitcher:
 	call clear
 	pop ecx
 .modepref:
-	mov bx, guiswitch
-	mov [realmodeptr], bx
-	mov ebx, guiswitchret
-	mov [realmodereturn], ebx
-	jmp realmode
+	mov word [realmodeptr], guiswitch
+	call realmode
 guiswitchret:
 	cmp byte [gs:guion], 1
 	je .cont

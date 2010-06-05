@@ -1,10 +1,6 @@
   #include <sys/stat.h>
-  #include <sys/types.h>
-  #include <sys/fcntl.h>
-  #include <sys/times.h>
-  #include <sys/errno.h>
   #include <sys/time.h>
-  #include <stdio.h>
+  #include <sys/times.h>
   #include <errno.h>
   #undef errno
   extern int errno;
@@ -99,7 +95,7 @@
         return 0;
     }
 
-    int _open(const char *name, int flags, int mode){
+    int open(const char *name, int flags, ...){
 		return -1;
 	}
 
@@ -137,12 +133,12 @@
       return (caddr_t) prev_heap_end;
     }
 
-    int _stat(char *file, struct stat *st) {
+    int stat(const char *file, struct stat *st) {
       st->st_mode = S_IFCHR;
       return 0;
     }
 	
-    int _times(struct tms *buf){
+    clock_t times(struct tms *buf){
       return -1;
     }
 

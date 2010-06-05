@@ -4,8 +4,13 @@ boot:
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
+	rdtsc
+	mov [initialtsc], eax
+	mov [initialtsc + 4], edx
+	mov [lasttsc], eax
+	mov [lasttsc + 4], edx
 	mov [DriveNumber], cl
-	mov [lbaad], edx
+	mov [lbaad], ebx
 %ifdef io.serial
 	call getmemorysize
 	mov si, serialmsg
@@ -36,8 +41,8 @@ getmemsizeloop:
 	add di, 24
 	cmp di, memlistend
 	jae nomoregetmemsize
-	cmp ebx, 0
-	jne getmemsizeloop
+	test ebx, ebx
+	jnz getmemsizeloop
 nomoregetmemsize:
 	sub di, memlistbuf
 	mov [memlistend], di
@@ -47,8 +52,8 @@ printrm:			; 'si' comes in with string address
     mov bx,07		; write to display
     mov ah,0Eh		; screen function
    .lp:    mov al,[si]         ; get next character
-    cmp al,0		; look for terminator 
-    je .done		; zero byte at end of string
+    test al,al		; look for terminator 
+    jz .done	; zero byte at end of string
     int 10h		; write character to screen.    
 	inc si	     	; move to next character
     jmp .lp		; loop

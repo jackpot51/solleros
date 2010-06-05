@@ -1,1 +1,1 @@
-/SollerOS/cross/bin/i586-pc-solleros-g++ $1 -o ../included/`echo $1 | sed 's/\(.*\)\..*/\1/'`.elf
+/SollerOS/cross/bin/i586-pc-solleros-g++ $1 -s -o ../included/`echo $1 | sed 's/\(.*\)\..*/\1/'`.elf

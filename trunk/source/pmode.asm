@@ -16,7 +16,7 @@ pmode:
 	out dx, al
 	mov bx,cs		; EBX=segment
 	shl ebx,4		;	<< 4
-	lea eax,[ebx]		; EAX=linear address of segment base
+	mov eax, ebx		; EAX=linear address of segment base
 	mov [gdt2 + 2],ax
 	mov [gdt3 + 2],ax
 	shr eax,16
@@ -158,6 +158,14 @@ cpuclocksperint dd 0,0
 memoryspace dd 0
 pitdiv dw 2685
 timeinterval dd 2250286
+;if using the rtc, the default frequency yeilds a period of 976562.5ns
+;for the pit, note that div=1 gives 838.09ns, the clock runs at 1.193182 MHz
+;div=451 is 377981.0004, div=902 is 755962.0008,
+;div=2685 is 2250286.00004ns, div=5370 is 4500572.00007ns
+;div=55483 is 46500044.000006ns
+;use one of those values for the minimum error
+
+ticks db 0
 timeseconds dd 0
 timenanoseconds dd 0
 soundon db 0
@@ -172,15 +180,12 @@ cpuspeedend:
 	mov [esp], eax
 	jmp handled
 
-;if using the rtc, the default frequency yeilds a period of 976562.5ns
-;if using the pit, div=451 is 377981.0004, div=5370 is 4500572.00007ns
-;div=55483 is 46500044.000006ns, div=2685 is 2250286.00004ns, div=902 is 755962.0008
-
 pitinterrupt: ;this controls threading
-	cli
 	cmp byte [testingcpuspeed], 1	;check to see if the cpu speed test is running
 	je cpuspeedend
-		
+
+	cli
+
 	call timekeeper ;this updates the internal time
 	
 	cmp byte [soundon], 1
@@ -196,6 +201,9 @@ keyinterrupt:		;checks for escape, if pressed, it quits the program currently ru
 %ifdef io.serial
 	jmp handled
 %else
+	inc byte [ticks] ;every 256 ticks, check for keys
+	jnz handled3
+	
 	pusha
 	in al, 64h
 	test al, 20h

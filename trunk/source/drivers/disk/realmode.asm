@@ -9,9 +9,8 @@ diskr:
 	mov [oldesireal], esi
 	mov si, readdiskreal
 	mov [realmodeptr], si
-	mov esi, backfromrealread
-	mov [realmodereturn], esi
-	jmp realmode
+	call realmode
+	jmp backfromrealread
 sdlength db 0
 sdaddress dd 0
 

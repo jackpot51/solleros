@@ -24,6 +24,8 @@
 	guion db 0
 	DriveNumber db 0
 	lbaad dd 0
+	initialtsc dd 0,0
+	lasttsc dd 0,0
 	memlistbuf times 576 db 0
 	memlistend: dd 0
 %ifdef io.serial

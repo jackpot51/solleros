@@ -1,10 +1,8 @@
 	;SOLLEROS.ASM
 os:
 setdefenv:
-	mov al, '/'
-	mov [currentfolder], al
-	mov eax, 1
-	mov [currentfolderloc], eax
+	mov byte [currentfolder], '/'
+	mov dword [currentfolderloc], 1
 	call clear
 	
 bootfilecheck:
@@ -13,12 +11,15 @@ bootfilecheck:
 	%ifdef hardware.automatic
 		call initializelater ;Initialize components that have debug messages
 	%endif
-	mov edi, bootfilename
-	mov esi, 0x400000
-	call loadfile
-	cmp edx, 0
-	jne nobootfile
-	call progbatchfound
+	%ifdef disk.none
+	%else
+		mov edi, bootfilename
+		mov esi, 0x400000
+		call loadfile
+		cmp edx, 0
+		jne nobootfile
+		call progbatchfound
+	%endif
 nobootfile:	
 	mov byte [ranboot], 1
 
@@ -38,6 +39,7 @@ nobootfile:
 	call print
 	mov esi, userask
 	call print
+
 usercheck:
 	mov esi, buftxt
 	mov edi, buftxtend
@@ -311,7 +313,8 @@ nextcommandloc dd 0
 thiscommandloc dd 0	
 run:
 	mov esi, buftxt
-fixvariables:	inc esi
+fixvariables:
+	inc esi
 	mov al, [esi]
 	cmp al, '#'	;inline comment
 	je inlinecomment
@@ -812,23 +815,45 @@ cnvrttxt: ;text to convert in esi, first part or 0 in edi
 	je .noexp
 	sub al, 48
 	push ecx
-.expmul:	mov ebx, eax
+.expmul:
+	mov ebx, eax
+	shl ebx, 1
 	add eax, ebx
+	shl ebx, 1
 	add eax, ebx
-	add eax, ebx
-	add eax, ebx
-	add eax, ebx
-	add eax, ebx
-	add eax, ebx
-	add eax, ebx
-	add eax, ebx
-	sub ecx, 1
-	cmp ecx, 0
-	ja .expmul
+	loop .expmul
 	add edx, eax
 	pop ecx
 	dec esi
 	inc ecx
 	jmp .txtlp
 .done: mov ecx, edx
+	ret
+benchmarki: ;output number of clocks since initial value
+	rdtsc
+	mov ebx, [initialtsc]
+	mov ecx, [initialtsc + 4]
+	jmp benchmarkl.calc
+
+benchmarkl: ;output number of clocks since last benchmark
+	rdtsc
+	mov ebx, [lasttsc]
+	mov ecx, [lasttsc + 4]
+.calc:
+	sub eax, ebx
+	ja .noover
+	dec edx
+.noover:
+	sub edx, ecx
+	mov ecx, [esp]
+	call showhex
+	mov ecx, edx
+	call showhex
+	mov ecx, eax
+	call showhex
+	mov esi, line
+	call print
+	rdtsc
+	mov [lasttsc], eax
+	mov [lasttsc + 4], edx
 	ret

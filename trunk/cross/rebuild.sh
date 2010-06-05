@@ -10,11 +10,10 @@ cd src || exit 0
 rm -rf */ || exit 0
 
 echo Extracting source
-tar xvfz newlib-1.17.0.tar.gz || exit 0
+tar xvfz newlib-1.18.0.tar.gz || exit 0
 tar xvfj gcc-core-4.4.2.tar.bz2 || exit 0
 tar xvfj gcc-g++-4.4.2.tar.bz2 || exit 0
 tar xvfj binutils-2.20.tar.bz2 || exit 0
-tar xvfz ncurses-5.7.tar.gz || exit 0
 
 echo Copying SollerOS configuration files
 export TARGET=i586-pc-solleros
@@ -28,7 +27,7 @@ autoconf-2.59 || exit 0
 cd ../../
 
 echo Rebuilding autoconf caches for newlib
-cd newlib-1.17.0/newlib/libc/sys || exit 0
+cd newlib-1.18.0/newlib/libc/sys || exit 0
 autoconf || exit 0
 cd solleros || exit 0
 autoreconf || exit 0
@@ -38,7 +37,7 @@ cd ../../../../../build-binutils
 ../binutils-2.20/configure --target=$TARGET --prefix=$PREFIX --disable-nls || exit 0
 make all || exit 0
 make install || exit 0
-export PATH=$PREFIX/bin:/bin:/usr/bin:$PATH
+export PATH=$PREFIX/bin:$PATH
 
 echo Building GCC
 cd ../build-gcc
@@ -48,7 +47,7 @@ make install-gcc || exit 0
 
 echo Building Newlib
 cd ../build-newlib
-../newlib-1.17.0/configure --target=$TARGET --prefix=$PREFIX || exit 0
+../newlib-1.18.0/configure --target=$TARGET --prefix=$PREFIX || exit 0
 make || exit 0
 make install || exit 0
 
@@ -63,9 +62,3 @@ make install-target-libgcc || exit 0
 echo Building G++
 make || exit 0
 make install || exit 0
-
-#echo Building ncurses
-#cd ../build-ncurses
-#CC=${TARGET}-gcc ../ncurses-5.7/configure $TARGET --target=$TARGET --with-shared --prefix=$PREFIX || exit 0
-#make HOSTGCC=gcc CXX=${TARGET}-g++ || exit 0
-#make install || exit 0

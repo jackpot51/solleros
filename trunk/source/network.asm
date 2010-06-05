@@ -102,6 +102,7 @@ showip: 	;put the ip address in ecx
 	jne .nozeroprint
 	mov al, "0"
 	push eax
+	xor ah, ah
 	call prcharq
 	pop eax
 	xor al, al

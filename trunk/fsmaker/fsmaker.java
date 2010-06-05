@@ -88,7 +88,7 @@ public class fsmaker {
 				String[] cppfiles = apps.list(cppfilter);
 				for(int i=0; i<cppfiles.length; i++){
 					String s = null;
-					String[] command = new String[]{cppcomp, "-o", includeddir + cppfiles[i].substring(0, cppfiles[i].length() - 4) + ".elf", appsdir + cppfiles[i]};
+					String[] command = new String[]{cppcomp, "-s", "-o", includeddir + cppfiles[i].substring(0, cppfiles[i].length() - 4) + ".elf", appsdir + cppfiles[i]};
 					Process child = Runtime.getRuntime().exec(command);
 					BufferedReader stdError = new BufferedReader(new InputStreamReader(child.getErrorStream()));
 					BufferedReader stdInput = new BufferedReader(new InputStreamReader(child.getInputStream()));

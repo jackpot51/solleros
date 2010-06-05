@@ -1,5 +1,5 @@
-realmode:	;make sure the real mode program's address is in realmodeptr 
-			;and the return address is in realmodereturn
+realmode:	;make sure the real mode program's address is in realmodeptr
+
 	cli
 	mov [realmodeeax], eax
 	mov [realmodeebx], ebx
@@ -97,7 +97,7 @@ rmcopyfromfirstmbyte:
 	sti
 	mov eax, [realmodeeax]
 	mov ebx, [realmodeebx]
-	jmp dword [realmodereturn]
+	ret
 	
 pmodeesp dd 0
 idt_real:
@@ -106,6 +106,5 @@ idt_real:
 cr0old dd 0
 realmodeebx dd 0
 realmodeeax dd 0
-realmodereturn dd 0
 realmodeptr dw 0
 dd 0 ;make sure the copy thing doesnt overflow

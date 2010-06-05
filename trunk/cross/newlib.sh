@@ -17,7 +17,7 @@ mkdir build-newlib build-gcc-full
 cp -r --remove-destination $svndir/*/ . || exit 0
 
 echo Rebuilding autoconf caches
-cd newlib-1.17.0/newlib/libc/sys
+cd newlib-1.18.0/newlib/libc/sys
 autoconf || exit 0
 cd solleros
 autoreconf || exit 0
@@ -27,6 +27,6 @@ export PATH=$PATH:$PREFIX/bin
 echo Building Newlib
 cd ../../../../../build-newlib
 cd build-newlib
-../newlib-1.17.0/configure --target=$TARGET --prefix=$PREFIX || exit 0
+../newlib-1.18.0/configure --target=$TARGET --prefix=$PREFIX || exit 0
 make || exit 0
 make install || exit 0
