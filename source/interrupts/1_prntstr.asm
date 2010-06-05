@@ -15,6 +15,8 @@ jmp timerinterrupt
 		mov bx, 0xF0
 		jmp printint
 
+	printline:
+		mov esi, line
     print:
 		xor ax, ax
 		mov bx, 7
@@ -40,11 +42,11 @@ jmp timerinterrupt
 		cmp al, 0xE0
 		jb .two
 		inc esi
-		mov cx, [esi]
+		mov ch, [esi]
 		inc esi
+		mov cl, [esi]
 		shl al, 4
-		shl cx, 2
-		shr ch, 2
+		shl cl, 2
 		shr cx, 2
 		or ch, al
 		mov ax, cx
