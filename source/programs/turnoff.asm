@@ -1,10 +1,8 @@
 	db 255,44,"turnoff",0
 	turnoff:
-			mov bx, shutdown
-			mov [realmodeptr], bx
+			mov word [realmodeptr], shutdown
 			mov ebx, halt
-			mov [realmodereturn], ebx
-			jmp realmode
+			call realmode
 
 [BITS 16]
 		shutdown:

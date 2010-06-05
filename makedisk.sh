@@ -1,7 +1,5 @@
 #!/bin/bash
 ./build.sh
-rm sector.bin
-rm kernel.bin
 ls /dev/hd*
 ls /dev/sd*
 echo "Specify the device to boot SollerOS and press enter."

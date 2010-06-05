@@ -19,9 +19,9 @@ db 255,44,"!",0
 		cmp al, '^'
 		je operatorfound
 		inc esi
-		cmp al, 0
-		je near nwcmd
-		jmp num2
+		test al, al
+		jnz num2
+		ret
 	operatorfound: push eax
 		xor ah, ah
 		mov [esi], ah
@@ -63,7 +63,7 @@ db 255,44,"!",0
 		je near divnum
 		cmp al, '^'
 		je near expnum
-		jmp nwcmd
+		ret
 	resultnum1:
 		mov cl, [decimalresult]
 		mov [decimal], cl
@@ -176,7 +176,7 @@ db 255,44,"!",0
 	noputdecimal:
 		mov esi, buf2
 		call chkadd
-		jmp nwcmd
+		ret
 edxnumbuf dw 0,0
 	chkadd: mov al, [esi]
 		cmp al, '0'

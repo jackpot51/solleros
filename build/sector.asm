@@ -3,12 +3,12 @@
 	; Boot record is loaded at 0000:7C00
 [ORG 7c00h]
 	mov [DriveNumber], dl	;save the original drive number
-	xor eax,	eax
-	mov ds,	ax		;Update the segment registers
-	mov es, 	ax
-	mov ss,	ax
-	mov fs,	ax
-	mov gs,	ax
+	xor eax, eax
+	mov ds, ax		;Update the segment registers
+	mov es, ax
+	mov ss, ax
+	mov fs, ax
+	mov gs, ax
 	mov [lbaad], eax
 	mov [lbaad + 4], eax
 	mov [address], ax
@@ -63,8 +63,8 @@ skipcontsdump:
 	int 0x13
 	jc .lp
 	mov cl, [tracks]
-	cmp cl, 0
-	je nomultitrack
+	test cl, cl
+	jz nomultitrack
 	dec cl
 	mov [tracks], cl
 	mov eax, [lbaad]
@@ -73,11 +73,11 @@ skipcontsdump:
 	add word [segm], 0xFE0
 	xor ax, ax
 	mov [address], ax
-	cmp cl, 0
-	jne .lp
+	test cl, cl
+	jnz .lp
 nomultitrack:
 	mov cx, [DriveNumber]
-	mov edx, [lbaadorig]
+	mov ebx, [lbaadorig]
 	jmp 0x1000:0x100
 %ifdef sector.debug
 dumpconts:
@@ -137,8 +137,7 @@ nxtexphx:			;0x10^x
 	call cnvrtexphx		;;get this digit
 	mov si, di
 	shr edx, 4		;;next digit
-	cmp edx, 0
-	je donenxtephx
+	jz donenxtephx
 	jmp nxtexphx 
 donenxtephx:
 	pop di
@@ -146,8 +145,8 @@ donenxtephx:
 	ret
 cnvrtexphx:			;;convert this number
 	mov bx, si		;place to convert to must be in si, number to convert must be in cx
-	cmp ecx, 0
-	je zerohx
+	test ecx, ecx
+	jz zerohx
 cnvrthx:  mov al, [si]
 	cmp al, '9'
 	je lettershx
@@ -157,13 +156,12 @@ lttrhxdn: cmp al, 'F'
 	inc al
 	mov [si], al
 	mov si, bx
-cnvrtlphx: sub ecx, 1
-	cmp ecx, 0
-	jne cnvrthx
+cnvrtlphx: dec ecx
+	jnz cnvrthx
 	ret
 lettershx:
 	mov al, 'A'
-	sub al, 1
+	dec al
 	mov [si], al
 	jmp lttrhxdn
 zerohx:	mov al, '0'

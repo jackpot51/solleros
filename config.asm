@@ -1,6 +1,6 @@
 ;These flags are used to configure options as on, put a simicolon in front of it to not configure it
 
-%define gui.included
+;%define gui.included
 ;Turn on the gui
 
 ;%define gui.alphablending
@@ -23,10 +23,10 @@
 	;It is therefore recommended that you do not enable it even
 	;though it gives a large speed improvement for character output
 
-%define hardware.automatic
+;%define hardware.automatic
 ;Automatically load the sound and network drivers.
 
-%define threads.included
+;%define threads.included
 ;Include the thread testing stuff-this uses a relatively large amount of memory
 
 %define exceptions.included
@@ -38,7 +38,7 @@
 %define disk.real
 ;Use real mode for disk access-this gives greater compatibility
 
-%define sound.included
+;%define sound.included
 ;This includes the sound drivers
 
 ;%define network.included
@@ -56,7 +56,7 @@
 ;%define i8254x.included
 ;This includes the Intel 8254x drivers
 
-;%define sector.debug
+%define sector.debug
 ;Dump the contents of the first sector of SollerOS
 
 ;%define dos.compatible
