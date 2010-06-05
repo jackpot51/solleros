@@ -156,8 +156,8 @@ testingcpuspeed db 0
 cpuspeedperint dd 0
 cpuclocksperint dd 0,0
 memoryspace dd 0
-pitdiv dw 2685
-timeinterval dd 2250286
+pitdiv dw 451;2685 is stable
+timeinterval dd 377981;2250286
 ;if using the rtc, the default frequency yeilds a period of 976562.5ns
 ;for the pit, note that div=1 gives 838.09ns, the clock runs at 1.193182 MHz
 ;div=451 is 377981.0004, div=902 is 755962.0008,

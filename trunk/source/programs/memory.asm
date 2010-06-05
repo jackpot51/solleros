@@ -15,8 +15,7 @@ printmemmap:
 	add esi, 8
 	push edi
 	push esi
-	mov esi, line
-	call print
+	call printline
 	pop esi
 	pop edi
 	cmp esi, edi

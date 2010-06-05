@@ -16,8 +16,7 @@ showprog:
 		je bmpfound
 %endif
 		call print
-		mov esi, line
-		call print
+		call printline
 		ret
 %ifdef gui.included
 bmpfound:

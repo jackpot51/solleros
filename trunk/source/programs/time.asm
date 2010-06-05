@@ -1,13 +1,14 @@
 db 255,44,"time",0	
 timer:
+	mov esi, [currentcommandloc]
+	add esi, 4
+	cmp byte [esi], 0
+	je .norun
+	inc esi
 	mov ecx, [timeseconds]
 	push ecx
 	mov ecx, [timenanoseconds]
 	push ecx
-	mov esi, [currentcommandloc]
-	add esi, 5
-	cmp byte [esi], 0
-	je .norun
 	mov edi, buftxt
 .cpcmd:
 	mov al, [esi]
@@ -17,7 +18,6 @@ timer:
 	cmp al, 0
 	jne .cpcmd
 	call run
-.norun:
 	pop edx
 	pop eax
 
@@ -41,5 +41,6 @@ timer:
 	mov esi, timenscache
 	call print
 	mov byte [timenscache], 8
+.norun:
 	ret
 	

@@ -14,8 +14,7 @@ ifconfig:
 	call print
 	mov ecx, ne2000.mac
 	call showmac
-	mov esi, line
-	call print
+	call printline
 .none2000:
 %endif
 %ifdef rtl8139.included
@@ -25,8 +24,7 @@ ifconfig:
 	call print
 	mov ecx, rtl8139.mac
 	call showmac
-	mov esi, line
-	call print
+	call printline
 .nortl8139:
 %endif
 %ifdef rtl8169.included
@@ -36,8 +34,7 @@ ifconfig:
 	call print
 	mov ecx, rtl8169.mac
 	call showmac
-	mov esi, line
-	call print
+	call printline
 .nortl8169:
 %endif
 %ifdef i8254x.included
@@ -47,13 +44,11 @@ ifconfig:
 	call print
 	mov ecx, i8254x.mac
 	call showmac
-	mov esi, line
-	call print
+	call printline
 .noi8254x:
 %endif
 	mov ecx, [sysip]
 	call showip
-	mov esi, line
-	call print
+	call printline
 	ret
 	
