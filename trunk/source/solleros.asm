@@ -35,8 +35,7 @@ nobootfile:
 	call print
 	mov ecx, [signatureend - 4]
 	call showdec
-	mov esi, line
-	call print
+	call printline
 	mov esi, userask
 	call print
 
@@ -464,8 +463,7 @@ array:				;arraystart in si, arrayend in bx, arrayseperator in cx
 		mov [arcx], ecx
 		call print
 		mov [arsi], esi
-		mov esi, line
-		call print
+		call printline
 		mov ebx, [arbx]
 		mov cx, [arcx]
 		mov esi, [arsi]
@@ -624,8 +622,7 @@ showhex:
 .show:
 	cmp byte [firsthexshown], 3
 	jne .nonewhexline
-	mov esi, line
-	call print
+	call printline
 .nonewhexline:
 	cmp byte [firsthexshown], 4
 	jne .notab
@@ -635,8 +632,7 @@ showhex:
 	shl cl, 5
 	cmp cl, 0
 	jne .nonewline
-	mov esi, line
-	call print
+	call printline
 	jmp .notab
 .nonewline:
 	add dl, 15
@@ -662,8 +658,7 @@ showhex:
 .donequiet:
 	cmp byte [firsthexshown], 2
 	jne .shown
-	mov esi, line
-	call print
+	call printline
 .shown:
 	mov byte [firsthexshown], 0
 	popa
@@ -690,8 +685,7 @@ showdec: ;;same as showhex, just uses decimal conversion
 .show:
 	cmp byte [firsthexshown], 3
 	jne .nonewdecline
-	mov esi, line
-	call print
+	call printline
 .nonewdecline:
 	cmp byte [firsthexshown], 4
 	jne .notab
@@ -701,8 +695,7 @@ showdec: ;;same as showhex, just uses decimal conversion
 	shl cl, 5
 	cmp cl, 0
 	jne .nonewline
-	mov esi, line
-	call print
+	call printline
 	jmp .notab
 .nonewline:
 	add dl, 15
@@ -718,8 +711,7 @@ showdec: ;;same as showhex, just uses decimal conversion
 	call print
 	cmp byte [firsthexshown], 2
 	jne .shown
-	mov esi, line
-	call print
+	call printline
 .shown:
 	mov byte [firsthexshown], 0
 	popa
@@ -851,8 +843,7 @@ benchmarkl: ;output number of clocks since last benchmark
 	call showhex
 	mov ecx, eax
 	call showhex
-	mov esi, line
-	call print
+	call printline
 	rdtsc
 	mov [lasttsc], eax
 	mov [lasttsc + 4], edx
