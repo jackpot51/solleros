@@ -98,14 +98,13 @@ showip: 	;put the ip address in ecx
 	mov eax, ecx
 	xor bl, bl
 .lp:
-	cmp al, 0
-	jne .nozeroprint
-	mov al, "0"
+	test al, al
+	jnz .nozeroprint
 	push eax
+	mov al, "0"
 	xor ah, ah
 	call prcharq
 	pop eax
-	xor al, al
 .nozeroprint:
 	xor ecx, ecx
 	mov cl, al

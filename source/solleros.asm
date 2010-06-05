@@ -819,7 +819,7 @@ cnvrttxt: ;text to convert in esi, first part or 0 in edi
 	mov ebx, eax
 	shl ebx, 1
 	add eax, ebx
-	shl ebx, 1
+	shl ebx, 2
 	add eax, ebx
 	loop .expmul
 	add edx, eax
@@ -829,6 +829,7 @@ cnvrttxt: ;text to convert in esi, first part or 0 in edi
 	jmp .txtlp
 .done: mov ecx, edx
 	ret
+
 benchmarki: ;output number of clocks since initial value
 	rdtsc
 	mov ebx, [initialtsc]
