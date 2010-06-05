@@ -817,9 +817,8 @@ cnvrttxt: ;text to convert in esi, first part or 0 in edi
 	push ecx
 .expmul:
 	mov ebx, eax
-	shl ebx, 1
 	add eax, ebx
-	shl ebx, 2
+	shl ebx, 3
 	add eax, ebx
 	loop .expmul
 	add edx, eax
