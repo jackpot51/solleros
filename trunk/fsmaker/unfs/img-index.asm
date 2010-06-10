@@ -14,17 +14,5 @@
 	db "unfs",0
 	.root.home.user.Name: dd (.root.home.user.Node - .NC)
 	db "user",0
-	.root.home.user.finalcount.snd.Name: dd (.root.home.user.finalcount.snd.Node - .NC)
-	db "finalcount.snd",0
-	.root.home.user.lostwoods.snd.Name: dd (.root.home.user.lostwoods.snd.Node - .NC)
-	db "lostwoods.snd",0
-	.root.home.user.mario.snd.Name: dd (.root.home.user.mario.snd.Node - .NC)
-	db "mario.snd",0
-	.root.home.user.solleros.bmp.Name: dd (.root.home.user.solleros.bmp.Node - .NC)
-	db "solleros.bmp",0
 	.root.home.user.solleros.txt.Name: dd (.root.home.user.solleros.txt.Node - .NC)
 	db "solleros.txt",0
-	.root.home.user.songotime.snd.Name: dd (.root.home.user.songotime.snd.Node - .NC)
-	db "songotime.snd",0
-	.root.home.user.victory.wav.Name: dd (.root.home.user.victory.wav.Node - .NC)
-	db "victory.wav",0

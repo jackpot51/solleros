@@ -12,26 +12,20 @@
 	mov [lbaad], eax
 	mov [lbaad + 4], eax
 	mov [address], ax
-	mov ax, 0x1010
-	mov [segm], ax
-ReadHardDisk:
-	mov si, diskaddresspacket
-	xor ax, ax
-	mov ah, 0x42
-	mov dl, [DriveNumber]
-	int 0x13
-	jc ReadHardDisk
+	mov word [readlen], 2
+	mov word [len], 0x10
+	mov word [segm], 0x1010
+findsector:
+	call ReadHardDisk
 	mov ecx, [lbaad]
 %ifdef sector.debug
 	call printnum
 %endif
 	mov ax, [segm]
 	mov gs, ax
-	mov bx, 4
-	mov ecx, [gs:bx]
 dumpconts1:
-	mov si, sigjump
-	xor bx, bx
+	mov si, signature
+	mov bx, signature-header
 dumpconts1lp:
 	mov cl, [gs:bx]
 	cmp cl, [si]
@@ -40,7 +34,7 @@ dumpconts1lp:
 	inc si
 	cmp si, signatureend
 %ifdef sector.debug
-	jae dumpconts
+	jae near dumpconts
 %else
 	jae skipcontsdump
 %endif
@@ -50,35 +44,44 @@ nodumpconts:
 	mov eax, [lbaad]
 	inc eax
 	mov [lbaad], eax
-	jmp ReadHardDisk
+	jmp findsector
 skipcontsdump:
 	mov eax, [lbaad]
 	mov [lbaadorig], eax
-.lp:
-	mov si, diskaddresspacket
-	mov byte [readlen], 0x7F
-	xor ax, ax
-	mov ah, 0x42
-	mov dl, [DriveNumber]
-	int 0x13
-	jc .lp
-	mov cl, [tracks]
-	test cl, cl
-	jz nomultitrack
-	dec cl
-	mov [tracks], cl
-	mov eax, [lbaad]
-	add eax, 0x7F
-	mov [lbaad], eax
-	add word [segm], 0xFE0
-	xor ax, ax
-	mov [address], ax
-	test cl, cl
-	jnz .lp
+lp:
+	mov ecx, [gs:(signatureend - header)]
+	xor eax, eax
+	mov ax, [readlen]
+	shl eax, 5
+	add [segm], ax
+	shl eax, 4
+	sub ecx, eax
+	jbe nomultitrack
+	mov [gs:(signatureend - header)], ecx
+	shr eax, 9
+	add [lbaad], eax
+	shr ecx, 9
+	cmp ecx, 0x7F
+	jbe notfull
+	mov cx, 0x7F
+notfull:
+	mov [readlen], cx
+	call ReadHardDisk
+	jmp lp
 nomultitrack:
 	mov cx, [DriveNumber]
 	mov ebx, [lbaadorig]
 	jmp 0x1000:0x100
+	
+ReadHardDisk:
+	mov si, diskaddresspacket
+	xor ax, ax
+	mov ah, 0x42
+	mov dl, [DriveNumber]
+	int 0x13
+	jc ReadHardDisk
+	ret
+	
 %ifdef sector.debug
 dumpconts:
 	mov si, line
@@ -92,11 +95,15 @@ dumpconts2:
 	add bx, 4
 	cmp bx, 732
 	jbe dumpconts2
+	call keywait
+	jmp skipcontsdump
+	
+keywait:
 	mov si, bootmsg
 	call print
 	xor ax, ax
 	int 16h
-	jmp skipcontsdump
+	ret
 	
 printnum:
 	mov si, number
@@ -131,19 +138,19 @@ doneclearbuff:
 	mov edx, ecx
 nxtexphx:			;0x10^x
 	dec si
-	mov di, si		;;location of 0x10^x
+	mov di, si		;location of 0x10^x
 	mov ecx, edx
-	and ecx, 0xF		;;just this digit
-	call cnvrtexphx		;;get this digit
+	and ecx, 0xF		;just this digit
+	call cnvrtexphx		;get this digit
 	mov si, di
-	shr edx, 4		;;next digit
+	shr edx, 4		;next digit
 	jz donenxtephx
 	jmp nxtexphx 
 donenxtephx:
 	pop di
 	pop si
 	ret
-cnvrtexphx:			;;convert this number
+cnvrtexphx:			;convert this number
 	mov bx, si		;place to convert to must be in si, number to convert must be in cx
 	test ecx, ecx
 	jz zerohx
@@ -156,7 +163,8 @@ lttrhxdn: cmp al, 'F'
 	inc al
 	mov [si], al
 	mov si, bx
-cnvrtlphx: dec ecx
+cnvrtlphx: 
+	dec ecx
 	jnz cnvrthx
 	ret
 lettershx:
@@ -173,10 +181,6 @@ zerohx:	mov al, '0'
 	inc ecx
 	jmp cnvrtlphx
 
-number times 9 db 0
-numberend:
-db '  ',0
-
     print:			; 'si' comes in with string address
 	    mov bx,7		; write to display
 	    mov ah,0Eh		; screen function
@@ -188,24 +192,24 @@ db '  ',0
 	    jmp prs		; loop
     finpr: ret
 	
-bootmsg db "SollerOS Loaded. Press any key to continue.",0
+number times 9 db 0
+numberend:
+db '  ',0
+bootmsg db "Press any key to continue.",0
+line db 10,13,0
 %endif
-	DriveNumber db 0
-	line db 10,13,0
-tracks db 6
-lbaadorig dd 0
-diskaddresspacket:
-len:	db 0x10 ;size of packet
-	db 0
-readlen:	dw 2	;blocks to read=maximum
-address:	dw 0	;address to load kernel
-segm:	dw 0x1010	;segment
-;start with known value for hd
-lbaad:
-	dd 0	;lba address
-	dd 0
 
 %include 'source/signature.asm'
+boot: ;to make sure this signature has an jump point, however useless
     times 510-($-$$) db 0
-    dw 0AA55h	;;magic byte
+    dw 0AA55h	;magic byte
+lbaadorig equ boot
+DriveNumber equ lbaadorig + 4
+diskaddresspacket equ DriveNumber + 1
+len: equ diskaddresspacket ;size of packet
+readlen:	equ len + 2	;blocks to read=maximum
+address:	equ readlen + 2	;address to load kernel
+segm:	equ address + 2	;segment
+;start with known value for hd
+lbaad: equ segm + 2	;lba address
 incbin 'build/kernel.com' ;include the kernel file

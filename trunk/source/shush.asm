@@ -1,4 +1,3 @@
-	;SOLLEROS.ASM
 os:
 setdefenv:
 	mov byte [currentfolder], '/'
@@ -668,7 +667,7 @@ showhex:
 decnumber db "00000000000000"
 decnumberend: db " ",0
 
-showdec: ;;same as showhex, just uses decimal conversion
+showdec: ;same as showhex, just uses decimal conversion
 	pusha
 	mov edi, decnumber
 	mov esi, decnumberend

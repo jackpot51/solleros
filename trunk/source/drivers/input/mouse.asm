@@ -13,10 +13,10 @@ mousedisabled db 0
 	  	call PS2SET
 		call ACTMOUS
 		mov byte [mouseon],1
-		call GETB 	;;Get the responce byte of the mouse (like: Hey i am active)
+		call GETB 	;Get the responce byte of the mouse (like: Hey i am active)
 		;call GETB
-				;;If the bytes are mixed up,
-				;;remove this line or add another of this line.
+				;if the bytes are mixed up,
+				;remove this line or add another of this line.
 	nomouse:
 		ret
 		
@@ -107,7 +107,7 @@ mousedisabled db 0
 		mov [mousecursorposition + 2], cx
 		cmp byte [guion], 0
 		je near termmouse
-		call switchmousepos ;;use dragging code to ensure proper icon drag
+		call switchmousepos ;use dragging code to ensure proper icon drag
 		cmp byte [LBUTTON], 1
 		je near clickicon
 		cmp byte [RBUTTON], 1

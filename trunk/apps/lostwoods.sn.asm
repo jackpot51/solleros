@@ -1,24 +1,48 @@
 %include 'music.inc'
 db "SN"
 dd soundend
-	dw 60,F4
-	dw 100,A4
-	dw 200,B4
-	dw 100,F4
-	dw 100,A4
-	dw 200,B4
-	dw 100,F4
-	dw 100,A4
-	dw 100,B4
-	dw 100,E5
-	dw 200,D5
-	dw 100,B4
-	dw 100,C5
-	dw 100,B4
-	dw 100,G4
-	dw 400,E4
-	dw 100,D4
-	dw 100,E4
-	dw 100,G4
-	dw 400,E4
+	dw N8,F4
+	dw N8,A4
+	dw N4,B4
+	dw N8,F4
+	dw N8,A4
+	dw N4,B4
+	dw N8,F4
+	dw N8,A4
+	dw N8,B4
+	dw N8,E5
+	dw N4,D5
+	dw N8,B4
+	dw N8,C5
+	dw N8,B4
+	dw N8,G4
+	dw N2,E4
+	dw N8,R
+	dw N8,D4
+	dw N8,E4
+	dw N8,G4
+	dw N2,E4
+	
+	dw N4,R
+
+	dw N8,F4
+	dw N8,A4
+	dw N4,B4
+	dw N8,F4
+	dw N8,A4
+	dw N4,B4
+	dw N8,F4
+	dw N8,A4
+	dw N8,B4
+	dw N8,E5
+	dw N4,D5
+	dw N8,B4
+	dw N8,C5
+	dw N8,E5
+	dw N8,B4
+	dw N2,A4
+	dw N8,C5
+	dw N8,A4
+	dw N8,E4
+	dw N2,F4
 soundend:

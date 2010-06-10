@@ -1,4 +1,3 @@
-    ; MENU.ASM
 boot:
 	mov ax, cs
 	mov ds, ax

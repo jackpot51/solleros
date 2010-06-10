@@ -1,11 +1,11 @@
-align 4, nop
-bssstart: equ $
+align 512, db 0
+bssstart equ $
 bsscopy equ $
 initialstack equ bsscopy
-stackend equ initialstack + 4000
-sigtable equ stackend + 96
-fileindex: equ sigtable + 4
-fileindexend: equ fileindex + 1024
+stackend equ initialstack + 8192
+sigtable equ stackend + 4
+fileindex equ sigtable + 4
+fileindexend equ fileindex + 1024
 previousstack equ fileindexend
 lastfolderloc equ previousstack + 4
 currentfolderloc equ lastfolderloc + 4
@@ -19,13 +19,13 @@ BATCHPOS equ IFTRUE + 100
 BATCHISON equ BATCHPOS + 4
 LOOPON equ BATCHISON + 1
 LOOPPOS	equ LOOPON + 1
-variables: equ LOOPPOS + 4
-varend: equ variables + 4096
-buftxt2: equ varend
-buftxt: equ buftxt2 + 1024
-buftxtend: equ buftxt + 1024
-buf2: equ buftxtend
-numbuf: equ buf2 + 20
+variables equ LOOPPOS + 4
+varend equ variables + 4096
+buftxt2 equ varend
+buftxt equ buftxt2 + 1024
+buftxtend equ buftxt + 1024
+buf2 equ buftxtend
+numbuf equ buf2 + 20
 %ifdef io.serial
 	lastcommandpos equ numbuf + 1
 %else

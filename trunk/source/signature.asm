@@ -1,6 +1,6 @@
-sigjump:
-	jmp signatureend
+header:
+	jmp short boot
 signature:
 db "SollerOS ",0 ;Operating system name
-dd 271	;version number
+dd 273	;version number
 signatureend:

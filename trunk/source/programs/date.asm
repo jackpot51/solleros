@@ -99,18 +99,18 @@ time:
 	ret
 	mov esi, timeshow
 	call print
-;;get day of week
-;;add these:
-;;century value
-;;last 2 digits of year
-;;last 2 digits of year right shifted twice
-;;month table value
-;;day of the month
-;;divide these by 7
-;;the remainder is the day
+;get day of week
+;add these:
+;century value
+;last 2 digits of year
+;last 2 digits of year right shifted twice
+;month table value
+;day of the month
+;divide these by 7
+;the remainder is the day
 findday:
 	xor eax, eax
-;;first convert the values from BCD to hex
+;first convert the values from BCD to hex
 	mov al, [RTCtimeDay]
 	call converttohex
 	mov [dayhex], ah
@@ -337,9 +337,9 @@ timeconvert: ;return time in the RTCtime stuff in ecx
 	yearhex db 0
 	timeshow db "00:00:00",0
 	dateshow db "00-00-0000 ",0
-	oldcentury:	;;from 1700 to 1900
+	oldcentury:	;from 1700 to 1900
 	db 4,2,0
-	century:	;;from 2000 to 2500
+	century:	;from 2000 to 2500
 	db 6,4,2,0,6,4
 	month:
 	db 0,3,3,6,1,4,6,2,5,0,3,5

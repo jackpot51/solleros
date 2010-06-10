@@ -55,7 +55,7 @@ gooderrortype:
 	jmp errortextdone
 %endif
 errortext:
-	call print		;;get the error message and print it
+	call print		;get the error message and print it
 errortextdone:
 	xor ecx, ecx
 	mov cl, [intprob]
@@ -204,13 +204,13 @@ igdtcache dw 0,0,0
 	unhandmsg:	
 			db "INT=00000000",255,10,0
 unhndrg:
-	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
+	times 7 db 255,255,255,255,"00000000  ",0	;this dumps the stack before the stack frame in question
 			db 255,255,255,255,"00000000",255,10,0
-	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
+	times 7 db 255,255,255,255,"00000000  ",0
 			db 255,255,255,255,"00000000",255,10,0
-	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
+	times 7 db 255,255,255,255,"00000000  ",0
 			db 255,255,255,255,"00000000",255,10,0
-	times 7 db 255,255,255,255,"00000000  ",0	;;this dumps the stack before the stack frame in question
+	times 7 db 255,255,255,255,"00000000  ",0
 			db 255,255,255,255,"00000000",255,10,0
 unhandregs:
 			db "EFL=00000000  ",0
@@ -237,7 +237,7 @@ unhndrgend:	db "EDI=00000000",255,10,0
 			db "IDT=00000000  ",0
 			db "GDT=00000000  ",0
 			db "LDT=00000000",255,10,0
-unhandcode: times 2 db 255,255,255,255,"00000000  ",0	;;this dumps the code before and after the interrupt in question
+unhandcode: times 2 db 255,255,255,255,"00000000  ",0	;this dumps the code before and after the interrupt in question
 			db 255,255,255,255,"00000000 ",255,0
 			db 255,255,255,"[00000000] ",0
 			times 3 db 255,255,255,255,"00000000  ",0
@@ -315,7 +315,7 @@ err14	db "Page fault:",10
 		
 err15	db "Reserved for Plan R:",10
 		db "This interrupt is reserved for usage only by the military when it is necessary",10
-		db "to initiate a full-scale coup d'",130,"tat.",10,0
+		db "to initiate a full-scale coup d'état.",10,0
 		
 unknownerror db "What the hell just happened? Is everyone okay? Hard drive? Video card?",10
 			db	"Memory? Are you there?",10,0

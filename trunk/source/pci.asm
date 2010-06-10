@@ -19,14 +19,14 @@ pcidump:
 	mov [pcibus], al
 	mov [pcidevice], al
 	mov [pcireqtype], al
-searchpci:		;;return in ebx, start X in pciX
+searchpci:		;return in ebx, start X in pciX
 	xor al, al
 	mov [pciregister], al
 	call getpciaddr
 	mov edx, 0xCF8
-	out dx, eax	;;request pci config
+	out dx, eax	;request pci config
 	mov edx, 0xCFC
-	in eax, dx 	;;read in pci config
+	in eax, dx 	;read in pci config
 	cmp eax, 0xFFFF0000
 	jb near checkpcidevice
 searchpciret:
@@ -66,7 +66,7 @@ checkpcidevice:
 	cmp [pcireqtype], al
 	je near dumppcidevice
 	mov al, 0x08
-	mov [pciregister], al	;;class code, subclass, revision id
+	mov [pciregister], al	;class code, subclass, revision id
 	call getpciaddr
 	mov edx, 0xCF8
 	out dx, eax
@@ -180,7 +180,7 @@ notpciioaddr:
 	ja near searchpciret
 	mov [pciregister], al
 	jmp findpciioaddr
-getpciaddr:		;;puts it in eax and ebx
+getpciaddr:		;puts it in eax and ebx
 			xor eax, eax
 			mov ebx, 0x80000000
 			mov al, [pcibus]

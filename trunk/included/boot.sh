@@ -1,4 +1,6 @@
 #!/bin/shush
+#Show system date
+date
 #Comment the next line out to automatically load the GUI
 exit
 #11A=1280x1024
@@ -10,4 +12,4 @@ playa victory.wav
 #Load the background
 background background.bmp
 #Make the terminal full screen
-shush 10000 10000
+shush 1000 1000

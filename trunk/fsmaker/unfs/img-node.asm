@@ -77,91 +77,19 @@
 		dd .root.home.Node - .NC
 .root.home.NCEnd: dd 0
 .root.home.user.NC: dd .root.home.user.NCEnd - .NC
-	.root.home.user.finalcount.snd.Node:
-		dd .root.home.user.finalcount.snd.Name - .IC
-		db 1
-		dd 0
-		dd .root.home.user.finalcount.snd.NC - .NC
-		dd .root.home.user.Node - .NC
-	.root.home.user.lostwoods.snd.Node:
-		dd .root.home.user.lostwoods.snd.Name - .IC
-		db 1
-		dd 0
-		dd .root.home.user.lostwoods.snd.NC - .NC
-		dd .root.home.user.Node - .NC
-	.root.home.user.mario.snd.Node:
-		dd .root.home.user.mario.snd.Name - .IC
-		db 1
-		dd 0
-		dd .root.home.user.mario.snd.NC - .NC
-		dd .root.home.user.Node - .NC
-	.root.home.user.solleros.bmp.Node:
-		dd .root.home.user.solleros.bmp.Name - .IC
-		db 1
-		dd 0
-		dd .root.home.user.solleros.bmp.NC - .NC
-		dd .root.home.user.Node - .NC
 	.root.home.user.solleros.txt.Node:
 		dd .root.home.user.solleros.txt.Name - .IC
 		db 1
 		dd 0
 		dd .root.home.user.solleros.txt.NC - .NC
 		dd .root.home.user.Node - .NC
-	.root.home.user.songotime.snd.Node:
-		dd .root.home.user.songotime.snd.Name - .IC
-		db 1
-		dd 0
-		dd .root.home.user.songotime.snd.NC - .NC
-		dd .root.home.user.Node - .NC
-	.root.home.user.victory.wav.Node:
-		dd .root.home.user.victory.wav.Name - .IC
-		db 1
-		dd 0
-		dd .root.home.user.victory.wav.NC - .NC
-		dd .root.home.user.Node - .NC
 .root.home.user.NCEnd: dd 0
-.root.home.user.finalcount.snd.NC: dd .root.home.user.NCEnd - .NC
-	dw 0
-	dd (.root.home.user.finalcount.snd.Bin - .h)/512
-	dw 0
-	dd (.root.home.user.finalcount.snd.BinEnd - .h)/512
-.root.home.user.finalcount.snd.NCEnd: dd 0
-.root.home.user.lostwoods.snd.NC: dd .root.home.user.NCEnd - .NC
-	dw 0
-	dd (.root.home.user.lostwoods.snd.Bin - .h)/512
-	dw 0
-	dd (.root.home.user.lostwoods.snd.BinEnd - .h)/512
-.root.home.user.lostwoods.snd.NCEnd: dd 0
-.root.home.user.mario.snd.NC: dd .root.home.user.NCEnd - .NC
-	dw 0
-	dd (.root.home.user.mario.snd.Bin - .h)/512
-	dw 0
-	dd (.root.home.user.mario.snd.BinEnd - .h)/512
-.root.home.user.mario.snd.NCEnd: dd 0
-.root.home.user.solleros.bmp.NC: dd .root.home.user.NCEnd - .NC
-	dw 0
-	dd (.root.home.user.solleros.bmp.Bin - .h)/512
-	dw 0
-	dd (.root.home.user.solleros.bmp.BinEnd - .h)/512
-.root.home.user.solleros.bmp.NCEnd: dd 0
 .root.home.user.solleros.txt.NC: dd .root.home.user.NCEnd - .NC
 	dw 0
 	dd (.root.home.user.solleros.txt.Bin - .h)/512
 	dw 0
 	dd (.root.home.user.solleros.txt.BinEnd - .h)/512
 .root.home.user.solleros.txt.NCEnd: dd 0
-.root.home.user.songotime.snd.NC: dd .root.home.user.NCEnd - .NC
-	dw 0
-	dd (.root.home.user.songotime.snd.Bin - .h)/512
-	dw 0
-	dd (.root.home.user.songotime.snd.BinEnd - .h)/512
-.root.home.user.songotime.snd.NCEnd: dd 0
-.root.home.user.victory.wav.NC: dd .root.home.user.NCEnd - .NC
-	dw 0
-	dd (.root.home.user.victory.wav.Bin - .h)/512
-	dw 0
-	dd (.root.home.user.victory.wav.BinEnd - .h)/512
-.root.home.user.victory.wav.NCEnd: dd 0
 .root.tutorial.sh.NC: dd .root.NCEnd - .NC
 	dw 0
 	dd (.root.tutorial.sh.Bin - .h)/512
