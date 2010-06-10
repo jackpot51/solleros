@@ -13,7 +13,7 @@ sblaster:
 		call print
 .noinit:
 		ret
-.initmsg db "Soundblaster Initialized",10,0
+.initmsg db "SB16 Initialized.",10,0
 sblaster.cont: ;this function goes to the next available portion of a sound, if necessary
 	cmp dword [Length0], 0
 	je near .done

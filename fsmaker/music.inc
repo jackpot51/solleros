@@ -1,3 +1,4 @@
+;notes
 		B5 equ 1208
 		A5# equ 1280
 		A5 equ 1356
@@ -46,3 +47,10 @@
 		D2 equ 16252
 		C2# equ 17219
 		C2 equ 18243
+		R equ 0
+;times
+		N1 equ 444
+		N2 equ N1/2
+		N4 equ N1/4
+		N8 equ N1/8
+		N16 equ N1/16

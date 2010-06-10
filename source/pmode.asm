@@ -1,7 +1,4 @@
 [BITS 16]
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;	16-bit real mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 pmode:
 	xor eax, eax
@@ -11,7 +8,7 @@ pmode:
 	xor esi, esi
 	xor edi, edi
 	mov dx, 0x92
-	in al, dx	;;A20
+	in al, dx	;A20
 	or al, 2
 	out dx, al
 	mov bx,cs		; EBX=segment
@@ -91,7 +88,7 @@ copykernel:
 	jmp NEW_CODE_SEL:done_copy
 	
 done_copy:
-	mov ax, NEW_DATA_SEL	;;these MUST be setup AFTER the kernel switches places!!!
+	mov ax, NEW_DATA_SEL	;these MUST be setup AFTER the kernel switches places!!!
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
@@ -156,8 +153,8 @@ testingcpuspeed db 0
 cpuspeedperint dd 0
 cpuclocksperint dd 0,0
 memoryspace dd 0
-pitdiv dw 451;2685 is stable
-timeinterval dd 377981;2250286
+pitdiv dw 2685
+timeinterval dd 2250286
 ;if using the rtc, the default frequency yeilds a period of 976562.5ns
 ;for the pit, note that div=1 gives 838.09ns, the clock runs at 1.193182 MHz
 ;div=451 is 377981.0004, div=902 is 755962.0008,
@@ -184,8 +181,6 @@ pitinterrupt: ;this controls threading
 	cmp byte [testingcpuspeed], 1	;check to see if the cpu speed test is running
 	je cpuspeedend
 
-	cli
-
 	call timekeeper ;this updates the internal time
 	
 	cmp byte [soundon], 1
@@ -202,7 +197,7 @@ keyinterrupt:		;checks for escape, if pressed, it quits the program currently ru
 	jmp handled
 %else
 	inc byte [ticks] ;every 256 ticks, check for keys
-	jnz handled3
+	jnz near handled
 	
 	pusha
 	in al, 64h
@@ -223,9 +218,7 @@ keyinterrupt:		;checks for escape, if pressed, it quits the program currently ru
 ;	jne pauseint
 ;	mov esi, pausemsg
 ;	call print
-;	cli
 ;pauselp:
-;	nop
 ;	in al, 64h
 ;	test al, 20h
 ;	jnz pauselp
@@ -244,7 +237,6 @@ userint:
 	mov al, 0x20
 	out 0x20, al
 	popa
-	sti
 	iret
 .nosighook:
 		;UNMASK ALL INTS
@@ -262,7 +254,9 @@ userint:
 	mov al, 0x20
 	out 0x20, al
 	popa
-	sti
+	pop ebp
+	pop ebp
+	popf
 	mov esp, stackend ;reset stack
 	jmp returnfromexp
 %endif
@@ -271,7 +265,6 @@ rtcint:	;this runs at 64Hz which is perfect for 60Hz displays
 %ifdef io.serial
 %else
 %ifdef terminal.vsync
-	cli
 	cmp byte [termcopyneeded], 0
 	je .nocopy
 	call newtermcopy
@@ -281,13 +274,11 @@ rtcint:	;this runs at 64Hz which is perfect for 60Hz displays
 	out 0x70, al
 	in al, 0x71
 	pop eax
-	sti
 %endif
 %endif
-	jmp handled4
+	jmp handledboth
 %ifdef rtl8139.included
 rtl8139.irq:
-	cli
 	push edx
 	push eax
 	mov edx, [rtl8139.basenicaddr]
@@ -297,12 +288,10 @@ rtl8139.irq:
 	out dx, ax
 	pop eax
 	pop edx
-	sti
-	jmp handled4
+	jmp handledboth
 %endif
 %ifdef sound.included
 sblaster.irq:
-	cli
 	pusha
 	cmp byte [SoundBlaster], 1
 	je near sblaster.cont
@@ -334,25 +323,21 @@ nonanosecondrollover:
 	
 handled2:
 	popa
-handled3:
-	sti
 handled:
 	push eax
 	mov al, 0x20
 	out 0x20, al
 	pop eax
 	iret
-handled4:
+handledboth:
 	push eax
 	mov al, 0x20
 	out 0xA0, al
 	out 0x20, al
 	pop eax
 	iret
-[BITS 16]
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	
 ;	16-bit limit/32-bit linear base address of GDT and IDT
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 gdtr:	dw gdt_end - gdt - 1	; GDT limit
 	dd 0    		; filled with linear, physical address of GDT
 
@@ -441,9 +426,8 @@ gdtdos2:	dw 256
 	db 0x8F ;16 bit
 	db 0
 gdt_end:
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;	interrupt descriptor table (IDT)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 32 reserved interrupts:
 idt:	
 %assign i 0
@@ -457,7 +441,7 @@ idt:
 		dw unhand + i*12,NEW_CODE_SEL,0x8E00,0
 %assign i i+1
 %endrep
-		dw int20h,NEW_CODE_SEL,0x8E00,0
+		dw int20h,NEW_CODE_SEL,0x8E00,0 ;dos ints
 		dw int21h,NEW_CODE_SEL,0x8E00,0
 %assign i 0x22
 %rep 14
@@ -465,7 +449,7 @@ idt:
 %assign i +1
 %endrep
 ;INT 30h for os use and 3rd party use:
-		dw newints,NEW_CODE_SEL,0x8E00,0
+		dw int30h,NEW_CODE_SEL,0x8E00,0
 %assign i 0x31
 %rep 15
 		dw handled,NEW_CODE_SEL,0x8E00,0
@@ -486,17 +470,17 @@ idt:
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 6
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 7
 		dw rtcint,NEW_CODE_SEL,0x8E00,0 ;IRQ 8 = RTC
-		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 9 = default NE2000
-		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 10
+		dw handledboth,NEW_CODE_SEL,0x8E00,0 ;IRQ 9 = default NE2000
+		dw handledboth,NEW_CODE_SEL,0x8E00,0 ;IRQ 10
 	%ifdef rtl8139.included
 		dw rtl8139.irq,NEW_CODE_SEL,0x8E00,0 ;IRQ 11 = default RTL8139
 	%else
-		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 11
+		dw handledboth,NEW_CODE_SEL,0x8E00,0 ;IRQ 11
 	%endif
-		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 12
-		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 13
-		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 14
-		dw handled4,NEW_CODE_SEL,0x8E00,0 ;IRQ 15
+		dw handledboth,NEW_CODE_SEL,0x8E00,0 ;IRQ 12
+		dw handledboth,NEW_CODE_SEL,0x8E00,0 ;IRQ 13
+		dw handledboth,NEW_CODE_SEL,0x8E00,0 ;IRQ 14
+		dw handledboth,NEW_CODE_SEL,0x8E00,0 ;IRQ 15
 ;This brings me up to 0x50
 %assign i 0x50
 %rep 176
@@ -505,4 +489,3 @@ idt:
 %assign i +1
 %endrep
 idt_end:
-[BITS 32]

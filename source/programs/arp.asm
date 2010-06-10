@@ -41,7 +41,7 @@ frame:
 destinationmac:	db 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
 sourcemac:		db 0,0,0,0,0,0
 ethertype:		db 8,6			;arp is 0x806
-	;;example packet
+	;example packet
 	arppacket: 		dw 1			;ethernet is 1
 	arpprotocol: 	db 8,0			;ip is 0x800
 					db 6,4			;length of mac, length of ip
@@ -53,6 +53,6 @@ ethertype:		db 8,6			;arp is 0x806
 framend:
 
 arpconfig db 0
-arptable:	;;mac,ip
+arptable:	;mac,ip
 	times 10 db 0,0,0,0,0,0,0,0,0,0
 arptableend:	

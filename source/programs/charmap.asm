@@ -79,7 +79,7 @@ charmapcopycheck:
 	mov byte [charmapnum], 0
 	jmp charmapcopy
 nomorecharmap:
-	jmp nwcmd
+	ret
 charmapnocopy:
 	push ax
 	mov ax, " "

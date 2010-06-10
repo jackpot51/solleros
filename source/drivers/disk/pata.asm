@@ -7,7 +7,7 @@ diskr:		;read from disk
 	call diskaddresssetup
 	mov al, 0x24
 	mov dx, 0x1F7
-	out dx, al	;;READ!!!
+	out dx, al	;READ!!!
 	mov bx, 0xFF
 diskrwait:
 	dec bx
@@ -35,7 +35,7 @@ diskdataread:
 	add esi, 2
 	dec bx
 	cmp bx, 0
-	jne diskdataread		;;read a sector
+	jne diskdataread		;read a sector
 	dec cl
 	cmp cl, 0
 	jne diskrwait
@@ -58,8 +58,8 @@ diskw:		;write disk
 	call diskaddresssetup
 	mov al, 0x34
 	mov dx, 0x1F7
-	out dx, al	;;WRITE!!!
-	mov bx, 0xFF	;;try 65536 times before forcing
+	out dx, al	;WRITE!!!
+	mov bx, 0xFF	;try 65536 times before forcing
 diskwwait:
 	dec bx
 	cmp bx, 0xFFFF
@@ -86,7 +86,7 @@ diskdatawrite:
 	add esi, 2
 	dec bx
 	cmp bx, 0
-	jne diskdatawrite		;;write a sector
+	jne diskdatawrite		;write a sector
 	dec cl
 	cmp cl, 0
 	jne diskwwait
@@ -112,11 +112,11 @@ diskaddresssetup:
 
 	mov eax, 0x40
 	mov dx, 0x1F6
-	out dx, al	;;send magic bits-add drive indicator later
+	out dx, al	;send magic bits-add drive indicator later
 	
 	xor al, al
 	mov dx, 0x1F2
-	out dx, al	;;16 bit sector count-last byte now 0
+	out dx, al	;16 bit sector count-last byte now 0
 	
 	mov al, [lbad4]
 	inc dx
@@ -132,7 +132,7 @@ diskaddresssetup:
 	
 	mov al, cl
 	mov dx, 0x1F2
-	out dx, al	;;low byte of 16 bit sector count
+	out dx, al	;low byte of 16 bit sector count
 	
 	mov al, [lbad1]
 	inc dx

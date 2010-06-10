@@ -50,9 +50,9 @@ findvideomodes:
 	cmp cx, 0xFFFF
 	je near nextvmode
 	cmp si, oemdata
-	jae near vgaset	;;kill if no valid list is found
+	jae near vgaset	;kill if no valid list is found
 	jmp findvideomodes 	
-;;debug,shows vmodes available
+;debug,shows vmodes available
 nextvmode:
 	sub si, 2
 	cmp si, reserved
@@ -60,7 +60,7 @@ nextvmode:
 	mov cx, [si]
 	cmp cx, 0xFFFF
 	je near nextvmode
-	or cx, 0x4000 		;;Linear Frame Buffer
+	or cx, 0x4000 		;Linear Frame Buffer
 	mov ax, 04F01h
 	mov di, VBEMODEINFOBLOCK
 	mov [vesamode], cx
@@ -105,7 +105,7 @@ selectedvesa:
 	xor cx, cx
 	mov ax, 04F02h
 	mov bx, [vesamode]
-	int 10h		;;enter VESA mode
+	int 10h		;enter VESA mode
 	mov byte [guion], 1
 	call getmemorysize;get the memory map after the video is initialized
 	ret

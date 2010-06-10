@@ -17,7 +17,7 @@
 			db "awesomepower",0
 			db "user",0
 			db "password",0
-			db "n",0	;;abuse for quick entry-a quick double n followed by a double enter will get you in
+			db "n",0	;abuse for quick entry-a quick double n followed by a double enter will get you in
 			db 0
 	userlstend:
 	

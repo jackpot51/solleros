@@ -1,4 +1,4 @@
-newints:	;for great justice
+int30h:	;for great justice
 	cmp ah, 0
 	je near exitprog   ;kills app
 	cmp ah, 1
@@ -47,7 +47,8 @@ newints:	;for great justice
 	cmp ah, 19
 	je near netint	;networking operations
 %endif
-	iret
+	iret
+
 	%include 'source/interrupts/0_exitprog.asm'
 	%include 'source/interrupts/1_prntstr.asm'
 	%include 'source/interrupts/2_readstr.asm'
