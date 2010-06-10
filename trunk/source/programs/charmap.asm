@@ -1,7 +1,7 @@
 charmapnum db 0
 db 255,44,"charmap",0
 	mov esi, [currentcommandloc]
-	add esi, 9
+	add esi, 8
 	cmp byte [esi], 0
 	je .nospecific
 	call cnvrthextxt
@@ -46,7 +46,6 @@ charmapnumprnt2:
 	jmp charmapnocopy ;the first char is 0 which is unprintable
 charmapcopy:
 	inc ax
-	push ax
 	cmp ax, 8
 	je charmapnocopy
 	cmp ax, 9
@@ -59,6 +58,7 @@ charmapcopy:
 	je charmapnocopy
 	cmp ax, 256
 	je nomorecharmap
+	push ax
 	call prcharq
 	mov ax, " "
 	call prcharq
