@@ -127,7 +127,7 @@
    127                              <1> signature:
    128 00000002 536F6C6C65724F5320- <1> db "SollerOS ",0 ;Operating system name
    129 0000000B 00                  <1>
-   130 0000000C 11010000            <1> dd 273	;version number
+   130 0000000C 12010000            <1> dd 274	;version number
    131                              <1> signatureend:
    132 00000010 00660300                	dd bsscopy - header ;size of kernel data on disk
    133                                  [BITS 16]
@@ -5055,7 +5055,7 @@
   5055 00003B21 FF2C636861726D6170- <2> db 255,44,"charmap",0
   5056 00003B2A 00                  <2>
   5057 00003B2B 8B35[DA2C0000]      <2> 	mov esi, [currentcommandloc]
-  5058 00003B31 81C609000000        <2> 	add esi, 9
+  5058 00003B31 81C608000000        <2> 	add esi, 8
   5059 00003B37 803E00              <2> 	cmp byte [esi], 0
   5060 00003B3A 7412                <2> 	je .nospecific
   5061 00003B3C E808F5FFFF          <2> 	call cnvrthextxt
@@ -5100,19 +5100,19 @@
   5100 00003BC2 E96C000000          <2> 	jmp charmapnocopy ;the first char is 0 which is unprintable
   5101                              <2> charmapcopy:
   5102 00003BC7 6640                <2> 	inc ax
-  5103 00003BC9 6650                <2> 	push ax
-  5104 00003BCB 663D0800            <2> 	cmp ax, 8
-  5105 00003BCF 7462                <2> 	je charmapnocopy
-  5106 00003BD1 663D0900            <2> 	cmp ax, 9
-  5107 00003BD5 745C                <2> 	je charmapnocopy
-  5108 00003BD7 663D0A00            <2> 	cmp ax, 10
-  5109 00003BDB 7456                <2> 	je charmapnocopy
-  5110 00003BDD 663D0D00            <2> 	cmp ax, 13
-  5111 00003BE1 7450                <2> 	je charmapnocopy
-  5112 00003BE3 663DFF00            <2> 	cmp ax, 255
-  5113 00003BE7 744A                <2> 	je charmapnocopy
-  5114 00003BE9 663D0001            <2> 	cmp ax, 256
-  5115 00003BED 7443                <2> 	je nomorecharmap
+  5103 00003BC9 663D0800            <2> 	cmp ax, 8
+  5104 00003BCD 7464                <2> 	je charmapnocopy
+  5105 00003BCF 663D0900            <2> 	cmp ax, 9
+  5106 00003BD3 745E                <2> 	je charmapnocopy
+  5107 00003BD5 663D0A00            <2> 	cmp ax, 10
+  5108 00003BD9 7458                <2> 	je charmapnocopy
+  5109 00003BDB 663D0D00            <2> 	cmp ax, 13
+  5110 00003BDF 7452                <2> 	je charmapnocopy
+  5111 00003BE1 663DFF00            <2> 	cmp ax, 255
+  5112 00003BE5 744C                <2> 	je charmapnocopy
+  5113 00003BE7 663D0001            <2> 	cmp ax, 256
+  5114 00003BEB 7445                <2> 	je nomorecharmap
+  5115 00003BED 6650                <2> 	push ax
   5116 00003BEF E88EE6FFFF          <2> 	call prcharq
   5117 00003BF4 66B82000            <2> 	mov ax, " "
   5118 00003BF8 E885E6FFFF          <2> 	call prcharq
