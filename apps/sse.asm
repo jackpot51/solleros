@@ -1,23 +1,16 @@
 %include "include.inc"
-PRINT "Showing debug registers.",10
-mov ecx, dr0
-call showhex
-mov ecx, dr1
-call showhex
-mov ecx, dr2
-call showhex
-mov ecx, dr3
-call showhex
-mov ecx, dr6
-call showhex
-mov ecx, dr7
-call showhex
-PRINT 10,"Filling memory using normal registers.",10
+PRINT "Using "
+mov ecx, clearmeend
+sub ecx, clearme
+shr ecx, 20
+call showdec
+PRINT "megabytes of memory.",10
+PRINT "Filling memory using normal registers.",10
 hlt
 call stime
 call fillnorm
 call etime
-PRINT "nanoseconds.",10,"Using SSE to clear memory.",10
+PRINT "nanoseconds.",10,"Clearing memory using SSE.",10
 hlt
 call stime
 call clearsse
@@ -71,8 +64,6 @@ clearsse:
 	pxor xmm0, xmm0
 	mov esi, clearme
 sse.lp:
-	shr esi, 3
-	shl esi, 3
 	movdqa [esi], xmm0
 	add esi, 16
 	cmp esi, clearmeend
@@ -97,7 +88,6 @@ previouss dd 0
 previousns dd 0
 align 16, nop
 pattern times 4 dd 0xFFFFFFFF
-align 16, nop
 [section .bss]
 clearme: resb 16*1024*1024*4 ;clear an entire 64 megabytes
 clearmeend:
