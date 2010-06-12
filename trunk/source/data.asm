@@ -1,16 +1,16 @@
-	bootfilename db "boot.sh",0
-	notfound1 db "shush: ",0
-	notfound2 db  ": not found",10,0
-	userask db "username:",0
+	bootfilename db	"boot.sh",0
+	notfound1 db	"shush: ",0
+	notfound2 db	": not found",10,0
+	userask db	"username:",0
 	pwdask	db	"password:",0
-	computer db "@"
+	computer db	"@"
 %ifdef io.serial
-	computername	db	"SollerOS.",io.serial," ",0
+	computername db	"SollerOS.",io.serial," ",0
 %else
-	computername	db	"SollerOS ",0
+	computername db	"SollerOS ",0
 %endif
 	endprompt db "]$ ",0
-	crlf 	db  13
+	crlf 	db	13
 	line	db	10,0
 	userlst:
 			db "root",0
@@ -30,7 +30,12 @@
 	memlistend: dd 0
 %ifdef io.serial
 %else
-fonts:	incbin "source/fonts/fonts.pak"
+fonts:
+%ifdef font.unicode
+	incbin "source/fonts/fonts-unicode.pak"
+%else
+	incbin "source/fonts/fonts-ascii.pak"
+%endif
 fontend:
 %endif
 osend:	;this is the end of the operating system's space on disk

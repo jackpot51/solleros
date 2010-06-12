@@ -23,6 +23,9 @@
 	;It is therefore recommended that you do not enable it even
 	;though it gives a large speed improvement for character output
 
+%define font.unicode
+;Include a unicode font. Disable to use an ascii font
+	
 %define hardware.automatic
 ;Automatically load the sound and network drivers.
 
@@ -80,6 +83,7 @@
 	%undef gui.alphablending
 	%undef gui.background
 	%undef terminal.vsync
+	%undef font.unicode
 	%undef hardware.automatic
 	%undef threads.included
 	%undef exceptions.included

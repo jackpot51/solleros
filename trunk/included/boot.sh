@@ -6,7 +6,7 @@ exit
 #11A=1280x1024
 #117=1024x768
 #111=640x480
-gui 11A
+gui 117
 #Play asynchronously
 playa victory.wav
 #Load the background

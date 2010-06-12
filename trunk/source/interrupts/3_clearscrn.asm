@@ -3,7 +3,10 @@ call clear
 jmp timerinterrupt
 %ifdef io.serial
 clear:
+	mov esi, .str
+	call print
 	ret
+.str db 27,"[2J",27,"[f",0
 %else
 clear:
 		mov cx, [charxy]

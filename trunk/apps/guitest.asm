@@ -8,6 +8,7 @@ guitest:
 	mov ah, 17
 	mov al, 253
 	int 0x30	;get info
+	mov byte [.error], 1
 	cmp cx, 0
 	je .quit
 	mov [.resy], cx
@@ -37,9 +38,11 @@ guitest:
 	mov ah, 16
 	xor al,al
 	int 0x30	;remove ESC (signal zero) hook
-	xor ebx, ebx
+	mov ebx, [.error]
 	xor eax, eax
 	int 0x30
+
+.error dd 0
 
 .drawcircle:
 	mov ah, 17

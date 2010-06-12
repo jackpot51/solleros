@@ -34,9 +34,5 @@ void _start()
 		}
 		addr++;
 	}
-	char **argv;
-	for(i=0;i<argc;i++){
-		argv[i]=(char *)args[i];
-	}
-	exit(main(argc, argv));
+	exit(main(argc, args));
 }
