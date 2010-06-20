@@ -1,6 +1,8 @@
 #summary The new filesystem for SollerOS.
 ===Introduction===
 UnFS is a node based filesystem that uses variable size pointers to memory locations and disk blocks to manage files.
+===Warning===
+This filesystem will change so do not ignore the version number! Also, when the first stable build is made, the version number will be set to 1 instead of the current 0. It is best to ignore filesystems that use a version number that is 0 or negative as I will be using these values to indicate versions in between the stable version.
 ===Table of Contents===
   # ====[UnFS#Header_Structure Header]====
   # ====[UnFS#Node_Collection_Structure Node Collection]====
