@@ -1,6 +1,8 @@
 #summary This is the updated keymap for SollerOS
 
-SollerOS will be switching to Unicode soon, meaning that all Greek characters, Latin characters, and Cyrillic characters will be supported through this system. The Greek map will be updated to match the position of characters on actual Greek keyboards as will the Cyrillic map. You will no longer have to hold ctrl to stay in a mode, simply press right ctrl followed by a number to switch modes.
+SollerOS has switched to Unicode, meaning that all Greek characters, Latin characters, and Cyrillic characters are supported. The Greek map has been updated to match the position of characters on actual Greek keyboards and the Cyrillic map has been updated to match the Russian keyboard.
+
+Soon you will no longer have to hold ctrl or alt to stay in a mode, simply press right ctrl followed by a number to switch modes.
 
 || *Number* || *Mode* ||
 || 1 || Latin ||
