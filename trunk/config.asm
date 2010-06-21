@@ -1,6 +1,6 @@
 ;These flags are used to configure options as on, put a simicolon in front of it to not configure it
 
-;%define gui.included
+%define gui.included
 ;Turn on the gui
 
 ;%define gui.alphablending

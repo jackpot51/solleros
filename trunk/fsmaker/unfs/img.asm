@@ -7,7 +7,7 @@ fsys:
 	db 4
 	db 2
 	db 9
-	db 0
+	db 1
 	dd .NC.Node
 	dd .IC.Node
 .NC.Node: dd .NC.NodeEnd

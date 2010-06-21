@@ -84,7 +84,7 @@ public class unfs {
             br.write("%include \"" + imgBinary.getName() + "\"\n");
         } catch (IOException ex) {
             System.out.println(ex);
-	}
+		}
     }
     public static void writeSystem(File folder){
         //Write the nodes for the files in this folder
