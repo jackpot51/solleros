@@ -14,8 +14,6 @@
 	call print
 	xor ebx, ebx
 	jmp exit	;there are no other commands yet
-infomsg db "list-list included files",10,"show-display a file",10,0
-systemlocation db "_img.bin",0
 
 read_super:
 	mov esi, filesystem
@@ -65,7 +63,6 @@ check_fs:
 	call print
 	xor ebx, ebx
 	jmp exit
-fsnogood: db "The filesystem signature was invalid.",10,0
 
 load_fs:
 	mov esi, filesystem
@@ -175,14 +172,18 @@ noparentnodelist:
 	mov al, [ebx]
 	cmp al, 1
 	je fileprint
-	mov al, "/"
+	mov al, seperator
 	mov ah, 6
 	mov bx, 7
 	int 30h
 fileprint:
 	pop esi
 	ret
-
+	
+seperator equ "/" ;Windows users can put \ here, Unix users can put / here
+infomsg db "list-list included files",10,"show-display a file",10,0
+systemlocation db "_img.bin",0
+fsnogood: db "The filesystem signature was invalid.",10,0
 nonodemsg db "The requested node could not be found.",10,0
 foldermsg db "The requested node is a folder.",10,0
 nodeloc dd 0

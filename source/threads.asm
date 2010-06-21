@@ -23,8 +23,7 @@ nomorestackspace:
 nmss	db "Stack Overflow",10,0
 	
 threadswitch:
-	cli
-	pushad
+	pushad 
 	mov edi, threadlist
 	mov eax, [currentthread]
 	inc eax
@@ -51,7 +50,6 @@ okespthread:
 	mov al, 0x20
 	out 0x20, al
 	popad
-	sti
 	iret
 
 %endif

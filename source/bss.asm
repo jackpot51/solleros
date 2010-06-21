@@ -67,9 +67,9 @@ numbuf equ buf2 + 20
 %ifdef threads.included
 	threadlist: equ rbuffend ;this buffer will hold the stack locations of all of the threads, up to 2048
 	threadlistend: equ threadlist + 1024*4
-	stacks:	equ threadlistend ;i use SS now for proper stack management. This makes sure stacks never screw with other memory
-	stack1: equ stacks + 1024  ;woah, thats a lot of space for stacks
-	bssend equ stack1 + 1024*1024
+	stacks:	equ threadlistend ;NOT TRUE:i use SS now for proper stack management. This makes sure stacks never screw with other memory
+	stack1: equ stacks + 2048  ;woah, thats a lot of space for stacks
+	bssend equ stack1 + 1024*2048
 %else
 	bssend equ rbuffend
 %endif
