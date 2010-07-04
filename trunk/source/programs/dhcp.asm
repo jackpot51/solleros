@@ -26,6 +26,7 @@ dhcp:
 	mov esi, .udp.end
 	call sendpacket
 	ret
+.udpsize equ (.udp.end - .ip.header)
 .frame:
 	.destmac db 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
 	.mac db 0,0,0,0,0,0
@@ -33,7 +34,7 @@ dhcp:
 .ip.header:
 	db (0x40 | (.ip.headerend - .ip.header)/4)
 	db 0
-	db (.udp.end - .ip.header)/256, (.udp.end - .ip.header)
+	db .udpsize/256, .udpsize % 256
 	dw 0
 	dw 0
 	db 0x80
@@ -45,7 +46,7 @@ dhcp:
 .udp.header:
 	db 0,68	;source port
 	db 0,67 ;destination port
-	db (.udp.end - .udp.header)/256, (.udp.end - .udp.header)
+	db .udpsize/256, .udpsize % 256
 .udp.checksum dw 0
 .udp.headerend:
 .dhcp.data:

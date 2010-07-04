@@ -6,7 +6,7 @@ ping:
 	mov [.destip], ecx
 	call showip
 	mov ecx, [sysip]
-	mov [.sourceip]. ecx
+	mov [.sourceip], ecx
 	xor eax, eax
 	xor ebx, ebx
 	mov [.checksum], ax
