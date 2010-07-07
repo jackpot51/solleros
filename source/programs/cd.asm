@@ -1,4 +1,4 @@
-db 255,44,"cd",0
+db 255,44,"cd ",0
 cd:
 	mov esi, [currentcommandloc]
 	add esi, 3

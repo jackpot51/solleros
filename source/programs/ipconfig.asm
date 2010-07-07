@@ -1,4 +1,4 @@
-db 255,44,"ipconfig",0
+db 255,44,"ifconfig",0
 ifconfig:
 	mov esi, [currentcommandloc]
 	add esi, 9

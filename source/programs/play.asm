@@ -1,9 +1,9 @@
-db 255,44,"playa",0
+db 255,44,"playa ",0
 	mov edi, [currentcommandloc]
 	add edi, 6
 	call playasync
 	ret
-db 255,44,"play",0
+db 255,44,"play ",0
 play:
 	mov edi, [currentcommandloc]
 	add edi, 5

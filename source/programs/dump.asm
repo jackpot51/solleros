@@ -1,4 +1,4 @@
-db 255,44,"dump",0
+db 255,44,"dump ",0
 	mov esi, [currentcommandloc]
 	add esi, 5
 	xor ecx, ecx

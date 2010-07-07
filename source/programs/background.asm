@@ -1,4 +1,4 @@
-db 255,44,"background",0
+db 255,44,"background ",0
 		mov edi, [currentcommandloc]
 		add edi, 11
 		mov esi, 0x800000
