@@ -1,4 +1,4 @@
-db 255,44,"show",0
+db 255,44,"show ",0
 showprog:
 		mov edi, [currentcommandloc]
 		add edi, 5
