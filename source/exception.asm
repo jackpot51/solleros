@@ -331,7 +331,8 @@ unhand2:
 	cmp byte [intprob], 3
 	je handled	;if it is a debug interrupt, it is auto handled
 	mov ebx, 0xDEADCD00 ;this shows that an exception occured even though more detailed info cannot be shown
-						;CD stands for the interrupt code, DEAD shows that the program died because of the int
+					;CD is the machine instruction for interrupt
+					;DEAD shows that the program died because of the int
 	mov bl, [intprob]
 	jmp exitprog
 intprob db 0

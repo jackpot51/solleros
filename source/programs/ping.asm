@@ -1,4 +1,4 @@
-db 255,44,"ping ",0
+db 255,44,"ping",0
 ping:
 	mov esi, [currentcommandloc]
 	add esi, 5

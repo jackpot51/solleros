@@ -121,20 +121,15 @@ rtl8139:
 	mov edx, [.basenicaddr]
 	add edx, .TSD0
 	in eax, dx ;get tsd
-	and eax, 0xFFFFE000 ;clear off thirteen bits
+	and eax, 0xFFFFC000 ;clear off length and own bits
 	add eax, esi ;add length to tsd
-	and eax, 0xFFFFDFFF ;clear own bit
 	out dx, eax
 .checknicownbit:
-	mov edx, [.basenicaddr]
-	add edx, .TSD0
 	in eax, dx
 	and eax, 0x2000 ;check own bit
 	cmp eax, 0x2000
 	jne .checknicownbit
 .checknictokbit:
-	mov edx, [.basenicaddr]
-	add edx, .TSD0
 	in eax, dx
 	and eax, 0x8000	;check tok bit
 	cmp eax, 0x8000

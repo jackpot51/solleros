@@ -1,4 +1,4 @@
-	db 255,44,"if ",0
+	db 255,44,"if",0
 ifcmd:	xor al, al
 	cmp [BATCHISON], al
 	je near notbatch

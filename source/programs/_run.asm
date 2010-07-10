@@ -1,4 +1,3 @@
-
 	elfstart db 0x7F,"ELF"
 	db 255,44,"./",0
 rundiskprog:

@@ -1,4 +1,4 @@
-db 255,44,"playa ",0
+db 255,44,"playa",0
 	mov edi, [currentcommandloc]
 	add edi, 6
 	call playasync

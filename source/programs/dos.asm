@@ -1,4 +1,4 @@
-db 255,44,"dos ",0
+db 255,44,"dos",0
 dosrunner:
 	mov [previousstack], esp
 	mov edi, [currentcommandloc]

@@ -1,4 +1,4 @@
-db 255,44,"while ",0
+db 255,44,"while",0
 whilecmd:  xor al, al
 	cmp [BATCHISON], al
 	je near notbatch
