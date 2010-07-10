@@ -1,4 +1,3 @@
-
 db 255,44,"echo",0
 	echoprog:
 		mov esi, [currentcommandloc]

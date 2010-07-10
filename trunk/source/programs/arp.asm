@@ -1,4 +1,4 @@
-db 255,44,"arp ",0
+db 255,44,"arp",0
 	;ARP TESTING
 arptest:
 	mov esi, [currentcommandloc]
