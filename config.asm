@@ -44,7 +44,7 @@
 %define sound.included
 ;This includes the sound drivers
 
-%define network.included
+;%define network.included
 ;This includes the network stack
 
 ;%define rtl8169.included
@@ -53,7 +53,7 @@
 ;%define rtl8139.included
 ;This includes the RTL8139 drivers
 
-%define ne2000.included
+;%define ne2000.included
 ;This includes the ne2000 drivers
 
 ;%define i8254x.included

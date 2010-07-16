@@ -36,7 +36,11 @@ jmp timerinterrupt
 		xor eax, eax
 		mov al, [esi]
 		cmp al, 0xFF
-		je .doneutf
+		jb .goodutf
+		pop ebx
+		inc esi
+		jmp .b
+	.goodutf:
 		cmp al, 0xC0
 		jb .doneutf
 		cmp al, 0xE0

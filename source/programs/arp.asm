@@ -4,7 +4,7 @@ arptest:
 	mov esi, [currentcommandloc]
 	add esi, 4
 	call strtoip
-	mov [arptargetinfo + 6], ecx ;move to next ip
+	mov [arptargetinfo.ip], ecx ;move to next ip
 	call showip
 	cmp byte [arpconfig], 1
 	je arptest2
@@ -16,6 +16,8 @@ arptest2:	;try to reach 192.168.0.1
 	mov [sourcemac + 4],bx
 	mov [arpsenderinfo], ecx
 	mov [arpsenderinfo + 4], bx
+	mov ecx, [sysip]
+	mov [arpsenderinfo.ip], ecx
 	mov edi, frame
 	mov esi, framend
 	call sendpacket
@@ -47,9 +49,9 @@ ethertype:		db 8,6			;arp is 0x806
 					db 6,4			;length of mac, length of ip
 	arpoperation: 	db 0,1			;one for arp request
 	arpsenderinfo:	db 0x00,0x00,0x00,0x00,0x00,0x00	;mac
-					db 192,168,0,115		;ip
+				.ip:	db 192,168,0,115		;ip
 	arptargetinfo:	db 0x00,0x00,0x00,0x00,0x00,0x00	;ignored in requests
-					db 192,168,0,0			;ip
+				.ip:	db 192,168,0,0			;ip
 framend:
 
 arpconfig db 0

@@ -102,7 +102,7 @@ exit:
     mov esi, %%stringprint
 	mov al, 0
 	mov ah, 1
-	mov bl, 7
+	mov bx, 7
 	int 0x30
 %endmacro
 
