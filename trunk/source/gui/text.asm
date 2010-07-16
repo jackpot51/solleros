@@ -6,6 +6,11 @@
 	showstring2:	;location in (dx,cx), color in [colorfont2] and [background]
 		xor ah, ah
 		mov al, [esi]
+		cmp al, 0xFF
+		jne .notnull
+		inc esi
+		jmp showstring2
+.notnull:
 		cmp al, 0xC0
 		jb .doneutf
 		cmp al, 0xE0
@@ -29,11 +34,9 @@
 		shr bx, 2
 		mov ax, bx
 	.doneutf:
-		cmp al, 0
+		cmp ax, 0
 		je doneshowstring
 		inc esi
-		cmp al, 255
-		je showstring2
 		push esi
 		mov bx, [colorfont2]
 		call showfontvesa

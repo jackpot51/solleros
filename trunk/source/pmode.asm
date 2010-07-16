@@ -196,8 +196,8 @@ keyinterrupt:		;checks for escape, if pressed, it quits the program currently ru
 %ifdef io.serial
 	jmp handled
 %else
-	inc byte [ticks] ;every 256 ticks, check for keys
-	jnz near handled
+	;inc byte [ticks] ;every 256 ticks, check for keys
+	;jnz near handled
 	
 	pusha
 	in al, 64h
@@ -254,6 +254,7 @@ userint:
 	mov al, 0x20
 	out 0x20, al
 	popa
+	int3
 	pop ebp
 	pop ebp
 	popf
@@ -278,17 +279,73 @@ rtcint:	;this runs at 64Hz which is perfect for 60Hz displays
 %endif
 	jmp handledboth
 %ifdef rtl8139.included
+nextpacket dd rbuffstart
 rtl8139.irq:
-	push edx
-	push eax
-	mov edx, [rtl8139.basenicaddr]
-	add edx, rtl8139.ISR
+	pusha
+	mov dx, [rtl8139.basenicaddr]
+	add dx, rtl8139.ISR
 	xor eax, eax
 	in ax, dx
 	out dx, ax
-	pop eax
-	pop edx
+	test ax, 1
+	jz  near .norec
+	mov esi, packetrecvmsg
+	call print
+	mov esi, [nextpacket]
+	cmp esi, rbuffend
+	jb .goodesi
+	mov esi, rbuffstart
+.goodesi:
+	mov ecx, esi
+	sub ecx, rbuffstart
+	call showhex
+	mov ecx, [esi]
+	test ecx, 1
+	jz .notgood
+	call showhex
+	add esi, 4
+	xor edi, edi
+	mov di, [esi - 2]
+	mov ecx, edi
+	add edi, esi
+	sub ecx, 4
+	call showdec
+
+	mov ecx, edi
+	sub ecx, rbuffstart
+	add ecx, 3
+	shr ecx, 2
+	shl ecx, 2
+	call showhex
+.notgood	
+	mov  dx, [rtl8139.basenicaddr]
+	add dx, rtl8139.CBR
+	xor eax, eax
+	in ax, dx
+	mov ecx, eax
+	call showhex
+	
+	mov dx, [rtl8139.basenicaddr]
+	add dx, rtl8139.CAPR
+	out dx, ax
+	
+	add eax, rbuffstart
+	mov [nextpacket], eax
+	
+;	int3
+;.lp:
+;	mov cl, [esi]
+;	call showhexsmall
+;	inc esi
+;	cmp esi, [nextpacket]
+;	jb .lp
+;	mov ecx, [esi]
+;	call showhex
+;	call printline
+.norec:
+	popa
 	jmp handledboth
+packetrecvmsg db 10,"Packet: ",0
 %endif
 %ifdef sound.included
 sblaster.irq:

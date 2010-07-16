@@ -5,5 +5,4 @@
 	RUN "$a=12"
 	PRINT "Adding $a + 4",10
 	RUN "!4+$a"
-	xor ebx, ebx
-	jmp exit
+	EXIT 0

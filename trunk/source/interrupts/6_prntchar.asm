@@ -50,8 +50,6 @@ prcharq:
 	je near prnlcr
 	cmp ax, 8
 	je near prbs
-	cmp ax, 255		;null character
-	je near donescr
 	cmp ax, (fontend - fonts)/16
 	jae near prnofont
 donepr:

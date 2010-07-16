@@ -6,8 +6,10 @@ waitforinput:		;this is basically the idle process
 	xor ax, ax
 	mov al, [threadson]
 	mov [threadson], ah
+	pushf
 	sti
 	hlt
+	popf
 	mov [threadson], al
 	cmp word [trans], 0
 	je getkey

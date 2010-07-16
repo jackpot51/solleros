@@ -27,11 +27,11 @@ buftxtend equ buftxt + 1024
 buf2 equ buftxtend
 numbuf equ buf2 + 20
 %ifdef io.serial
-	lastcommandpos equ numbuf + 1
+	lastcommandpos equ numbuf
 %else
 	%ifdef gui.included
-		graphicstable equ numbuf + 1 ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
-		graphicstableend equ graphicstable + 200h
+		graphicstable equ numbuf ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
+		graphicstableend equ graphicstable + 512
 		%ifdef gui.background
 			backgroundbuffer equ graphicstableend
 			backgroundbufferend equ backgroundbuffer + 1280*1026*2
@@ -40,12 +40,12 @@ numbuf equ buf2 + 20
 			mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
 		%endif
 		mcolorend equ mousecolorbuf + 256
-		videobuf equ mcolorend + 1	;1680x1050 pixels in characters
+		videobuf equ mcolorend	;1680x1050 pixels in characters
 		videobufend	equ videobuf + 210*65*4;2
 		videobuf2 equ videobufend
 		videobuf2end equ videobuf2 + 210*65*4;2
 	%else
-		videobuf equ numbuf + 1
+		videobuf equ numbuf
 		videobufend equ videobuf + 80*30*4
 		videobuf2 equ videobufend
 		videobuf2end equ videobuf2 + 80*30*4
@@ -59,13 +59,14 @@ numbuf equ buf2 + 20
 	commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
 %ifdef network.included
 	rbuffstart: equ commandbufend ;for use with networking
-	rbuffend equ rbuffstart + 8212
+	rbuffend equ rbuffstart + 8192 + 16 ;extra space used for the WRAP bit in rtl8139
+	rbuffoverflow equ rbuffend + 1500
 %else
 	rbuffstart equ commandbufend
 	rbuffend equ commandbufend
 %endif
 %ifdef threads.included
-	threadlist: equ rbuffend ;this buffer will hold the stack locations of all of the threads, up to 2048
+	threadlist: equ rbuffend ;this buffer will hold the stack locations of all of the threads, up to 1024
 	threadlistend: equ threadlist + 1024*4
 	stacks:	equ threadlistend ;NOT TRUE:i use SS now for proper stack management. This makes sure stacks never screw with other memory
 	stack1: equ stacks + 2048  ;woah, thats a lot of space for stacks
