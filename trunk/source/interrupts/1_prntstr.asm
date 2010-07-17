@@ -36,11 +36,10 @@ jmp timerinterrupt
 		xor eax, eax
 		mov al, [esi]
 		cmp al, 0xFF
-		jb .goodutf
+		jne .notnull
 		pop ebx
-		inc esi
-		jmp .b
-	.goodutf:
+		jmp .noprint
+	.notnull:
 		cmp al, 0xC0
 		jb .doneutf
 		cmp al, 0xE0

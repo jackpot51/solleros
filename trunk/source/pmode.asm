@@ -269,7 +269,7 @@ rtcint:	;this runs at 64Hz which is perfect for 60Hz displays
 	cmp byte [termcopyneeded], 0
 	je .nocopy
 	call newtermcopy
-.nocopy
+.nocopy:
 	push eax
 	mov al, 0xC
 	out 0x70, al

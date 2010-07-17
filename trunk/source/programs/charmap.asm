@@ -54,10 +54,12 @@ charmapcopy:
 	je charmapnocopy
 	cmp ax, 13
 	je charmapnocopy
-	cmp ax, 255
-	je charmapnocopy
 	cmp ax, 256
 	je nomorecharmap
+	jmp okchar
+charmapnocopy:
+	mov ax, " "
+okchar:
 	push ax
 	call prcharq
 	mov ax, " "
@@ -71,8 +73,6 @@ charmapcopycheck:
 	mov esi, line
 	call printquiet
 	pop ax
-	cmp al, 255
-	je nomorecharmap
 	mov cl, al
 	inc cl
 	call showhexsmall
@@ -80,10 +80,3 @@ charmapcopycheck:
 	jmp charmapcopy
 nomorecharmap:
 	ret
-charmapnocopy:
-	push ax
-	mov ax, " "
-	call prcharq
-	call prcharq
-	pop ax
-	jmp charmapcopycheck
