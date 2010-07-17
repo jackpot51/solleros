@@ -794,6 +794,8 @@ cnvrttxt: ;text to convert in esi, first part or 0 in edi
 	je .done
 	cmp al, 48
 	jb .done
+	cmp al, 58
+	jae .done
 	cmp al, '#'
 	je .done
 	cmp esi, edi
