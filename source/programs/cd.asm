@@ -6,6 +6,18 @@ cd:
 	mov [lastfolderloc], edi
 	add edi, currentfolder
 	dec edi
+	cmp byte [esi], '/'
+	jne .noroot
+	xor edi, edi
+	mov [currentfolderloc], edi
+	mov [lastfolderloc], edi
+	add edi, currentfolder
+	dec edi
+	inc esi
+	cmp byte [esi], 0
+	je .noroot
+	dec esi
+.noroot:
 	cmp word [esi], ".."
 	je .moveup
 	inc edi
