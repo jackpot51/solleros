@@ -47,57 +47,63 @@
 		mov al, 0Bh
 		add dx, 4
 		out dx, al		;IRQs enabled, RTS/DSR set
+		mov esi, telyreceive
+		mov ah, 11 
+		int 0x30 ;start receive thread
+	telykeys:
+		hlt
+		mov al, 1
+		mov ah, 5
+		int 0x30
+		rol eax, 16
+		cmp al, 1
+		je exittely
+		rol eax, 16
+		cmp al, 0
+		je telykeys
+		mov ah, al
+		xor al, al
+		cmp ah, 13
+		jne telysend
+		mov ah, 10
+		jmp telysend
+
+	telysend:
+		mov dx, [BASEADDRSERIAL]		;wait until transmit is empty
+		add dx, 5
+		in al, dx
+		cmp al, 20h
+		je telysend
+		mov al, ah
+		cmp al, 0
+		je telykeys
+		mov dx, [BASEADDRSERIAL]
+		out dx, al
+		cmp al, 10
+		jne telykeys
+		mov ah, 13
+		jmp telysend
+
 	telyreceive:
 		hlt
-		xor ax, ax
 		mov dx, [BASEADDRSERIAL]
 		in al, dx
 		cmp al, 0
-		je testin
+		je telyreceive
 		cmp al, 13
 		je printline
 		mov bx, 7
 		mov ah, 6
 		int 30h
-	testin:
-		mov al, 1
-		mov ah, 5
-		int 30h
-		cmp ax, 256
-		je exittely
-		cmp al, 0
-		je telyreceive
-		mov ah, al
-		xor al, al
-		mov cx, 1000
-		cmp ah, 10
-		jne telysend
-		mov ah, 13
-		jmp telysend
+		jmp telyreceive
+
 	printline:
 		mov esi, line
 		call print
-		jmp testin
-
-	telysend:
-		mov dx, [BASEADDRSERIAL]		;;wait until transmit is empty
-		add dx, 5
-		in al, dx
-		cmp al, 20h
-		jne telysend2
-		loop telysend
-	telysend2:
-		mov al, ah
-		cmp al, 0
-		je near telyreceive
-		mov dx, [BASEADDRSERIAL]
-		out dx, al
-		cmp al, 13
-		jne telyreceive
-		mov ah, 10
-		jmp telysend
+		jmp telyreceive
 		
 	exittely:
-		ret
+		xor ebx, ebx
+		jmp exit
 
 BASEADDRSERIAL dw 03f8h
