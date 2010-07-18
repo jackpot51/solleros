@@ -163,6 +163,7 @@ nodebugint:
 	call termcopy
 %endif
 returnunhandgui:
+	mov esp, stackend ;reset stack
 	jmp nwcmd
 backtoosmsg db "Please post any problems in the Issues section at solleros.googlecode.com",10
 			db "Press any key to return to SollerOS",10,0

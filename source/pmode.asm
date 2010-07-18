@@ -196,8 +196,8 @@ keyinterrupt:		;checks for escape, if pressed, it quits the program currently ru
 %ifdef io.serial
 	jmp handled
 %else
-	;inc byte [ticks] ;every 256 ticks, check for keys
-	;jnz near handled
+	inc byte [ticks] ;every 256 ticks, check for keys
+	jnz near handled
 	
 	pusha
 	in al, 64h
@@ -254,12 +254,12 @@ userint:
 	mov al, 0x20
 	out 0x20, al
 	popa
-	int3
-	pop ebp
-	pop ebp
-	popf
-	mov esp, stackend ;reset stack
-	jmp returnfromexp
+	jmp unhand + 12
+	;pop ebp
+	;pop ebp
+	;popf
+	;mov esp, stackend ;reset stack
+	;jmp returnfromexp
 %endif
 rtcrate db 10
 rtcint:	;this runs at 64Hz which is perfect for 60Hz displays
