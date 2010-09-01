@@ -63,12 +63,10 @@ initialize:
 	out 0xA1, al
 	mov al, 0x1
 	out 0x21, al
-	mov al, 0x1
 	out 0xA1, al
 	;masks are set to zero so as not to mask
 	xor al, al
 	out 0x21, al
-	xor al, al
 	out 0xA1, al
 	mov al, 0x20
 	out 0xA0, al
