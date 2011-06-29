@@ -17,6 +17,8 @@ getchar:
 	%else
 		call getkey
 		mov ax, [lastkey + 2]
+		cmp ax, 1
+		je rdend ;return if ESC
 		cmp ax, 0x1C
 		je rdenter
 	%endif

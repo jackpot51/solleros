@@ -1,16 +1,18 @@
 %include "include.inc"
 	tely:
+		mov al, [edi]
+		mov [termport], al
 		mov word [BASEADDRSERIAL], 3F8h
-		cmp byte [edi], "1"
+		cmp al, "1"
 		je near nofix
 		mov word [BASEADDRSERIAL], 2F8h
-		cmp byte [edi], "2"
+		cmp al, "2"
 		je near nofix
 		mov word [BASEADDRSERIAL], 3E8h
-		cmp byte [edi], "3"
+		cmp al, "3"
 		je near nofix
 		mov word [BASEADDRSERIAL], 2E8h
-		cmp byte [edi], "4"
+		cmp al, "4"
 		je near nofix
 		mov esi, noportnum
 		call print
@@ -18,12 +20,11 @@
 		jmp exit
 	noportnum db "You must enter a port number from 1 to 4.",10,0
 	nofix:
-		mov ecx, 0
-		mov edx, 0
-		mov eax, 0
-	      	mov dx, [BASEADDRSERIAL]
-		mov al, 0
-		add dx, 1
+		mov esi, startmsg
+		call print
+		xor eax, eax
+	     mov dx, [BASEADDRSERIAL]
+		inc dx
 		out dx, al		;disable interrupts
 	      	mov dx, [BASEADDRSERIAL]
 		mov al, 80h
@@ -47,18 +48,20 @@
 		mov al, 0Bh
 		add dx, 4
 		out dx, al		;IRQs enabled, RTS/DSR set
+		mov esi, exittely
+		mov ah, 16
+		xor al, al
+		int 0x30
 		mov esi, telyreceive
-		mov ah, 11 
+		mov ah, 11
 		int 0x30 ;start receive thread
 	telykeys:
 		hlt
 		mov al, 1
 		mov ah, 5
 		int 0x30
-		rol eax, 16
-		cmp al, 1
+		cmp eax, 0x10000
 		je exittely
-		rol eax, 16
 		cmp al, 0
 		je telykeys
 		mov ah, al
@@ -103,7 +106,17 @@
 		jmp telyreceive
 		
 	exittely:
+		xor esi, esi
+		mov ah, 16
+		xor al, al
+		int 0x30
+		mov esi, exitmsg
+		call print
 		xor ebx, ebx
 		jmp exit
 
+startmsg db "Starting terminal on port "
+termport db "0"
+startmsgcont db ", press ESC to exit.",10,0
+exitmsg db "Exiting from user interrupt.",10,0
 BASEADDRSERIAL dw 03f8h

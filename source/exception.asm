@@ -118,8 +118,16 @@ backtomsg:
 backtomsgdone:
 	xor al, al
 	call rdcharint
+	cmp eax, 0x10000
+	je nodebugint
+	cmp byte [intprob], 1
+	je debugint
 	cmp byte [intprob], 3
-	jne nodebugint
+	je debugint
+	cmp byte [intprob], 4
+	je debugint
+	jmp nodebugint
+debugint:
 %ifdef gui.included
 	cmp byte [guion], 0
 	je nodebuggui
@@ -153,7 +161,7 @@ nodebugint:
 ;	popf ;then pop the flags
 %ifdef gui.included
 	cmp byte [guion], 0
-	je returnunhandgui
+	je .nogui
 	mov bx, [backgroundcache]
 	mov [background], bx
 	xor bx, bx
@@ -161,12 +169,11 @@ nodebugint:
 	call guiclear
 	call reloadallgraphics
 	call termcopy
+.nogui:
 %endif
-returnunhandgui:
-	mov esp, stackend ;reset stack
-	jmp nwcmd
+	jmp nwcmdst
 backtoosmsg db "Please post any problems in the Issues section at solleros.googlecode.com",10
-			db "Press any key to return to SollerOS",10,0
+			db "Press ESC to return to SollerOS or any key to continue...",10,0
 expdump:
 	mov esi, [esiloc]
 	mov edi, esi
