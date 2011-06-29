@@ -1,7 +1,7 @@
 forkthread:
 			 ;esi is next thread's start address, if 0, fork current thread
 			;returns the PID of the new fork in ebx
-;WARNING:THIS WILL NOT WORK IN C UNTIL IT COPIES THE ENTIRE STACK
+;WARNING:THIS WILL NOT WORK IN C UNTIL IT COPIES THE ENTIRE STACK INCLUDING FPU AND SSE REGISTERS
 	cli
 	pushad
 	mov [.espold], esp

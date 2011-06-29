@@ -23,7 +23,7 @@ nomorestackspace:
 nmss	db "Stack Overflow",10,0
 	
 threadswitch:
-	pushad 
+	pushad
 	mov edi, threadlist
 	mov eax, [currentthread]
 	inc eax
@@ -32,6 +32,11 @@ threadswitch:
 	shl eax, 2
 	add edi, eax
 	mov [edi], esp
+	;mov ebx, esp
+	;sub ebx, 512
+	;shr ebx, 4
+	;shl ebx, 4
+	;fxsave [ebx]
 	add edi, 4
 	cmp edi, threadlistend
 	jae near nookespthread
@@ -47,6 +52,10 @@ nookespthread:
 	je near nwcmdst
 okespthread:
 	mov esp, eax
+	;sub eax, 512
+	;shr eax, 4
+	;shl eax, 4
+	;fxrstor [eax]
 	mov al, 0x20
 	out 0x20, al
 	popad

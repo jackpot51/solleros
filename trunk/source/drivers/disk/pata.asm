@@ -110,7 +110,7 @@ diskaddresssetup:
 	mov [lbad4], bh
 	ror ebx, 16
 
-	mov eax, 0x40
+	mov al, 0x40
 	mov dx, 0x1F6
 	out dx, al	;send magic bits-add drive indicator later
 	

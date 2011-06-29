@@ -162,7 +162,6 @@ timeinterval dd 2250286
 ;div=55483 is 46500044.000006ns
 ;use one of those values for the minimum error
 
-ticks db 0
 timeseconds dd 0
 timenanoseconds dd 0
 soundon db 0
@@ -190,54 +189,29 @@ timerinterrupt:	;put this into the interrupt handler that controls threading
 	cmp byte [threadson], 1
 	je near threadswitch
 %endif
+
 keyinterrupt:		;checks for escape, if pressed, it quits the program currently running
+	jmp handled
 	cmp byte [threadson], 0
 	je near handled
 %ifdef io.serial
 	jmp handled
 %else
-	inc byte [ticks] ;every 256 ticks, check for keys
-	jnz near handled
-	
-	pusha
-	in al, 64h
-	test al, 20h
-	jnz near handled2
-	in al, 60h
+	push eax
+	in al, 0x64
+	test al, 0x20
+	jnz near handledeax
+	in al, 0x60
 	cmp al, 1		;escape
 	je userint
-	jmp handled2
-;	cmp al, 0x57
-;	jne near handled2
-;pauseint:	;F11 pauses
-;	in al, 64h
-;	test al, 20h
-;	jnz pauseint
-;	in al, 60h
-;	cmp al, 0xD7
-;	jne pauseint
-;	mov esi, pausemsg
-;	call print
-;pauselp:
-;	in al, 64h
-;	test al, 20h
-;	jnz pauselp
-;	in al, 60h
-;	cmp al, 0x57
-;	je near handled2
-;	jmp pauselp
-;pausemsg db "Paused",10,0
+	pop eax
+	jmp handled
 userint:
 	xor eax, eax
 	cmp [sigtable], eax
 	je .nosighook
-	mov ebx, [sigtable]
-	mov [esp + 32], ebx
-;	mov [sigtable], eax
-	mov al, 0x20
-	out 0x20, al
-	popa
-	iret
+	call [sigtable]
+	jmp handledeax
 .nosighook:
 		;UNMASK ALL INTS
 	out 0x21, al
@@ -253,7 +227,7 @@ userint:
 		;RESET PIC
 	mov al, 0x20
 	out 0x20, al
-	popa
+	pop eax
 	jmp unhand + 12
 	;pop ebp
 	;pop ebp
@@ -382,6 +356,7 @@ handled2:
 	popa
 handled:
 	push eax
+handledeax:
 	mov al, 0x20
 	out 0x20, al
 	pop eax
@@ -393,6 +368,7 @@ handledboth:
 	out 0x20, al
 	pop eax
 	iret
+
 	
 ;	16-bit limit/32-bit linear base address of GDT and IDT
 gdtr:	dw gdt_end - gdt - 1	; GDT limit
@@ -515,7 +491,7 @@ idt:
 ;and here we are at 0x40
 ;here are all the irq's
 		dw pitinterrupt,NEW_CODE_SEL,0x8E00,0 ;IRQ 0 = PIT
-		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 1 = keyboard
+		dw keyinterrupt,NEW_CODE_SEL,0x8E00,0 ;IRQ 1 = keyboard
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 2
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 3
 		dw handled,NEW_CODE_SEL,0x8E00,0 ;IRQ 4
