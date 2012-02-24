@@ -37,10 +37,10 @@ Real              Virtual           Name
                2                 2  signature
               15                15  signatureend
               19                19  boot
-              43                43  vgaset
+              46                46  vgaset
               53                53  getmemorysize
-              59                59  getmemsizeloop
-              7B                7B  nomoregetmemsize
+              59                59  getmemorysize.lp
+              7B                7B  getmemorysize.done
               84                84  printrm
               89                89  printrm.lp
               94                94  printrm.done
@@ -1429,26 +1429,26 @@ Real              Virtual           Name
           2DB23C            2DB23C  stack1
           4DB23C            4DB23C  bssend
            38A00             38A00  f0
-           3A200             3A200  f1
-           42E00             42E00  f2
-           43000             43000  f3
-           4CC00             4CC00  f4
-           4CE00             4CE00  f5
-           4D000             4D000  f6
-           4D200             4D200  f7
-           4D400             4D400  f8
-           4DA00             4DA00  f9
-           4DC00             4DC00  f10
-           4DE00             4DE00  f11
-           4E000             4E000  f12
-           F3800             F3800  f13
-           FD400             FD400  f14
-          101000            101000  f15
-          101200            101200  f16
-          101600            101600  f17
-          10B200            10B200  f18
-          10B600            10B600  f19
-          114200            114200  f20
-          114800            114800  f21
+           38E00             38E00  f1
+           39000             39000  f2
+           39600             39600  f3
+           3AE00             3AE00  f4
+           3B000             3B000  f5
+           3B400             3B400  f6
+           3BA00             3BA00  f7
+           3BC00             3BC00  f8
+           3BE00             3BE00  f9
+           3C000             3C000  f10
+           3C200             3C200  f11
+           3C400             3C400  f12
+           E1C00             E1C00  f13
+           EA800             EA800  f14
+           F4400             F4400  f15
+           F8000             F8000  f16
+           F8200             F8200  f17
+           F8400             F8400  f18
+           F8800             F8800  f19
+          101400            101400  f20
+          10B000            10B000  f21
           114C00            114C00  f22
 
