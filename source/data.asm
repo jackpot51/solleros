@@ -5,9 +5,9 @@
 	pwdask	db	"password:",0
 	computer db	"@"
 %ifdef io.serial
-	computername db	"SollerOS.",io.serial," ",0
+	computername db	0xA7,"ollerOS.",io.serial," ",0
 %else
-	computername db	"SollerOS ",0
+	computername db	0xA7,"ollerOS ",0
 %endif
 	endprompt db "]$ ",0
 	crlf 	db	13

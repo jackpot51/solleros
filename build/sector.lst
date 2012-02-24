@@ -357,7 +357,7 @@
    357                              <1> header:
    358 000001C0 EB13                <1> 	jmp short boot
    359                              <1> signature:
-   360 000001C2 536F6C6C65724F5320- <1> db "SollerOS Beta ",0 ;Operating system name
+   360 000001C2 A76F6C6C65724F5320- <1> db 0xA7,"ollerOS Beta ",0 ;Operating system name
    361 000001CB 426574612000        <1>
    362 000001D1 22010000            <1> dd 290	;version number
    363                              <1> signatureend:
