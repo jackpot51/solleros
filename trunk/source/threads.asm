@@ -1,4 +1,3 @@
-%ifdef threads.included	
 nwcmdst:
 	xor eax, eax
 	mov esp, stackend
@@ -8,7 +7,7 @@ nwcmdst:
 	mov [lastthread], eax
 	sti
 	jmp nwcmd
-
+%ifdef threads.included
 nomorethreadspace:
 	mov esi, nmts
 	call print

@@ -18,6 +18,7 @@ boot:
 serialmsg: db 10,13,"SollerOS: Using serial port ",io.serial," for I/O.",0
 %else
 	call vgaset	;make users switch using a command-this leads to very fast boots
+	call getmemorysize	;get the memory map after the video is initialized
 	jmp pmode
 %endif
 	
@@ -26,23 +27,22 @@ vgaset:
 	xor bx, bx
 	int 10h
 	mov byte [guion], 0
-	call getmemorysize;get the memory map after the video is initialized
 	ret
 
 getmemorysize:
 	mov di, memlistbuf
 	xor ebx, ebx
-getmemsizeloop:
+.lp:
 	mov eax, 0xE820
 	mov edx, 0x0534D4150
 	mov ecx, 24
 	int 0x15
 	add di, 24
 	cmp di, memlistend
-	jae nomoregetmemsize
+	jae .done
 	test ebx, ebx
-	jnz getmemsizeloop
-nomoregetmemsize:
+	jnz .lp
+.done:
 	sub di, memlistbuf
 	mov [memlistend], di
 	ret
