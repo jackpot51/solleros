@@ -1,54 +1,56 @@
 %include "config.asm"
 [BITS 16]
 	; Boot record is loaded at 0000:7C00
-[ORG 7c00h]
-	mov [DriveNumber], dl	;save the original drive number
-	xor eax, eax
+[ORG 0]
+	jmp 0x7C0:loader
+loader:
+	mov ax, cs
 	mov ds, ax		;Update the segment registers
 	mov es, ax
 	mov ss, ax
 	mov fs, ax
 	mov gs, ax
-	mov [lbaad], eax
-	mov [lbaad + 4], eax
-	mov [address], ax
-	mov word [readlen], 2
+	mov [DriveNumber], dl	;save the original drive number
+	mov dword [lbaad], 0
+	mov dword [lbaad + 4], 0
+.findsector:
 	mov word [len], 0x10
-	mov word [segm], 0x1010
-findsector:
+	mov word [readlen], 1
+	mov word [address], 0
+	mov word [segm], 0x1000
 	call ReadHardDisk
-	mov ecx, [lbaad]
-%ifdef sector.debug
-	call printnum
-%endif
 	mov ax, [segm]
+%ifdef dos.compatible
+	add ax, 0x10
+%endif
 	mov gs, ax
-dumpconts1:
+.check:
 	mov si, signature
-	mov bx, signature-header
-dumpconts1lp:
+	mov bx, (signature - header)
+.lp:
 	mov cl, [gs:bx]
 	cmp cl, [si]
-	jne nodumpconts
+	jne .fail
 	inc bx
 	inc si
-	cmp si, signatureend
-%ifdef sector.debug
-	jae near dumpconts
-%else
-	jae skipcontsdump
+%ifdef sector.debugall
+	pusha
+	call dumpconts
+	popa
 %endif
-	jmp dumpconts1lp
-nodumpconts:
+	cmp si, signatureend
+	jae .good
+	jmp .lp
+.fail:
 	xor bx, bx
 	mov eax, [lbaad]
 	inc eax
 	mov [lbaad], eax
-	jmp findsector
-skipcontsdump:
+	jmp .findsector
+.good:
 	mov eax, [lbaad]
 	mov [lbaadorig], eax
-lp:
+.load:
 	mov ecx, [gs:(signatureend - header)]
 	xor eax, eax
 	mov ax, [readlen]
@@ -56,24 +58,46 @@ lp:
 	add [segm], ax
 	shl eax, 4
 	sub ecx, eax
-	jbe nomultitrack
+	jbe .nomultitrack
 	mov [gs:(signatureend - header)], ecx
 	shr eax, 9
 	add [lbaad], eax
+	jno .noover
+	inc dword [lbaad+4]
+.noover:
 	shr ecx, 9
-	cmp ecx, 0x7F
-	jbe notfull
+	cmp cx, 0x7F
+	jbe .notfull
 	mov cx, 0x7F
-notfull:
+.notfull:
 	mov [readlen], cx
 	call ReadHardDisk
-	jmp lp
-nomultitrack:
+	jmp .load
+.nomultitrack:
+%ifdef sector.debug
+	call keywait
+%endif
 	mov cx, [DriveNumber]
 	mov ebx, [lbaadorig]
+%ifdef dos.compatible
 	jmp 0x1000:0x100
+%else
+	jmp 0x1000:0
+%endif
 	
 ReadHardDisk:
+%ifdef sector.debug
+	pusha
+	mov ecx, [lbaad]
+	call printnum
+	mov ecx, [len]
+	call printnum
+	mov ecx, [address]
+	call printnum
+	mov si, line
+	call print
+	popa
+%endif
 	mov si, diskaddresspacket
 	xor ax, ax
 	mov ah, 0x42
@@ -83,28 +107,6 @@ ReadHardDisk:
 	ret
 	
 %ifdef sector.debug
-dumpconts:
-	mov si, line
-	call print
-	xor bx, bx
-dumpconts2:
-	mov ecx, [gs:bx]
-	push bx
-	call printnum
-	pop bx
-	add bx, 4
-	cmp bx, 732
-	jbe dumpconts2
-	call keywait
-	jmp skipcontsdump
-	
-keywait:
-	mov si, bootmsg
-	call print
-	xor ax, ax
-	int 16h
-	ret
-	
 printnum:
 	mov si, number
 	mov di, numberend
@@ -121,7 +123,7 @@ chkzero:
 donechkzero:
 	call print
 	ret
-
+	
 converthex: 
 clearbuffer:
 	mov al, '0'
@@ -181,22 +183,47 @@ zerohx:	mov al, '0'
 	inc ecx
 	jmp cnvrtlphx
 
-    print:			; 'si' comes in with string address
-	    mov bx,7		; write to display
-	    mov ah,0Eh		; screen function
-    prs:    mov al,[si]         ; get next character
-	    cmp al,0		; look for terminator 
-            je finpr		; zero byte at end of string
-	    int 10h		; write character to screen.    
-     	    inc si	     	; move to next character
-	    jmp prs		; loop
-    finpr: ret
+print:			; 'si' comes in with string address
+	mov bx,7		; write to display
+	mov ah,0Eh		; screen function
+.lp:
+	mov al,[si]         ; get next character
+	cmp al,0		; look for terminator 
+	je .ret		; zero byte at end of string
+	int 10h		; write character to screen.    
+	inc si	     	; move to next character
+	jmp .lp		; loop
+.ret:	ret
+
+keywait:
+	mov si, bootmsg
+	call print
+	xor ax, ax
+	int 16h
+	ret
+
+bootmsg db "Press any key to continue.",0
+line db 10,13,0
 	
 number times 9 db 0
 numberend:
 db '  ',0
-bootmsg db "Press any key to continue.",0
-line db 10,13,0
+%endif
+	
+%ifdef sector.debugall
+dumpconts:
+	mov si, line
+	call print
+	xor bx, bx
+.lp:
+	mov ecx, [gs:bx]
+	push bx
+	call printnum
+	pop bx
+	add bx, 4
+	cmp bx, 732
+	jbe .lp
+	ret
 %endif
 
 %include 'source/signature.asm'

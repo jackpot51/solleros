@@ -291,7 +291,7 @@ rtl8139.irq:
 	shr ecx, 2
 	shl ecx, 2
 	call showhex
-.notgood	
+.notgood:	
 	mov  dx, [rtl8139.basenicaddr]
 	add dx, rtl8139.CBR
 	xor eax, eax
