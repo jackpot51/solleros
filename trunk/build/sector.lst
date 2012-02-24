@@ -1,0 +1,374 @@
+     1                                  %include "config.asm"
+     2                              <1> ;These flags are used to configure options as on, put a simicolon in front of it to not configure it
+     3                              <1> 
+     4                              <1> %define gui.included
+     5                              <1> ;Turn on the gui
+     6                              <1> 
+     7                              <1> %define gui.alphablending
+     8                              <1> ;Make the terminal in the GUI 25% transparent
+     9                              <1> 
+    10                              <1> %define gui.background
+    11                              <1> ;Make the GUI have a loadable background
+    12                              <1> 
+    13                              <1> ;%define gui.time
+    14                              <1> ;Show time in top right corner of screen
+    15                              <1> 
+    16                              <1> ;%define io.serial "1"
+    17                              <1> ;Use the specified serial port for input and output instead of the keyboard and screen
+    18                              <1> ;If the gui is included this should not be enabled
+    19                              <1> 
+    20                              <1> %define terminal.vsync
+    21                              <1> ;Uses the RTC to automatically update the terminal at ~64Hz
+    22                              <1> 	;WARNING:
+    23                              <1> 	;This may cause problems on systems with non-standard RTC's
+    24                              <1> 	;It is therefore recommended that you do not enable it even
+    25                              <1> 	;though it gives a large speed improvement for character output
+    26                              <1> 
+    27                              <1> %define font.unicode
+    28                              <1> ;Include a unicode font. Disable to use an ascii font
+    29                              <1> 	
+    30                              <1> %define hardware.automatic
+    31                              <1> ;Automatically load the sound and network drivers.
+    32                              <1> 
+    33                              <1> %define threads.included
+    34                              <1> ;Include the thread testing stuff-this uses a relatively large amount of memory
+    35                              <1> 
+    36                              <1> %define exceptions.included
+    37                              <1> ;Display debugging information should crashes occur-also uses quite a bit of memory
+    38                              <1> 
+    39                              <1> ;%define disk.protected
+    40                              <1> ;Use protected mode instead of real mode for disk access-this allows for multitasking with disk reads
+    41                              <1> 
+    42                              <1> %define disk.real
+    43                              <1> ;Use real mode for disk access-this gives greater compatibility
+    44                              <1> 
+    45                              <1> %define sound.included
+    46                              <1> ;This includes the sound drivers
+    47                              <1> 
+    48                              <1> %define network.included
+    49                              <1> ;This includes the network stack
+    50                              <1> 
+    51                              <1> %define rtl8169.included
+    52                              <1> ;This includes the RTL8169 drivers
+    53                              <1> 
+    54                              <1> %define rtl8139.included
+    55                              <1> ;This includes the RTL8139 drivers
+    56                              <1> 
+    57                              <1> %define ne2000.included
+    58                              <1> ;This includes the ne2000 drivers
+    59                              <1> 
+    60                              <1> %define i8254x.included
+    61                              <1> ;This includes the Intel 8254x drivers
+    62                              <1> 
+    63                              <1> ;%define sector.debug
+    64                              <1> ;Dump the contents of the first sector of SollerOS
+    65                              <1> 
+    66                              <1> ;%define dos.compatible
+    67                              <1> ;Make the kernel loadable by dos.
+    68                              <1> 
+    69                              <1> ;%define system.simple
+    70                              <1> ;The smallest possible system, overrides all options
+    71                              <1> 
+    72                              <1> ;FIX DEPENDANCIES
+    73                              <1> %ifdef system.simple
+    74                              <1> 	%undef dos.compatible	;overides all including dos.compatible
+    75                              <1> 	%define UNDEFALL
+    76                              <1> %endif
+    77                              <1> %ifdef dos.compatible
+    78                              <1> 	%define UNDEFALL
+    79                              <1> %endif
+    80                              <1> %ifdef UNDEFALL
+    81                              <1> 	%undef io.serial
+    82                              <1> 	%undef disk.real
+    83                              <1> 	%undef gui.included
+    84                              <1> 	%undef gui.alphablending
+    85                              <1> 	%undef gui.background
+    86                              <1> 	%undef terminal.vsync
+    87                              <1> 	%undef font.unicode
+    88                              <1> 	%undef hardware.automatic
+    89                              <1> 	%undef threads.included
+    90                              <1> 	%undef exceptions.included
+    91                              <1> 	%undef disk.protected
+    92                              <1> 	%undef sound.included
+    93                              <1> 	%undef network.included
+    94                              <1> 	%undef rtl8139.included
+    95                              <1> 	%undef rtl8169.included
+    96                              <1> 	%undef ne2000.included
+    97                              <1> 	%undef i8254x.included
+    98                              <1> 	%undef UNDEFALL
+    99                              <1> %endif
+   100                              <1> %ifdef system.simple
+   101                              <1> 	%define io.serial "1"
+   102                              <1> 	%define disk.real
+   103                              <1> %endif
+   104                              <1> %ifdef gui.included
+   105                              <1> 	%undef io.serial
+   106                              <1> %else
+   107                              <1> 	%undef gui.alphablending
+   108                              <1> 	%undef gui.background
+   109                              <1> %endif
+   110                              <1> %ifdef network.included
+   111                              <1> %else
+   112                              <1> 	%undef i8254x.included
+   113                              <1> 	%undef ne2000.included
+   114                              <1> 	%undef rtl8139.included
+   115                              <1> 	%undef rtl8169.included
+   116                              <1> %endif
+   117                              <1> %ifdef disk.protected
+   118                              <1> 	%undef disk.real
+   119                              <1> %else
+   120                              <1> 	%ifdef disk.real
+   121                              <1> 	%else
+   122                              <1> 		%define disk.none
+   123                              <1> 	%endif
+   124                              <1> %endif
+   125                                  [BITS 16]
+   126                                  	; Boot record is loaded at 0000:7C00
+   127                                  [ORG 0]
+   128 00000000 EA[0500]C007            	jmp 0x7C0:loader
+   129                                  loader:
+   130 00000005 8CC8                    	mov ax, cs
+   131 00000007 8ED8                    	mov ds, ax		;Update the segment registers
+   132 00000009 8EC0                    	mov es, ax
+   133 0000000B 8ED0                    	mov ss, ax
+   134 0000000D 8EE0                    	mov fs, ax
+   135 0000000F 8EE8                    	mov gs, ax
+   136 00000011 8816[EE00]              	mov [DriveNumber], dl	;save the original drive number
+   137 00000015 66C706[F700]000000-     	mov dword [lbaad], 0
+   138 0000001D 00                 
+   139 0000001E 66C706[FB00]000000-     	mov dword [lbaad + 4], 0
+   140 00000026 00                 
+   141                                  .findsector:
+   142 00000027 C706[EF00]1000          	mov word [len], 0x10
+   143 0000002D C706[F100]0100          	mov word [readlen], 1
+   144 00000033 C706[F300]0000          	mov word [address], 0
+   145 00000039 C706[F500]0010          	mov word [segm], 0x1000
+   146 0000003F E88800                  	call ReadHardDisk
+   147 00000042 A1[F500]                	mov ax, [segm]
+   148                                  %ifdef dos.compatible
+   149                                  	add ax, 0x10
+   150                                  %endif
+   151 00000045 8EE8                    	mov gs, ax
+   152                                  .check:
+   153 00000047 BE[DC00]                	mov si, signature
+   154 0000004A BB0200                  	mov bx, (signature - header)
+   155                                  .lp:
+   156 0000004D 658A0F                  	mov cl, [gs:bx]
+   157 00000050 3A0C                    	cmp cl, [si]
+   158 00000052 750A                    	jne .fail
+   159 00000054 43                      	inc bx
+   160 00000055 46                      	inc si
+   161                                  %ifdef sector.debugall
+   162                                  	pusha
+   163                                  	call dumpconts
+   164                                  	popa
+   165                                  %endif
+   166 00000056 81FE[EA00]              	cmp si, signatureend
+   167 0000005A 7310                    	jae .good
+   168 0000005C EBEF                    	jmp .lp
+   169                                  .fail:
+   170 0000005E 31DB                    	xor bx, bx
+   171 00000060 66A1[F700]              	mov eax, [lbaad]
+   172 00000064 6640                    	inc eax
+   173 00000066 66A3[F700]              	mov [lbaad], eax
+   174 0000006A EBBB                    	jmp .findsector
+   175                                  .good:
+   176 0000006C 66A1[F700]              	mov eax, [lbaad]
+   177 00000070 66A3[EA00]              	mov [lbaadorig], eax
+   178                                  .load:
+   179 00000074 65668B0E1000            	mov ecx, [gs:(signatureend - header)]
+   180 0000007A 6631C0                  	xor eax, eax
+   181 0000007D A1[F100]                	mov ax, [readlen]
+   182 00000080 66C1E005                	shl eax, 5
+   183 00000084 0106[F500]              	add [segm], ax
+   184 00000088 66C1E004                	shl eax, 4
+   185 0000008C 6629C1                  	sub ecx, eax
+   186 0000008F 762B                    	jbe .nomultitrack
+   187 00000091 6566890E1000            	mov [gs:(signatureend - header)], ecx
+   188 00000097 66C1E809                	shr eax, 9
+   189 0000009B 660106[F700]            	add [lbaad], eax
+   190 000000A0 7105                    	jno .noover
+   191 000000A2 66FF06[FB00]            	inc dword [lbaad+4]
+   192                                  .noover:
+   193 000000A7 66C1E909                	shr ecx, 9
+   194 000000AB 83F97F                  	cmp cx, 0x7F
+   195 000000AE 7603                    	jbe .notfull
+   196 000000B0 B97F00                  	mov cx, 0x7F
+   197                                  .notfull:
+   198 000000B3 890E[F100]              	mov [readlen], cx
+   199 000000B7 E81000                  	call ReadHardDisk
+   200 000000BA EBB8                    	jmp .load
+   201                                  .nomultitrack:
+   202                                  %ifdef sector.debug
+   203                                  	call keywait
+   204                                  %endif
+   205 000000BC 8B0E[EE00]              	mov cx, [DriveNumber]
+   206 000000C0 668B1E[EA00]            	mov ebx, [lbaadorig]
+   207                                  %ifdef dos.compatible
+   208                                  	jmp 0x1000:0x100
+   209                                  %else
+   210 000000C5 EA00000010              	jmp 0x1000:0
+   211                                  %endif
+   212                                  	
+   213                                  ReadHardDisk:
+   214                                  %ifdef sector.debug
+   215                                  	pusha
+   216                                  	mov ecx, [lbaad]
+   217                                  	call printnum
+   218                                  	mov ecx, [len]
+   219                                  	call printnum
+   220                                  	mov ecx, [address]
+   221                                  	call printnum
+   222                                  	mov si, line
+   223                                  	call print
+   224                                  	popa
+   225                                  %endif
+   226 000000CA BE[EF00]                	mov si, diskaddresspacket
+   227 000000CD 31C0                    	xor ax, ax
+   228 000000CF B442                    	mov ah, 0x42
+   229 000000D1 8A16[EE00]              	mov dl, [DriveNumber]
+   230 000000D5 CD13                    	int 0x13
+   231 000000D7 72F1                    	jc ReadHardDisk
+   232 000000D9 C3                      	ret
+   233                                  	
+   234                                  %ifdef sector.debug
+   235                                  printnum:
+   236                                  	mov si, number
+   237                                  	mov di, numberend
+   238                                  	xor bx, bx
+   239                                  	xor ax, ax
+   240                                  	call converthex
+   241                                  chkzero:
+   242                                  	mov al, [si]
+   243                                  	cmp al, '0'
+   244                                  	jne donechkzero
+   245                                  	inc si
+   246                                  	cmp si, di
+   247                                  	jb donechkzero
+   248                                  donechkzero:
+   249                                  	call print
+   250                                  	ret
+   251                                  	
+   252                                  converthex: 
+   253                                  clearbuffer:
+   254                                  	mov al, '0'
+   255                                  	push si
+   256                                  	push di
+   257                                  clearbuf: cmp si, di
+   258                                  	jae doneclearbuff
+   259                                  	mov [si], al
+   260                                  	inc si
+   261                                  	jmp clearbuf
+   262                                  doneclearbuff:
+   263                                  	pop si	;pop pushed di into si
+   264                                  	push si ;then repush the value
+   265                                  	mov edx, ecx
+   266                                  nxtexphx:			;0x10^x
+   267                                  	dec si
+   268                                  	mov di, si		;location of 0x10^x
+   269                                  	mov ecx, edx
+   270                                  	and ecx, 0xF		;just this digit
+   271                                  	call cnvrtexphx		;get this digit
+   272                                  	mov si, di
+   273                                  	shr edx, 4		;next digit
+   274                                  	jz donenxtephx
+   275                                  	jmp nxtexphx 
+   276                                  donenxtephx:
+   277                                  	pop di
+   278                                  	pop si
+   279                                  	ret
+   280                                  cnvrtexphx:			;convert this number
+   281                                  	mov bx, si		;place to convert to must be in si, number to convert must be in cx
+   282                                  	test ecx, ecx
+   283                                  	jz zerohx
+   284                                  cnvrthx:  mov al, [si]
+   285                                  	cmp al, '9'
+   286                                  	je lettershx
+   287                                  lttrhxdn: cmp al, 'F'
+   288                                  	je zerohx
+   289                                  	mov al, [si]
+   290                                  	inc al
+   291                                  	mov [si], al
+   292                                  	mov si, bx
+   293                                  cnvrtlphx: 
+   294                                  	dec ecx
+   295                                  	jnz cnvrthx
+   296                                  	ret
+   297                                  lettershx:
+   298                                  	mov al, 'A'
+   299                                  	dec al
+   300                                  	mov [si], al
+   301                                  	jmp lttrhxdn
+   302                                  zerohx:	mov al, '0'
+   303                                  	mov [si], al
+   304                                  	dec si
+   305                                  	mov al, [si]
+   306                                  	cmp al, 'F'
+   307                                  	je zerohx
+   308                                  	inc ecx
+   309                                  	jmp cnvrtlphx
+   310                                  
+   311                                  print:			; 'si' comes in with string address
+   312                                  	mov bx,7		; write to display
+   313                                  	mov ah,0Eh		; screen function
+   314                                  .lp:
+   315                                  	mov al,[si]         ; get next character
+   316                                  	cmp al,0		; look for terminator 
+   317                                  	je .ret		; zero byte at end of string
+   318                                  	int 10h		; write character to screen.    
+   319                                  	inc si	     	; move to next character
+   320                                  	jmp .lp		; loop
+   321                                  .ret:	ret
+   322                                  
+   323                                  keywait:
+   324                                  	mov si, bootmsg
+   325                                  	call print
+   326                                  	xor ax, ax
+   327                                  	int 16h
+   328                                  	ret
+   329                                  
+   330                                  bootmsg db "Press any key to continue.",0
+   331                                  line db 10,13,0
+   332                                  	
+   333                                  number times 9 db 0
+   334                                  numberend:
+   335                                  db '  ',0
+   336                                  %endif
+   337                                  	
+   338                                  %ifdef sector.debugall
+   339                                  dumpconts:
+   340                                  	mov si, line
+   341                                  	call print
+   342                                  	xor bx, bx
+   343                                  .lp:
+   344                                  	mov ecx, [gs:bx]
+   345                                  	push bx
+   346                                  	call printnum
+   347                                  	pop bx
+   348                                  	add bx, 4
+   349                                  	cmp bx, 732
+   350                                  	jbe .lp
+   351                                  	ret
+   352                                  %endif
+   353                                  
+   354                                  %include 'source/signature.asm'
+   355                              <1> header:
+   356 000000DA EB0E                <1> 	jmp short boot
+   357                              <1> signature:
+   358 000000DC 536F6C6C65724F5320- <1> db "SollerOS ",0 ;Operating system name
+   359 000000E5 00                  <1>
+   360 000000E6 18010000            <1> dd 280	;version number
+   361                              <1> signatureend:
+   362                                  boot: ;to make sure this signature has an jump point, however useless
+   363 000000EA 00<rept>                    times 510-($-$$) db 0
+   364 000001FE 55AA                        dw 0AA55h	;magic byte
+   365                                  lbaadorig equ boot
+   366                                  DriveNumber equ lbaadorig + 4
+   367                                  diskaddresspacket equ DriveNumber + 1
+   368                                  len: equ diskaddresspacket ;size of packet
+   369                                  readlen:	equ len + 2	;blocks to read=maximum
+   370                                  address:	equ readlen + 2	;address to load kernel
+   371                                  segm:	equ address + 2	;segment
+   372                                  ;start with known value for hd
+   373                                  lbaad: equ segm + 2	;lba address
+   374 00000200 <incbin>                incbin 'build/kernel.com' ;include the kernel file
