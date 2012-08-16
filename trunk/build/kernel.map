@@ -1377,7 +1377,7 @@ Real              Virtual           Name
            38769             38769  fontend
            38769             38769  osend
            38769             38769  diskfileindex
-           388EA             388EA  enddiskfileindex
+           388FE             388FE  enddiskfileindex
            38A00             38A00  bssstart
            38A00             38A00  bsscopy
            38A00             38A00  initialstack
@@ -1437,18 +1437,19 @@ Real              Virtual           Name
            4D000             4D000  f6
            4D200             4D200  f7
            4D400             4D400  f8
-           4DA00             4DA00  f9
-           4DC00             4DC00  f10
-           4DE00             4DE00  f11
-           4E000             4E000  f12
-           F3800             F3800  f13
-           FD400             FD400  f14
-          101000            101000  f15
-          101200            101200  f16
-          101600            101600  f17
-          10B200            10B200  f18
-          10B600            10B600  f19
-          114200            114200  f20
-          114800            114800  f21
-          114C00            114C00  f22
+           59000             59000  f9
+           59600             59600  f10
+           59800             59800  f11
+           59A00             59A00  f12
+           59C00             59C00  f13
+           FF400             FF400  f14
+          109000            109000  f15
+          10CC00            10CC00  f16
+          10CE00            10CE00  f17
+          10D200            10D200  f18
+          116E00            116E00  f19
+          117200            117200  f20
+          11FE00            11FE00  f21
+          120400            120400  f22
+          120800            120800  f23
 

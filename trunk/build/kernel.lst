@@ -254,9 +254,9 @@
    254 00000137 8826[CA03]          <1> 	mov [gdtdos2 + 7],ah
    255                              <1> 	
    256                              <1> ; fix up gdt and idt
-   257 0000013B 67668D83[73030000]  <1> 	lea eax,[ebx + gdt]	; EAX=linear address of gdt
+   257 0000013B 66678D83[73030000]  <1> 	lea eax,[ebx + gdt]	; EAX=linear address of gdt
    258 00000143 66A3[6903]          <1> 	mov [gdtr + 2],eax
-   259 00000147 67668D83[CB030000]  <1> 	lea eax,[ebx + idt]	; EAX=linear address of idt
+   259 00000147 66678D83[CB030000]  <1> 	lea eax,[ebx + idt]	; EAX=linear address of idt
    260 0000014F 66A3[6F03]          <1> 	mov [idtr + 2],eax
    261 00000153 FA                  <1> 	cli
    262 00000154 0F0116[6703]        <1> 	lgdt [gdtr]
@@ -6347,7 +6347,7 @@
   6347 00004976 E878D3FFFF          <2> 		call printquiet
   6348 0000497B 5E                  <2> 		pop esi
   6349 0000497C 83C609              <2> 		add esi, 9
-  6350 0000497F 81FE[EA880300]      <2> 		cmp esi, enddiskfileindex
+  6350 0000497F 81FE[FE880300]      <2> 		cmp esi, enddiskfileindex
   6351 00004985 72C4                <2> 		jb diskindexdir
   6352 00004987 E8C8DEFFFF          <2> 		call termcopy
   6353 0000498C C3                  <2> 		ret
@@ -6356,7 +6356,7 @@
   6356 0000498E 803E00              <2> 		cmp byte [esi], 0
   6357 00004991 75FA                <2> 		jne nextdiskindexdir
   6358 00004993 83C609              <2> 		add esi, 9
-  6359 00004996 81FE[EA880300]      <2> 		cmp esi, enddiskfileindex
+  6359 00004996 81FE[FE880300]      <2> 		cmp esi, enddiskfileindex
   6360 0000499C 72AD                <2> 		jb diskindexdir
   6361 0000499E E8B1DEFFFF          <2> 		call termcopy
   6362 000049A3 C3                  <2> 		ret
@@ -8486,7 +8486,7 @@
   8486                              <1> nextfilename:
   8487 000065D4 83C308              <1> 	add ebx, 8		;next descriptor
   8488 000065D7 89D7                <1> 	mov edi, edx
-  8489 000065D9 81FB[EA880300]      <1> 	cmp ebx, enddiskfileindex
+  8489 000065D9 81FB[FE880300]      <1> 	cmp ebx, enddiskfileindex
   8490 000065DF 72C2                <1> 	jb nextnamechar
   8491                              <1> nofileload:
   8492 000065E1 BA94010000          <1> 	mov edx, 404	;indicate not found error
@@ -8513,7 +8513,7 @@
   8513 00006604 83EB02              <1> 	sub ebx, 2
   8514                              <1> eqfilefind:
   8515 00006607 43                  <1> 	inc ebx
-  8516 00006608 81FB[EA880300]      <1> 	cmp ebx, enddiskfileindex
+  8516 00006608 81FB[FE880300]      <1> 	cmp ebx, enddiskfileindex
   8517 0000660E 0F83CDFFFFFF        <1> 	jae near nofileload
   8518 00006614 8A03                <1> 	mov al, [ebx]
   8519 00006616 3C00                <1> 	cmp al, 0
@@ -10885,202 +10885,209 @@
  10885 000387EA 666F726B00          <1> db "fork",0
  10886 000387EF 69020000            <1> dd (f7-$$)/512
  10887 000387F3 01000000            <1> dd (f8-f7)/512
- 10888 000387F7 6775697465737400    <1> db "guitest",0
- 10889 000387FF 6A020000            <1> dd (f8-$$)/512
- 10890 00038803 03000000            <1> dd (f9-f8)/512
- 10891 00038807 696E7400            <1> db "int",0
- 10892 0003880B 6D020000            <1> dd (f9-$$)/512
- 10893 0003880F 01000000            <1> dd (f10-f9)/512
- 10894 00038813 6C6F7374776F6F6473- <1> db "lostwoods.sn",0
- 10895 0003881C 2E736E00            <1>
- 10896 00038820 6E020000            <1> dd (f10-$$)/512
- 10897 00038824 01000000            <1> dd (f11-f10)/512
- 10898 00038828 6D6172696F2E736E00  <1> db "mario.sn",0
- 10899 00038831 6F020000            <1> dd (f11-$$)/512
- 10900 00038835 01000000            <1> dd (f12-f11)/512
- 10901 00038839 6D6F6D656E742E7761- <1> db "moment.wav",0
- 10902 00038842 7600                <1>
- 10903 00038844 70020000            <1> dd (f12-$$)/512
- 10904 00038848 2C050000            <1> dd (f13-f12)/512
- 10905 0003884C 70692E656C6600      <1> db "pi.elf",0
- 10906 00038853 9C070000            <1> dd (f13-$$)/512
- 10907 00038857 4E000000            <1> dd (f14-f13)/512
- 10908 0003885B 72617974726163652E- <1> db "raytrace.elf",0
- 10909 00038864 656C6600            <1>
- 10910 00038868 EA070000            <1> dd (f14-$$)/512
- 10911 0003886C 1E000000            <1> dd (f15-f14)/512
- 10912 00038870 736F6E676F74696D65- <1> db "songotime.sn",0
- 10913 00038879 2E736E00            <1>
- 10914 0003887D 08080000            <1> dd (f15-$$)/512
- 10915 00038881 01000000            <1> dd (f16-f15)/512
- 10916 00038885 73736500            <1> db "sse",0
- 10917 00038889 09080000            <1> dd (f16-$$)/512
- 10918 0003888D 02000000            <1> dd (f17-f16)/512
- 10919 00038891 737464696F74657374- <1> db "stdiotest.elf",0
- 10920 0003889A 2E656C6600          <1>
- 10921 0003889F 0B080000            <1> dd (f17-$$)/512
- 10922 000388A3 4E000000            <1> dd (f18-f17)/512
- 10923 000388A7 74656C7900          <1> db "tely",0
- 10924 000388AC 59080000            <1> dd (f18-$$)/512
- 10925 000388B0 02000000            <1> dd (f19-f18)/512
- 10926 000388B4 74696D65746573742E- <1> db "timetest.elf",0
- 10927 000388BD 656C6600            <1>
- 10928 000388C1 5B080000            <1> dd (f19-$$)/512
- 10929 000388C5 46000000            <1> dd (f20-f19)/512
- 10930 000388C9 7475746F7269616C2E- <1> db "tutorial.sh",0
- 10931 000388D2 736800              <1>
- 10932 000388D5 A1080000            <1> dd (f20-$$)/512
- 10933 000388D9 03000000            <1> dd (f21-f20)/512
- 10934 000388DD 756E667300          <1> db "unfs",0
- 10935 000388E2 A4080000            <1> dd (f21-$$)/512
- 10936 000388E6 02000000            <1> dd (f22-f21)/512
- 10937                              <1> enddiskfileindex:
- 10938                              <1> 
- 10939                                  	%include "source/bss.asm"
- 10940 000388EA 00<rept>            <1> align 512, db 0
- 10941                              <1> bssstart equ $
- 10942                              <1> bsscopy equ $
- 10943                              <1> initialstack equ bsscopy
- 10944                              <1> stackend equ initialstack + 8192
- 10945                              <1> sigtable equ stackend + 4
- 10946                              <1> fileindex equ sigtable + 4
- 10947                              <1> fileindexend equ fileindex + 1024
- 10948                              <1> previousstack equ fileindexend
- 10949                              <1> lastfolderloc equ previousstack + 4
- 10950                              <1> currentfolderloc equ lastfolderloc + 4
- 10951                              <1> currentfolder equ currentfolderloc + 4
- 10952                              <1> currentfolderend equ currentfolder + 512
- 10953                              <1> uid equ currentfolderend
- 10954                              <1> ranboot equ uid + 4
- 10955                              <1> IFON equ ranboot + 1
- 10956                              <1> IFTRUE equ IFON + 1
- 10957                              <1> BATCHPOS equ IFTRUE + 100
- 10958                              <1> BATCHISON equ BATCHPOS + 4
- 10959                              <1> LOOPON equ BATCHISON + 1
- 10960                              <1> LOOPPOS	equ LOOPON + 1
- 10961                              <1> variables equ LOOPPOS + 4
- 10962                              <1> varend equ variables + 4096
- 10963                              <1> buftxt2 equ varend
- 10964                              <1> buftxt equ buftxt2 + 1024
- 10965                              <1> buftxtend equ buftxt + 1024
- 10966                              <1> buf2 equ buftxtend
- 10967                              <1> numbuf equ buf2 + 20
- 10968                              <1> %ifdef io.serial
- 10969                              <1> 	lastcommandpos equ numbuf
- 10970                              <1> %else
- 10971                              <1> 	%ifdef gui.included
- 10972                              <1> 		graphicstable equ numbuf ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
- 10973                              <1> 		graphicstableend equ graphicstable + 512
- 10974                              <1> 		%ifdef gui.background
- 10975                              <1> 			backgroundbuffer equ graphicstableend
- 10976                              <1> 			backgroundbufferend equ backgroundbuffer + 1280*1026*2
- 10977                              <1> 			mousecolorbuf equ backgroundbufferend
- 10978                              <1> 		%else
- 10979                              <1> 			mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
- 10980                              <1> 		%endif
- 10981                              <1> 		mcolorend equ mousecolorbuf + 256
- 10982                              <1> 		videobuf equ mcolorend	;1680x1050 pixels in characters
- 10983                              <1> 		videobufend	equ videobuf + 210*65*4;2
- 10984                              <1> 		videobuf2 equ videobufend
- 10985                              <1> 		videobuf2end equ videobuf2 + 210*65*4;2
- 10986                              <1> 	%else
- 10987                              <1> 		videobuf equ numbuf
- 10988                              <1> 		videobufend equ videobuf + 80*30*4
- 10989                              <1> 		videobuf2 equ videobufend
- 10990                              <1> 		videobuf2end equ videobuf2 + 80*30*4
- 10991                              <1> 	%endif
- 10992                              <1> 	lastcommandpos: equ videobuf2end
- 10993                              <1> %endif
- 10994                              <1> 	commandbufpos: equ lastcommandpos + 4
- 10995                              <1> 	commandlistentries: equ commandbufpos + 4
- 10996                              <1> 	commandsentered: equ commandlistentries + 4
- 10997                              <1> 	commandbuf: equ commandsentered + 4
- 10998                              <1> 	commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
- 10999                              <1> %ifdef network.included
- 11000                              <1> 	rbuffstart: equ commandbufend ;for use with networking
- 11001                              <1> 	rbuffend equ rbuffstart + 8192 + 16 ;extra space used for the WRAP bit in rtl8139
- 11002                              <1> 	rbuffoverflow equ rbuffend + 1500
- 11003                              <1> %else
- 11004                              <1> 	rbuffstart equ commandbufend
- 11005                              <1> 	rbuffend equ commandbufend
- 11006                              <1> %endif
- 11007                              <1> %ifdef threads.included
- 11008                              <1> 	threadlist: equ rbuffend ;this buffer will hold the stack locations of all of the threads, up to 1024
- 11009                              <1> 	threadlistend: equ threadlist + 1024*4
- 11010                              <1> 	stacks:	equ threadlistend ;NOT TRUE:i use SS now for proper stack management. This makes sure stacks never screw with other memory
- 11011                              <1> 	stack1: equ stacks + 2048  ;woah, thats a lot of space for stacks
- 11012                              <1> 	bssend equ stack1 + 1024*2048
- 11013                              <1> %else
- 11014                              <1> 	bssend equ rbuffend
- 11015                              <1> %endif
- 11016                              <1> dosprogloc equ 0x400000 ;from here on, it is not kernel space so apps can be loaded here.
- 11017                                  	%include "build/files.asm"
- 11018                              <1> align 512,db 0
- 11019                              <1> f0:
- 11020 00038A00 <incbin>            <1> incbin "included/_img.bin"
- 11021                              <1> align 512,db 0
- 11022                              <1> f1:
- 11023 0003A200 <incbin>            <1> incbin "included/argtest.elf"
- 11024 00042D20 00<rept>            <1> align 512,db 0
- 11025                              <1> f2:
- 11026 00042E00 <incbin>            <1> incbin "included/boot.sh"
- 11027 00042F18 00<rept>            <1> align 512,db 0
- 11028                              <1> f3:
- 11029 00043000 <incbin>            <1> incbin "included/chartest.elf"
- 11030 0004CB20 00<rept>            <1> align 512,db 0
- 11031                              <1> f4:
- 11032 0004CC00 <incbin>            <1> incbin "included/dostest.com"
- 11033 0004CD2F 00<rept>            <1> align 512,db 0
- 11034                              <1> f5:
- 11035 0004CE00 <incbin>            <1> incbin "included/exec"
- 11036 0004CEE9 00<rept>            <1> align 512,db 0
- 11037                              <1> f6:
- 11038 0004D000 <incbin>            <1> incbin "included/finalcount.sn"
- 11039 0004D102 00<rept>            <1> align 512,db 0
- 11040                              <1> f7:
- 11041 0004D200 <incbin>            <1> incbin "included/fork"
- 11042 0004D34C 00<rept>            <1> align 512,db 0
- 11043                              <1> f8:
- 11044 0004D400 <incbin>            <1> incbin "included/guitest"
- 11045 0004D82E 00<rept>            <1> align 512,db 0
- 11046                              <1> f9:
- 11047 0004DA00 <incbin>            <1> incbin "included/int"
- 11048 0004DBA6 00<rept>            <1> align 512,db 0
- 11049                              <1> f10:
- 11050 0004DC00 <incbin>            <1> incbin "included/lostwoods.sn"
- 11051 0004DCAE 00<rept>            <1> align 512,db 0
- 11052                              <1> f11:
- 11053 0004DE00 <incbin>            <1> incbin "included/mario.sn"
- 11054 0004DE3A 00<rept>            <1> align 512,db 0
- 11055                              <1> f12:
- 11056 0004E000 <incbin>            <1> incbin "included/moment.wav"
- 11057 000F362C 00<rept>            <1> align 512,db 0
- 11058                              <1> f13:
- 11059 000F3800 <incbin>            <1> incbin "included/pi.elf"
- 11060 000FD338 00<rept>            <1> align 512,db 0
- 11061                              <1> f14:
- 11062 000FD400 <incbin>            <1> incbin "included/raytrace.elf"
- 11063 00100F20 00<rept>            <1> align 512,db 0
- 11064                              <1> f15:
- 11065 00101000 <incbin>            <1> incbin "included/songotime.sn"
- 11066 0010104A 00<rept>            <1> align 512,db 0
- 11067                              <1> f16:
- 11068 00101200 <incbin>            <1> incbin "included/sse"
- 11069 0010148A 00<rept>            <1> align 512,db 0
- 11070                              <1> f17:
- 11071 00101600 <incbin>            <1> incbin "included/stdiotest.elf"
- 11072 0010B120 00<rept>            <1> align 512,db 0
- 11073                              <1> f18:
- 11074 0010B200 <incbin>            <1> incbin "included/tely"
- 11075 0010B41B 00<rept>            <1> align 512,db 0
- 11076                              <1> f19:
- 11077 0010B600 <incbin>            <1> incbin "included/timetest.elf"
- 11078 00114120 00<rept>            <1> align 512,db 0
- 11079                              <1> f20:
- 11080 00114200 <incbin>            <1> incbin "included/tutorial.sh"
- 11081 00114752 00<rept>            <1> align 512,db 0
- 11082                              <1> f21:
- 11083 00114800 <incbin>            <1> incbin "included/unfs"
- 11084                              <1> align 512,db 0
- 11085                              <1> f22:
- 11086                                  %endif
+ 10888 000387F7 677261766974792E65- <1> db "gravity.elf",0
+ 10889 00038800 6C6600              <1>
+ 10890 00038803 6A020000            <1> dd (f8-$$)/512
+ 10891 00038807 5E000000            <1> dd (f9-f8)/512
+ 10892 0003880B 6775697465737400    <1> db "guitest",0
+ 10893 00038813 C8020000            <1> dd (f9-$$)/512
+ 10894 00038817 03000000            <1> dd (f10-f9)/512
+ 10895 0003881B 696E7400            <1> db "int",0
+ 10896 0003881F CB020000            <1> dd (f10-$$)/512
+ 10897 00038823 01000000            <1> dd (f11-f10)/512
+ 10898 00038827 6C6F7374776F6F6473- <1> db "lostwoods.sn",0
+ 10899 00038830 2E736E00            <1>
+ 10900 00038834 CC020000            <1> dd (f11-$$)/512
+ 10901 00038838 01000000            <1> dd (f12-f11)/512
+ 10902 0003883C 6D6172696F2E736E00  <1> db "mario.sn",0
+ 10903 00038845 CD020000            <1> dd (f12-$$)/512
+ 10904 00038849 01000000            <1> dd (f13-f12)/512
+ 10905 0003884D 6D6F6D656E742E7761- <1> db "moment.wav",0
+ 10906 00038856 7600                <1>
+ 10907 00038858 CE020000            <1> dd (f13-$$)/512
+ 10908 0003885C 2C050000            <1> dd (f14-f13)/512
+ 10909 00038860 70692E656C6600      <1> db "pi.elf",0
+ 10910 00038867 FA070000            <1> dd (f14-$$)/512
+ 10911 0003886B 4E000000            <1> dd (f15-f14)/512
+ 10912 0003886F 72617974726163652E- <1> db "raytrace.elf",0
+ 10913 00038878 656C6600            <1>
+ 10914 0003887C 48080000            <1> dd (f15-$$)/512
+ 10915 00038880 1E000000            <1> dd (f16-f15)/512
+ 10916 00038884 736F6E676F74696D65- <1> db "songotime.sn",0
+ 10917 0003888D 2E736E00            <1>
+ 10918 00038891 66080000            <1> dd (f16-$$)/512
+ 10919 00038895 01000000            <1> dd (f17-f16)/512
+ 10920 00038899 73736500            <1> db "sse",0
+ 10921 0003889D 67080000            <1> dd (f17-$$)/512
+ 10922 000388A1 02000000            <1> dd (f18-f17)/512
+ 10923 000388A5 737464696F74657374- <1> db "stdiotest.elf",0
+ 10924 000388AE 2E656C6600          <1>
+ 10925 000388B3 69080000            <1> dd (f18-$$)/512
+ 10926 000388B7 4E000000            <1> dd (f19-f18)/512
+ 10927 000388BB 74656C7900          <1> db "tely",0
+ 10928 000388C0 B7080000            <1> dd (f19-$$)/512
+ 10929 000388C4 02000000            <1> dd (f20-f19)/512
+ 10930 000388C8 74696D65746573742E- <1> db "timetest.elf",0
+ 10931 000388D1 656C6600            <1>
+ 10932 000388D5 B9080000            <1> dd (f20-$$)/512
+ 10933 000388D9 46000000            <1> dd (f21-f20)/512
+ 10934 000388DD 7475746F7269616C2E- <1> db "tutorial.sh",0
+ 10935 000388E6 736800              <1>
+ 10936 000388E9 FF080000            <1> dd (f21-$$)/512
+ 10937 000388ED 03000000            <1> dd (f22-f21)/512
+ 10938 000388F1 756E667300          <1> db "unfs",0
+ 10939 000388F6 02090000            <1> dd (f22-$$)/512
+ 10940 000388FA 02000000            <1> dd (f23-f22)/512
+ 10941                              <1> enddiskfileindex:
+ 10942                              <1> 
+ 10943                                  	%include "source/bss.asm"
+ 10944 000388FE 00<rept>            <1> align 512, db 0
+ 10945                              <1> bssstart equ $
+ 10946                              <1> bsscopy equ $
+ 10947                              <1> initialstack equ bsscopy
+ 10948                              <1> stackend equ initialstack + 8192
+ 10949                              <1> sigtable equ stackend + 4
+ 10950                              <1> fileindex equ sigtable + 4
+ 10951                              <1> fileindexend equ fileindex + 1024
+ 10952                              <1> previousstack equ fileindexend
+ 10953                              <1> lastfolderloc equ previousstack + 4
+ 10954                              <1> currentfolderloc equ lastfolderloc + 4
+ 10955                              <1> currentfolder equ currentfolderloc + 4
+ 10956                              <1> currentfolderend equ currentfolder + 512
+ 10957                              <1> uid equ currentfolderend
+ 10958                              <1> ranboot equ uid + 4
+ 10959                              <1> IFON equ ranboot + 1
+ 10960                              <1> IFTRUE equ IFON + 1
+ 10961                              <1> BATCHPOS equ IFTRUE + 100
+ 10962                              <1> BATCHISON equ BATCHPOS + 4
+ 10963                              <1> LOOPON equ BATCHISON + 1
+ 10964                              <1> LOOPPOS	equ LOOPON + 1
+ 10965                              <1> variables equ LOOPPOS + 4
+ 10966                              <1> varend equ variables + 4096
+ 10967                              <1> buftxt2 equ varend
+ 10968                              <1> buftxt equ buftxt2 + 1024
+ 10969                              <1> buftxtend equ buftxt + 1024
+ 10970                              <1> buf2 equ buftxtend
+ 10971                              <1> numbuf equ buf2 + 20
+ 10972                              <1> %ifdef io.serial
+ 10973                              <1> 	lastcommandpos equ numbuf
+ 10974                              <1> %else
+ 10975                              <1> 	%ifdef gui.included
+ 10976                              <1> 		graphicstable equ numbuf ;w type, dw datalocation, w locationx, w locationy, w selected, dw code
+ 10977                              <1> 		graphicstableend equ graphicstable + 512
+ 10978                              <1> 		%ifdef gui.background
+ 10979                              <1> 			backgroundbuffer equ graphicstableend
+ 10980                              <1> 			backgroundbufferend equ backgroundbuffer + 1280*1026*2
+ 10981                              <1> 			mousecolorbuf equ backgroundbufferend
+ 10982                              <1> 		%else
+ 10983                              <1> 			mousecolorbuf equ graphicstableend ;where the gui under the mouse is stored
+ 10984                              <1> 		%endif
+ 10985                              <1> 		mcolorend equ mousecolorbuf + 256
+ 10986                              <1> 		videobuf equ mcolorend	;1680x1050 pixels in characters
+ 10987                              <1> 		videobufend	equ videobuf + 210*65*4;2
+ 10988                              <1> 		videobuf2 equ videobufend
+ 10989                              <1> 		videobuf2end equ videobuf2 + 210*65*4;2
+ 10990                              <1> 	%else
+ 10991                              <1> 		videobuf equ numbuf
+ 10992                              <1> 		videobufend equ videobuf + 80*30*4
+ 10993                              <1> 		videobuf2 equ videobufend
+ 10994                              <1> 		videobuf2end equ videobuf2 + 80*30*4
+ 10995                              <1> 	%endif
+ 10996                              <1> 	lastcommandpos: equ videobuf2end
+ 10997                              <1> %endif
+ 10998                              <1> 	commandbufpos: equ lastcommandpos + 4
+ 10999                              <1> 	commandlistentries: equ commandbufpos + 4
+ 11000                              <1> 	commandsentered: equ commandlistentries + 4
+ 11001                              <1> 	commandbuf: equ commandsentered + 4
+ 11002                              <1> 	commandbufend: equ commandbuf + 4096 ;this is where kernel space only ends, the rest is for threading
+ 11003                              <1> %ifdef network.included
+ 11004                              <1> 	rbuffstart: equ commandbufend ;for use with networking
+ 11005                              <1> 	rbuffend equ rbuffstart + 8192 + 16 ;extra space used for the WRAP bit in rtl8139
+ 11006                              <1> 	rbuffoverflow equ rbuffend + 1500
+ 11007                              <1> %else
+ 11008                              <1> 	rbuffstart equ commandbufend
+ 11009                              <1> 	rbuffend equ commandbufend
+ 11010                              <1> %endif
+ 11011                              <1> %ifdef threads.included
+ 11012                              <1> 	threadlist: equ rbuffend ;this buffer will hold the stack locations of all of the threads, up to 1024
+ 11013                              <1> 	threadlistend: equ threadlist + 1024*4
+ 11014                              <1> 	stacks:	equ threadlistend ;NOT TRUE:i use SS now for proper stack management. This makes sure stacks never screw with other memory
+ 11015                              <1> 	stack1: equ stacks + 2048  ;woah, thats a lot of space for stacks
+ 11016                              <1> 	bssend equ stack1 + 1024*2048
+ 11017                              <1> %else
+ 11018                              <1> 	bssend equ rbuffend
+ 11019                              <1> %endif
+ 11020                              <1> dosprogloc equ 0x400000 ;from here on, it is not kernel space so apps can be loaded here.
+ 11021                                  	%include "build/files.asm"
+ 11022                              <1> align 512,db 0
+ 11023                              <1> f0:
+ 11024 00038A00 <incbin>            <1> incbin "included/_img.bin"
+ 11025                              <1> align 512,db 0
+ 11026                              <1> f1:
+ 11027 0003A200 <incbin>            <1> incbin "included/argtest.elf"
+ 11028 00042D20 00<rept>            <1> align 512,db 0
+ 11029                              <1> f2:
+ 11030 00042E00 <incbin>            <1> incbin "included/boot.sh"
+ 11031 00042F18 00<rept>            <1> align 512,db 0
+ 11032                              <1> f3:
+ 11033 00043000 <incbin>            <1> incbin "included/chartest.elf"
+ 11034 0004CB20 00<rept>            <1> align 512,db 0
+ 11035                              <1> f4:
+ 11036 0004CC00 <incbin>            <1> incbin "included/dostest.com"
+ 11037 0004CD2F 00<rept>            <1> align 512,db 0
+ 11038                              <1> f5:
+ 11039 0004CE00 <incbin>            <1> incbin "included/exec"
+ 11040 0004CEE9 00<rept>            <1> align 512,db 0
+ 11041                              <1> f6:
+ 11042 0004D000 <incbin>            <1> incbin "included/finalcount.sn"
+ 11043 0004D102 00<rept>            <1> align 512,db 0
+ 11044                              <1> f7:
+ 11045 0004D200 <incbin>            <1> incbin "included/fork"
+ 11046 0004D34C 00<rept>            <1> align 512,db 0
+ 11047                              <1> f8:
+ 11048 0004D400 <incbin>            <1> incbin "included/gravity.elf"
+ 11049 00058F90 00<rept>            <1> align 512,db 0
+ 11050                              <1> f9:
+ 11051 00059000 <incbin>            <1> incbin "included/guitest"
+ 11052 0005942E 00<rept>            <1> align 512,db 0
+ 11053                              <1> f10:
+ 11054 00059600 <incbin>            <1> incbin "included/int"
+ 11055 000597A6 00<rept>            <1> align 512,db 0
+ 11056                              <1> f11:
+ 11057 00059800 <incbin>            <1> incbin "included/lostwoods.sn"
+ 11058 000598AE 00<rept>            <1> align 512,db 0
+ 11059                              <1> f12:
+ 11060 00059A00 <incbin>            <1> incbin "included/mario.sn"
+ 11061 00059A3A 00<rept>            <1> align 512,db 0
+ 11062                              <1> f13:
+ 11063 00059C00 <incbin>            <1> incbin "included/moment.wav"
+ 11064 000FF22C 00<rept>            <1> align 512,db 0
+ 11065                              <1> f14:
+ 11066 000FF400 <incbin>            <1> incbin "included/pi.elf"
+ 11067 00108F38 00<rept>            <1> align 512,db 0
+ 11068                              <1> f15:
+ 11069 00109000 <incbin>            <1> incbin "included/raytrace.elf"
+ 11070 0010CB20 00<rept>            <1> align 512,db 0
+ 11071                              <1> f16:
+ 11072 0010CC00 <incbin>            <1> incbin "included/songotime.sn"
+ 11073 0010CC4A 00<rept>            <1> align 512,db 0
+ 11074                              <1> f17:
+ 11075 0010CE00 <incbin>            <1> incbin "included/sse"
+ 11076 0010D08A 00<rept>            <1> align 512,db 0
+ 11077                              <1> f18:
+ 11078 0010D200 <incbin>            <1> incbin "included/stdiotest.elf"
+ 11079 00116D20 00<rept>            <1> align 512,db 0
+ 11080                              <1> f19:
+ 11081 00116E00 <incbin>            <1> incbin "included/tely"
+ 11082 0011701B 00<rept>            <1> align 512,db 0
+ 11083                              <1> f20:
+ 11084 00117200 <incbin>            <1> incbin "included/timetest.elf"
+ 11085 0011FD20 00<rept>            <1> align 512,db 0
+ 11086                              <1> f21:
+ 11087 0011FE00 <incbin>            <1> incbin "included/tutorial.sh"
+ 11088 00120352 00<rept>            <1> align 512,db 0
+ 11089                              <1> f22:
+ 11090 00120400 <incbin>            <1> incbin "included/unfs"
+ 11091                              <1> align 512,db 0
+ 11092                              <1> f23:
+ 11093                                  %endif
