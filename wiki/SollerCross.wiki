@@ -2,6 +2,11 @@
 ===Building===
   # Open a terminal and cd to the svn trunk/cross.
   # Run the firstbuild.sh script as root.
+===Using The Easy Way===
+  # Make a .c file in the apps directory.
+  # Run the run.sh script in the svn trunk.
+  # Login to SollerOS
+  # Run ./(name of the .c file).elf
 ===Using The Hard Way===
   # Make a .c file.
   # Run "/SollerOS/cross/bin/i586-pc-solleros-gcc (name of the .c file) -o (name of the output executable)" or run "./cross (name of the .c file)"
@@ -9,8 +14,3 @@
   # Run the run.sh script in the svn trunk
   # Login to SollerOS
   # Run ./(name of the executable)
-===Using The Easy Way===
-  # Make a .c file in the apps directory.
-  # Run the run.sh script in the svn trunk.
-  # Login to SollerOS
-  # Run ./(name of the .c file).elf
